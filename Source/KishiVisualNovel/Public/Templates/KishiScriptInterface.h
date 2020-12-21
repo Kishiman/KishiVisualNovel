@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "Templates/KishiInterfaceLinker.h"
 
+//Comment for git test
 template <class InterfaceType>
 struct TKishiScriptInterface : public TScriptInterface<InterfaceType>
 {
