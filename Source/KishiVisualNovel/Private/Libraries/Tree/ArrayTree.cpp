@@ -4,9 +4,9 @@
 
 TKishiScriptInterface<IArrayTree> UArrayTreeLibrary::IGetChild(TKishiScriptInterface<IArrayTree> Target, uint8 index)
 {
-    checkf(Target, TEXT("Error at UArrayTreeLibrary::IGetChild : Target is NULL or does not implement interface IArrayTree\n GetObject: %d\n GetInterface: %d"),Target.GetObject(),Target.GetInterface());
-    auto size=IGetDirectChildrenSize(Target);
-    checkf(index<size, TEXT("Error at UArrayTreeLibrary::IGetChild : index out of range\n Children Size: %d\n Index: %d"),size,index);
+    checkf(Target, TEXT("Error : Target is NULL or does not implement interface IArrayTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
+    auto size = IGetDirectChildrenSize(Target);
+    checkf(index < size, TEXT("Error : index out of range\n Children Size: %d\n Index: %d"), size, index);
     return IArrayTree::Execute_GetChild(Target, index);
 }
 
@@ -43,20 +43,17 @@ uint8 UArrayTreeLibrary::GetIndex(const TScriptInterface<IArrayTree> &Target)
         return 0;
     }
     TScriptInterface<IArrayTree> parent = IGetParentTree(Target);
-    auto size=IGetDirectChildrenSize(parent);
+    auto size = IGetDirectChildrenSize(parent);
     for (uint8 i = 0; i < size; ++i)
     {
         auto it = IGetChild(parent, i);
-        if (it==Target)
+        if (it == Target)
         {
             return i;
         }
     }
-    checkNoEntry()
-    return size;
+    checkNoEntry() return size;
 }
-
-
 
 uint8 UArrayTreeLibrary::GetIndexInParent(const TScriptInterface<IArrayTree> &Target, uint8 depth)
 {
@@ -82,8 +79,8 @@ uint8 UArrayTreeLibrary::GetIndexInParent(const TScriptInterface<IArrayTree> &Ta
 
 uint8 UArrayTreeLibrary::GetIndexInRoot(const TScriptInterface<IArrayTree> &Target)
 {
-    auto depth=GetDepth(Target.GetObject());
-    return GetIndexInParent(Target,depth);
+    auto depth = GetDepth(Target.GetObject());
+    return GetIndexInParent(Target, depth);
 }
 
 uint8 UArrayTreeLibrary::GetLeafIndex(const TScriptInterface<IArrayTree> &Target)

@@ -57,9 +57,17 @@ public:
     UFUNCTION(BlueprintPure)
     static bool IsDirectChildOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent);
     UFUNCTION(BlueprintPure)
-    static bool IsParentOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child, TArray<TScriptInterface<IBaseTree>> &Path);
+    static bool IsParentOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child);
     UFUNCTION(BlueprintPure)
-    static bool IsChildOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent, TArray<TScriptInterface<IBaseTree>> &Path);
+    static bool IsChildOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent);
+    UFUNCTION(BlueprintPure)
+    static bool IsParentOfWithNodes(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child, TArray<TScriptInterface<IBaseTree>> &Nodes);
+    UFUNCTION(BlueprintPure)
+    static bool IsChildOfWithNodes(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent, TArray<TScriptInterface<IBaseTree>> &Nodes);
+    UFUNCTION(BlueprintPure)
+    static bool IsParentOfWithDistance(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child, uint8 &Distance);
+    UFUNCTION(BlueprintPure)
+    static bool IsChildOfWithDistance(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent, uint8 &Distance);
 
     UFUNCTION(BlueprintPure)
     static uint8 GetDepth(const TScriptInterface<IBaseTree> &Target);
@@ -86,6 +94,11 @@ public:
     static TArray<TScriptInterface<IBaseTree>> GetTree(const TScriptInterface<IBaseTree> &Target);
     UFUNCTION(BlueprintPure)
     static TArray<TScriptInterface<IBaseTree>> GetLeafs(const TScriptInterface<IBaseTree> &Target);
+    UFUNCTION(BlueprintPure)
+    static TArray<TScriptInterface<IBaseTree>> GetDirectLeafs(const TScriptInterface<IBaseTree> &Target);
+    UFUNCTION(BlueprintPure)
+    static TArray<TScriptInterface<IBaseTree>> GetDirectNonLeafs(const TScriptInterface<IBaseTree> &Target);
+
     UFUNCTION(BlueprintPure)
     static TArray<TScriptInterface<IBaseTree>> GetChildrenAtDepth(const TScriptInterface<IBaseTree> &Target, uint8 depth);
     UFUNCTION(BlueprintPure)

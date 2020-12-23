@@ -43,7 +43,7 @@ public:
     UFUNCTION(BlueprintPure)
     static uint8 GetIndexInRoot(const TScriptInterface<IArrayTree> &Target);
     UFUNCTION(BlueprintPure)
-    static uint8 GetIndexInParent(const TScriptInterface<IArrayTree> &Target, uint8 depth=1);
+    static uint8 GetIndexInParent(const TScriptInterface<IArrayTree> &Target, uint8 depth = 1);
 
     UFUNCTION(BlueprintPure)
     static TScriptInterface<IArrayTree> GetNotFirstParent(const TScriptInterface<IArrayTree> &Target, uint8 &OutDistance);

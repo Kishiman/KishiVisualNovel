@@ -2,58 +2,65 @@
 #include "Templates/KishiScriptInterface.h"
 #include "Links/Tree/BaseTree.h"
 #include "Macros/Interface.h"
+#include "Algo/Reverse.h"
 
 TKishiScriptInterface<IBaseTree> UBaseTreeLibrary::IGetParentTree(TKishiScriptInterface<IBaseTree> Target)
 {
-    checkf(Target.GetObject() != NULL, TEXT("Error at UBaseTreeLibrary::IGetParentTree : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
+    checkf(Target.GetObject() != NULL, TEXT("Error : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
     // checkCode(
-        do{
+    do
+    {
         auto parent = IBaseTree::Execute_GetParentTree(Target.GetObject());
-        while (parent.GetObject()) {
-            checkf(Target.GetObject() != parent.GetObject(), TEXT("Error at UBaseTreeLibrary::IGetParentTree : Tree Has Cycle, target is parent of itself"));
+        while (parent.GetObject())
+        {
+            checkf(Target.GetObject() != parent.GetObject(), TEXT("Error : Tree Has Cycle, target is parent of itself"));
             parent = IBaseTree::Execute_GetParentTree(parent.GetObject());
         }
         // );
-        }while(false);
+    } while (false);
     // checkCode(
-        do{
+    do
+    {
         auto parent = IBaseTree::Execute_GetParentTree(Target.GetObject());
-        if (parent.GetObject()) {
+        if (parent.GetObject())
+        {
             auto children = IBaseTree::Execute_GetDirectChildren(parent.GetObject());
-            checkf(children.Contains(Target), TEXT("Error at UBaseTreeLibrary::IGetParentTree : Broken Tree, KishiTarget not in parent children"))
+            checkf(children.Contains(Target), TEXT("Error : Broken Tree, KishiTarget not in parent children"))
         }
         // );
-        }while(false);
+    } while (false);
     auto parent = IBaseTree::Execute_GetParentTree(Target.GetObject());
     return parent;
 }
 
 TArray<TScriptInterface<IBaseTree>> UBaseTreeLibrary::IGetDirectChildren(TKishiScriptInterface<IBaseTree> Target)
 {
-    checkf(Target.GetObject() != NULL, TEXT("Error at UBaseTreeLibrary::IGetDirectChildren : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
+    checkf(Target.GetObject() != NULL, TEXT("Error : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
     // checkCode(
-        do{
+    do
+    {
         auto children = IBaseTree::Execute_GetDirectChildren(Target.GetObject());
-        for (auto &&child
-             : children) {
-            checkf(IGetParentTree(child) == Target, TEXT("Error at UBaseTreeLibrary::IGetParentTree : Broken Tree, child not connected to target"));
+        for (auto &&child : children)
+        {
+            checkf(IGetParentTree(child) == Target, TEXT("Error : Broken Tree, child not connected to target"));
         }
         // );
-        }while(false);
+    } while (false);
     auto children = IBaseTree::Execute_GetDirectChildren(Target.GetObject());
     return children;
 }
 
 uint8 UBaseTreeLibrary::IGetDirectChildrenSize(TKishiScriptInterface<IBaseTree> Target)
 {
-    checkf(Target.GetObject() != NULL, TEXT("Error at UBaseTreeLibrary::IGetDirectChildrenSize : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
+    checkf(Target.GetObject() != NULL, TEXT("Error : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
     uint8 childrenSize = IBaseTree::Execute_GetDirectChildrenSize(Target.GetObject());
     // checkCode(
-        do{
+    do
+    {
         auto children = IGetDirectChildren(Target);
-        checkf(childrenSize == children.Num(), TEXT("Error at UBaseTreeLibrary::IGetParentTree : Broken Tree, children size don't match children returned"));
+        checkf(childrenSize == children.Num(), TEXT("Error : Broken Tree, children size don't match children returned"));
         // );
-        }while(false);
+    } while (false);
     return childrenSize;
 }
 
@@ -65,20 +72,20 @@ uint8 UBaseTreeLibrary::IGetDirectChildrenSize_Default(const TScriptInterface<IB
 
 bool UBaseTreeLibrary::IsLeaf(const TScriptInterface<IBaseTree> &Target)
 {
-    auto children = IGetDirectChildren(Target);
-    return children.Num() == 0;
+    auto childrenSize = IGetDirectChildrenSize(Target);
+    return childrenSize == 0;
 }
 
 bool UBaseTreeLibrary::IsRoot(const TScriptInterface<IBaseTree> &Target)
 {
     auto parent = IGetParentTree(Target);
-    return parent.GetObject()==NULL;
+    return parent.GetObject() == NULL;
 }
 
 bool UBaseTreeLibrary::IsDirectParentOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child)
 {
     auto parent = IGetParentTree(Child);
-    return (Target.GetObject()!=NULL) && parent == Target;
+    return (Target.GetObject() != NULL) && parent == Target;
 }
 
 bool UBaseTreeLibrary::IsDirectChildOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent)
@@ -86,34 +93,68 @@ bool UBaseTreeLibrary::IsDirectChildOf(const TScriptInterface<IBaseTree> &Target
     return IsDirectParentOf(Parent, Target);
 }
 
-bool UBaseTreeLibrary::IsParentOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child, TArray<TScriptInterface<IBaseTree>> &Path)
+bool UBaseTreeLibrary::IsParentOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child)
 {
-
-    TArray<TScriptInterface<IBaseTree>> StaticPath = Path;
-    StaticPath.Add(Target);
-    TArray<TScriptInterface<IBaseTree>> DynamicPath = StaticPath;
     if (Target.GetObject() == Child.GetObject())
     {
-        Path = StaticPath;
         return true;
     }
     auto children = IGetDirectChildren(Target);
     for (auto child : children)
     {
-        if (IsParentOf(child, Child, DynamicPath))
+        if (IsParentOf(child, Child))
         {
-            Path = DynamicPath;
             return true;
         }
-        DynamicPath = StaticPath;
     }
-    Path = {};
     return false;
 }
 
-bool UBaseTreeLibrary::IsChildOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent, TArray<TScriptInterface<IBaseTree>> &Path)
+bool UBaseTreeLibrary::IsChildOf(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent)
 {
-    return IsParentOf(Parent, Target, Path);
+    return IsParentOf(Parent, Target);
+}
+
+bool UBaseTreeLibrary::IsParentOfWithNodes(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child, TArray<TScriptInterface<IBaseTree>> &Nodes)
+{
+    Nodes.Empty();
+    if (!IsParentOf(Target, Child))
+    {
+        return false;
+    }
+    auto parent = Child;
+    while (parent != Target)
+    {
+        Nodes.Add(parent);
+        parent = IGetParentTree(parent);
+    }
+    Algo::Reverse(Nodes);
+    return true;
+}
+
+bool UBaseTreeLibrary::IsChildOfWithNodes(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent, TArray<TScriptInterface<IBaseTree>> &Nodes)
+{
+    return IsParentOfWithNodes(Parent, Target, Nodes);
+}
+bool UBaseTreeLibrary::IsParentOfWithDistance(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Child, uint8 &Distance)
+{
+    Distance = 0;
+    if (!IsParentOf(Target, Child))
+    {
+        return false;
+    }
+    auto parent = Child;
+    while (parent != Target)
+    {
+        ++Distance;
+        parent = IGetParentTree(parent);
+    }
+    return true;
+}
+
+bool UBaseTreeLibrary::IsChildOfWithDistance(const TScriptInterface<IBaseTree> &Target, const TScriptInterface<IBaseTree> &Parent, uint8 &Distance)
+{
+    return IsParentOfWithDistance(Parent, Target, Distance);
 }
 
 uint8 UBaseTreeLibrary::GetDepth(const TScriptInterface<IBaseTree> &Target)
@@ -243,6 +284,34 @@ TArray<TScriptInterface<IBaseTree>> UBaseTreeLibrary::GetLeafs(const TScriptInte
     for (auto child : children)
     {
         out.Append(GetLeafs(child));
+    }
+    return out;
+}
+TArray<TScriptInterface<IBaseTree>> UBaseTreeLibrary::GetDirectLeafs(const TScriptInterface<IBaseTree> &Target)
+{
+    if (IsLeaf(Target))
+        return {};
+    auto children = IGetDirectChildren(Target);
+    TArray<TScriptInterface<IBaseTree>> out;
+    out.Reserve(children.Num());
+    for (auto child : children)
+    {
+        if (IsLeaf(child))
+            out.Add(child);
+    }
+    return out;
+}
+TArray<TScriptInterface<IBaseTree>> UBaseTreeLibrary::GetDirectNonLeafs(const TScriptInterface<IBaseTree> &Target)
+{
+    if (IsLeaf(Target))
+        return {};
+    auto children = IGetDirectChildren(Target);
+    TArray<TScriptInterface<IBaseTree>> out;
+    out.Reserve(children.Num());
+    for (auto child : children)
+    {
+        if (!IsLeaf(child))
+            out.Add(child);
     }
     return out;
 }

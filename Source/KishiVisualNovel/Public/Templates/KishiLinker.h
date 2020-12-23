@@ -27,22 +27,22 @@ public:
 		return Target != NULL;
 	};
 
-	virtual bool operator==(const TargetType *Other) const
+	virtual bool operator==(const TargetType *OtherTarget) const
 	{
-		return Target == Other;
+		return Target == OtherTarget;
 	};
-	FORCEINLINE bool operator!=(const TargetType *Other) const
+	FORCEINLINE bool operator!=(const TargetType *OtherTarget) const
 	{
-		return !operator==(Other.Target);
+		return !operator==(OtherTarget);
 	};
 	
-	virtual bool operator==(const TKishiLinker &Other) const
+	virtual bool operator==(const TKishiLinker &OtherLinker) const
 	{
-		return Target == Other.Target;
+		return Target == OtherLinker.Target;
 	};
-	FORCEINLINE bool operator!=(const TKishiLinker &Other) const
+	FORCEINLINE bool operator!=(const TKishiLinker &OtherLinker) const
 	{
-		return !operator==(Other);
+		return !operator==(OtherLinker);
 	};
 
 	template <typename T>
@@ -50,12 +50,6 @@ public:
 	{
 		return (*this) ? Target : NULL;
 	};
-
-	// template <typename T>
-	// FORCEINLINE explicit operator Base *() const
-	// {
-	// 	return (*this) ? this : NULL;
-	// };
 
 protected:
 	TargetType *Target;
