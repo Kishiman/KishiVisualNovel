@@ -13,18 +13,13 @@ bool UDynamicTreeLibrary::IAddChild(const TKishiScriptInterface<IDynamicTree> &T
     checkf(ChildToAdd, TEXT("Error : ChildToAdd is NULL or does not implement interface IArrayTree\n GetObject: %d\n GetInterface: %d"), ChildToAdd.GetObject(), ChildToAdd.GetInterface());
     checkf(!IsDirectParentOf(Target, ChildToAdd), TEXT("Error : ChildToAdd is already a child of Target\n Target: %d\n Parent of ChildToAdd: %d"), Target.GetObject(), IGetParentTree(ChildToAdd).GetObject());
     auto Result = IDynamicTree::Execute_AddChild(Target, ChildToAdd);
-    // checkCode(
-    do
-    {
+    checkCode(
         auto isParentOf = IsDirectParentOf(Target, ChildToAdd);
-        if (Result)
-        {
+        if (Result) {
             checkf(IsDirectParentOf(Target, ChildToAdd), TEXT("Error : AddChild returned true but ChildToAdd is not a child of Target\n Target: %d\n Parent of ChildToAdd: %d"), Target.GetObject(), IGetParentTree(ChildToAdd).GetObject());
-        }
-        else
+        } else {
             checkf(!IsDirectParentOf(Target, ChildToAdd), TEXT("Error : AddChild returned false but ChildToAdd is a child of Target\n Target: %d\n Parent of ChildToAdd: %d"), Target.GetObject(), IGetParentTree(ChildToAdd).GetObject());
-        // );
-    } while (false);
+        });
     return Result;
 }
 bool UDynamicTreeLibrary::IRemoveChild(const TKishiScriptInterface<IDynamicTree> &Target, const TKishiScriptInterface<IDynamicTree> &ChildToRemove)
@@ -33,18 +28,11 @@ bool UDynamicTreeLibrary::IRemoveChild(const TKishiScriptInterface<IDynamicTree>
     checkf(ChildToRemove, TEXT("Error : ChildToRemove is NULL or does not implement interface IArrayTree\n GetObject: %d\n GetInterface: %d"), ChildToRemove.GetObject(), ChildToRemove.GetInterface());
     checkf(IsDirectParentOf(Target, ChildToRemove), TEXT("Error : ChildToRemove is not a child of Target\n Target: %d\n Parent of ChildToRemove: %d"), Target.GetObject(), IGetParentTree(ChildToRemove).GetObject());
     auto Result = IDynamicTree::Execute_RemoveChild(Target, ChildToRemove);
-    // checkCode(
-    do
-    {
+    checkCode(
         auto isParentOf = IsDirectParentOf(Target, ChildToRemove);
-        if (Result)
-        {
+        if (Result) {
             checkf(!IsDirectParentOf(Target, ChildToRemove), TEXT("Error : RemoveChild returned true but ChildToRemove is still a child of Target\n Target: %d\n Parent of ChildToRemove: %d"), Target.GetObject(), IGetParentTree(ChildToRemove).GetObject());
-        }
-        else
-            checkf(IsDirectParentOf(Target, ChildToRemove), TEXT("Error : RemoveChild returned false but ChildToRemove is not a child of Target\n Target: %d\n Parent of ChildToRemove: %d"), Target.GetObject(), IGetParentTree(ChildToRemove).GetObject());
-        // );
-    } while (false);
+        } else checkf(IsDirectParentOf(Target, ChildToRemove), TEXT("Error : RemoveChild returned false but ChildToRemove is not a child of Target\n Target: %d\n Parent of ChildToRemove: %d"), Target.GetObject(), IGetParentTree(ChildToRemove).GetObject()););
     return Result;
 }
 

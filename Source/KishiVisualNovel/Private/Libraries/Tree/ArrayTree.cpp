@@ -10,10 +10,16 @@ TKishiScriptInterface<IArrayTree> UArrayTreeLibrary::IGetChild(TKishiScriptInter
     return IArrayTree::Execute_GetChild(Target, index);
 }
 
-TScriptInterface<IArrayTree> UArrayTreeLibrary::IGetChild_Default(const TScriptInterface<IArrayTree> &Target, uint8 index)
+TArray<TScriptInterface<IArrayTree>> UArrayTreeLibrary::IGetDirectChildren_Default(const TScriptInterface<IArrayTree> &Target)
 {
-    auto children = IGetDirectChildren(Target.GetObject());
-    return children[index].GetObject();
+    uint8 size = IArrayTree::Execute_GetDirectChildrenSize(Target.GetObject());
+    TArray<TScriptInterface<IArrayTree>> DirectChildren;
+    DirectChildren.Reserve(size);
+    for (size_t i = 0; i < size; ++i)
+    {
+        DirectChildren.Add(IArrayTree::Execute_GetChild(Target.GetObject(), i));
+    }
+    return DirectChildren;
 }
 
 bool UArrayTreeLibrary::IsFirst(const TScriptInterface<IArrayTree> &Target)

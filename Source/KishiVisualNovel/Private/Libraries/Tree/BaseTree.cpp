@@ -1,34 +1,25 @@
 #include "Libraries/Tree/BaseTree.h"
 #include "Templates/KishiScriptInterface.h"
-#include "Links/Tree/BaseTree.h"
+// #include "Links/Tree/BaseTree.h"
 #include "Macros/Interface.h"
 #include "Algo/Reverse.h"
 
 TKishiScriptInterface<IBaseTree> UBaseTreeLibrary::IGetParentTree(TKishiScriptInterface<IBaseTree> Target)
 {
     checkf(Target.GetObject() != NULL, TEXT("Error : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
-    // checkCode(
-    do
-    {
+    checkCode(
         auto parent = IBaseTree::Execute_GetParentTree(Target.GetObject());
-        while (parent.GetObject())
-        {
+        while (parent.GetObject()) {
             checkf(Target.GetObject() != parent.GetObject(), TEXT("Error : Tree Has Cycle, target is parent of itself"));
             parent = IBaseTree::Execute_GetParentTree(parent.GetObject());
-        }
-        // );
-    } while (false);
-    // checkCode(
-    do
-    {
+        });
+    checkCode(
+
         auto parent = IBaseTree::Execute_GetParentTree(Target.GetObject());
-        if (parent.GetObject())
-        {
+        if (parent.GetObject()) {
             auto children = IBaseTree::Execute_GetDirectChildren(parent.GetObject());
             checkf(children.Contains(Target), TEXT("Error : Broken Tree, KishiTarget not in parent children"))
-        }
-        // );
-    } while (false);
+        });
     auto parent = IBaseTree::Execute_GetParentTree(Target.GetObject());
     return parent;
 }
@@ -36,16 +27,12 @@ TKishiScriptInterface<IBaseTree> UBaseTreeLibrary::IGetParentTree(TKishiScriptIn
 TArray<TScriptInterface<IBaseTree>> UBaseTreeLibrary::IGetDirectChildren(TKishiScriptInterface<IBaseTree> Target)
 {
     checkf(Target.GetObject() != NULL, TEXT("Error : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
-    // checkCode(
-    do
-    {
+    checkCode(
         auto children = IBaseTree::Execute_GetDirectChildren(Target.GetObject());
-        for (auto &&child : children)
-        {
+        for (auto &&child
+             : children) {
             checkf(IGetParentTree(child) == Target, TEXT("Error : Broken Tree, child not connected to target"));
-        }
-        // );
-    } while (false);
+        });
     auto children = IBaseTree::Execute_GetDirectChildren(Target.GetObject());
     return children;
 }
@@ -54,13 +41,9 @@ uint8 UBaseTreeLibrary::IGetDirectChildrenSize(TKishiScriptInterface<IBaseTree> 
 {
     checkf(Target.GetObject() != NULL, TEXT("Error : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
     uint8 childrenSize = IBaseTree::Execute_GetDirectChildrenSize(Target.GetObject());
-    // checkCode(
-    do
-    {
+    checkCode(
         auto children = IGetDirectChildren(Target);
-        checkf(childrenSize == children.Num(), TEXT("Error : Broken Tree, children size don't match children returned"));
-        // );
-    } while (false);
+        checkf(childrenSize == children.Num(), TEXT("Error : Broken Tree, children size don't match children returned")););
     return childrenSize;
 }
 

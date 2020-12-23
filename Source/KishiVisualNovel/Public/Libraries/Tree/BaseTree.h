@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Templates/KishiScriptInterface.h"
+
+#include "Libraries/Graph/BaseGraph.h"
 #include "BaseTree.generated.h"
 
 UINTERFACE(BlueprintType)

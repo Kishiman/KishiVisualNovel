@@ -29,7 +29,7 @@ public:
     static TKishiScriptInterface<IArrayTree> IGetChild(TKishiScriptInterface<IArrayTree> Target, uint8 index);
 
     UFUNCTION(BlueprintPure)
-    static TScriptInterface<IArrayTree> IGetChild_Default(const TScriptInterface<IArrayTree> &Target, uint8 index);
+    static TArray<TScriptInterface<IArrayTree>> IGetDirectChildren_Default(const TScriptInterface<IArrayTree> &Target);
 
     UFUNCTION(BlueprintPure)
     static bool IsFirst(const TScriptInterface<IArrayTree> &Target);
