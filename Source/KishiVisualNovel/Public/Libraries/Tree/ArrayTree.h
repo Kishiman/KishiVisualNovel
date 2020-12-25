@@ -16,7 +16,7 @@ class KISHIVISUALNOVEL_API IArrayTree : public IBaseTree
 {
     GENERATED_BODY()
 public:
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Tree|Array")
     TScriptInterface<IArrayTree> GetChild(uint8 index) const;
     virtual TScriptInterface<IArrayTree> GetChild_Implementation(uint8 index) const = 0;
 };
@@ -26,9 +26,14 @@ class KISHIVISUALNOVEL_API UArrayTreeLibrary : public UBaseTreeLibrary
 {
     GENERATED_BODY()
 public:
+    /*
+    Interface Proxy Functions
+    */
     static TKishiScriptInterface<IArrayTree> IGetChild(TKishiScriptInterface<IArrayTree> Target, uint8 index);
-
-    UFUNCTION(BlueprintPure)
+    /*
+    Default Base Implementation
+    */
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Tree|Array")
     static TArray<TScriptInterface<IArrayTree>> IGetDirectChildren_Default(const TScriptInterface<IArrayTree> &Target);
 
     UFUNCTION(BlueprintPure)

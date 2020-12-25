@@ -3,6 +3,10 @@
 #include "Macros/Interface.h"
 #include "Algo/Reverse.h"
 
+uint8 IBaseGraph::GetNodesSize_Implementation() const{
+    auto nodes = GetNodes_Implementation();
+    return nodes.Num();
+}
 
 
 TArray<TScriptInterface<IBaseGraph>> UBaseGraphLibrary::IGetNodes(TKishiScriptInterface<IBaseGraph> Target)
@@ -33,6 +37,5 @@ uint8 UBaseGraphLibrary::IGetNodesSize(TKishiScriptInterface<IBaseGraph> Target)
 
 uint8 UBaseGraphLibrary::IGetNodesSize_Default(const TScriptInterface<IBaseGraph> &Target)
 {
-    auto nodes = IGetNodes(Target);
-    return nodes.Num();
+    return IBaseGraph::Execute_GetNodes(Target.GetObject()).Num();
 }

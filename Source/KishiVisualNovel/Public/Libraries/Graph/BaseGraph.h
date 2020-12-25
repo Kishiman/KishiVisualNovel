@@ -14,14 +14,13 @@ class KISHIVISUALNOVEL_API IBaseGraph
 {
     GENERATED_BODY()
 public:
-
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Graph")
     TArray<TScriptInterface<IBaseGraph>> GetNodes() const;
     virtual TArray<TScriptInterface<IBaseGraph>> GetNodes_Implementation() const = 0;
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Graph")
     uint8 GetNodesSize() const;
-    virtual uint8 GetNodesSize_Implementation() const = 0;
+    virtual uint8 GetNodesSize_Implementation() const;
 };
 
 UCLASS()
@@ -37,7 +36,7 @@ public:
     /*
     DefaultImplementation
     */
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph")
     static uint8 IGetNodesSize_Default(const TScriptInterface<IBaseGraph> &Target);
 
     /*

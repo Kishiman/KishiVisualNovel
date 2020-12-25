@@ -3,14 +3,22 @@
 #include "Macros/Interface.h"
 #include "Algo/Reverse.h"
 
+
+uint8 IDiGraph::GetInNodesSize_Implementation() const
+{
+    return GetInNodes_Implementation().Num();
+};
+uint8 IDiGraph::GetOutNodesSize_Implementation() const
+{
+    return GetOutNodes_Implementation().Num();
+};
 TArray<TScriptInterface<IBaseGraph>> IDiGraph::GetNodes_Implementation() const
 {
     TArray<TScriptInterface<IBaseGraph>> Nodes;
-    Nodes.Reserve(GetNodesSize_Implementation());
     TArray<TKishiScriptInterface<IBaseGraph>> InNodes(GetInNodes_Implementation());
     TArray<TKishiScriptInterface<IBaseGraph>> OutNodes(GetOutNodes_Implementation());
-    Nodes.Append(InNodes);
-    Nodes.Append(OutNodes);
+    Nodes.Append(std::move(InNodes));
+    Nodes.Append(std::move(OutNodes));
     return Nodes;
 };
 uint8 IDiGraph::GetNodesSize_Implementation() const
@@ -18,6 +26,37 @@ uint8 IDiGraph::GetNodesSize_Implementation() const
     return GetOutNodesSize_Implementation() + GetInNodesSize_Implementation();
 };
 
+/*
+DefaultImplementation
+*/
+
+uint8 UDiGraphLibrary::IGetInNodesSize_Default(const TScriptInterface<IDiGraph> &Target)
+{
+    return IDiGraph::Execute_GetInNodes(Target.GetObject()).Num();
+}
+
+uint8 UDiGraphLibrary::IGetOutNodesSize_Default(const TScriptInterface<IDiGraph> &Target)
+{
+    return IDiGraph::Execute_GetOutNodes(Target.GetObject()).Num();
+}
+/*
+Default Base Implementation
+*/
+
+TArray<TScriptInterface<IBaseGraph>> UDiGraphLibrary::IGetNodes_Default(const TScriptInterface<IDiGraph> &Target)
+{
+    TArray<TScriptInterface<IBaseGraph>> Nodes;
+    TArray<TKishiScriptInterface<IBaseGraph>> InNodes(IDiGraph::Execute_GetInNodes(Target.GetObject()));
+    TArray<TKishiScriptInterface<IBaseGraph>> OutNodes(IDiGraph::Execute_GetOutNodes(Target.GetObject()));
+    Nodes.Append(std::move(InNodes));
+    Nodes.Append(std::move(OutNodes));
+    return Nodes;
+}
+
+uint8 UDiGraphLibrary::IGetNodesSize_Default(const TScriptInterface<IDiGraph> &Target)
+{
+    return IDiGraph::Execute_GetOutNodesSize(Target.GetObject()) + IDiGraph::Execute_GetInNodesSize(Target.GetObject());
+}
 /*
 Interface Proxy Functions
 */
@@ -47,40 +86,7 @@ uint8 UDiGraphLibrary::IGetOutNodesSize(const TKishiScriptInterface<IDiGraph> &T
     return result;
 }
 
-/*
-DefaultImplementation
-*/
 
-uint8 UDiGraphLibrary::IGetInNodesSize_Default(const TScriptInterface<IDiGraph> &Target)
-{
-    auto Nodes = IDiGraph::Execute_GetInNodes(Target.GetObject());
-    return Nodes.Num();
-}
-
-uint8 UDiGraphLibrary::IGetOutNodesSize_Default(const TScriptInterface<IDiGraph> &Target)
-{
-    auto Nodes = IDiGraph::Execute_GetOutNodes(Target.GetObject());
-    return Nodes.Num();
-}
-/*
-Default Base Implementation
-*/
-
-TArray<TScriptInterface<IBaseGraph>> UDiGraphLibrary::IGetNodes_Default(const TScriptInterface<IDiGraph> &Target)
-{
-    TArray<TScriptInterface<IBaseGraph>> Nodes;
-    Nodes.Reserve(IDiGraph::Execute_GetNodesSize(Target.GetObject()));
-    TArray<TKishiScriptInterface<IBaseGraph>> InNodes(IDiGraph::Execute_GetInNodes(Target.GetObject()));
-    TArray<TKishiScriptInterface<IBaseGraph>> OutNodes(IDiGraph::Execute_GetOutNodes(Target.GetObject()));
-    Nodes.Append(InNodes);
-    Nodes.Append(OutNodes);
-    return Nodes;
-}
-
-uint8 UDiGraphLibrary::IGetNodesSize_Default(const TScriptInterface<IDiGraph> &Target)
-{
-    return IDiGraph::Execute_GetOutNodesSize(Target.GetObject()) + IDiGraph::Execute_GetInNodesSize(Target.GetObject());
-}
 /*
 Library
 */

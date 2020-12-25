@@ -16,17 +16,17 @@ class KISHIVISUALNOVEL_API IBaseTree
 {
     GENERATED_BODY()
 public:
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Tree")
     TScriptInterface<IBaseTree> GetParentTree() const;
     virtual TScriptInterface<IBaseTree> GetParentTree_Implementation() const = 0;
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Tree")
     TArray<TScriptInterface<IBaseTree>> GetDirectChildren() const;
     virtual TArray<TScriptInterface<IBaseTree>> GetDirectChildren_Implementation() const = 0;
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Tree")
     uint8 GetDirectChildrenSize() const;
-    virtual uint8 GetDirectChildrenSize_Implementation() const = 0;
+    virtual uint8 GetDirectChildrenSize_Implementation() const;
 };
 
 UCLASS()
@@ -43,7 +43,7 @@ public:
     /*
     DefaultImplementation
     */
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Tree")
     static uint8 IGetDirectChildrenSize_Default(const TScriptInterface<IBaseTree> &Target);
 
     /*

@@ -16,15 +16,15 @@ class KISHIVISUALNOVEL_API IDynamicTree : public IBaseTree
 {
     GENERATED_BODY()
 public:
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Tree|Dynamic")
     TScriptInterface<IDynamicTree> CreateTree();
     virtual TScriptInterface<IDynamicTree> CreateTree_Implementation() = 0;
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Tree|Dynamic")
     bool AddChild(const TScriptInterface<IDynamicTree> &ChildToAdd);
     virtual bool AddChild_Implementation(const TScriptInterface<IDynamicTree> &ChildToAdd) = 0;
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Tree|Dynamic")
     bool RemoveChild(const TScriptInterface<IDynamicTree> &ChildToRemove);
     virtual bool RemoveChild_Implementation(const TScriptInterface<IDynamicTree> &ChildToRemove) = 0;
 };
@@ -34,6 +34,9 @@ class KISHIVISUALNOVEL_API UDynamicTreeLibrary : public UBaseTreeLibrary
 {
     GENERATED_BODY()
 public:
+    /*
+    Interface Proxy Functions
+    */
     static TKishiScriptInterface<IDynamicTree> ICreateTree(const TKishiScriptInterface<IDynamicTree> &Target);
     static bool IAddChild(const TKishiScriptInterface<IDynamicTree> &Target, const TKishiScriptInterface<IDynamicTree> &ChildToAdd);
     static bool IRemoveChild(const TKishiScriptInterface<IDynamicTree> &Target, const TKishiScriptInterface<IDynamicTree> &ChildToRemove);

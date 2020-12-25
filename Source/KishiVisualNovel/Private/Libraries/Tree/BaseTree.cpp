@@ -4,6 +4,12 @@
 #include "Macros/Interface.h"
 #include "Algo/Reverse.h"
 
+
+uint8 IBaseTree::GetDirectChildrenSize_Implementation() const{
+    auto children = GetDirectChildren_Implementation();
+    return children.Num();
+}
+
 TKishiScriptInterface<IBaseTree> UBaseTreeLibrary::IGetParentTree(TKishiScriptInterface<IBaseTree> Target)
 {
     checkf(Target.GetObject() != NULL, TEXT("Error : Target is NULL or does not implement Interface IBaseTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
