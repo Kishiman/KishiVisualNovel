@@ -93,7 +93,7 @@ TScriptInterface<IStringTree> UStringTreeLibrary::GetChildAt(const TScriptInterf
         {
             return (GetChildAt(child, pathFromChild));
         }
-        return false;
+        return NULL;
     }
     return ISTRINGTREE_1(Target, GetChild, Path);
 }

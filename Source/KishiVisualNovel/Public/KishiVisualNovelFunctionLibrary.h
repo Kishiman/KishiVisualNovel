@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "kismet/BlueprintFunctionLibrary.h"
+#include "Kismet/BlueprintFunctionLibrary.h" 
 #include "KishiVisualNovelScript.h"
 
 #include "KishiVisualNovelFunctionLibrary.generated.h"

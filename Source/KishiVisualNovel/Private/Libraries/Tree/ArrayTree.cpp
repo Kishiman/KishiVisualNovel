@@ -1,5 +1,4 @@
 #include "Libraries/Tree/ArrayTree.h"
-#include "Links/Tree/ArrayTree.h"
 #include "Macros/Interface.h"
 
 TKishiScriptInterface<IArrayTree> UArrayTreeLibrary::IGetChild(TKishiScriptInterface<IArrayTree> Target, uint8 index)

@@ -26,7 +26,7 @@ struct TKishiScriptInterface : public TScriptInterface<InterfaceType>
 
 	FORCEINLINE bool operator==(const UObject *Other) const
 	{
-		return GetObject() == Other;
+		return this->GetObject() == Other;
 	}
 
 	FORCEINLINE bool operator!=(const UObject *Other) const
@@ -57,7 +57,7 @@ struct TKishiScriptInterface : public TScriptInterface<InterfaceType>
 
 	FORCEINLINE operator UObject *() const
 	{
-		return GetObject();
+		return this->GetObject();
 	}
 	FORCEINLINE operator TScriptInterface<InterfaceType>() const
 	{
@@ -66,11 +66,11 @@ struct TKishiScriptInterface : public TScriptInterface<InterfaceType>
 	template <class OtherInterfaceType>
 	FORCEINLINE operator TScriptInterface<OtherInterfaceType>() const
 	{
-		return TScriptInterface<OtherInterfaceType>(GetObject());
+		return TScriptInterface<OtherInterfaceType>(this->GetObject());
 	}
 
 	FORCEINLINE explicit operator bool() const
 	{
-		return GetInterface() != NULL || GetObject() != NULL;
+		return this->GetInterface() != NULL || this->GetObject() != NULL;
 	}
 };
