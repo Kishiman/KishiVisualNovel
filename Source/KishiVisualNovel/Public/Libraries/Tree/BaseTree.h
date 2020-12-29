@@ -29,6 +29,23 @@ public:
     virtual uint8 GetDirectChildrenSize_Implementation() const;
 };
 
+UCLASS(MinimalAPI)
+class  UBaseTreeImplementation : public UBlueprintFunctionLibrary
+{
+    GENERATED_BODY()
+public:
+    /*
+    Default Implementation
+    */
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Tree")
+    static uint8 IGetDirectChildrenSize_Default(const TScriptInterface<IBaseTree> &Target);
+    /*
+    Overrides Implementation
+    */
+
+
+};
+
 UCLASS()
 class KISHIVISUALNOVEL_API UBaseTreeLibrary : public UBlueprintFunctionLibrary
 {
@@ -40,11 +57,7 @@ public:
     static TKishiScriptInterface<IBaseTree> IGetParentTree(TKishiScriptInterface<IBaseTree> Target);
     static TArray<TScriptInterface<IBaseTree>> IGetDirectChildren(TKishiScriptInterface<IBaseTree> Target);
     static uint8 IGetDirectChildrenSize(TKishiScriptInterface<IBaseTree> Target);
-    /*
-    DefaultImplementation
-    */
-    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Tree")
-    static uint8 IGetDirectChildrenSize_Default(const TScriptInterface<IBaseTree> &Target);
+
 
     /*
     Library

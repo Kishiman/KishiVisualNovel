@@ -23,6 +23,22 @@ public:
     virtual uint8 GetNodesSize_Implementation() const;
 };
 
+UCLASS(MinimalAPI)
+class  UBaseGraphImplementation : public UBlueprintFunctionLibrary
+{
+    GENERATED_BODY()
+public:
+    /*
+    DefaultImplementation
+    */
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph")
+    static uint8 IGetNodesSize_Default(const TScriptInterface<IBaseGraph> &Target);
+
+    /*
+    Overrides Implementation
+    */
+};
+
 UCLASS()
 class KISHIVISUALNOVEL_API UBaseGraphLibrary : public UBlueprintFunctionLibrary
 {
@@ -33,15 +49,6 @@ public:
     */
     static TArray<TScriptInterface<IBaseGraph>> IGetNodes(TKishiScriptInterface<IBaseGraph> Target);
     static uint8 IGetNodesSize(TKishiScriptInterface<IBaseGraph> Target);
-    /*
-    DefaultImplementation
-    */
-    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph")
-    static uint8 IGetNodesSize_Default(const TScriptInterface<IBaseGraph> &Target);
-
-    /*
-    Default Base Implementation
-    */
     /*
     Library
     */

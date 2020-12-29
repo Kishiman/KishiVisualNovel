@@ -5,8 +5,11 @@
 
 
 uint8 IBaseTree::GetDirectChildrenSize_Implementation() const{
-    auto children = GetDirectChildren_Implementation();
-    return children.Num();
+    return GetDirectChildren_Implementation().Num();
+}
+uint8 UBaseTreeImplementation::IGetDirectChildrenSize_Default(const TScriptInterface<IBaseTree> &Target)
+{
+    return IBaseTree::Execute_GetDirectChildren(Target.GetObject()).Num();
 }
 
 TKishiScriptInterface<IBaseTree> UBaseTreeLibrary::IGetParentTree(TKishiScriptInterface<IBaseTree> Target)
@@ -52,11 +55,7 @@ uint8 UBaseTreeLibrary::IGetDirectChildrenSize(TKishiScriptInterface<IBaseTree> 
     return childrenSize;
 }
 
-uint8 UBaseTreeLibrary::IGetDirectChildrenSize_Default(const TScriptInterface<IBaseTree> &Target)
-{
-    auto children = IGetDirectChildren(Target);
-    return children.Num();
-}
+
 
 bool UBaseTreeLibrary::IsLeaf(const TScriptInterface<IBaseTree> &Target)
 {

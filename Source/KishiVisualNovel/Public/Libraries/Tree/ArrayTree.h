@@ -19,10 +19,30 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Tree|Array")
     TScriptInterface<IArrayTree> GetChild(uint8 index) const;
     virtual TScriptInterface<IArrayTree> GetChild_Implementation(uint8 index) const = 0;
+    //BaseTree overrides
+    virtual TArray<TScriptInterface<IBaseTree>> GetDirectChildren_Implementation() const override;
+
 };
 
 UCLASS()
-class KISHIVISUALNOVEL_API UArrayTreeLibrary : public UBaseTreeLibrary
+class KISHIVISUALNOVEL_API UArrayTreeImplementation : public UBlueprintFunctionLibrary
+{
+    GENERATED_BODY()
+public:
+    /*
+    Default Implementation
+    */
+
+    /*
+    Overrides Implementation
+    */
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Tree|Array")
+    static TArray<TScriptInterface<IBaseTree>> IGetDirectChildren_Default(const TScriptInterface<IArrayTree> &Target);
+
+};
+
+UCLASS(MinimalAPI)
+class  UArrayTreeLibrary : public UBaseTreeLibrary
 {
     GENERATED_BODY()
 public:
@@ -30,11 +50,7 @@ public:
     Interface Proxy Functions
     */
     static TKishiScriptInterface<IArrayTree> IGetChild(TKishiScriptInterface<IArrayTree> Target, uint8 index);
-    /*
-    Default Base Implementation
-    */
-    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Tree|Array")
-    static TArray<TScriptInterface<IArrayTree>> IGetDirectChildren_Default(const TScriptInterface<IArrayTree> &Target);
+
 
     UFUNCTION(BlueprintPure)
     static bool IsFirst(const TScriptInterface<IArrayTree> &Target);

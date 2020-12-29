@@ -1,6 +1,32 @@
 #include "Libraries/Tree/ArrayTree.h"
 #include "Macros/Interface.h"
 
+TArray<TScriptInterface<IBaseTree>> IArrayTree::GetDirectChildren_Implementation() const
+{
+    uint8 size = this->GetDirectChildrenSize_Implementation();
+    TArray<TScriptInterface<IBaseTree>> DirectChildren;
+    DirectChildren.Reserve(size);
+    for (size_t i = 0; i < size; ++i)
+    {
+        TKishiScriptInterface<IArrayTree> child=this->GetChild_Implementation(i);
+        DirectChildren.Add(child);
+    }
+    return DirectChildren;
+}
+
+TArray<TScriptInterface<IBaseTree>> UArrayTreeImplementation::IGetDirectChildren_Default(const TScriptInterface<IArrayTree> &Target)
+{
+    uint8 size = IArrayTree::Execute_GetDirectChildrenSize(Target.GetObject());
+    TArray<TScriptInterface<IBaseTree>> DirectChildren;
+    DirectChildren.Reserve(size);
+    for (size_t i = 0; i < size; ++i)
+    {
+        DirectChildren.Add(IArrayTree::Execute_GetChild(Target.GetObject(), i).GetObject());
+    }
+    return DirectChildren;
+}
+
+//Proxy
 TKishiScriptInterface<IArrayTree> UArrayTreeLibrary::IGetChild(TKishiScriptInterface<IArrayTree> Target, uint8 index)
 {
     checkf(Target, TEXT("Error : Target is NULL or does not implement interface IArrayTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
@@ -9,17 +35,6 @@ TKishiScriptInterface<IArrayTree> UArrayTreeLibrary::IGetChild(TKishiScriptInter
     return IArrayTree::Execute_GetChild(Target, index);
 }
 
-TArray<TScriptInterface<IArrayTree>> UArrayTreeLibrary::IGetDirectChildren_Default(const TScriptInterface<IArrayTree> &Target)
-{
-    uint8 size = IArrayTree::Execute_GetDirectChildrenSize(Target.GetObject());
-    TArray<TScriptInterface<IArrayTree>> DirectChildren;
-    DirectChildren.Reserve(size);
-    for (size_t i = 0; i < size; ++i)
-    {
-        DirectChildren.Add(IArrayTree::Execute_GetChild(Target.GetObject(), i));
-    }
-    return DirectChildren;
-}
 
 bool UArrayTreeLibrary::IsFirst(const TScriptInterface<IArrayTree> &Target)
 {

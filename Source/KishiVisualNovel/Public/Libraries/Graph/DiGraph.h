@@ -37,6 +37,30 @@ public:
     virtual uint8 GetNodesSize_Implementation() const override;
 };
 
+UCLASS(MinimalAPI)
+class  UDiGraphImplementation : public UBlueprintFunctionLibrary
+{
+    GENERATED_BODY()
+public:
+    /*
+    Default Implementation
+    */
+
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
+    static uint8 IGetInNodesSize_Default(const TScriptInterface<IDiGraph> &Target);
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
+    static uint8 IGetOutNodesSize_Default(const TScriptInterface<IDiGraph> &Target);
+    /*
+    Overrides Implementation
+    */
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
+    static TArray<TScriptInterface<IBaseGraph>> IGetNodes_Default(const TScriptInterface<IDiGraph> &Target);
+    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
+    static uint8 IGetNodesSize_Default(const TScriptInterface<IDiGraph> &Target);
+
+
+};
+
 UCLASS()
 class KISHIVISUALNOVEL_API UDiGraphLibrary : public UBlueprintFunctionLibrary
 {
@@ -51,20 +75,7 @@ public:
     static uint8 IGetInNodesSize(const TKishiScriptInterface<IDiGraph> &Target);
     static uint8 IGetOutNodesSize(const TKishiScriptInterface<IDiGraph> &Target);
 
-    /*
-    DefaultImplementation
-    */
-    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
-    static uint8 IGetInNodesSize_Default(const TScriptInterface<IDiGraph> &Target);
-    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
-    static uint8 IGetOutNodesSize_Default(const TScriptInterface<IDiGraph> &Target);
-    /*
-    Default Base Implementation
-    */
-    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
-    static TArray<TScriptInterface<IBaseGraph>> IGetNodes_Default(const TScriptInterface<IDiGraph> &Target);
-    UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
-    static uint8 IGetNodesSize_Default(const TScriptInterface<IDiGraph> &Target);
+    
     /*
     Library
     */
