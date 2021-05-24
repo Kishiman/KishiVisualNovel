@@ -38,7 +38,7 @@ public:
 };
 
 UCLASS(MinimalAPI)
-class  UDiGraphImplementation : public UBlueprintFunctionLibrary
+class UDiGraphImplementation : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 public:
@@ -57,8 +57,6 @@ public:
     static TArray<TScriptInterface<IBaseGraph>> IGetNodes_Default(const TScriptInterface<IDiGraph> &Target);
     UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|Graph|Directed")
     static uint8 IGetNodesSize_Default(const TScriptInterface<IDiGraph> &Target);
-
-
 };
 
 UCLASS()
@@ -75,7 +73,6 @@ public:
     static uint8 IGetInNodesSize(const TKishiScriptInterface<IDiGraph> &Target);
     static uint8 IGetOutNodesSize(const TKishiScriptInterface<IDiGraph> &Target);
 
-    
     /*
     Library
     */

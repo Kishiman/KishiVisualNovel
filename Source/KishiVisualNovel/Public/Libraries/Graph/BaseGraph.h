@@ -24,7 +24,7 @@ public:
 };
 
 UCLASS(MinimalAPI)
-class  UBaseGraphImplementation : public UBlueprintFunctionLibrary
+class UBaseGraphImplementation : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 public:
