@@ -61,8 +61,8 @@ public:
     /*
     Interface Proxy Functions
     */
-    static TScriptInterface<INameMapTree> IGetChildByName(const TScriptInterface<INameMapTree> &Target, FName name);
-    static TArray<FName> IGetNames(const TScriptInterface<INameMapTree> &Target);
+    static TKishiScriptInterface<INameMapTree> IGetChildByName(const TKishiScriptInterface<INameMapTree> &Target, FName name);
+    static TArray<FName> IGetNames(const TKishiScriptInterface<INameMapTree> &Target);
 
     //Library
     UFUNCTION(BlueprintPure)

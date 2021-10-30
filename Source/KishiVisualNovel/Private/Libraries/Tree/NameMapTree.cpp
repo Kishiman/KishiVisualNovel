@@ -53,13 +53,13 @@ uint8 UNameMapTreeImplementation::IGetDirectChildrenSize_Default(const TScriptIn
     return INameMapTree::Execute_GetNames(Target.GetObject()).Num();
 }
 //Proxy Functions
-TScriptInterface<INameMapTree> UNameMapTreeLibrary::IGetChildByName(const TScriptInterface<INameMapTree> &Target, FName name)
+TKishiScriptInterface<INameMapTree> UNameMapTreeLibrary::IGetChildByName(const TKishiScriptInterface<INameMapTree> &Target, FName name)
 {
     checkf(Target, TEXT("Error : Target is NULL or does not implement interface IArrayTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
     auto result = INameMapTree::Execute_GetChildByName(Target.GetObject(), name);
     return result;
 }
-TArray<FName> UNameMapTreeLibrary::IGetNames(const TScriptInterface<INameMapTree> &Target)
+TArray<FName> UNameMapTreeLibrary::IGetNames(const TKishiScriptInterface<INameMapTree> &Target)
 {
     checkf(Target, TEXT("Error : Target is NULL or does not implement interface IArrayTree\n GetObject: %d\n GetInterface: %d"), Target.GetObject(), Target.GetInterface());
     auto result = INameMapTree::Execute_GetNames(Target.GetObject());
