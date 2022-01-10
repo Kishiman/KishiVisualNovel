@@ -68,6 +68,18 @@ public:
     UFUNCTION(BlueprintPure)
     static FName GetName(const TScriptInterface<INameMapTree> &Target);
 
+    UFUNCTION(BlueprintPure)
+    static TArray<FName> GetNamePath(const TScriptInterface<INameMapTree> &Target);
+
+    UFUNCTION(BlueprintPure)
+    static bool IsParentOfWithNamePath(const TScriptInterface<INameMapTree> &Target, const TScriptInterface<INameMapTree> &Child, TArray<FName> &Path);
+    
+    UFUNCTION(BlueprintPure)
+    static bool IsChildOfWithNamePath(const TScriptInterface<INameMapTree> &Target, const TScriptInterface<INameMapTree> &Parent, TArray<FName> &Path);
+
+    UFUNCTION(BlueprintPure)
+    static TScriptInterface<INameMapTree> GetChildAtNamePath(const TScriptInterface<INameMapTree> &Target, TArray<FName> Path);
+
 
     UFUNCTION(BlueprintPure)
     static bool NameToIndex(const TScriptInterface<INameMapTree> &Target,FName name,uint8 &index);

@@ -8,7 +8,7 @@ TArray<TScriptInterface<IBaseTree>> IArrayTree::GetDirectChildren_Implementation
     DirectChildren.Reserve(size);
     for (size_t i = 0; i < size; ++i)
     {
-        TKishiScriptInterface<IArrayTree> child=this->GetChild_Implementation(i);
+        TKishiScriptInterface<IArrayTree> child = this->GetChild_Implementation(i);
         DirectChildren.Add(child);
     }
     return DirectChildren;
@@ -34,7 +34,6 @@ TKishiScriptInterface<IArrayTree> UArrayTreeLibrary::IGetChild(TKishiScriptInter
     checkf(index < size, TEXT("Error : index out of range\n Children Size: %d\n Index: %d"), size, index);
     return IArrayTree::Execute_GetChild(Target, index);
 }
-
 
 bool UArrayTreeLibrary::IsFirst(const TScriptInterface<IArrayTree> &Target)
 {
@@ -350,7 +349,7 @@ bool UArrayTreeLibrary::IsDirectChildOfWithIndex(const TScriptInterface<IArrayTr
 
 bool UArrayTreeLibrary::IsParentOfWithPath(const TScriptInterface<IArrayTree> &Target, const TScriptInterface<IArrayTree> &Child, TArray<uint8> &Path)
 {
-    return false;
+    return IsChildOfWithPath(Child, Target, Path);
 }
 
 bool UArrayTreeLibrary::IsChildOfWithPath(const TScriptInterface<IArrayTree> &Target, const TScriptInterface<IArrayTree> &Parent, TArray<uint8> &Path)

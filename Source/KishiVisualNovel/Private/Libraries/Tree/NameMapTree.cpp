@@ -84,6 +84,50 @@ FName UNameMapTreeLibrary::GetName(const TScriptInterface<INameMapTree> &Target)
     return FName();
 }
 
+TArray<FName> UNameMapTreeLibrary::GetNamePath(const TScriptInterface<INameMapTree> &Target)
+{
+    if (IsRoot(Target.GetObject()))
+    {
+        return {};
+    }
+    return GetNamePath(IGetParentTree(Target).GetObject()) += {GetName(Target)};
+}
+bool UNameMapTreeLibrary::IsParentOfWithNamePath(const TScriptInterface<INameMapTree> &Target, const TScriptInterface<INameMapTree> &Child, TArray<FName> &Path)
+{
+    return IsChildOfWithNamePath(Child, Target, Path);
+}
+
+bool UNameMapTreeLibrary::IsChildOfWithNamePath(const TScriptInterface<INameMapTree> &Target, const TScriptInterface<INameMapTree> &Parent, TArray<FName> &Path)
+{
+    if (Target.GetObject() == Parent.GetObject())
+    {
+        Path = {};
+        return true;
+    }
+    if (IsRoot(Target.GetObject()))
+    {
+        Path = {};
+        return false;
+    }
+    if (IsChildOfWithNamePath(IGetParentTree(Target.GetObject()).GetObject(), Parent, Path))
+    {
+        Path.Add(GetName(Target));
+        return true;
+    }
+    return false;
+}
+
+TScriptInterface<INameMapTree> UNameMapTreeLibrary::GetChildAtNamePath(const TScriptInterface<INameMapTree> &Target, TArray<FName> Path)
+{
+    if (Path.Num() == 0)
+        return Target;
+    auto child = IGetChildByName(Target, Path[0]);
+    Path.RemoveAt(0);
+    if (child.GetObject())
+        return GetChildAtNamePath(child, Path);
+    return NULL;
+}
+
 bool UNameMapTreeLibrary::NameToIndex(const TScriptInterface<INameMapTree> &Target, FName name, uint8 &index)
 {
     auto names = IGetNames(Target);
@@ -127,7 +171,7 @@ bool UNameMapTreeLibrary::NamePathToIndexPath(const TScriptInterface<INameMapTre
         auto Child = IGetChildByName(Target, namePath[0]);
         indexPath.Add(index);
         namePath.RemoveAt(0);
-        return NamePathToIndexPath(Child,namePath,indexPath);
+        return NamePathToIndexPath(Child, namePath, indexPath);
     }
     return false;
 }
@@ -150,7 +194,7 @@ bool UNameMapTreeLibrary::IndexPathToNamePath(const TScriptInterface<INameMapTre
         auto Child = IGetChildByName(Target, name);
         namePath.Add(name);
         indexPath.RemoveAt(0);
-        return IndexPathToNamePath(Child,indexPath,namePath);
+        return IndexPathToNamePath(Child, indexPath, namePath);
     }
     return false;
 }
