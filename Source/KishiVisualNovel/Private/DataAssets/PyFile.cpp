@@ -10,7 +10,6 @@ using namespace std;
 
 int example() {
   string lines[] = {
-      "set x 1",
       "label start:",
       "\"Sylvie\" \"Hi there! how was class?\"",
       "\"I'll ask her...!\"",
@@ -20,20 +19,40 @@ int example() {
       "hide sylvie",
       "image logo = \"renpy logo.png\"",
       "image eileen happy = \"eileen_happy_blue_dress.png\"",
+      "play music \"audio/illurock.ogg\"",
+      "play music \"audio/illurock.ogg\" fadeout 1.0 fadein 1.0",
+      "pause 3.0",
+      "return",
+      "\"It's a videogame.\":",
+      "jump game",
+      "menu:",
+      "default book = False",
+      "$ book = True",
+      "if book:",
+      "else:",
       "with fade",
-      "show sylvie green  at right"
+      "show sylvie green at right",
   };
   regex regs[] = {
-      regex("^set\\s([a-z]+)\\s([0-9]+)$"),
-      regex("^label\\s*([a-z]+)\\s*:$"),
+      regex("^label ([a-z]+):$"),
       regex("^\"(.+)\" \"(.*)\"$"),
       regex("^\"(.*)\"$"),
       regex("^define ([A-Za-z0-9]+) = Character\\('([A-Za-z0-9]+)', color=\"#([0-9a-fA-F]{6})\"\\)$"),
       regex("^scene bg ([A-Za-z0-9]+)$"),
-      regex("^show(( [A-Za-z0-9]+)+)  (?:at ([A-Za-z0-9]+))?"),
+      regex("^show(( (?!at)[A-Za-z0-9]+)+)(?: at ([A-Za-z0-9]+))?$"),
       regex("^hide ([A-Za-z0-9]+)$"),
       regex("^image(\\s[A-Za-z0-9]+)+ = \"([A-Za-z0-9\\_\\.\\s]+)\"$"),
+      regex("^(play|stop|queue) (music|sound) \"(.*)\"(?: fadeout ([0-9\\.]+))?(?: fadein ([0-9\\.]+))?$"),
+      regex("^pause(?: ([0-9\\.]+))?$"),
+      regex("^return$"),
       regex("^with (fade|dissolve|None)$"),
+      regex("^\"(.*)\":$"),
+      regex("^jump ([a-z]+)$"),
+      regex("^menu:$"),
+      regex("^default ([a-z]+) = (False|True)$"),
+      regex("^\\$ ([a-z]+) = (False|True)$"),
+      regex("^\\if ([a-z]+):$"),
+      regex("^else:$"),
   };
   for (string &line : lines) {
     bool matched = false;
@@ -41,16 +60,23 @@ int example() {
       std::smatch m;
       matched = std::regex_match(line, m, reg);
       if (matched) {
+        int counter = -1;
         for (auto &param : m) {
-          cout << param;
-          cout << "|";
+          ++counter;
+          if (counter) {
+            cout << param;
+            cout << "|";
+          } else {
+            cout << param << "\n=>:";
+          }
         }
         cout << "\n";
         break;
       }
     }
+    if (!matched)
+      cout << "!not matched :" << line << "\n";
   }
-  cout << "Welcome to Online IDE!! Happy Coding :)";
   return 0;
 }
 
