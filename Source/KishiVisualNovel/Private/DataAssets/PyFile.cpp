@@ -10,6 +10,7 @@ using namespace std;
 
 int example() {
   string lines[] = {
+      "#some comment",
       "label start:",
       "\"Sylvie\" \"Hi there! how was class?\"",
       "\"I'll ask her...!\"",
@@ -34,10 +35,11 @@ int example() {
       "show sylvie green at right",
   };
   regex regs[] = {
+      regex("^#(.*)$"),
       regex("^label ([a-z]+):$"),
       regex("^\"(.+)\" \"(.*)\"$"),
       regex("^\"(.*)\"$"),
-      regex("^define ([A-Za-z0-9]+) = Character\\('([A-Za-z0-9]+)', color=\"#([0-9a-fA-F]{6})\"\\)$"),
+      regex("^define ([A-Za-z0-9]+) = Character\\('([A-Za-z0-9]+)'(?:, color=\"#([0-f]{6})\")?(?:, who_color=\"#([0-f]{6})\")?\\)$"),
       regex("^scene bg ([A-Za-z0-9]+)$"),
       regex("^show(( (?!at)[A-Za-z0-9]+)+)(?: at ([A-Za-z0-9]+))?$"),
       regex("^hide ([A-Za-z0-9]+)$"),
@@ -51,7 +53,8 @@ int example() {
       regex("^menu:$"),
       regex("^default ([a-z]+) = (False|True)$"),
       regex("^\\$ ([a-z]+) = (False|True)$"),
-      regex("^\\if ([a-z]+):$"),
+      regex("^if ([a-z]+):$"),
+      regex("^(else if|elif) ([a-z]+):$"),
       regex("^else:$"),
   };
   for (string &line : lines) {
@@ -67,7 +70,7 @@ int example() {
             cout << param;
             cout << "|";
           } else {
-            cout << param << "\n=>:";
+            cout << param << "\n=>|";
           }
         }
         cout << "\n";
