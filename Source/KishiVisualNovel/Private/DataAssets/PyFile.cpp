@@ -15,6 +15,7 @@ int example() {
       "\"Sylvie\" \"Hi there! how was class?\"",
       "\"I'll ask her...!\"",
       "define m = Character('Me', color=\"#c8c8ff\")",
+      "define s = Character(_(\"Sylvie\"), color=\"#c8ffc8\")",
       "scene bg meadow",
       "show sylvie green smile",
       "hide sylvie",
@@ -29,32 +30,38 @@ int example() {
       "menu:",
       "default book = False",
       "$ book = True",
+      "$ book = 1",
+      "$ book = 1.0",
+      "$ book = \"Hi\"",
       "if book:",
       "else:",
       "with fade",
+      "\"{b}Good Ending{/b}.\"",
       "show sylvie green at right",
   };
   regex regs[] = {
       regex("^#(.*)$"),
-      regex("^label ([a-z]+):$"),
+      regex("^label (\\w+):$"),
       regex("^\"(.+)\" \"(.*)\"$"),
       regex("^\"(.*)\"$"),
-      regex("^define ([A-Za-z0-9]+) = Character\\('([A-Za-z0-9]+)'(?:, color=\"#([0-f]{6})\")?(?:, who_color=\"#([0-f]{6})\")?\\)$"),
-      regex("^scene bg ([A-Za-z0-9]+)$"),
-      regex("^show(( (?!at)[A-Za-z0-9]+)+)(?: at ([A-Za-z0-9]+))?$"),
-      regex("^hide ([A-Za-z0-9]+)$"),
-      regex("^image(\\s[A-Za-z0-9]+)+ = \"([A-Za-z0-9\\_\\.\\s]+)\"$"),
-      regex("^(play|stop|queue) (music|sound) \"(.*)\"(?: fadeout ([0-9\\.]+))?(?: fadein ([0-9\\.]+))?$"),
+      regex("^define (\\w+) = Character\\(('\\w+'|_\\(\"\\w+\"\\))(?:, "
+            "color=\"#([0-f]{6})\")?(?:, who_color=\"#([0-f]{6})\")?\\)$"),
+      regex("^scene bg (\\w+)$"),
+      regex("^show(( (?!at)\\w+)+)(?: at (\\w+))?$"),
+      regex("^hide (\\w+)$"),
+      regex("^image(\\s\\w+)+ = \"([\\w\\.\\s]+)\"$"),
+      regex("^(play|stop|queue) (music|sound) \"(.*)\"(?: fadeout "
+            "([0-9\\.]+))?(?: fadein ([0-9\\.]+))?$"),
       regex("^pause(?: ([0-9\\.]+))?$"),
       regex("^return$"),
       regex("^with (fade|dissolve|None)$"),
       regex("^\"(.*)\":$"),
-      regex("^jump ([a-z]+)$"),
+      regex("^jump (\\w+)$"),
       regex("^menu:$"),
-      regex("^default ([a-z]+) = (False|True)$"),
-      regex("^\\$ ([a-z]+) = (False|True)$"),
-      regex("^if ([a-z]+):$"),
-      regex("^(else if|elif) ([a-z]+):$"),
+      regex("^default (\\w+) = (False|True)$"),
+      regex("^\\$ (\\w+) = ((True|False)|([0-9]+)|([0-9\\.]+)|(\".*\"))$"),
+      regex("^if (\\w+):$"),
+      regex("^(else if|elif) (\\w+):$"),
       regex("^else:$"),
   };
   for (string &line : lines) {
@@ -78,7 +85,7 @@ int example() {
       }
     }
     if (!matched)
-      cout << "!not matched :" << line << "\n";
+      cout << "!!!not matched :" << line << "\n\n";
   }
   return 0;
 }
