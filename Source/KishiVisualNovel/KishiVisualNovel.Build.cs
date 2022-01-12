@@ -17,8 +17,8 @@ public class KishiVisualNovel : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"KishiVisualNovel/kishi",
-				"KishiVisualNovel/kishi/UE4",
+				//"KishiVisualNovel/kishi",
+				//"KishiVisualNovel/kishi/UE4",
 				// ... add other private include paths required here ...
 			}
 			);

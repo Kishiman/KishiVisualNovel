@@ -26,8 +26,8 @@ public class KishiVisualNovelImporter : ModuleRules
 			});
 			PrivateIncludePaths.AddRange(
 				new string[] {
-					"KishiVisualNovelImporter/psd_sdk/src/Psd",
-					"KishiVisualNovelImporter/psd_sdk/src/Samples",
+					//"KishiVisualNovelImporter/psd_sdk/src/Psd",
+					//"KishiVisualNovelImporter/psd_sdk/src/Samples",
 					// ... add other private include paths required here ...
 				}
 			);
