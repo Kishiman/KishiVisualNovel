@@ -28,6 +28,7 @@ public class KishiVisualNovel : ModuleRules
 			new string[]
 			{
 				"Core",
+				"Kishi",
 				"UMG",
 				"Paper2D",
 				// ... add other public dependencies that you statically link with here ...
@@ -40,8 +41,8 @@ public class KishiVisualNovel : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"Slate",
-				"SlateCore",
+				//"Slate",
+				//"SlateCore",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

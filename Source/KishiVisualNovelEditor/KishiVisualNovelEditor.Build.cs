@@ -24,7 +24,6 @@ public class KishiVisualNovelEditor : ModuleRules
 				"KismetWidgets",
 				"Kismet",  // for FWorkflowCentricApplication
 				"PropertyEditor",
-				"KishiVisualNovel",
 				"ContentBrowser",
 				"WorkspaceMenuStructure",
 				"EditorStyle",
@@ -32,6 +31,7 @@ public class KishiVisualNovelEditor : ModuleRules
 				"Projects",
 				"NavigationSystem",
 				"ToolMenus",
+				"KishiVisualNovel",
 			});
 
 		PrivateIncludePathModuleNames.AddRange(

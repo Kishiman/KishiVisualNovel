@@ -16,6 +16,12 @@
 	"Installed": false,
 	"Modules": [
 		{
+			"Name": "Kishi",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		
+		{
 			"Name": "KishiVisualNovel",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"

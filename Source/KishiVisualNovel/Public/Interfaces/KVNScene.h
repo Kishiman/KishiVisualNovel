@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "KishiVisualNovelData.h"
+#include "KVNData.h"
 
 #include "KVNScene.generated.h"
 
@@ -22,12 +22,12 @@ public:
     virtual FName GetCurrentScene_Implementation()const=0;
     //Check if a scene exists
     UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
-    bool HasScene(FName SceneName,const FVisualNovelParameterCollection& SceneParams)const;
-    virtual bool HasScene_Implementation(FName SceneName,const FVisualNovelParameterCollection& SceneParams)const=0;
+    bool HasScene(FName SceneName,const FKVNParameterCollection& SceneParams)const;
+    virtual bool HasScene_Implementation(FName SceneName,const FKVNParameterCollection& SceneParams)const=0;
     //Set a Scene to Load
     UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
-    void SetScene(FName SceneName,const FVisualNovelParameterCollection& SceneParams);
-    virtual void SetScene_Implementation(FName SceneName,const FVisualNovelParameterCollection& SceneParams)=0; 
+    void SetScene(FName SceneName,const FKVNParameterCollection& SceneParams);
+    virtual void SetScene_Implementation(FName SceneName,const FKVNParameterCollection& SceneParams)=0; 
 
     /*Events*/
     UFUNCTION(BlueprintCallable,BlueprintNativeEvent)

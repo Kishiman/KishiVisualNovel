@@ -13,16 +13,16 @@ public class KishiVisualNovelImporter : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Json",
-				"Slate",
-				"SlateCore",
+				//"Slate",
+				//"SlateCore",
 				"Engine",
-				"KishiVisualNovel",
 				"UnrealEd",
-				"KishiVisualNovelEditor",
 				"AssetTools",
 				"ContentBrowser",
                 "EditorStyle",
 				"ToolMenus",
+				"KishiVisualNovel",
+				"KishiVisualNovelEditor",
 			});
 			PrivateIncludePaths.AddRange(
 				new string[] {
