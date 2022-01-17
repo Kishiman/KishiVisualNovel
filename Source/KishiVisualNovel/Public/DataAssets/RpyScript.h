@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "KishiDataAsset.h"
-#include "KVNGameMode.h"
-#include "Libraries/Tree/ArrayTree.h"
+#include "Interfaces/C++/RpyInstruction.h"
+
 #include "RpyScript.generated.h"
 
 /**
@@ -22,18 +23,6 @@ struct FRpyLine
 	FString line;
 };
 
-class RpyInstruction : public IArrayTree
-{
-public:
-	FRpyLine *rpyLine;
-	virtual void Execute(AKVNGameMode *gameMode) = 0;
-
-protected:
-	RpyInstruction(FRpyLine *_rpyLine, RpyInstruction *_parent) : rpyLine(_rpyLine), parent(_parent){};
-	RpyInstruction *parent;
-	TArray<RpyInstruction *> children;
-};
-
 UCLASS()
 class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
 {
@@ -44,5 +33,5 @@ public:
 	static TArray<FRpyLine> PYLinesFromString(FString text, uint8 TabSize);
 
 private:
-	TArray<RpyInstruction *> instructions;
+	TArray<TScriptInterface<IRpyInstruction>> instructions;
 };
