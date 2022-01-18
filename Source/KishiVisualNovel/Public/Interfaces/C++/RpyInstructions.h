@@ -2,10 +2,11 @@
 
 #include "Interfaces/C++/RpyInstruction.h"
 
-class SayInstruction :public IRpyInstruction
-{
+class SayInstruction : public IRpyInstruction {
 public:
-    virtual bool IsAsync() const override;
-    virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
-    virtual TScriptInterface<IRpyInterpreter> GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) override;
+  FName name;
+  FString statement;
+  
+  SayInstruction(FName _name,FString _statement):isAsync(false),name(_name),statement(_statement){};
+  virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };

@@ -20,26 +20,32 @@ class KISHIVISUALNOVEL_API IRpyInstruction: public IArrayTree
 {
     GENERATED_BODY()
 public:
-    UFUNCTION(BlueprintCallable)
-    virtual bool IsAsync() const = 0;
 
     UFUNCTION(BlueprintCallable)
     virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
 
     UFUNCTION(BlueprintCallable)
-    virtual TScriptInterface<IRpyInterpreter> GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
+    virtual bool IsAsync() const;
+
+    UFUNCTION(BlueprintCallable)
+    virtual TScriptInterface<IRpyInterpreter> GetNext(const TScriptInterface<IRpyInterpreter> &interpreter);
 
     //override
     virtual TScriptInterface<IBaseTree> GetParentTree_Implementation() const override;
+
 
     virtual TArray<TScriptInterface<IBaseTree>> GetDirectChildren_Implementation() const override;
 
     virtual TScriptInterface<IArrayTree> GetChild_Implementation(uint8 index) const override;
 
+    //compile
+    virtual void Compile();
 
     //
+    bool isAsync;
     TScriptInterface<IRpyInterpreter> parent;
     TArray<TScriptInterface<IRpyInterpreter>> children;
+    TScriptInterface<IRpyInterpreter> next;
 
 };
 
