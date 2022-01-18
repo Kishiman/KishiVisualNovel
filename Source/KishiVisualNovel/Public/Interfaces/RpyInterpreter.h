@@ -25,10 +25,6 @@ public:
     bool SetCurrentInstruction(const TScriptInterface<IRpyInstruction> &instruction);
     virtual bool SetCurrentInstruction_Implementation(const TScriptInterface<IRpyInstruction> &instruction) = 0;
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool SetLabel(FName label, const TScriptInterface<IRpyInstruction> &instruction);
-    virtual bool SetLabel_Implementation(FName label, const TScriptInterface<IRpyInstruction> &instruction) = 0;
-
     // instructions
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     bool Say(FName name, const FString &statement);
@@ -39,12 +35,12 @@ public:
     virtual bool Scene_Implementation(const TMap<FName, FString> &params) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool Show(FName name, const TSet<FName> &params);
-    virtual bool Show_Implementation(FName name, const TSet<FName> &params) = 0;
+    bool Show(FName name, const TMap<FName, FString> &params);
+    virtual bool Show_Implementation(FName name, const TMap<FName, FString> &params) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool Hide(FName name, const TSet<FName> &params);
-    virtual bool Hide_Implementation(FName name, const TSet<FName> &params) = 0;
+    bool Hide(FName name, const TMap<FName, FString> &params);
+    virtual bool Hide_Implementation(FName name, const TMap<FName, FString> &params) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     bool PlayMusic(FName name, const TMap<FName, FString> &params);
@@ -56,8 +52,8 @@ public:
 
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool Menu(const TScriptInterface<IRpyInstruction> &menu, const TArray<FString> &choices);
-    virtual bool Menu_Implementation(const TScriptInterface<IRpyInstruction> &menu, const TArray<FString> &choices) = 0;
+    bool Menu(const FString &statement, const TArray<FString> &choices,const TArray<FString> &jumps);
+    virtual bool Menu_Implementation(const FString &statement, const TArray<FString> &choices,const TArray<TScriptInterface<IRpyInstruction>> &jumps) = 0;
 
     // getters
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)

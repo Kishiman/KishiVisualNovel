@@ -2,6 +2,12 @@
 
 bool IRpyInstruction::IsAsync() const { return this->isAsync; };
 
+IRpyInstruction::~IRpyInstruction(){
+  for(auto child : this->children){
+    delete child;
+  }
+};
+
 TScriptInterface<IRpyInterpreter> IRpyInstruction::GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) {
   return this->next;
 };
@@ -19,6 +25,6 @@ TScriptInterface<IArrayTree> IRpyInstruction::GetChild_Implementation(uint8 inde
 };
 
 void IRpyInstruction::Compile(){
-    this->next=UArrayTreeLibrary::GetNext(this);
+  return this->next=UArrayTreeLibrary::GetNext(this);
 }
 

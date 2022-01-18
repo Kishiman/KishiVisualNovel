@@ -25,10 +25,9 @@ public:
     virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
 
     UFUNCTION(BlueprintCallable)
-    virtual bool IsAsync() const;
-
-    UFUNCTION(BlueprintCallable)
     virtual TScriptInterface<IRpyInterpreter> GetNext(const TScriptInterface<IRpyInterpreter> &interpreter);
+
+    virtual ~IRpyInstruction();
 
     //override
     virtual TScriptInterface<IBaseTree> GetParentTree_Implementation() const override;
@@ -42,10 +41,9 @@ public:
     virtual void Compile();
 
     //
-    bool isAsync;
-    TScriptInterface<IRpyInterpreter> parent;
-    TArray<TScriptInterface<IRpyInterpreter>> children;
-    TScriptInterface<IRpyInterpreter> next;
+    IRpyInstruction* parent;
+    TArray<IRpyInstruction*> children;
+    IRpyInstruction* next;
 
 };
 
