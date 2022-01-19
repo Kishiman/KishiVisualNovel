@@ -52,7 +52,7 @@ public:
 
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool Menu(const FString &statement, const TArray<FString> &choices,const TArray<FString> &jumps);
+    bool Menu(const FString &statement, const TArray<FString> &choices,const TArray<TScriptInterface<IRpyInstruction>> &jumps);
     virtual bool Menu_Implementation(const FString &statement, const TArray<FString> &choices,const TArray<TScriptInterface<IRpyInstruction>> &jumps) = 0;
 
     // getters

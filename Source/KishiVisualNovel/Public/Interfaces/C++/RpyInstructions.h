@@ -3,13 +3,13 @@
 #include "Interfaces/C++/RpyInstruction.h"
 
 
-class BlankInstruction : public IRpyInstruction {
+class BlankInstruction : public URpyInstructionBase {
 public:
   BlankInstruction(){};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {return true;};
 };
 
-class SceneInstruction : public IRpyInstruction {
+class SceneInstruction : public URpyInstructionBase {
 public:
   TMap<FName, FString> params;
   
@@ -17,7 +17,7 @@ public:
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
-class ShowInstruction : public IRpyInstruction {
+class ShowInstruction : public URpyInstructionBase {
 public:
   FName name;
   TMap<FName, FString> params;
@@ -26,7 +26,7 @@ public:
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
-class HideInstruction : public IRpyInstruction {
+class HideInstruction : public URpyInstructionBase {
 public:
   FName name;
   TMap<FName, FString> params;
@@ -35,7 +35,7 @@ public:
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
-class SayInstruction : public IRpyInstruction {
+class SayInstruction : public URpyInstructionBase {
 public:
   FName name;
   FString statement;
