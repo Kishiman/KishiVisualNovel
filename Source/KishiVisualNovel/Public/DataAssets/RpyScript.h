@@ -43,9 +43,9 @@ public:
 
 	static TArray<FRpyLine> PYLinesFromString(FString text, uint8 TabSize);
 
-	RpyInstructionBase* current;
-	TArray<RpyInstructionBase*> instructions;
-	TMap<FName,RpyInstructionBase*> labels;
+	RpyInstruction* current;
+	TArray<RpyInstruction*> instructions;
+	TMap<FName,RpyInstruction*> labels;
 
 private:
 };

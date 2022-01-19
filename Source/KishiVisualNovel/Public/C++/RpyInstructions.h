@@ -3,13 +3,13 @@
 #include "C++/RpyInstruction.h"
 
 
-class BlankInstruction : public RpyInstructionBase {
+class BlankInstruction : public RpyInstruction {
 public:
   BlankInstruction(){};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {return true;};
 };
 
-class SceneInstruction : public RpyInstructionBase {
+class SceneInstruction : public RpyInstruction {
 public:
   TMap<FName, FString> params;
   
@@ -17,7 +17,7 @@ public:
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
-class ShowInstruction : public RpyInstructionBase {
+class ShowInstruction : public RpyInstruction {
 public:
   FName name;
   TMap<FName, FString> params;
@@ -26,7 +26,7 @@ public:
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
-class HideInstruction : public RpyInstructionBase {
+class HideInstruction : public RpyInstruction {
 public:
   FName name;
   TMap<FName, FString> params;
@@ -35,7 +35,7 @@ public:
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
-class SayInstruction : public RpyInstructionBase {
+class SayInstruction : public RpyInstruction {
 public:
   FName name;
   FString statement;
@@ -43,7 +43,7 @@ public:
   SayInstruction(FName _name,FString _statement):name(_name),statement(_statement){};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
-class PlayInstruction : public RpyInstructionBase {
+class PlayInstruction : public RpyInstruction {
 public:
   FName name;
   TMap<FName, FString> params;
@@ -52,7 +52,7 @@ public:
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
-class PauseInstruction : public RpyInstructionBase {
+class PauseInstruction : public RpyInstruction {
 public:
   float timeout;
 

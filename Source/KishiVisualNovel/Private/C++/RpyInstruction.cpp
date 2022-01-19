@@ -1,18 +1,18 @@
 #include "C++/RpyInstruction.h"
 
-RpyInstructionBase::~RpyInstructionBase(){
+RpyInstruction::~RpyInstruction(){
   for(auto child : children){
     if(child)
       delete child;
   }
 }
 
-bool RpyInstructionBase::Compile(){
+bool RpyInstruction::Compile(){
   return true;
 }
-bool RpyInstructionBase::Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {
+bool RpyInstruction::Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {
   return true;
 };
-RpyInstructionBase* RpyInstructionBase::GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) {
+RpyInstruction* RpyInstruction::GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) {
   return this->next;
 };

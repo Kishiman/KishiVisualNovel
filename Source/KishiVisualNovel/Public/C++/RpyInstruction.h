@@ -7,18 +7,18 @@
 class IRpyInterpreter;
 class URpyScript;
 
-class RpyInstructionBase
+class RpyInstruction
 {
 public:
-    RpyInstructionBase(){};
-    virtual ~RpyInstructionBase();
+    RpyInstruction(){};
+    virtual ~RpyInstruction();
     virtual bool Compile();
     virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
-    virtual RpyInstructionBase *GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
+    virtual RpyInstruction *GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
 
     //
     URpyScript *script;
-    RpyInstructionBase *parent;
-    TArray<RpyInstructionBase *> children;
-    RpyInstructionBase *next;
+    RpyInstruction *parent;
+    TArray<RpyInstruction *> children;
+    RpyInstruction *next;
 };
