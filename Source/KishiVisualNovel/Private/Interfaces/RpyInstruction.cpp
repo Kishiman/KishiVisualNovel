@@ -1,18 +1,29 @@
 #include "Interfaces/C++/RpyInstruction.h"
 
+RpyInstructionBase::~RpyInstructionBase(){
+  for(auto child : children){
+    if(child)
+      delete child;
+  }
+}
 
-TScriptInterface<IRpyInstruction> URpyInstructionBase::GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) {
+bool RpyInstructionBase::Compile(){
+  return true;
+  // TScriptInterface<IArrayTree> me=this;
+  // this->next=(RpyInstructionBase*)UArrayTreeLibrary::GetNext(me).GetObject();
+}
+bool RpyInstructionBase::Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {
+  return true;
+};
+RpyInstructionBase* RpyInstructionBase::GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) {
   return this->next;
 };
-bool URpyInstructionBase::Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {
-  return false;
-};
 
-TScriptInterface<IBaseTree> URpyInstructionBase::GetParentTree_Implementation() const {
+TScriptInterface<IBaseTree> RpyInstructionBase::GetParentTree_Implementation() const {
   return this->parent;
 };
 
-TArray<TScriptInterface<IBaseTree>> URpyInstructionBase::GetDirectChildren_Implementation() const {
+TArray<TScriptInterface<IBaseTree>> RpyInstructionBase::GetDirectChildren_Implementation() const {
     TArray<TScriptInterface<IBaseTree>> DirectChildren;
     DirectChildren.Reserve(this->children.Num());
     for(auto child : this->children){
@@ -21,12 +32,8 @@ TArray<TScriptInterface<IBaseTree>> URpyInstructionBase::GetDirectChildren_Imple
   return DirectChildren;
 };
 
-TScriptInterface<IArrayTree> URpyInstructionBase::GetChild_Implementation(uint8 index) const {
+TScriptInterface<IArrayTree> RpyInstructionBase::GetChild_Implementation(uint8 index) const {
   return this->children[index];
 };
 
-void URpyInstructionBase::Compile(){
-  // TScriptInterface<IArrayTree> me=this;
-  // this->next=(URpyInstructionBase*)UArrayTreeLibrary::GetNext(me).GetObject();
-}
 

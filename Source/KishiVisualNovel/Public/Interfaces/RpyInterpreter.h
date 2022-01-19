@@ -1,9 +1,9 @@
 #pragma once
-
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "Interfaces/C++/RpyInstruction.h"
+#include "DataAssets/RpyScript.h"
 
 #include "RpyInterpreter.generated.h"
 
@@ -17,13 +17,6 @@ class KISHIVISUALNOVEL_API IRpyInterpreter
 {
     GENERATED_BODY()
 public:
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    TScriptInterface<IRpyInstruction> GetCurrentInstruction() const;
-    virtual TScriptInterface<IRpyInstruction> GetCurrentInstruction_Implementation() const = 0;
-
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool SetCurrentInstruction(const TScriptInterface<IRpyInstruction> &instruction);
-    virtual bool SetCurrentInstruction_Implementation(const TScriptInterface<IRpyInstruction> &instruction) = 0;
 
     // instructions
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
@@ -52,8 +45,8 @@ public:
 
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool Menu(const FString &statement, const TArray<FString> &choices,const TArray<TScriptInterface<IRpyInstruction>> &jumps);
-    virtual bool Menu_Implementation(const FString &statement, const TArray<FString> &choices,const TArray<TScriptInterface<IRpyInstruction>> &jumps) = 0;
+    bool Menu(const FString &statement, const TArray<FString> &choices);
+    virtual bool Menu_Implementation(const FString &statement, const TArray<FString> &choices) = 0;
 
     // getters
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
@@ -112,9 +105,6 @@ public:
     void Choose(int idx);
     virtual void Choose_Implementation(int idx) = 0;
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    void Next();
-    virtual void Next_Implementation() = 0;
 };
 
 UCLASS()
