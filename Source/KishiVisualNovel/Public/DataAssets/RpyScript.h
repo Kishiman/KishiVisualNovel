@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "KishiDataAsset.h"
-#include "Interfaces/C++/RpyInstruction.h"
+#include "C++/RpyInstruction.h"
 #include "Interfaces/RpyInterpreter.h"
 
 #include "RpyScript.generated.h"
@@ -36,17 +36,16 @@ public:
 	TArray<FName> GetLabels()const;
 
     UFUNCTION(BlueprintCallable)
-	bool StartLabel(const TScript<RpyInterpreter>& interpreter,FName label);
+	bool StartLabel(const TScriptInterface<IRpyInterpreter>& interpreter,FName label);
 	
 	UFUNCTION(BlueprintCallable)
-	bool RunNext(const TScript<RpyInterpreter>& interpreter);
+	bool RunNext(const TScriptInterface<IRpyInterpreter>& interpreter);
 
 	static TArray<FRpyLine> PYLinesFromString(FString text, uint8 TabSize);
 
-	URpyInstructionBase* current;
-	TArray<URpyInstructionBase*> instructions;
-	TMap<FName,URpyInstructionBase*> labels;
+	RpyInstructionBase* current;
+	TArray<RpyInstructionBase*> instructions;
+	TMap<FName,RpyInstructionBase*> labels;
 
 private:
-	TArray<TScriptInterface<IRpyInstruction>> instructions;
 };

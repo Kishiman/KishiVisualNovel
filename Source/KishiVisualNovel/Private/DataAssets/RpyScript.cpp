@@ -7,7 +7,7 @@
 #include <string>
 
 using namespace std;
-FString keywords={
+FString keywords[]={
 "at",
 "call",
 "hide",
@@ -24,7 +24,7 @@ FString keywords={
 "show",
 "with",
 "while",
-}
+};
 
 
 
@@ -108,22 +108,24 @@ int example() {
       cout << "!!!not matched :" << line << "\n\n";
   }
   return 0;
-}
+};
 
 TArray<FName> URpyScript::GetLabels()const{
-  return this->labels.Keys();
-}
+  TArray<FName> out;
+  labels.GetKeys(out);
+  return out;
+};
 
-bool URpyScript::StartLabel(const TScript<RpyInterpreter>& interpreter,FName label){
+bool URpyScript::StartLabel(const TScriptInterface<IRpyInterpreter>& interpreter,FName label){
   this->current=this->labels[label];
   if(!this->current)return false;
   return this->current->Execute(interpreter);
-}
-bool URpyScript::RunNext(const TScript<RpyInterpreter>& interpreter){
+};
+bool URpyScript::RunNext(const TScriptInterface<IRpyInterpreter>& interpreter){
   this->current=this->current->GetNext(interpreter);
   if(!this->current)return false;
   return this->current->Execute(interpreter);
-}
+};
 
 TArray<FRpyLine> URpyScript::PYLinesFromString(FString text, uint8 TabSize) {
   TArray<FString> lines;
@@ -144,4 +146,4 @@ TArray<FRpyLine> URpyScript::PYLinesFromString(FString text, uint8 TabSize) {
     PyLines.Add(rpyLine);
   }
   return PyLines;
-}
+};

@@ -5,6 +5,7 @@
 #include "PaperSprite.h"
 
 #include "Interfaces/RpyInterpreter.h"
+#include "Interfaces/KVNCharacter.h"
 
 #include "KVNGameMode.generated.h"
 
@@ -16,8 +17,6 @@ public:
     AKVNGameMode(){};
 
     // Static CompileTime Names
-    UPROPERTY(EditAnywhere)
-    TMap<FName, TScriptInterface<IRpyInstruction>> Labels;
     UPROPERTY(EditAnywhere)
     TMap<FName, TScriptInterface<IKVNCharacter>> Characters;
     UPROPERTY(EditAnywhere)

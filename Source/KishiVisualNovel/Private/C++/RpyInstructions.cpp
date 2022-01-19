@@ -1,4 +1,4 @@
-#include "Interfaces/C++/RpyInstructions.h"
+#include "C++/RpyInstructions.h"
 #include "Interfaces/RpyInterpreter.h"
 
 //Logic
@@ -6,9 +6,6 @@ bool SayInstruction::Execute(const TScriptInterface<IRpyInterpreter> &interprete
     return IRpyInterpreter::Execute_Say(interpreter.GetObject(),this->name,this->statement);
 };
 //
-bool SayInstruction::Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {
-    return IRpyInterpreter::Execute_Say(interpreter.GetObject(),this->name,this->statement);
-};
 
 bool SceneInstruction::Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {
     return IRpyInterpreter::Execute_Scene(interpreter.GetObject(),this->params);
