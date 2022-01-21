@@ -13,7 +13,8 @@ FText URpyScriptImporterFactory::GetToolTip() const
 
 bool URpyScriptImporterFactory::FactoryUpdateString(UClass* InClass,UObject* Object, FString& content){
 	URpyScript* rpyScript = (URpyScript*)(Object);
-	rpyScript->PyLines=URpyScript::PYLinesFromString(content,TabSize);
+	rpyScript->Parse(content,TabSize);
+	rpyScript->Compile();
 	return true;
 };
 

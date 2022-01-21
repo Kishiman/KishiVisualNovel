@@ -8,14 +8,13 @@
 #include "RpyScriptImporterFactory.generated.h"
 
 /**
- * 
  */
 UCLASS()
-class KISHIVISUALNOVELIMPORTER_API URpyScriptImporterFactory : public UKishiDataAssetImporterFactory,public FKishiDataAssetReimportHandler
+class KISHIVISUALNOVELIMPORTER_API URpyScriptImporterFactory : public UKishiDataAssetImporterFactory, public FKishiDataAssetReimportHandler
 {
 	GENERATED_UCLASS_BODY()
 	// UFactory interface
 	virtual FText GetToolTip() const override;
-	virtual bool FactoryUpdateString(UClass* InClass,UObject* Object, FString& content)override;
-	uint8 TabSize=4;
+	virtual bool FactoryUpdateString(UClass *InClass, UObject *Object, FString &content) override;
+	uint8 TabSize = 4;
 };

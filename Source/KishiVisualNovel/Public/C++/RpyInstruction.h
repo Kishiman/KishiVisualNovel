@@ -14,7 +14,7 @@ public:
     virtual ~RpyInstruction();
     virtual bool Compile();
     virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
-    virtual RpyInstruction *GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
+    virtual RpyInstruction *GetNext(const TScriptInterface<IRpyInterpreter> &interpreter);
 
     //
     URpyScript *script;

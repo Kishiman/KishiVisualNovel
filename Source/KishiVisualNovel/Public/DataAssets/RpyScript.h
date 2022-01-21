@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 
 #include "KishiDataAsset.h"
-#include "C++/RpyInstruction.h"
-#include "Interfaces/RpyInterpreter.h"
 
 #include "RpyScript.generated.h"
 
+class IRpyInterpreter;
+class RpyInstruction;
 /**
  */
 USTRUCT(BlueprintType)
@@ -32,20 +32,21 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<FRpyLine> PyLines;
 
+	RpyInstruction *current;
+	TArray<RpyInstruction *> instructions;
+	TMap<FName, RpyInstruction *> labels;
+
 	UFUNCTION(BlueprintPure)
-	TArray<FName> GetLabels()const;
+	TArray<FName> GetLabels() const;
 
-    UFUNCTION(BlueprintCallable)
-	bool StartLabel(const TScriptInterface<IRpyInterpreter>& interpreter,FName label);
-	
 	UFUNCTION(BlueprintCallable)
-	bool RunNext(const TScriptInterface<IRpyInterpreter>& interpreter);
+	bool StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter, FName label);
 
-	static TArray<FRpyLine> PYLinesFromString(FString text, uint8 TabSize);
+	UFUNCTION(BlueprintCallable)
+	bool RunNext(const TScriptInterface<IRpyInterpreter> &interpreter);
 
-	RpyInstruction* current;
-	TArray<RpyInstruction*> instructions;
-	TMap<FName,RpyInstruction*> labels;
+	void Parse(FString text, uint8 TabSize);
+	void Compile();
 
 private:
 };

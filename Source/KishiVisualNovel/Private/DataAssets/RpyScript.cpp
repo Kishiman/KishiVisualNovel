@@ -1,4 +1,6 @@
 #include "DataAssets/RpyScript.h"
+#include "C++/RpyCompilers.h"
+#include "C++/RpyInstructions.h"
 
 // Online IDE - Code Editor, Compiler, Interpreter
 
@@ -7,28 +9,27 @@
 #include <string>
 
 using namespace std;
-FString keywords[]={
-"at",
-"call",
-"hide",
-"if",
-"image",
-"init",
-"jump",
-"menu",
-"onlayer",
-"python",
-"return",
-"scene",
-"set",
-"show",
-"with",
-"while",
+FString keywords[] = {
+    "at",
+    "call",
+    "hide",
+    "if",
+    "image",
+    "init",
+    "jump",
+    "menu",
+    "onlayer",
+    "python",
+    "return",
+    "scene",
+    "set",
+    "show",
+    "with",
+    "while",
 };
 
-
-
-int example() {
+int example()
+{
   string lines[] = {
       "#some comment",
       "label start:",
@@ -84,19 +85,26 @@ int example() {
       regex("^(else if|elif) (\\w+):$"),
       regex("^else:$"),
   };
-  for (string &line : lines) {
+  for (string &line : lines)
+  {
     bool matched = false;
-    for (auto &reg : regs) {
+    for (auto &reg : regs)
+    {
       std::smatch m;
       matched = std::regex_match(line, m, reg);
-      if (matched) {
+      if (matched)
+      {
         int counter = -1;
-        for (auto &param : m) {
+        for (auto &param : m)
+        {
           ++counter;
-          if (counter) {
+          if (counter)
+          {
             cout << param;
             cout << "|";
-          } else {
+          }
+          else
+          {
             cout << param << "\n=>|";
           }
         }
@@ -110,32 +118,39 @@ int example() {
   return 0;
 };
 
-TArray<FName> URpyScript::GetLabels()const{
+TArray<FName> URpyScript::GetLabels() const
+{
   TArray<FName> out;
   labels.GetKeys(out);
   return out;
 };
 
-bool URpyScript::StartLabel(const TScriptInterface<IRpyInterpreter>& interpreter,FName label){
-  this->current=this->labels[label];
-  if(!this->current)return false;
+bool URpyScript::StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter, FName label)
+{
+  this->current = this->labels[label];
+  if (!this->current)
+    return false;
   return this->current->Execute(interpreter);
 };
-bool URpyScript::RunNext(const TScriptInterface<IRpyInterpreter>& interpreter){
-  this->current=this->current->GetNext(interpreter);
-  if(!this->current)return false;
+bool URpyScript::RunNext(const TScriptInterface<IRpyInterpreter> &interpreter)
+{
+  this->current = this->current->GetNext(interpreter);
+  if (!this->current)
+    return false;
   return this->current->Execute(interpreter);
 };
-
-TArray<FRpyLine> URpyScript::PYLinesFromString(FString text, uint8 TabSize) {
+void URpyScript::Parse(FString text, uint8 TabSize)
+{
   TArray<FString> lines;
   text.ParseIntoArrayLines(lines, true);
-  TArray<FRpyLine> PyLines;
+  PyLines.Empty();
   PyLines.Reserve(lines.Num());
-  for (int idx = 0; idx < lines.Num(); ++idx) {
+  for (int idx = 0; idx < lines.Num(); ++idx)
+  {
     FRpyLine rpyLine;
     // uint8 tabs=0;
-    while (lines[idx][rpyLine.tabs] == ' ' || lines[idx][rpyLine.tabs] == '\t') {
+    while (lines[idx][rpyLine.tabs] == ' ' || lines[idx][rpyLine.tabs] == '\t')
+    {
       ++rpyLine.tabs;
     }
     if (lines[idx][rpyLine.tabs] == '#')
@@ -145,5 +160,45 @@ TArray<FRpyLine> URpyScript::PYLinesFromString(FString text, uint8 TabSize) {
     rpyLine.tabs = (rpyLine.tabs + 1) / TabSize;
     PyLines.Add(rpyLine);
   }
-  return PyLines;
+};
+
+void URpyScript::Compile()
+{
+  TArray<RpyCompiler *> compilers;
+  // TODO
+  compilers.Add(new SayCompiler());
+  //
+  for (auto instruction : instructions)
+  {
+    delete instruction;
+  }
+  instructions.Empty();
+  for (auto &pyLine : PyLines)
+  {
+    bool matched = false;
+    for (auto compiler : compilers)
+    {
+      std::smatch m;
+      string target = TCHAR_TO_UTF8(*pyLine.line);
+      matched = std::regex_match(target, m, compiler->query);
+      if (matched)
+      {
+        TArray<FString> params;
+        int counter = -1;
+        for (auto &param : m)
+        {
+          ++counter;
+          if (counter)
+          {
+            string s = param;
+            params.Add(s.c_str());
+          }
+        }
+        RpyInstruction *instruction = compiler->GetRpyInstruction(this, pyLine, params);
+        break;
+      }
+    }
+    if (!matched)
+      cout << "!!!not matched :" << TCHAR_TO_UTF8(*pyLine.line) << "\n\n";
+  }
 };
