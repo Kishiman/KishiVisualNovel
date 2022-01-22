@@ -6,11 +6,12 @@
 
 class IRpyInterpreter;
 class URpyScript;
+struct FRpyLine;
 
 class RpyInstruction
 {
 public:
-    RpyInstruction(){};
+    RpyInstruction(URpyScript *script,FRpyLine *rpyLine) : script(script),rpyLine(rpyLine){};
     virtual ~RpyInstruction();
     virtual bool Compile();
     virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
@@ -18,6 +19,8 @@ public:
 
     //
     URpyScript *script;
+    FRpyLine *rpyLine;
+
     RpyInstruction *parent;
     TArray<RpyInstruction *> children;
     RpyInstruction *next;

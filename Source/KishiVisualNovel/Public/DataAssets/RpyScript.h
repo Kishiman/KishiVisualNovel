@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "KishiDataAsset.h"
+#include "Structs/DynamicObject.h"
 
 #include "RpyScript.generated.h"
 
@@ -30,8 +31,9 @@ class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere)
-	TArray<FRpyLine> PyLines;
+	TArray<FRpyLine> rpyLines;
 
+	FDynamicObject definitionObj;
 	RpyInstruction *current;
 	TArray<RpyInstruction *> instructions;
 	TMap<FName, RpyInstruction *> labels;
@@ -45,7 +47,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool RunNext(const TScriptInterface<IRpyInterpreter> &interpreter);
 
-	void Parse(FString text, uint8 TabSize);
+	void ImportRpyLines(FString text, uint8 TabSize);
+	void Parse();
 	void Compile();
 
 private:

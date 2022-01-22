@@ -61,11 +61,11 @@ using namespace std;
 // // void UVisualNovelScriptCompiler::Handle(UVisualNovelScript* script,UVisualNovelScriptNode* node){
 // //     return;
 // // }
-// void UVisualNovelScript::ScriptTreeFromPyFines(TArray<FRpyLine>& PyLines){
+// void UVisualNovelScript::ScriptTreeFromPyFines(TArray<FRpyLine>& rpyLines){
 //     UVisualNovelScriptNode* TreeStack[16];
 //     this->ScriptTree=NewObject<UVisualNovelScriptNode>(this);
 //     TreeStack[0]=(this->ScriptTree);
-//     for (FRpyLine rpyLine:PyLines)
+//     for (FRpyLine rpyLine:rpyLines)
 //     {
 //         UVisualNovelScriptNode* newNode=NewObject<UVisualNovelScriptNode>(this);
 //         newNode->ScriptLine=rpyLine;

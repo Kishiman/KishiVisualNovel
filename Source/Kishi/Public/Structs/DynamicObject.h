@@ -2,8 +2,7 @@
 
 #include "CoreMinimal.h"
 
-#include "Params.generated.h"
-
+#include "DynamicObject.generated.h"
 
 USTRUCT(BlueprintType)
 struct FIntegerParam
@@ -69,20 +68,18 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FParams
+struct FDynamicObject
 {
     GENERATED_BODY()
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TSet<FName> NameFlags;
+    TMap<FName, bool> bools;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TMap<FName,bool> Booleans;
+    TMap<FName, FString> strings;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TMap<FName,FName> Names;
+    TMap<FName, int> ints;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TMap<FName,int> Integers;
+    TMap<FName, float> floats;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TMap<FName,float> Floats;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TMap<FName,FVector> Vectors;
+    TMap<FName, FVector> vectors;
 };
