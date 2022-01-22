@@ -33,7 +33,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<FRpyLine> rpyLines;
 
-	FDynamicObject definitionObj;
+	FDynamicObject compileData;
 	RpyInstruction *current;
 	TArray<RpyInstruction *> instructions;
 	TMap<FName, RpyInstruction *> labels;

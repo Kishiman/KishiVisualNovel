@@ -30,7 +30,7 @@ FString keywords[] = {
 int example()
 {
     string lines[] = {
-        "#some comment",
+        //"#some comment",
         "label start:",
         "\"Sylvie\" \"Hi there! how was class?\"",
         "\"I'll ask her...!\"",
@@ -60,13 +60,12 @@ int example()
         "show sylvie green at right",
     };
     regex regs[] = {
-        regex("^#(.*)$"),
+        // regex("^#(.*)$"),
         regex("^label (\\w+):$"),
-        regex("^\"(.+)\" \"(.*)\"$"),
-        regex("^\"(.*)\"$"),
+        regex("^(?:\"(.+)\" )?\"(.*)\"$"),
         regex("^define (\\w+) = Character\\(('\\w+'|_\\(\"\\w+\"\\))(?:, "
               "color=\"#([0-f]{6})\")?(?:, who_color=\"#([0-f]{6})\")?\\)$"),
-        regex("^scene bg (\\w+)$"),
+        regex("^scene(( \\w+ \\w+)+)$"),
         regex("^show(( (?!at)\\w+)+)(?: at (\\w+))?$"),
         regex("^hide (\\w+)$"),
         regex("^image(\\s\\w+)+ = \"([\\w\\.\\s]+)\"$"),
@@ -116,11 +115,71 @@ int example()
     }
     return 0;
 };
+//"label start:"
+LabelParser::LabelParser()
+{
+    this->query = std::regex("^label (\\w+):$");
+};
+RpyInstruction *LabelParser::GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+{
+    RpyInstruction *label = new BlankInstruction(script, rpyLine);
+    script->labels.Add(FName(*params[0]), label);
+    return label;
+};
+//"\"Sylvie\" \"Hi there! how was class?\""
 SayParser::SayParser()
 {
-    this->query = std::regex("^\"(.+)\" \"(.*)\"$");
+    this->query = std::regex("^(?:\"(.+)\" )?\"(.*)\"$");
 };
+FName lastSayName = FName("$lastSayName");
 RpyInstruction *SayParser::GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 {
-    return new SayInstruction(script, rpyLine, FName(*params[0]), params[1]);
+    FName name = FName(*params[0]);
+    if (params[0].Len() > 0)
+    {
+        script->compileData.names.Add(lastSayName, name);
+    }
+    else if (script->compileData.names.Contains(lastSayName))
+    {
+        name = script->compileData.names[lastSayName];
+    }
+    else
+    {
+        return nullptr;
+    }
+    return new SayInstruction(script, rpyLine, name, params[1]);
+};
+
+//"scene bg meadow"
+SceneParser::SceneParser()
+{
+    this->query = std::regex("^(?:\"(.+)\" )?\"(.*)\"$");
+};
+RpyInstruction *SceneParser::GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+{
+    TMap<FName, FString> _params;
+    FString key;
+    FString value;
+    FString target = params[0];
+    int from = 1;
+    int to = target.Len() - 1;
+    while (to > -1)
+    {
+        to = target.Find(" ", ESearchCase::IgnoreCase, ESearchDir::FromStart, from);
+        key = target.Mid(from, to - from);
+        from = to + 1;
+        to = target.Find(" ", ESearchCase::IgnoreCase, ESearchDir::FromStart, from);
+        if (to > -1)
+        {
+            value = target.Mid(from, to - from);
+            from = to + 1;
+            _params.Add(FName(*key), value);
+        }
+        else
+        {
+            value = target.Mid(from, target.Len() - from);
+            _params.Add(FName(*key), value);
+        }
+    };
+    return new SceneInstruction(script, rpyLine, _params);
 };

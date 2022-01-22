@@ -75,6 +75,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<FName, bool> bools;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TMap<FName, FName> names;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<FName, FString> strings;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<FName, int> ints;
