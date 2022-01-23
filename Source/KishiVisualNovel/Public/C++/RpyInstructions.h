@@ -6,7 +6,7 @@ class BlankInstruction : public RpyInstruction
 {
 public:
   BlankInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
-  virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) { return true; };
+  virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
 class SceneInstruction : public RpyInstruction

@@ -9,7 +9,7 @@
 class RpyParser
 {
 public:
-	std::regex query;
+	FString query;
 	RpyParser() = default;
 	virtual ~RpyParser() = default;
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params) = 0;

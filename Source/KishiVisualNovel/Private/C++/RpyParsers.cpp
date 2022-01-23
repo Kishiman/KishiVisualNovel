@@ -118,7 +118,7 @@ int example()
 //"label start:"
 LabelParser::LabelParser()
 {
-    this->query = std::regex("^label (\\w+):$");
+    this->query = "^label (\\w+):$";
 };
 RpyInstruction *LabelParser::GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 {
@@ -129,7 +129,7 @@ RpyInstruction *LabelParser::GetRpyInstruction(URpyScript *script, FRpyLine *rpy
 //"\"Sylvie\" \"Hi there! how was class?\""
 SayParser::SayParser()
 {
-    this->query = std::regex("^(?:\"(.+)\" )?\"(.*)\"$");
+    this->query = "^(?:\"(.+)\" )?\"(.*)\"$";
 };
 FName lastSayName = FName("$lastSayName");
 RpyInstruction *SayParser::GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
@@ -153,7 +153,7 @@ RpyInstruction *SayParser::GetRpyInstruction(URpyScript *script, FRpyLine *rpyLi
 //"scene bg meadow"
 SceneParser::SceneParser()
 {
-    this->query = std::regex("^(?:\"(.+)\" )?\"(.*)\"$");
+    this->query = "^(?:\"(.+)\" )?\"(.*)\"$";
 };
 RpyInstruction *SceneParser::GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 {

@@ -16,5 +16,6 @@ class KISHIVISUALNOVELIMPORTER_API URpyScriptImporterFactory : public UKishiData
 	// UFactory interface
 	virtual FText GetToolTip() const override;
 	virtual bool FactoryUpdateString(UClass *InClass, UObject *Object, FString &content) override;
+	virtual EReimportResult::Type Reimport(UObject* Obj) override;
 	uint8 TabSize = 4;
 };

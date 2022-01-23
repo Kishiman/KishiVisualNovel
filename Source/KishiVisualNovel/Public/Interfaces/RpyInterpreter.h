@@ -16,7 +16,6 @@ class KISHIVISUALNOVEL_API IRpyInterpreter
 {
     GENERATED_BODY()
 public:
-
     // instructions
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     bool Say(FName name, const FString &statement);
@@ -41,7 +40,6 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     bool Pause(float timeout);
     virtual bool Pause_Implementation(float timeout) = 0;
-
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     bool Menu(const FString &statement, const TArray<FString> &choices);
@@ -104,6 +102,9 @@ public:
     void Choose(int idx);
     virtual void Choose_Implementation(int idx) = 0;
 
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    bool AutoRunNext() const;
+    virtual bool AutoRunNext_Implementation() const = 0;
 };
 
 UCLASS()

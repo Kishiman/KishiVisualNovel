@@ -2,26 +2,44 @@
 #include <iostream>
 
 URpyScriptImporterFactory::URpyScriptImporterFactory(const FObjectInitializer &ObjectInitializer)
-	: Super(ObjectInitializer, URpyScript::StaticClass(), "py", "Python Script Files", false, true, true), FKishiDataAssetReimportHandler(this){};
+	: Super(ObjectInitializer, URpyScript::StaticClass(), "rpy", "Renpy Script Files", false, true, true), FKishiDataAssetReimportHandler(this){};
 
 FText URpyScriptImporterFactory::GetToolTip() const
 {
-	return NSLOCTEXT("KishiVisualNovel", "URpyScriptImporterFactoryDescription", "Py File imported from 'py' Python Script Files");
+	return NSLOCTEXT("KishiVisualNovel", "URpyScriptImporterFactoryDescription", "Rpy File imported from 'rpy' Renpy Script Files");
 };
 
 bool URpyScriptImporterFactory::FactoryUpdateString(UClass *InClass, UObject *Object, FString &content)
 {
 	URpyScript *rpyScript = (URpyScript *)(Object);
-	try
-	{
-		rpyScript->ImportRpyLines(content, TabSize);
-		rpyScript->Parse();
-		rpyScript->Compile();
-		return true;
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << e.what() << '\n';
+	bool allGood = true;
+	allGood = rpyScript->ImportRpyLines(content, TabSize);
+	if (!allGood)
 		return false;
-	}
+	UE_LOG(LogTemp, Display, TEXT("URpyScript.ImportRpyLines"));
+	allGood = rpyScript->Parse();
+	if (!allGood)
+		return false;
+	UE_LOG(LogTemp, Display, TEXT("URpyScript.Parse"));
+	allGood = rpyScript->Compile();
+	if (!allGood)
+		return false;
+	UE_LOG(LogTemp, Display, TEXT("URpyScript.Compile"));
+	return true;
+};
+EReimportResult::Type URpyScriptImporterFactory::Reimport(UObject *Obj)
+{
+	auto result = FKishiDataAssetReimportHandler::Reimport(Obj);
+	if (result != EReimportResult::Succeeded)
+		return result;
+	URpyScript *rpyScript = (URpyScript *)(Obj);
+	bool allGood = rpyScript->Parse();
+	if (!allGood)
+		return EReimportResult::Failed;
+	UE_LOG(LogTemp, Display, TEXT("URpyScript.Parse"));
+	allGood = rpyScript->Compile();
+	if (!allGood)
+		return EReimportResult::Failed;
+	UE_LOG(LogTemp, Display, TEXT("URpyScript.Compile"));
+	return EReimportResult::Succeeded;
 };

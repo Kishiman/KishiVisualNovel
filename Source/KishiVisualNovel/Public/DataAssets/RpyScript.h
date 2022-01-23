@@ -30,26 +30,31 @@ class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
 {
 	GENERATED_BODY()
 public:
+	URpyScript();
 	UPROPERTY(EditAnywhere)
 	TArray<FRpyLine> rpyLines;
 
 	FDynamicObject compileData;
-	RpyInstruction *current;
+	RpyInstruction *current = nullptr;
 	TArray<RpyInstruction *> instructions;
 	TMap<FName, RpyInstruction *> labels;
 
 	UFUNCTION(BlueprintPure)
 	TArray<FName> GetLabels() const;
+	UFUNCTION(BlueprintPure)
+	int GetInstructionsLength() const;
 
 	UFUNCTION(BlueprintCallable)
 	bool StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter, FName label);
 
 	UFUNCTION(BlueprintCallable)
 	bool RunNext(const TScriptInterface<IRpyInterpreter> &interpreter);
+	UFUNCTION(BlueprintCallable)
+	bool RunInstruction(const TScriptInterface<IRpyInterpreter> &interpreter, int index);
 
-	void ImportRpyLines(FString text, uint8 TabSize);
-	void Parse();
-	void Compile();
+	bool ImportRpyLines(FString text, uint8 TabSize);
+	bool Parse();
+	bool Compile();
 
 private:
 };

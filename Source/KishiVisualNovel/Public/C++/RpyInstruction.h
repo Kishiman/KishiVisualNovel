@@ -3,10 +3,9 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Libraries/Tree/ArrayTree.h"
+#include "DataAssets/RpyScript.h"
 
 class IRpyInterpreter;
-class URpyScript;
-struct FRpyLine;
 
 class RpyInstruction
 {
