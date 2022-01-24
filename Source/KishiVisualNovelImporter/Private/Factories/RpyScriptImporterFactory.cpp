@@ -29,6 +29,7 @@ bool URpyScriptImporterFactory::FactoryUpdateString(UClass *InClass, UObject *Ob
 };
 EReimportResult::Type URpyScriptImporterFactory::Reimport(UObject *Obj)
 {
+	UE_LOG(LogTemp, Warning, TEXT("URpyScriptImporterFactory::Reimport"));
 	auto result = FKishiDataAssetReimportHandler::Reimport(Obj);
 	if (result != EReimportResult::Succeeded)
 		return result;

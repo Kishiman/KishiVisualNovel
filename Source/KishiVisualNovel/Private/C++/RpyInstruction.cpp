@@ -1,13 +1,6 @@
 #include "C++/RpyInstruction.h"
 
-RpyInstruction::~RpyInstruction()
-{
-  for (auto child : children)
-  {
-    if (child)
-      delete child;
-  }
-}
+RpyInstruction::~RpyInstruction() = default;
 
 bool RpyInstruction::Compile()
 {
