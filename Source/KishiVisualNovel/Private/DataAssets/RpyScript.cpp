@@ -11,13 +11,17 @@
 #include <stdexcept>
 
 using namespace std;
-void uRpyScript::PostLoad(){
-  UE_LOG(LogTemp, Warning, TEXT("PostLoad, rpyLines:"%d),rpyLines.Num());
+void URpyScript::PostLoad()
+{
+  Super::PostLoad();
+  UE_LOG(LogTemp, Warning, TEXT("PostLoad, rpyLines:%d"), rpyLines.Num());
   Parse();
   Compile();
 };
-void uRpyScript::PostInitProperties(){
-  UE_LOG(LogTemp, Warning, TEXT("PostInitProperties, rpyLines:"%d),rpyLines.Num());
+void URpyScript::PostInitProperties()
+{
+  Super::PostInitProperties();
+  UE_LOG(LogTemp, Warning, TEXT("PostInitProperties, rpyLines:%d"), rpyLines.Num());
   Parse();
   Compile();
 };
@@ -153,45 +157,58 @@ bool URpyScript::Compile()
   {
     instructions[idx]->next = instructions[idx + 1];
   }
-  TArray<instruction*> stack;
+  TArray<RpyInstruction *> stack;
   for (int idx = 0; idx < instructions.Num(); ++idx)
   {
-    auto num=stack.Num();
-    RpyInstruction* last=num>0?stack[num-1]:nullptr;
-    current=instructions[idx];
-    int currentTabs=current->rpyLine.tabs;
-    if(last){
-      int lastTabs=last->rpyLine.tabs;
-      if(currentTabs==lastTabs+1){
-        current->parent=last;
+    auto num = stack.Num();
+    RpyInstruction *last = num > 0 ? stack[num - 1] : nullptr;
+    current = instructions[idx];
+    int currentTabs = current->rpyLine->tabs;
+    if (last)
+    {
+      int lastTabs = last->rpyLine->tabs;
+      if (currentTabs == lastTabs + 1)
+      {
+        current->parent = last;
         stack.Add(current);
-      }else if(currentTabs<=lastTabs){
-          int count=num-currentTabs
-          while(count--){
-            stack.Pop();
-          }
-          current->parent=currentTabs>0?stack[currentTabs-1]:nullptr;
-          stack.Add(current);
-      }else{
-        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"),current->rpyLine.LineNumber);
+      }
+      else if (currentTabs <= lastTabs)
+      {
+        int count = num - currentTabs;
+        while (count--)
+        {
+          stack.Pop();
+        }
+        current->parent = currentTabs > 0 ? stack[currentTabs - 1] : nullptr;
+        stack.Add(current);
+      }
+      else
+      {
+        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->LineNumber);
         return false;
       }
-    }else if(currentTabs==0){
-      stack.Add(current);
-    }else{
-        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"),current->rpyLine.LineNumber);
-        return false;
     }
-    if(current->parent){
-      parent->children.Add(current);
+    else if (currentTabs == 0)
+    {
+      stack.Add(current);
+    }
+    else
+    {
+      UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->LineNumber);
+      return false;
+    }
+    if (current->parent)
+    {
+      current->parent->children.Add(current);
     }
   }
   current = nullptr;
   for (auto instruction : instructions)
   {
-    if(!instruction->Compile()){
-        UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"),current->rpyLine.LineNumber,(*rpyLine.line));
-        return false;
+    if (!instruction->Compile())
+    {
+      UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), current->rpyLine->LineNumber, (*current->rpyLine->line));
+      return false;
     }
   }
   return true;

@@ -10,17 +10,17 @@ class IRpyInterpreter;
 class RpyInstruction
 {
 public:
-    RpyInstruction(URpyScript *script,FRpyLine *rpyLine) : script(script),rpyLine(rpyLine){};
+    RpyInstruction(URpyScript *script, FRpyLine *rpyLine) : script(script), rpyLine(rpyLine){};
     virtual ~RpyInstruction();
     virtual bool Compile();
     virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) = 0;
     virtual RpyInstruction *GetNext(const TScriptInterface<IRpyInterpreter> &interpreter);
 
     //
-    URpyScript *script;
-    FRpyLine *rpyLine;
+    URpyScript *script = nullptr;
+    FRpyLine *rpyLine = nullptr;
 
-    RpyInstruction *parent;
+    RpyInstruction *parent = nullptr;
     TArray<RpyInstruction *> children;
-    RpyInstruction *next;
+    RpyInstruction *next = nullptr;
 };

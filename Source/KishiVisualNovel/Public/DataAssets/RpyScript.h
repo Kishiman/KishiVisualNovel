@@ -52,8 +52,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool RunInstruction(const TScriptInterface<IRpyInterpreter> &interpreter, int index);
 
-	virtual void PostLoad()override;
-	virtual void PostInitProperties()override;
+	virtual void PostLoad() override;
+	virtual void PostInitProperties() override;
 
 	bool ImportRpyLines(FString text, uint8 TabSize);
 	bool Parse();
