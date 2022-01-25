@@ -30,17 +30,5 @@ bool URpyScriptImporterFactory::FactoryUpdateString(UClass *InClass, UObject *Ob
 EReimportResult::Type URpyScriptImporterFactory::Reimport(UObject *Obj)
 {
 	UE_LOG(LogTemp, Warning, TEXT("URpyScriptImporterFactory::Reimport"));
-	auto result = FKishiDataAssetReimportHandler::Reimport(Obj);
-	if (result != EReimportResult::Succeeded)
-		return result;
-	URpyScript *rpyScript = (URpyScript *)(Obj);
-	bool allGood = rpyScript->Parse();
-	if (!allGood)
-		return EReimportResult::Failed;
-	UE_LOG(LogTemp, Display, TEXT("URpyScript.Parse"));
-	allGood = rpyScript->Compile();
-	if (!allGood)
-		return EReimportResult::Failed;
-	UE_LOG(LogTemp, Display, TEXT("URpyScript.Compile"));
-	return EReimportResult::Succeeded;
+	return FKishiDataAssetReimportHandler::Reimport(Obj);
 };

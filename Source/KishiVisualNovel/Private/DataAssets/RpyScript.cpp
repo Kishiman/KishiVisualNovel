@@ -25,6 +25,11 @@ void URpyScript::PostInitProperties()
   Parse();
   Compile();
 };
+void URpyScript::Serialize(FStructuredArchiveRecord Record)
+{
+  Super::Serialize(Record);
+  this->PostLoad();
+};
 
 URpyScript::URpyScript() : UKishiDataAsset()
 {

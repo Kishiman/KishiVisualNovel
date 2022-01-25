@@ -54,6 +54,7 @@ public:
 
 	virtual void PostLoad() override;
 	virtual void PostInitProperties() override;
+	virtual void Serialize(FStructuredArchiveRecord Record) override;
 
 	bool ImportRpyLines(FString text, uint8 TabSize);
 	bool Parse();
