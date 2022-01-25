@@ -6,28 +6,49 @@
 
 #include "CoreMinimal.h"
 #include "C++/RpyParser.h"
+#include "C++/RpyInstructions.h"
 
 /**
  */
-//"\"Sylvie\" \"Hi there! how was class?\""
-class SayParser : public RpyParser
-{
+ //"init:"
+class InitParser : public RpyParser {
 public:
-    SayParser();
-    virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params) override;
+    InitParser() { query = "^init:$"; };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
+    {
+        RpyInstruction* init = new BlankInstruction(script, rpyLine);
+        script->init = init;
+        return init;
+    };
+};
+//"$ e = Character('Eileen')"
+class DefineCharacterParser : public RpyParser {
+public:
+    DefineCharacterParser() { query = "^\\$ (\\w+) = Character\\(('\\w+')\\)$"; };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
+    {
+        FName varName = FName(*params[0]);
+        FName characterName = FName(*params[1]);
+        script->compileData.names.Add(varName, characterName);
+        return new BlankInstruction(script, rpyLine);
+    };
 };
 
 //"label start:"
-class LabelParser : public RpyParser
-{
+class LabelParser : public RpyParser {
 public:
-    LabelParser();
-    virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params) override;
+    LabelParser() { query = "^label (\\w+):$"; };;
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
+        RpyInstruction* label = new BlankInstruction(script, rpyLine);
+        script->labels.Add(FName(*params[0]), label);
+        return label;
+    };
 };
-//"scene bg meadow"
-class SceneParser : public RpyParser
-{
+
+
+//"\"Sylvie\" \"Hi there! how was class?\""
+class SayParser : public RpyParser {
 public:
-    SceneParser();
-    virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params) override;
+    SayParser() { query = "^(?:(\\w+|\".+\") )?\"(.*)\"$"; };;
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) override;
 };

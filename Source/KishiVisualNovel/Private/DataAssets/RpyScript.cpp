@@ -104,8 +104,10 @@ bool URpyScript::Parse()
 {
   TArray<RpyParser *> parsers;
   // TODO
-  parsers.Add(new SayParser());
+  parsers.Add(new InitParser());
   parsers.Add(new LabelParser());
+  parsers.Add(new DefineCharacterParser());
+  parsers.Add(new SayParser());
   //
   for (auto instruction : instructions)
   {
@@ -117,7 +119,6 @@ bool URpyScript::Parse()
     bool matched = false;
     for (auto parser : parsers)
     {
-      UE_LOG(LogTemp, Display, TEXT("try parse query:%s"), (*parser->query));
       std::smatch m;
       string target = TCHAR_TO_UTF8(*rpyLine.line);
       string _query = TCHAR_TO_UTF8(*parser->query);
@@ -125,6 +126,7 @@ bool URpyScript::Parse()
       matched = std::regex_match(target, m, query);
       if (matched)
       {
+      UE_LOG(LogTemp, Display, TEXT("matched query:%s"), (*parser->query));
         TArray<FString> params;
         int counter = -1;
         for (auto &param : m)
@@ -133,6 +135,7 @@ bool URpyScript::Parse()
           if (counter)
           {
             string s = param;
+            UE_LOG(LogTemp, Display, TEXT("param[%d]:%s"), (*s.c_str()));
             params.Add(s.c_str());
           }
         }

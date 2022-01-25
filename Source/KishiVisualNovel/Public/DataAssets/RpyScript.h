@@ -35,8 +35,11 @@ public:
 	TArray<FRpyLine> rpyLines;
 
 	FDynamicObject compileData;
+
 	RpyInstruction *current = nullptr;
+	RpyInstruction * init=nullptr;
 	TArray<RpyInstruction *> instructions;
+	
 	TMap<FName, RpyInstruction *> labels;
 
 	UFUNCTION(BlueprintPure)
