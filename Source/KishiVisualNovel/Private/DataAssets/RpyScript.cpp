@@ -47,7 +47,7 @@ int URpyScript::GetInstructionsLength() const
   return instructions.Num();
 };
 
-bool URpyScript::RunInstruction(const TScriptInterface<IRpyInterpreter> &interpreter, int index)
+bool URpyScript::RunInstruction(const TScriptInterface<IRpyInterpreter>& interpreter, int index)
 {
   this->current = this->instructions[index];
   if (this->current)
@@ -55,7 +55,7 @@ bool URpyScript::RunInstruction(const TScriptInterface<IRpyInterpreter> &interpr
   return false;
 }
 
-bool URpyScript::StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter, FName label)
+bool URpyScript::StartLabel(const TScriptInterface<IRpyInterpreter>& interpreter, FName label)
 {
   this->current = this->labels[label];
   if (!this->current)
@@ -69,7 +69,7 @@ bool URpyScript::StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter
   }
   return true;
 };
-bool URpyScript::RunNext(const TScriptInterface<IRpyInterpreter> &interpreter)
+bool URpyScript::RunNext(const TScriptInterface<IRpyInterpreter>& interpreter)
 {
   this->current = this->current->GetNext(interpreter);
   if (this->current)
@@ -102,7 +102,7 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
 
 bool URpyScript::Parse()
 {
-  TArray<RpyParser *> parsers;
+  TArray<RpyParser*> parsers;
   // TODO
   parsers.Add(new InitParser());
   parsers.Add(new LabelParser());
@@ -114,7 +114,7 @@ bool URpyScript::Parse()
     delete instruction;
   }
   instructions.Empty();
-  for (auto &rpyLine : rpyLines)
+  for (auto& rpyLine : rpyLines)
   {
     bool matched = false;
     for (auto parser : parsers)
@@ -126,20 +126,21 @@ bool URpyScript::Parse()
       matched = std::regex_match(target, m, query);
       if (matched)
       {
-      UE_LOG(LogTemp, Display, TEXT("matched query:%s"), (*parser->query));
+        UE_LOG(LogTemp, Display, TEXT("matched query:%s"), (*parser->query));
         TArray<FString> params;
         int counter = -1;
-        for (auto &param : m)
+        for (auto& param : m)
         {
           ++counter;
           if (counter)
           {
             string s = param;
-            UE_LOG(LogTemp, Display, TEXT("param[%d]:%s"), (*s.c_str()));
-            params.Add(s.c_str());
+            FString fs = s.c_str();
+            UE_LOG(LogTemp, Display, TEXT("param[%d]:%s"), (*fs));
+            params.Add(fs);
           }
         }
-        RpyInstruction *instruction = parser->GetRpyInstruction(this, &rpyLine, params);
+        RpyInstruction* instruction = parser->GetRpyInstruction(this, &rpyLine, params);
         if (!instruction)
         {
           matched = false;
@@ -165,11 +166,11 @@ bool URpyScript::Compile()
   {
     instructions[idx]->next = instructions[idx + 1];
   }
-  TArray<RpyInstruction *> stack;
+  TArray<RpyInstruction*> stack;
   for (int idx = 0; idx < instructions.Num(); ++idx)
   {
     auto num = stack.Num();
-    RpyInstruction *last = num > 0 ? stack[num - 1] : nullptr;
+    RpyInstruction* last = num > 0 ? stack[num - 1] : nullptr;
     current = instructions[idx];
     int currentTabs = current->rpyLine->tabs;
     if (last)
