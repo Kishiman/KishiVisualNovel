@@ -136,7 +136,7 @@ bool URpyScript::Parse()
           {
             string s = param;
             FString fs = s.c_str();
-            UE_LOG(LogTemp, Display, TEXT("param[%d]:%s"), (*fs));
+            UE_LOG(LogTemp, Display, TEXT("param[%d]:%s"), counter, (*fs));
             params.Add(fs);
           }
         }
