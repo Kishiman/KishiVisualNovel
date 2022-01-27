@@ -1,13 +1,13 @@
 init:
     #image bg whitehouse = "whitehouse.jpg"
-    #image eileen happy = "eileen_happy.png"
+    image eileen happy = "/KishiVisualNovel/Rpy/Images/eileen_happy"
     #image eileen upset = "eileen_upset.png"
     $ e = Character('Eileen')
 
 label start:
 
     #scene bg whitehouse
-    #show eileen happy
+    show eileen happy
 
     e "I'm standing in front of the White House."
 

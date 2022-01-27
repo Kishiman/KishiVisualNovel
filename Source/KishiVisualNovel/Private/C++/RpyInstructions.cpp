@@ -19,7 +19,10 @@ bool SceneInstruction::Execute(const TScriptInterface<IRpyInterpreter> &interpre
 
 bool ShowInstruction::Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {
     RpyInstruction::Execute(interpreter);
-    return IRpyInterpreter::Execute_Show(interpreter.GetObject(),this->name,this->params);
+    UPaperSprite* image =script->images[name];
+    if(!image)
+    return false;
+    return IRpyInterpreter::Execute_Show(interpreter.GetObject(),image,at,with);
 };
 bool HideInstruction::Execute(const TScriptInterface<IRpyInterpreter> &interpreter) {
     RpyInstruction::Execute(interpreter);

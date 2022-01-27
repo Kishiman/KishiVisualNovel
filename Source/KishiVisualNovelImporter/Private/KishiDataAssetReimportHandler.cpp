@@ -18,9 +18,9 @@
 
 bool FKishiDataAssetReimportHandler::CanReimport(UObject* Obj, TArray<FString>& OutFilenames)
 {
-	UKishiDataAsset* kishiDataAsset = (UKishiDataAsset*)(Obj);
-	if (kishiDataAsset && kishiDataAsset->AssetImportData)
+	if (Obj->GetClass() == AsFactory->SupportedClass)
 	{
+		UKishiDataAsset* kishiDataAsset = (UKishiDataAsset*)(Obj);
 		kishiDataAsset->AssetImportData->ExtractFilenames(OutFilenames);
 		return true;
 	}
@@ -53,13 +53,13 @@ EReimportResult::Type FKishiDataAssetReimportHandler::Reimport(UObject* Obj)
 	// Run the import again
 	EReimportResult::Type Result = EReimportResult::Failed;
 	bool OutCanceled = false;
-	
+
 	if (AsFactory->ImportObject(kishiDataAsset->GetClass(), kishiDataAsset->GetOuter(), *kishiDataAsset->GetName(), RF_Public | RF_Standalone, Filename, nullptr, OutCanceled) != nullptr)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Imported successfully"));
 
 		kishiDataAsset->AssetImportData->Update(Filename);
-		
+
 		// Try to find the outer package so we can dirty it up
 		if (kishiDataAsset->GetOuter())
 		{

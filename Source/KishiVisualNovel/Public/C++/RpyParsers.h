@@ -5,6 +5,8 @@
 #include <string>
 
 #include "CoreMinimal.h"
+#include "EngineUtils.h"
+
 #include "C++/RpyParser.h"
 #include "C++/RpyInstructions.h"
 
@@ -37,7 +39,7 @@ public:
 //"label start:"
 class LabelParser : public RpyParser {
 public:
-    LabelParser() { query = "^label (\\w+):$"; };;
+    LabelParser() { query = "^label (\\w+):$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         RpyInstruction* label = new BlankInstruction(script, rpyLine);
         script->labels.Add(FName(*params[0]), label);
@@ -49,6 +51,33 @@ public:
 //"\"Sylvie\" \"Hi there! how was class?\""
 class SayParser : public RpyParser {
 public:
-    SayParser() { query = "^(?:(\\w+|\".+\") )?\"(.*)\"$"; };;
+    SayParser() { query = "^(?:(\\w+|\".+\") )?\"(.*)\"$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) override;
+};
+class ImageParser : public RpyParser {
+public:
+    ImageParser() { query = "^image((\\s\\w+)+) = \"([/\\w\\.\\s]+)\"$"; };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
+        FName name = FName(*params[0]);
+        FString path = params[2];
+        UPaperSprite* image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
+        if (image) {
+            script->images.Add(name, image);
+            return new BlankInstruction(script, rpyLine);
+        }
+
+        return nullptr;
+    };
+};
+class ShowParser : public RpyParser {
+public:
+    ShowParser() { query = "^show(( (?!at|with)\\w+)+)(?: at (\\w+))?(?: with (\\w+))?$"; };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
+        FName name = FName(*params[0]);
+        FName at = FName(*params[1]);
+        FName with = FName(*params[2]);
+        if (!script->images.Contains(name))
+            return nullptr;
+        return new ShowInstruction(script, rpyLine, name, at, with);
+    };
 };

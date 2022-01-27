@@ -26,8 +26,8 @@ public:
     virtual bool Scene_Implementation(const TMap<FName, FString> &params) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool Show(FName name, const TMap<FName, FString> &params);
-    virtual bool Show_Implementation(FName name, const TMap<FName, FString> &params) = 0;
+    bool Show(const UPaperSprite* image,FName at,FName with);
+    virtual bool Show_Implementation(const UPaperSprite* image,FName at,FName with) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     bool Hide(FName name, const TMap<FName, FString> &params);

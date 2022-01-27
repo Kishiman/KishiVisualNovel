@@ -22,9 +22,10 @@ class ShowInstruction : public RpyInstruction
 {
 public:
   FName name;
-  TMap<FName, FString> params;
+  FName at;
+  FName with;
 
-  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, TMap<FName, FString> params) : RpyInstruction(script, rpyLine), name(name), params(params){};
+  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name,FName at,FName with) : RpyInstruction(script, rpyLine), name(name), at(at),with(with){};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 

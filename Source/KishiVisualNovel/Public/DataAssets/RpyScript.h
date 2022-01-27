@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PaperSprite.h"
 
 #include "KishiDataAsset.h"
 #include "Structs/DynamicObject.h"
@@ -33,6 +34,8 @@ public:
 	URpyScript();
 	UPROPERTY(EditAnywhere)
 	TArray<FRpyLine> rpyLines;
+	UPROPERTY(EditAnywhere)
+	TMap<FName,UPaperSprite*> images;
 
 	FDynamicObject compileData;
 
