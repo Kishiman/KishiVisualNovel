@@ -32,7 +32,7 @@ class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
 	GENERATED_BODY()
 public:
 	URpyScript();
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadOnly)
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
 	TMap<FName,UPaperSprite*> images;

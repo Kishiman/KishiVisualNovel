@@ -13,8 +13,7 @@
 /**
  */
  //"init:"
-class InitParser : public RpyParser {
-public:
+struct InitParser : public RpyParser {
     InitParser() { query = "^init:$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
@@ -24,8 +23,7 @@ public:
     };
 };
 //"$ e = Character('Eileen')"
-class DefineCharacterParser : public RpyParser {
-public:
+struct DefineCharacterParser : public RpyParser {
     DefineCharacterParser() { query = "^\\$ (\\w+) = Character\\(('\\w+')\\)$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
@@ -37,8 +35,7 @@ public:
 };
 
 //"label start:"
-class LabelParser : public RpyParser {
-public:
+struct LabelParser : public RpyParser {
     LabelParser() { query = "^label (\\w+):$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         RpyInstruction* label = new BlankInstruction(script, rpyLine);
@@ -49,13 +46,23 @@ public:
 
 
 //"\"Sylvie\" \"Hi there! how was class?\""
-class SayParser : public RpyParser {
-public:
+struct SayParser : public RpyParser {
     SayParser() { query = "^(?:(\\w+|\".+\") )?\"(.*)\"$"; };
-    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) override;
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
+        bool literal = params[0].StartsWith("\"") && params[0].EndsWith("\"");
+        if (literal)
+            params[0] = params[0].Mid(1, params[0].Len() - 2);
+        FName name = FName(*params[0]);
+        if (!literal) {
+            if (script->compileData.names.Contains(name)) {
+                name = script->compileData.names[name];
+            }
+            else { return nullptr; }
+        }
+        return new SayInstruction(script, rpyLine, name, params[1]);
+    };
 };
-class ImageParser : public RpyParser {
-public:
+struct ImageParser : public RpyParser {
     ImageParser() { query = "^image((\\s\\w+)+) = \"([/\\w\\.\\s]+)\"$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
@@ -69,8 +76,7 @@ public:
         return nullptr;
     };
 };
-class ShowParser : public RpyParser {
-public:
+struct ShowParser : public RpyParser {
     ShowParser() { query = "^show(( (?!at|with)\\w+)+)(?: at (\\w+))?(?: with (\\w+))?$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
