@@ -10,6 +10,29 @@
 #include "C++/RpyParser.h"
 #include "C++/RpyInstructions.h"
 
+TArray<FString> rpyKeywords = {
+"at",
+"call",
+"elif",
+"else",
+"expression",
+"hide",
+"if",
+"image",
+"init",
+"jump",
+"label",
+"menu",
+"onlayer",
+"pass",
+"python",
+"return",
+"scene",
+"set",
+"show",
+"with",
+"while",
+};
 /**
  */
  //"init:"
