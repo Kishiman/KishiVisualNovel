@@ -4,6 +4,7 @@
 #include "Interfaces/RpyInterpreter.h"
 
 
+//Labels & Control Flow
 struct BlankInstruction : public RpyInstruction {
   BlankInstruction(URpyScript* script, FRpyLine* rpyLine) : RpyInstruction(script, rpyLine) {};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter>& interpreter) {
@@ -13,23 +14,30 @@ struct BlankInstruction : public RpyInstruction {
 };
 
 struct JumpInstruction : public RpyInstruction {
-  JumpInstruction(URpyScript* script, FRpyLine* rpyLine, FName name) : RpyInstruction(script, rpyLine) {};
-  virtual bool Execute(const TScriptInterface<IRpyInterpreter>& interpreter) {
-    return false;
+  FName name;
+  JumpInstruction(URpyScript* script, FRpyLine* rpyLine, FName name) : RpyInstruction(script, rpyLine),name(name) {};
+  virtual RpyInstruction* GetNext(const TScriptInterface<IRpyInterpreter>& interpreter) {
+    auto label=script->labels[name];
+    if(!label){
+      UE_LOG(LogTemp, Error, TEXT("unvalid label name:%s"),(*name.ToString()));
+      return nullptr;
+    }
+    return label;
   };
 };
 
-struct CallInstruction : public RpyInstruction {
-  CallInstruction(URpyScript* script, FRpyLine* rpyLine, FName name) : RpyInstruction(script, rpyLine) {};
-  virtual bool Execute(const TScriptInterface<IRpyInterpreter>& interpreter) {
-    return false;
+struct CallInstruction : public JumpInstruction {
+  CallInstruction(URpyScript* script, FRpyLine* rpyLine, FName name) : JumpInstruction(script, rpyLine,name) {};
+  virtual RpyInstruction* GetNext(const TScriptInterface<IRpyInterpreter>& interpreter) {
+    script->callStack.Add(next);
+    return JumpInstruction::GetNext(interpreter);
   };
 };
 
 struct ReturnInstruction : public RpyInstruction {
   ReturnInstruction(URpyScript* script, FRpyLine* rpyLine) : RpyInstruction(script, rpyLine) {};
-  virtual bool Execute(const TScriptInterface<IRpyInterpreter>& interpreter) {
-    return false;
+  virtual RpyInstruction* GetNext(const TScriptInterface<IRpyInterpreter>& interpreter) {
+      return script->callStack.Pop();
   };
 };
 
@@ -72,8 +80,10 @@ struct HideInstruction : public RpyInstruction {
 struct SayInstruction : public RpyInstruction {
   FName name;
   FString statement;
+  FName with;
 
-  SayInstruction(URpyScript* script, FRpyLine* rpyLine, FName name, FString statement) : RpyInstruction(script, rpyLine), name(name), statement(statement) {};
+  SayInstruction(URpyScript* script, FRpyLine* rpyLine, FName name, FString statement,FName with="") :
+   RpyInstruction(script, rpyLine), name(name), statement(statement),with(with) {};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter>& interpreter) {
     RpyInstruction::Execute(interpreter);
     return IRpyInterpreter::Execute_Say(interpreter.GetObject(), this->name, this->statement);

@@ -42,6 +42,7 @@ public:
 	RpyInstruction *current = nullptr;
 	RpyInstruction * init=nullptr;
 	TArray<RpyInstruction *> instructions;
+	TArray<RpyInstruction *> callStack;
 	
 	TMap<FName, RpyInstruction *> labels;
 

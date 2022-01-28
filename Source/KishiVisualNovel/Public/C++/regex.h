@@ -6,28 +6,17 @@
 #include <stdexcept>
 
 using namespace std;
-FString keywords[] = {
-    "at",
-    "call",
-    "hide",
-    "if",
-    "image",
-    "init",
-    "jump",
-    "menu",
-    "onlayer",
-    "python",
-    "return",
-    "scene",
-    "set",
-    "show",
-    "with",
-    "while",
-};
+//regex:
+string rpyKeywords[] = {"at","call","elif","else","expression","hide","if","image","init","jump","label","menu","onlayer","pass","python","return","scene","set","show","with","while",};
+//regex
+string reg_name="([a-zA-Z_]\\w*)";
+string reg_keywords="(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
+string reg_image_name="((?:\\w+)(?: \\w+)*)";
+string reg_string="((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
+string reg_simple_expression="";
 
-int example() {
+int _main() {
     string lines[] = {
-        //"#some comment",
         "label start:",
         "\"Sylvie\" \"Hi there! how was class?\"",
         "\"I'll ask her...!\"",
@@ -56,11 +45,11 @@ int example() {
         "\"{b}Good Ending{/b}.\"",
         "show sylvie green at right",
         "image eileen = \"/KishiVisualNovel/Rpy/Images/eileen_happy\"",
+        "e happy @ vhappy \"Bam!!\" with vpunch",
     };
     regex regs[] = {
-        // regex("^#(.*)$"),
-        regex("^label (\\w+):$"),
-        regex("^(?:\"(.+)\" )?\"(.*)\"$"),
+        regex("^label "+reg_name+":$"),
+        regex("^(?:(\\w+|\"[\\w]+\") (?:(\\w+) )?(?:@ (\\w+) )?)?"+reg_string+"(?: with (\\w+))?$"),
         regex("^define (\\w+) = Character\\(('\\w+'|_\\(\"\\w+\"\\))(?:, "
               "color=\"#([0-f]{6})\")?(?:, who_color=\"#([0-f]{6})\")?\\)$"),
         regex("^scene(( \\w+ \\w+)+)$"),
@@ -79,7 +68,7 @@ int example() {
         regex("^if (\\w+):$"),
         regex("^(else if|elif) (\\w+):$"),
         regex("^else:$"),
-        regex("^image((\\s\\w+)+) = \"([/\\w\\.\\s]+)\"$"),
+        regex("^image "+reg_image_name+" = \"([/\\w\\.\\s]+)\"$"),
     };
     for (string& line : lines) {
         bool matched = false;

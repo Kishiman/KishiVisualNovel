@@ -2,7 +2,6 @@
 
 #pragma once
 #include <regex>
-#include <string>
 
 #include "CoreMinimal.h"
 #include "EngineUtils.h"
@@ -10,29 +9,6 @@
 #include "C++/RpyParser.h"
 #include "C++/RpyInstructions.h"
 
-TArray<FString> rpyKeywords = {
-"at",
-"call",
-"elif",
-"else",
-"expression",
-"hide",
-"if",
-"image",
-"init",
-"jump",
-"label",
-"menu",
-"onlayer",
-"pass",
-"python",
-"return",
-"scene",
-"set",
-"show",
-"with",
-"while",
-};
 /**
  */
  //"init:"
@@ -67,22 +43,45 @@ struct LabelParser : public RpyParser {
     };
 };
 
+//"jump start"
+struct JumpParser : public RpyParser {
+    JumpParser() { query = "^jump (\\w+)$"; };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
+        FName name =        FName(*params[0]);
+        auto jump=new JumpInstruction(script, rpyLine,name);
+        return jump;
+    };
+};
+
+//"call start"
+struct CallParser : public RpyParser {
+    CallParser() { query = "^call (\\w+)$"; };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
+        FName name =        FName(*params[0]);
+        auto call=new CallInstruction(script, rpyLine,name);
+        return call;
+    };
+};
+
 
 //"\"Sylvie\" \"Hi there! how was class?\""
 struct SayParser : public RpyParser {
-    SayParser() { query = "^(?:(\\w+|\".+\") )?\"(.*)\"$"; };
+    SayParser() { query = "^(?:((\\w+)|\"(\\w)+\") (?:(\\w+ ))?(?:@ (\\w+ ))?)?\"([{}\\/!? '.\\w]*)\"(?: with (\\w+))?$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
-        bool literal = params[0].StartsWith("\"") && params[0].EndsWith("\"");
-        if (literal)
-            params[0] = params[0].Mid(1, params[0].Len() - 2);
-        FName name = FName(*params[0]);
-        if (!literal) {
+        FName name_exp =    FName(*params[1]);
+        FName name =        FName(*params[2]);
+        FName image =       FName(*params[3]);
+        FName atImage =     FName(*params[4]);
+        FString statement = params[5];
+        FName with =        FName(*params[6]);
+        if(name_exp.Len()>0){
             if (script->compileData.names.Contains(name)) {
                 name = script->compileData.names[name];
             }
             else { return nullptr; }
         }
-        return new SayInstruction(script, rpyLine, name, params[1]);
+        auto say=new SayInstruction(script, rpyLine, name, statement,with);
+        return say;
     };
 };
 struct ImageParser : public RpyParser {
