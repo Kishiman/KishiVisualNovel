@@ -7,21 +7,64 @@
 
 using namespace std;
 //regex:
-string rpyKeywords[] = {"at","call","elif","else","expression","hide","if","image","init","jump","label","menu","onlayer","pass","python","return","scene","set","show","with","while",};
+string rpyKeywords[] = { "at","call","elif","else","expression","hide","if","image","init","jump","label","menu","onlayer","pass","python","return","scene","set","show","with","while", };
 //regex
-string reg_name="([a-zA-Z_]\\w*)";
-string reg_keywords="(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
-string reg_image_name="((?:\\w+)(?: \\w+)*)";
-string reg_string="((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
-string reg_simple_expression="";
+
+
+class RegexLib {
+public:
+    //primitive
+    static string reg_integer;
+    //rpy
+    static string reg_keyword;
+    static string reg_name;
+    static string reg_image_name;
+    static string reg_string;
+    //parser
+    static string reg_label;
+    static string reg_say;
+    static string reg_define_char;
+};
+string RegexLib::reg_integer = "([a-zA-Z_]\\w*)";
+
+string RegexLib::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
+string RegexLib::reg_name = "([a-zA-Z_]\\w*)";
+string RegexLib::reg_image_name = "((?:\\w+)(?: \\w+)*)";
+string RegexLib::reg_string = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
+
+string RegexLib::reg_label = "^label " + RegexLib::reg_name + ":$";
+string RegexLib::reg_say = "^(?:(?:(\\w+)|\"(\\w+)\") (?:(\\w+) )?(?:@ (\\w+) )?)?" + RegexLib::reg_string + "(?: with (\\w+))?$";
+string RegexLib::reg_define_char = "^\\$ " + RegexLib::reg_name + " = Character\\('(\\w+)'\\)$";
+
 
 int _main() {
+    regex regs[] = {
+        regex(RegexLib::reg_label),
+        regex(RegexLib::reg_say),
+        regex(RegexLib::reg_define_char),
+        regex("^scene(( \\w+ \\w+)+)$"),
+        regex("^show(( (?!at)\\w+)+)(?: at (\\w+))?$"),
+        regex("^hide (\\w+)$"),
+        regex("^(play|stop|queue) (music|sound) \"(.*)\"(?: fadeout "
+              "([0-9\\.]+))?(?: fadein ([0-9\\.]+))?$"),
+        regex("^pause(?: ([0-9\\.]+))?$"),
+        regex("^return$"),
+        regex("^with (fade|dissolve|None)$"),
+        regex("^\"(.*)\":$"),
+        regex("^jump (\\w+)$"),
+        regex("^menu:$"),
+        regex("^default (\\w+) = (False|True)$"),
+        regex("^\\$ (\\w+) = ((True|False)|([0-9]+)|([0-9\\.]+)|(\".*\"))$"),
+        regex("^if (\\w+):$"),
+        regex("^(else if|elif) (\\w+):$"),
+        regex("^else:$"),
+        regex("^image " + RegexLib::reg_image_name + " = \"([/\\w\\.\\s]+)\"$"),
+    };
     string lines[] = {
         "label start:",
         "\"Sylvie\" \"Hi there! how was class?\"",
         "\"I'll ask her...!\"",
-        "define m = Character('Me', color=\"#c8c8ff\")",
-        "define s = Character(_(\"Sylvie\"), color=\"#c8ffc8\")",
+        "define m = Character('Me')",
         "scene bg meadow",
         "show sylvie green smile",
         "hide sylvie",
@@ -46,29 +89,6 @@ int _main() {
         "show sylvie green at right",
         "image eileen = \"/KishiVisualNovel/Rpy/Images/eileen_happy\"",
         "e happy @ vhappy \"Bam!!\" with vpunch",
-    };
-    regex regs[] = {
-        regex("^label "+reg_name+":$"),
-        regex("^(?:(\\w+|\"[\\w]+\") (?:(\\w+) )?(?:@ (\\w+) )?)?"+reg_string+"(?: with (\\w+))?$"),
-        regex("^define (\\w+) = Character\\(('\\w+'|_\\(\"\\w+\"\\))(?:, "
-              "color=\"#([0-f]{6})\")?(?:, who_color=\"#([0-f]{6})\")?\\)$"),
-        regex("^scene(( \\w+ \\w+)+)$"),
-        regex("^show(( (?!at)\\w+)+)(?: at (\\w+))?$"),
-        regex("^hide (\\w+)$"),
-        regex("^(play|stop|queue) (music|sound) \"(.*)\"(?: fadeout "
-              "([0-9\\.]+))?(?: fadein ([0-9\\.]+))?$"),
-        regex("^pause(?: ([0-9\\.]+))?$"),
-        regex("^return$"),
-        regex("^with (fade|dissolve|None)$"),
-        regex("^\"(.*)\":$"),
-        regex("^jump (\\w+)$"),
-        regex("^menu:$"),
-        regex("^default (\\w+) = (False|True)$"),
-        regex("^\\$ (\\w+) = ((True|False)|([0-9]+)|([0-9\\.]+)|(\".*\"))$"),
-        regex("^if (\\w+):$"),
-        regex("^(else if|elif) (\\w+):$"),
-        regex("^else:$"),
-        regex("^image "+reg_image_name+" = \"([/\\w\\.\\s]+)\"$"),
     };
     for (string& line : lines) {
         bool matched = false;

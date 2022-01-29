@@ -124,7 +124,7 @@ bool URpyScript::Parse()
 			std::smatch m;
 			string target = TCHAR_TO_UTF8(*rpyLine.line);
 			string _query = TCHAR_TO_UTF8(*parser->query);
-			std::regex query = regex(_query);
+			std::regex& query = parser->reg_query;
 			matched = std::regex_match(target, m, query);
 			if (matched)
 			{
