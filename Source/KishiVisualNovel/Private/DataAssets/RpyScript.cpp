@@ -110,6 +110,7 @@ bool URpyScript::Parse()
 	parsers.Add(new SayParser());
 	parsers.Add(new ImageParser());
 	parsers.Add(new ShowParser());
+	parsers.Add(new HideParser());
 	//
 	for (auto instruction : instructions)
 	{
@@ -123,7 +124,6 @@ bool URpyScript::Parse()
 		{
 			std::smatch m;
 			string target = TCHAR_TO_UTF8(*rpyLine.line);
-			string _query = TCHAR_TO_UTF8(*parser->query);
 			std::regex& query = parser->reg_query;
 			matched = std::regex_match(target, m, query);
 			if (matched)
@@ -138,10 +138,16 @@ bool URpyScript::Parse()
 					{
 						string s = param;
 						FString fs = s.c_str();
-						UE_LOG(LogTemp, Display, TEXT("param[%d]:%s"), counter, (*fs));
+						UE_LOG(LogTemp, Display, TEXT("param[%d]:%s"), counter - 1, (*fs));
 						params.Add(fs);
 					}
 				}
+				if (params.Num() != parser->paramsNum) {
+					matched = false;
+					UE_LOG(LogTemp, Warning, TEXT("number of params(%d) not equal to parser (%d)"), params.Num(), parser->paramsNum);
+					continue;
+				}
+
 				RpyInstruction* instruction = parser->GetRpyInstruction(this, &rpyLine, params);
 				if (!instruction)
 				{

@@ -6,7 +6,6 @@
 #include "CoreMinimal.h"
 #include "EngineUtils.h"
 
-#include "C++/regex.h"
 #include "C++/RpyParser.h"
 #include "C++/RpyInstructions.h"
 
@@ -14,7 +13,7 @@
  */
  //"init:"
 struct InitParser : public RpyParser {
-    InitParser() :RpyParser("^init:$") { };
+    InitParser() :RpyParser(0, "^init:$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         RpyInstruction* init = new BlankInstruction(script, rpyLine);
@@ -24,7 +23,7 @@ struct InitParser : public RpyParser {
 };
 //"$ e = Character('Eileen')"
 struct DefineCharacterParser : public RpyParser {
-    DefineCharacterParser() :RpyParser(RegexLib::reg_define_char) { };
+    DefineCharacterParser() :RpyParser(3, reg_define_char) { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         FName varName = FName(*params[0]);
@@ -36,7 +35,7 @@ struct DefineCharacterParser : public RpyParser {
 
 //"label start:"
 struct LabelParser : public RpyParser {
-    LabelParser() :RpyParser(RegexLib::reg_label) { };
+    LabelParser() :RpyParser(1, reg_label) { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         RpyInstruction* label = new BlankInstruction(script, rpyLine);
         script->labels.Add(FName(*params[0]), label);
@@ -46,7 +45,7 @@ struct LabelParser : public RpyParser {
 
 //"jump start"
 struct JumpParser : public RpyParser {
-    JumpParser() :RpyParser("^jump (\\w+)$") { };
+    JumpParser() :RpyParser(1, "^jump (\\w+)$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
         auto jump = new JumpInstruction(script, rpyLine, name);
@@ -56,7 +55,7 @@ struct JumpParser : public RpyParser {
 
 //"call start"
 struct CallParser : public RpyParser {
-    CallParser() :RpyParser("^call (\\w+)$") { };
+    CallParser() :RpyParser(1, "^call (\\w+)$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
         auto call = new CallInstruction(script, rpyLine, name);
@@ -67,15 +66,15 @@ struct CallParser : public RpyParser {
 
 //"\"Sylvie\" \"Hi there! how was class?\""
 struct SayParser : public RpyParser {
-    SayParser() :RpyParser(RegexLib::reg_say) { };
+    SayParser() :RpyParser(6, reg_say) { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name_exp = FName(*params[0]);
         FName name = FName(*params[1]);
         FName image = FName(*params[2]);
         FName atImage = FName(*params[3]);
-        FString statement = params[4];
+        FString statement = GetString(params[4]);
         FName with = FName(*params[5]);
-        if (params[0].Len()>0) {
+        if (params[0].Len() > 0) {
             if (script->compileData.names.Contains(name_exp)) {
                 name = script->compileData.names[name_exp];
             }
@@ -89,10 +88,10 @@ struct SayParser : public RpyParser {
     };
 };
 struct ImageParser : public RpyParser {
-    ImageParser() :RpyParser("^image((\\s\\w+)+) = \"([/\\w\\.\\s]+)\"$") { };
+    ImageParser() :RpyParser(2, "^image " + reg_image_name + " = \"([/\\w\\.\\s]+)\"$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
-        FString path = params[2];
+        FString path = params[1];
         UPaperSprite* image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
         if (image) {
             script->images.Add(name, image);
@@ -103,13 +102,24 @@ struct ImageParser : public RpyParser {
     };
 };
 struct ShowParser : public RpyParser {
-    ShowParser() :RpyParser("^show(( (?!at|with)\\w+)+)(?: at (\\w+))?(?: with (\\w+))?$") { };
+    ShowParser() :RpyParser(3, "^show " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
-        FName name = FName(*params[0]);
+        auto rpyImage = RpyParser::GetRpyImage(params[0]);
         FName at = FName(*params[1]);
         FName with = FName(*params[2]);
-        if (!script->images.Contains(name))
+        if (!script->images.Contains(rpyImage.name))
             return nullptr;
-        return new ShowInstruction(script, rpyLine, name, at, with);
+        return new ShowInstruction(script, rpyLine, rpyImage, at, with);
+    };
+};
+struct HideParser : public RpyParser {
+    HideParser() :RpyParser(3, "^hide " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$") { };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
+        auto rpyImage = RpyParser::GetRpyImage(params[0]);
+        FName at = FName(*params[1]);
+        FName with = FName(*params[2]);
+        if (!script->images.Contains(rpyImage.name))
+            return nullptr;
+        return new HideInstruction(script, rpyLine, rpyImage, at, with);
     };
 };

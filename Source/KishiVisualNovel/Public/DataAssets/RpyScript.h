@@ -15,6 +15,19 @@ class RpyInstruction;
 /**
  */
 USTRUCT(BlueprintType)
+struct FRpyImage
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPaperSprite* image;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	FName name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	FName tag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	TArray<FName> attributes;
+};
+USTRUCT(BlueprintType)
 struct FRpyLine
 {
 	GENERATED_USTRUCT_BODY()
