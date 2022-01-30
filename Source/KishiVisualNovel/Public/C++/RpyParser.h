@@ -27,7 +27,6 @@ public:
     static std::string reg_string;
     //parser
     static std::string reg_label;
-    static std::string reg_say;
     static std::string reg_define_char;
     //
     static int GetInteger(FString param) {
@@ -45,18 +44,21 @@ public:
     static FString GetString(FString param) {
         return param.Mid(1, param.Len() - 2);
     }
-    static FRpyImage GetRpyImage(FString param) {
+    static TArray<FName> GetNames(FString param) {
         FString left, right;
-        FRpyImage rpyImage;
-        rpyImage.name=FName(*param);
-        param.Split(" ", &left, &right);
-        rpyImage.tag = FName(*left);
-        param = right;
-        while (param.Split(" ", &left, &right)) {
-            rpyImage.attributes.Add(FName(*left));
-            param = right;
+        TArray<FName> names;
+        TArray<FString> strings;
+        static const TCHAR* spaces[] =
+        {
+            TEXT(" "),
+            TEXT("\n"),
+            TEXT("\t"),
+        };
+        param.ParseIntoArray(strings, spaces, 3, true);
+        for (auto string : strings) {
+            names.Add(FName(*string));
         }
-        return rpyImage;
+        return names;
     }
 
 };
@@ -67,9 +69,8 @@ std::string RpyParser::reg_bool = "(True|False|None)";
 
 std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
 std::string RpyParser::reg_name = "([a-zA-Z_]\\w*)";
-std::string RpyParser::reg_image_name = "((?:(?!at|with)\\w+)(?: (?!at|with)\\w+)*)";
+std::string RpyParser::reg_image_name = "((?:(?!(?:at |with ))\\w+)(?: (?!(?:at |with ))\\w+)*)";
 std::string RpyParser::reg_string = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
 
 std::string RpyParser::reg_label = "^label " + RpyParser::reg_name + ":$";
-std::string RpyParser::reg_say = "^(?:(?:(\\w+)|\"(\\w+)\") (?:(\\w+) )?(?:@ (\\w+) )?)?" + RpyParser::reg_string + "(?: with (\\w+))?$";
 std::string RpyParser::reg_define_char = "^\\$ " + RpyParser::reg_name + " = Character\\('(\\w+)'(?:, image='(\\w+)')?\\)$";

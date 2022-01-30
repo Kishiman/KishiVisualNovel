@@ -22,8 +22,8 @@ void URpyScript::PostInitProperties()
 {
 	Super::PostInitProperties();
 	UE_LOG(LogTemp, Warning, TEXT("PostInitProperties, rpyLines:%d"), rpyLines.Num());
-	Parse();
-	Compile();
+	// Parse();
+	// Compile();
 };
 void URpyScript::Serialize(FStructuredArchiveRecord Record)
 {
@@ -33,8 +33,9 @@ void URpyScript::Serialize(FStructuredArchiveRecord Record)
 
 URpyScript::URpyScript() : UKishiDataAsset()
 {
-	Parse();
-	Compile();
+	UE_LOG(LogTemp, Warning, TEXT("URpyScript(), rpyLines:%d"), rpyLines.Num());
+	// Parse();
+	// Compile();
 };
 TArray<FName> URpyScript::GetLabels() const
 {
@@ -108,6 +109,8 @@ bool URpyScript::Parse()
 	parsers.Add(new LabelParser());
 	parsers.Add(new DefineCharacterParser());
 	parsers.Add(new SayParser());
+	parsers.Add(new NarratorSayParser());
+	parsers.Add(new CharacterSayParser());
 	parsers.Add(new ImageParser());
 	parsers.Add(new ShowParser());
 	parsers.Add(new HideParser());
