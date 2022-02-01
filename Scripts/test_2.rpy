@@ -1,6 +1,6 @@
 init:
     #image bg whitehouse = "whitehouse.jpg"
-    image eileen happy = "/KishiVisualNovel/Rpy/Images/eileen_happy"
+    image eileen happy = "eileen_happy"
     #image eileen upset = "eileen_upset.png"
     $ e = Character('Eileen')
 

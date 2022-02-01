@@ -52,14 +52,14 @@ struct SceneInstruction : public RpyInstruction {
 };
 
 struct ShowInstruction : public RpyInstruction {
-  FRpyImage rpyImage;
+  FName name;
   FName at;
   FName with;
 
-  ShowInstruction(URpyScript* script, FRpyLine* rpyLine, FRpyImage rpyImage, FName at, FName with) : RpyInstruction(script, rpyLine), rpyImage(rpyImage), at(at), with(with) {};
+  ShowInstruction(URpyScript* script, FRpyLine* rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with) {};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter>& interpreter) {
     RpyInstruction::Execute(interpreter);
-    rpyImage.image = script->images[rpyImage.name];
+    auto rpyImage = script->images[name];
     if (!rpyImage.image)
       return false;
     return IRpyInterpreter::Execute_Show(interpreter.GetObject(), rpyImage, at, with);
@@ -67,14 +67,14 @@ struct ShowInstruction : public RpyInstruction {
 };
 
 struct HideInstruction : public RpyInstruction {
-  FRpyImage rpyImage;
+  FName name;
   FName at;
   FName with;
 
-  HideInstruction(URpyScript* script, FRpyLine* rpyLine, FRpyImage rpyImage, FName at, FName with) : RpyInstruction(script, rpyLine), rpyImage(rpyImage), at(at), with(with) {};
+  HideInstruction(URpyScript* script, FRpyLine* rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with) {};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter>& interpreter) {
     RpyInstruction::Execute(interpreter);
-    rpyImage.image = script->images[rpyImage.name];
+    auto rpyImage = script->images[name];
     if (!rpyImage.image)
       return false;
     return IRpyInterpreter::Execute_Hide(interpreter.GetObject(), rpyImage, at, with);

@@ -17,6 +17,21 @@ void URpyScript::PostLoad()
 	UE_LOG(LogTemp, Warning, TEXT("PostLoad, rpyLines:%d"), rpyLines.Num());
 	Parse();
 	Compile();
+	FString basePath, right;
+	this->AssetImportData->GetPathName().Split("/", &basePath, &right, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+	TArray<FName> keys;
+	images.GetKeys(keys);
+	for (auto& key : keys) {
+		FRpyImage& rpyImage = images[key];
+		FString path = basePath + "/Images/" + rpyImage.path;
+		UPaperSprite* image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
+		if (image) {
+			rpyImage.image = image;
+		}
+		else {
+			UE_LOG(LogTemp, Error, TEXT("RpyImage not found at path : %s"), (*path));
+		}
+	};
 };
 void URpyScript::PostInitProperties()
 {

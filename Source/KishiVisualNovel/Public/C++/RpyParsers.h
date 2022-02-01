@@ -109,44 +109,36 @@ struct ImageParser : public RpyParser {
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
         FString path = params[1];
-        UPaperSprite* image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
-        if (image) {
-            script->images.Add(name, image);
-            return new BlankInstruction(script, rpyLine);
-        }
-
-        return nullptr;
+        FRpyImage rpyImage;
+        rpyImage.name=name;
+        rpyImage.path=path;
+        auto names = RpyParser::GetNames(params[0]);
+        rpyImage.tag=names[0];
+        names.RemoveAt(0);
+        rpyImage.attributes=names;
+        script->images.Add(name, rpyImage);
+        return new BlankInstruction(script, rpyLine);
     };
 };
 struct ShowParser : public RpyParser {
     ShowParser() :RpyParser(3, "^show " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
-        FRpyImage rpyImage;
-        rpyImage.name=FName(*params[0]);
+        FName name=FName(*params[0]);
         FName at = FName(*params[1]);
         FName with = FName(*params[2]);
-        auto names = RpyParser::GetNames(params[0]);
-        rpyImage.tag=names[0];
-        names.RemoveAt(0);
-        rpyImage.attributes=names;
-        if (!script->images.Contains(rpyImage.name))
+        if (!script->images.Contains(name))
             return nullptr;
-        return new ShowInstruction(script, rpyLine, rpyImage, at, with);
+        return new ShowInstruction(script, rpyLine, name, at, with);
     };
 };
 struct HideParser : public RpyParser {
     HideParser() :RpyParser(3, "^hide " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
-        FRpyImage rpyImage;
-        rpyImage.name=FName(*params[0]);
+        FName name=FName(*params[0]);
         FName at = FName(*params[1]);
         FName with = FName(*params[2]);
-        auto names = RpyParser::GetNames(params[0]);
-        rpyImage.tag=names[0];
-        names.RemoveAt(0);
-        rpyImage.attributes=names;
-        if (!script->images.Contains(rpyImage.name))
+        if (!script->images.Contains(name))
             return nullptr;
-        return new HideInstruction(script, rpyLine, rpyImage, at, with);
+        return new HideInstruction(script, rpyLine, name, at, with);
     };
 };

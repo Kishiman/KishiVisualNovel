@@ -19,9 +19,11 @@ struct FRpyImage
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
-	UPaperSprite* image;
+	UPaperSprite* image=nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
 	FName name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	FString path;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
 	FName tag;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
@@ -48,7 +50,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
-	TMap<FName,UPaperSprite*> images;
+	TMap<FName,FRpyImage> images;
 
 	FDynamicObject compileData;
 
