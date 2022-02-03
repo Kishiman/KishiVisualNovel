@@ -2,6 +2,7 @@
 #include "C++/RpyParsers.h"
 #include "C++/RpyInstructions.h"
 #include "Interfaces/RpyInterpreter.h"
+#include "Misc/FileHelper.h" 
 
 // Online IDE - Code Editor, parser, Interpreter
 
@@ -24,6 +25,11 @@ void URpyScript::PostLoad()
 	for (auto& key : keys) {
 		FRpyImage& rpyImage = images[key];
 		FString path = basePath + "/Images/" + rpyImage.path;
+		FText err;
+		if (!FFileHelper::IsFilenameValidForSaving(path, err)) {
+			UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
+			continue;
+		}
 		UPaperSprite* image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
 		if (image) {
 			rpyImage.image = image;
