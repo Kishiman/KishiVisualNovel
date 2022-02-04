@@ -28,7 +28,10 @@ struct DefineCharacterParser : public RpyParser {
     {
         FName varName = FName(*params[0]);
         FName characterName = FName(*params[1]);
-        script->compileData.names.Add(varName, characterName);
+        FName characterImage = FName(*params[2]);
+        FRpyCharacter character={characterName,characterImage};
+        script->characters.Add(varName,character);
+        // script->compileData.names.Add(varName, characterName);
         return new BlankInstruction(script, rpyLine);
     };
 };
@@ -92,8 +95,8 @@ struct CharacterSayParser : public RpyParser {
         FName atImage = FName(*params[2]);
         FString statement = GetString(params[3]);
         FName with = FName(*params[4]);
-        if (script->compileData.names.Contains(name)) {
-            name = script->compileData.names[name];
+        if (script->characters.Contains(name)) {
+            name = script->characters[name].name;
         }
         else {
             UE_LOG(LogTemp, Error, TEXT("character name '%s' not found"), (*name.ToString()));

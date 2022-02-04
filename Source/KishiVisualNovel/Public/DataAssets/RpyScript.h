@@ -14,6 +14,16 @@ class IRpyInterpreter;
 class RpyInstruction;
 /**
  */
+ 
+USTRUCT(BlueprintType)
+struct FRpyCharacter
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	FName name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	FName image;
+};
 USTRUCT(BlueprintType)
 struct FRpyImage
 {
@@ -51,6 +61,8 @@ public:
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyImage> images;
+	UPROPERTY(EditAnywhere)
+	TMap<FName,FRpyCharacter> characters;
 
 	FDynamicObject compileData;
 
