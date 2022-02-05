@@ -1,8 +1,7 @@
-#include "DataAssets/RpySession.h"
+#include "RpySession.h"
 #include "C++/RpyParsers.h"
 #include "C++/RpyInstructions.h"
 #include "Interfaces/RpyInterpreter.h"
-#include "Misc/FileHelper.h" 
 
 // Online IDE - Code Editor, parser, Interpreter
 
@@ -16,7 +15,7 @@ TArray<FName> URpySession::GetLabels() const
 	return out;
 };
 
-bool URpySession::StartLabel(const TScriptInterface<IRpyInterpreter>& interpreter, FName label)
+bool URpySession::StartLabel(FName label)
 {
 	for(auto script:Scripts){
 		this->current = script->labels[label];
@@ -25,21 +24,21 @@ bool URpySession::StartLabel(const TScriptInterface<IRpyInterpreter>& interprete
 	}
 	if (!this->current)
 		return true;
-	return Run(interpreter);
+	return Run();
 };
-bool URpySession::RunNext(const TScriptInterface<IRpyInterpreter>& interpreter)
+bool URpySession::RunNext()
 {
-	this->current = this->current->GetNext(interpreter);
-	return Run(interpreter);
+	this->current = this->current->GetNext(this);
+	return Run();
 };
-bool URpySession::Run(const TScriptInterface<IRpyInterpreter>& interpreter)
+bool URpySession::Run()
 {
 	while (this->current && IRpyInterpreter::Execute_AutoRunNext(interpreter.GetObject()))
 	{
-		bool allGood = this->current->Execute(interpreter);
+		bool allGood = this->current->Execute(this);
 		if (!allGood)
 			return false;
-		this->current = this->current->GetNext(interpreter);
+		this->current = this->current->GetNext(this);
 	}
 	return true;
 };

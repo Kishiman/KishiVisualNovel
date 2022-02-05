@@ -69,35 +69,35 @@ int URpyScript::GetInstructionsLength() const
 	return instructions.Num();
 };
 
-bool URpyScript::RunInstruction(const TScriptInterface<IRpyInterpreter>& interpreter, int index)
-{
-	this->current = this->instructions[index];
-	if (this->current)
-		return this->current->Execute(interpreter);
-	return false;
-}
+// bool URpyScript::RunInstruction(const TScriptInterface<IRpyInterpreter>& interpreter, int index)
+// {
+// 	this->current = this->instructions[index];
+// 	if (this->current)
+// 		return this->current->Execute(interpreter);
+// 	return false;
+// }
 
-bool URpyScript::StartLabel(const TScriptInterface<IRpyInterpreter>& interpreter, FName label)
-{
-	this->current = this->labels[label];
-	if (!this->current)
-		return true;
-	while (this->current && IRpyInterpreter::Execute_AutoRunNext(interpreter.GetObject()))
-	{
-		bool allGood = this->current->Execute(interpreter);
-		if (!allGood)
-			return false;
-		this->current = this->current->GetNext(interpreter);
-	}
-	return true;
-};
-bool URpyScript::RunNext(const TScriptInterface<IRpyInterpreter>& interpreter)
-{
-	this->current = this->current->GetNext(interpreter);
-	if (this->current)
-		return this->current->Execute(interpreter);
-	return false;
-};
+// bool URpyScript::StartLabel(const TScriptInterface<IRpyInterpreter>& interpreter, FName label)
+// {
+// 	this->current = this->labels[label];
+// 	if (!this->current)
+// 		return true;
+// 	while (this->current && IRpyInterpreter::Execute_AutoRunNext(interpreter.GetObject()))
+// 	{
+// 		bool allGood = this->current->Execute(interpreter);
+// 		if (!allGood)
+// 			return false;
+// 		this->current = this->current->GetNext(interpreter);
+// 	}
+// 	return true;
+// };
+// bool URpyScript::RunNext(const TScriptInterface<IRpyInterpreter>& interpreter)
+// {
+// 	this->current = this->current->GetNext(interpreter);
+// 	if (this->current)
+// 		return this->current->Execute(interpreter);
+// 	return false;
+// };
 bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
 {
 	TArray<FString> lines;
@@ -202,6 +202,7 @@ bool URpyScript::Compile()
 		instructions[idx]->next = instructions[idx + 1];
 	}
 	TArray<RpyInstruction*> stack;
+	RpyInstruction* current;
 	for (int idx = 0; idx < instructions.Num(); ++idx)
 	{
 		auto num = stack.Num();

@@ -13,28 +13,30 @@ class RpyInstruction;
 /**
  */
 
-UCLASS()
+UCLASS(BlueprintType)
 class KISHIVISUALNOVEL_API URpySession : public UObject
 {
 	GENERATED_BODY()
 public:
-	URpySession();
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadWrite,meta=(ExposeOnSpawn="true"))
+	TScriptInterface<IRpyInterpreter> interpreter;
+	UPROPERTY(BlueprintReadWrite,meta=(ExposeOnSpawn="true"))
+	TArray<URpyScript*> Scripts;
+	UPROPERTY(BlueprintReadWrite)
 	FDynamicObject RuntimeData;
-	UPROPERTY(EditAnywhere)
-	TArray<URpyScript *> Scripts;
 
-	RpyInstruction *current = nullptr;
-	TArray<RpyInstruction *> callStack;
+	RpyInstruction* current = nullptr;
+	TArray<RpyInstruction*> callStack;
 
 	UFUNCTION(BlueprintPure)
 	TArray<FName> GetLabels() const;
 
 	UFUNCTION(BlueprintCallable)
-	bool StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter, FName label);
+	bool StartLabel(FName label);
 	UFUNCTION(BlueprintCallable)
-	bool RunNext(const TScriptInterface<IRpyInterpreter> &interpreter);
+	bool RunNext();
+	UFUNCTION(BlueprintCallable)
+	bool Run();
 
 	// virtual void PostLoad() override;
 	// virtual void PostInitProperties() override;

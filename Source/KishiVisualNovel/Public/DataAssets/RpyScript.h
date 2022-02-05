@@ -66,10 +66,10 @@ public:
 
 	FDynamicObject compileData;
 
-	RpyInstruction *current = nullptr;
+	// RpyInstruction *current = nullptr;
 	RpyInstruction * init=nullptr;
 	TArray<RpyInstruction *> instructions;
-	TArray<RpyInstruction *> callStack;
+	// TArray<RpyInstruction *> callStack;
 	
 	TMap<FName, RpyInstruction *> labels;
 
@@ -78,13 +78,13 @@ public:
 	UFUNCTION(BlueprintPure)
 	int GetInstructionsLength() const;
 
-	UFUNCTION(BlueprintCallable)
-	bool StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter, FName label);
+	// UFUNCTION(BlueprintCallable)
+	// bool StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter, FName label);
 
-	UFUNCTION(BlueprintCallable)
-	bool RunNext(const TScriptInterface<IRpyInterpreter> &interpreter);
-	UFUNCTION(BlueprintCallable)
-	bool RunInstruction(const TScriptInterface<IRpyInterpreter> &interpreter, int index);
+	// UFUNCTION(BlueprintCallable)
+	// bool RunNext(const TScriptInterface<IRpyInterpreter> &interpreter);
+	// UFUNCTION(BlueprintCallable)
+	// bool RunInstruction(const TScriptInterface<IRpyInterpreter> &interpreter, int index);
 
 	virtual void PostLoad() override;
 	virtual void PostInitProperties() override;

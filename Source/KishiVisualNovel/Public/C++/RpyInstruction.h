@@ -6,6 +6,7 @@
 #include "DataAssets/RpyScript.h"
 
 class IRpyInterpreter;
+class URpySession;
 
 class RpyInstruction
 {
@@ -15,11 +16,11 @@ public:
     virtual bool Compile() {
         return true;
     }
-    virtual bool Execute(const TScriptInterface<IRpyInterpreter>& interpreter) {
+    virtual bool Execute(URpySession* session) {
         UE_LOG(LogTemp, Display, TEXT("Executing rpy:%s"), (*this->rpyLine->line));
         return true;
     };
-    virtual RpyInstruction* GetNext(const TScriptInterface<IRpyInterpreter>& interpreter) {
+    virtual RpyInstruction* GetNext(URpySession* session) {
         return this->next;
     };
     //
