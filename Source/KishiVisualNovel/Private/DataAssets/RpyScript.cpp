@@ -21,6 +21,7 @@ void URpyScript::PostLoad()
 	FString basePath, right;
 	this->AssetImportData->GetPathName().Split("/", &basePath, &right, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 	TArray<FName> keys;
+	//load images
 	images.GetKeys(keys);
 	for (auto& key : keys) {
 		FRpyImage& rpyImage = images[key];
@@ -38,6 +39,26 @@ void URpyScript::PostLoad()
 			UE_LOG(LogTemp, Error, TEXT("RpyImage not found at path : %s"), (*path));
 		}
 	};
+	keys.Empty();
+	//sounds
+	images.GetKeys(keys);
+	for (auto& key : keys) {
+		FRpyAudio& rpyAudio = sounds[key];
+		FString path = basePath + "/Audios/" + rpyAudio.path;
+		FText err;
+		if (!FFileHelper::IsFilenameValidForSaving(path, err)) {
+			UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
+			continue;
+		}
+		USoundWave* sound = Cast<USoundWave>(StaticLoadObject(USoundWave::StaticClass(), NULL, *path));
+		if (sound) {
+			rpyAudio.sound = sound;
+		}
+		else {
+			UE_LOG(LogTemp, Error, TEXT("FRpyAudio not found at path : %s"), (*path));
+		}	
+	};
+	keys.Empty();
 };
 void URpyScript::PostInitProperties()
 {

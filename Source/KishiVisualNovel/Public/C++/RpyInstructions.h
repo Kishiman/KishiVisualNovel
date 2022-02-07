@@ -96,13 +96,17 @@ struct SayInstruction : public RpyInstruction {
 };
 
 struct PlayInstruction : public RpyInstruction {
-  FName name;
-  TMap<FName, FString> params;
+FName channel;
+FName audioKey;
+FRpyAudioOptions options;
 
-  PlayInstruction(URpyScript* script, FRpyLine* rpyLine, FName name, TMap<FName, FString> params) : RpyInstruction(script, rpyLine), name(name), params(params) {};
+PlayInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel,FName audioKey,FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel),audioKey(audioKey),options(options) {};
   virtual bool Execute(URpySession* session) {
     RpyInstruction::Execute(session);
-    return IRpyInterpreter::Execute_PlayMusic(session->interpreter.GetObject(), this->name, this->params);
+    auto rpyAudio = script->images[name];
+    if (!rpyAudio.sound)
+      return false;
+    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(),channel, rpyAudio, options);
   };
 };
 

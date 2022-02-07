@@ -35,6 +35,18 @@ struct DefineCharacterParser : public RpyParser {
         return new BlankInstruction(script, rpyLine);
     };
 };
+//define audio.sunflower = "music/sun-flower-slow-jam.ogg"
+struct DefineAudioParser : public RpyParser {
+    DefineAudioParser() :RpyParser(2, "^define audio." + RpyParser::reg_name + " = \""+RpyParser::reg_path+"\"$") { };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
+    {
+        FName name = FName(*params[0]);
+        FString path = params[1];
+        FRpyAudio audio={nullptr,path};
+        script->sounds.Add(name,character);
+        return new BlankInstruction(script, rpyLine);
+    };
+};
 
 //"label start:"
 struct LabelParser : public RpyParser {
@@ -108,7 +120,7 @@ struct CharacterSayParser : public RpyParser {
 };
 
 struct ImageParser : public RpyParser {
-    ImageParser() :RpyParser(2, "^image " + reg_image_name + " = \"([/\\w\\.\\s]+)\"$") { };
+    ImageParser() :RpyParser(2, "^image " + reg_image_name + " = \""+RpyParser::reg_path+"\"$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
         FString path = params[1];

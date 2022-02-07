@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "PaperSprite.h"
+#include "Sound/SoundWave.h"
+
 
 #include "KishiDataAsset.h"
 #include "Structs/DynamicObject.h"
@@ -19,35 +21,58 @@ USTRUCT(BlueprintType)
 struct FRpyCharacter
 {
 	GENERATED_USTRUCT_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName image;
 };
+USTRUCT(BlueprintType)
+struct FRpyAudioOptions
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, )
+	float fadeIn=0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, )
+	float fadeOut=0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, )
+	float volume=1;
+};
+
+USTRUCT(BlueprintType)
+struct FRpyAudio
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundWave* sound=nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString path;
+};
+
 USTRUCT(BlueprintType)
 struct FRpyImage
 {
 	GENERATED_USTRUCT_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPaperSprite* image=nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName tag;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> attributes;
 };
+
 USTRUCT(BlueprintType)
 struct FRpyLine
 {
 	GENERATED_USTRUCT_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
 	uint8 tabs = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
 	int LineNumber = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Py")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
 	FString line;
 };
 
@@ -61,6 +86,9 @@ public:
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyImage> images;
+	UPROPERTY(EditAnywhere)
+	TMap<FName,FRpyAudio> sounds;
+
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyCharacter> characters;
 
