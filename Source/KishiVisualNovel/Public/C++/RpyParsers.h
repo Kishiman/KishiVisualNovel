@@ -43,7 +43,7 @@ struct DefineAudioParser : public RpyParser {
         FName name = FName(*params[0]);
         FString path = params[1];
         FRpyAudio audio={nullptr,path};
-        script->sounds.Add(name,character);
+        script->sounds.Add(name,audio);
         return new BlankInstruction(script, rpyLine);
     };
 };

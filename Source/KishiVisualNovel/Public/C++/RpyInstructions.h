@@ -97,16 +97,16 @@ struct SayInstruction : public RpyInstruction {
 
 struct PlayInstruction : public RpyInstruction {
 FName channel;
-FName audioKey;
+FName name;
 FRpyAudioOptions options;
 
-PlayInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel,FName audioKey,FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel),audioKey(audioKey),options(options) {};
+PlayInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel,FName name,FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel),name(name),options(options) {};
   virtual bool Execute(URpySession* session) {
     RpyInstruction::Execute(session);
-    auto rpyAudio = script->images[name];
+    auto rpyAudio = script->sounds[name];
     if (!rpyAudio.sound)
       return false;
-    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(),channel, rpyAudio, options);
+    return IRpyInterpreter::Execute_PlayAudio(session->interpreter.GetObject(),channel, rpyAudio, options);
   };
 };
 

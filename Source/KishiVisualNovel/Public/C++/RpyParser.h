@@ -77,4 +77,3 @@ std::string RpyParser::reg_path = "([/\\w\\.\\s]+)";
 
 std::string RpyParser::reg_label = "^label " + RpyParser::reg_name + ":$";
 std::string RpyParser::reg_define_char = "^\\$ " + RpyParser::reg_name + " = Character\\('(\\w+)'(?:, image='(\\w+)')?\\)$";
-std::string RpyParser::reg_define_char = "^\\$ " + RpyParser::reg_name + " = Character\\('(\\w+)'(?:, image='(\\w+)')?\\)$";

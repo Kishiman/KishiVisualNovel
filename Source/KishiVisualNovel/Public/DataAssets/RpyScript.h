@@ -30,11 +30,11 @@ USTRUCT(BlueprintType)
 struct FRpyAudioOptions
 {
 	GENERATED_USTRUCT_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, )
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float fadeIn=0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, )
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float fadeOut=0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, )
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float volume=1;
 };
 
