@@ -19,6 +19,8 @@ public:
     //primitive
     static std::string reg_integer;
     static std::string reg_float;
+    static std::string reg_ufloat;
+    static std::string reg_ufloatUnit;
     static std::string reg_bool;
     //rpy
     static std::string reg_keyword;
@@ -65,6 +67,9 @@ public:
 };
 std::string RpyParser::reg_integer = "(\\d*)";
 std::string RpyParser::reg_float = "([+-]?(?:\\d*\\.)?\\d+)";
+std::string RpyParser::reg_ufloat = "((?:\\d*\\.)?\\d+)";
+std::string RpyParser::reg_ufloatUnit = "(0(?:\\.\\d+)?|1(?:\\.0+)?)";
+
 std::string RpyParser::reg_bool = "(True|False|None)";
 
 

@@ -37,7 +37,7 @@ struct DefineCharacterParser : public RpyParser {
 };
 //define audio.sunflower = "music/sun-flower-slow-jam.ogg"
 struct DefineAudioParser : public RpyParser {
-    DefineAudioParser() :RpyParser(2, "^define audio." + RpyParser::reg_name + " = \""+RpyParser::reg_path+"\"$") { };
+    DefineAudioParser() :RpyParser(2, "^define audio." + reg_name + " = \""+reg_path+"\"$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         FName name = FName(*params[0]);
@@ -48,6 +48,23 @@ struct DefineAudioParser : public RpyParser {
     };
 };
 
+//play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
+struct PlayAudioParser : public RpyParser {
+    PlayAudioParser() :RpyParser(4, "^play "+reg_name+" \"("+reg_path+")\"(?: fadeout "+reg_ufloatUnit+")?(?: fadein ("+reg_ufloatUnit+")?$") { };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
+    {
+        FName channel = FName(*params[0]);
+        FString path = params[1];
+        FName saveName = FName(*params[1]);
+        FRpyAudio audio;
+        FRpyAudioOptions options;
+        options.fadeOut = GetFloat(params[2]);
+        options.fadeIn = GetFloat(params[3]);
+        FRpyAudio audio={nullptr,path};
+        script->sounds.Add(saveName,audio);
+        return new PlayInstruction(script, rpyLine,channel,saveName,options);
+    };
+};
 //"label start:"
 struct LabelParser : public RpyParser {
     LabelParser() :RpyParser(1, reg_label) { };
@@ -79,7 +96,7 @@ struct CallParser : public RpyParser {
 };
 
 struct SayParser : public RpyParser {
-    SayParser() :RpyParser(3, "^\"(\\w+)\" " + RpyParser::reg_string + "(?: with (\\w+))?$") { };
+    SayParser() :RpyParser(3, "^\"(\\w+)\" " + reg_string + "(?: with (\\w+))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
         FString statement = GetString(params[1]);
@@ -89,7 +106,7 @@ struct SayParser : public RpyParser {
     };
 };
 struct NarratorSayParser : public RpyParser {
-    NarratorSayParser() :RpyParser(2, "^" + RpyParser::reg_string + "(?: with (\\w+))?$") { };
+    NarratorSayParser() :RpyParser(2, "^" + reg_string + "(?: with (\\w+))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name;
         FString statement = GetString(params[0]);
@@ -100,7 +117,7 @@ struct NarratorSayParser : public RpyParser {
 };
 
 struct CharacterSayParser : public RpyParser {
-    CharacterSayParser() :RpyParser(5, "^(\\w+)(?: " + reg_image_name + ")?(?: @ " + reg_image_name + ")? " + RpyParser::reg_string + "(?: with (\\w+))?$") { };
+    CharacterSayParser() :RpyParser(5, "^(\\w+)(?: " + reg_image_name + ")?(?: @ " + reg_image_name + ")? " + reg_string + "(?: with (\\w+))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
         FName image = FName(*params[1]);
@@ -120,7 +137,7 @@ struct CharacterSayParser : public RpyParser {
 };
 
 struct ImageParser : public RpyParser {
-    ImageParser() :RpyParser(2, "^image " + reg_image_name + " = \""+RpyParser::reg_path+"\"$") { };
+    ImageParser() :RpyParser(2, "^image " + reg_image_name + " = \""+reg_path+"\"$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
         FString path = params[1];
