@@ -103,8 +103,8 @@ FRpyAudioOptions options;
 PlayInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel,FName name,FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel),name(name),options(options) {};
   virtual bool Execute(URpySession* session) {
     RpyInstruction::Execute(session);
-    auto rpyAudio = script->sounds[name];
-    if (!rpyAudio.sound)
+    auto rpyAudio = script->audios[name];
+    if (!rpyAudio.audio)
       return false;
     return IRpyInterpreter::Execute_PlayAudio(session->interpreter.GetObject(),channel, rpyAudio, options);
   };

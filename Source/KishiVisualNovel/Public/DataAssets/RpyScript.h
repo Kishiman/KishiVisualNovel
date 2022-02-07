@@ -43,7 +43,7 @@ struct FRpyAudio
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USoundWave* sound=nullptr;
+	USoundWave* audio=nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
 };
@@ -87,7 +87,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyImage> images;
 	UPROPERTY(EditAnywhere)
-	TMap<FName,FRpyAudio> sounds;
+	TMap<FName,FRpyAudio> audios;
 
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyCharacter> characters;

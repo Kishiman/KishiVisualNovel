@@ -40,19 +40,19 @@ void URpyScript::PostLoad()
 		}
 	};
 	keys.Empty();
-	//sounds
+	//audios
 	images.GetKeys(keys);
 	for (auto& key : keys) {
-		FRpyAudio& rpyAudio = sounds[key];
+		FRpyAudio& rpyAudio = audios[key];
 		FString path = basePath + "/Audios/" + rpyAudio.path;
 		FText err;
 		if (!FFileHelper::IsFilenameValidForSaving(path, err)) {
 			UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
 			continue;
 		}
-		USoundWave* sound = Cast<USoundWave>(StaticLoadObject(USoundWave::StaticClass(), NULL, *path));
-		if (sound) {
-			rpyAudio.sound = sound;
+		USoundWave* audio = Cast<USoundWave>(StaticLoadObject(USoundWave::StaticClass(), NULL, *path));
+		if (audio) {
+			rpyAudio.audio = audio;
 		}
 		else {
 			UE_LOG(LogTemp, Error, TEXT("FRpyAudio not found at path : %s"), (*path));

@@ -43,7 +43,7 @@ struct DefineAudioParser : public RpyParser {
         FName name = FName(*params[0]);
         FString path = params[1];
         FRpyAudio audio={nullptr,path};
-        script->sounds.Add(name,audio);
+        script->audios.Add(name,audio);
         return new BlankInstruction(script, rpyLine);
     };
 };
@@ -56,12 +56,11 @@ struct PlayAudioParser : public RpyParser {
         FName channel = FName(*params[0]);
         FString path = params[1];
         FName saveName = FName(*params[1]);
-        FRpyAudio audio;
         FRpyAudioOptions options;
         options.fadeOut = GetFloat(params[2]);
         options.fadeIn = GetFloat(params[3]);
         FRpyAudio audio={nullptr,path};
-        script->sounds.Add(saveName,audio);
+        script->audios.Add(saveName,audio);
         return new PlayInstruction(script, rpyLine,channel,saveName,options);
     };
 };
