@@ -29,27 +29,27 @@ struct DefineCharacterParser : public RpyParser {
         FName varName = FName(*params[0]);
         FName characterName = FName(*params[1]);
         FName characterImage = FName(*params[2]);
-        FRpyCharacter character={characterName,characterImage};
-        script->characters.Add(varName,character);
+        FRpyCharacter character = { characterName,characterImage };
+        script->characters.Add(varName, character);
         // script->compileData.names.Add(varName, characterName);
         return new BlankInstruction(script, rpyLine);
     };
 };
 //define audio.sunflower = "music/sun-flower-slow-jam.ogg"
 struct DefineAudioParser : public RpyParser {
-    DefineAudioParser() :RpyParser(2, "^define audio." + reg_name + " = \""+reg_path+"\"$") { };
+    DefineAudioParser() :RpyParser(2, "^define audio." + reg_name + " = \"" + reg_path + "\"$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         FName name = FName(*params[0]);
         FString path = params[1];
-        FRpyAudio audio={nullptr,path};
-        script->audios.Add(name,audio);
+        FRpyAudio audio = { nullptr,path };
+        script->audios.Add(name, audio);
         return new BlankInstruction(script, rpyLine);
     };
 };
 //stop music volume 0.25 fadeout 1.0 fadein 1.0
 struct StopAudioParser : public RpyParser {
-    StopAudioParser() :RpyParser(4, "^stop "+reg_name+"(?: volume "+reg_ufloatUnit+")?(?: fadeout "+reg_ufloatUnit+")?(?: fadein ("+reg_ufloatUnit+")?$") { };
+    StopAudioParser() :RpyParser(4, "^stop " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloatUnit + ")?(?: fadein (" + reg_ufloatUnit + ")?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         FName channel = FName(*params[0]);
@@ -57,50 +57,49 @@ struct StopAudioParser : public RpyParser {
         options.volume = GetFloat(params[1]);
         options.fadeOut = GetFloat(params[2]);
         options.fadeIn = GetFloat(params[3]);
-        return new StopInstruction(script, rpyLine,channel,options);
+        return new StopInstruction(script, rpyLine, channel, options);
     };
 };
 //play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
-struct PlayQueueVarAudioParser : public RpyParser {
-    PlayQueueVarAudioParser() :RpyParser(6, "^(play|queue) "+reg_name+" "+reg_name+"(?: volume "+reg_ufloatUnit+")?(?: fadeout "+reg_ufloatUnit+")?(?: fadein ("+reg_ufloatUnit+")?$") { };
+struct PlayQueueAudioParser : public RpyParser {
+    PlayQueueAudioParser() :RpyParser(6, "^(play|queue) " + reg_name + " \"(" + reg_path + ")\"(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloatUnit + ")?(?: fadein (" + reg_ufloatUnit + ")?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
-        auto cmd=params[0];
+        auto cmd = params[0];
         FName channel = FName(*params[1]);
         FString& path = params[2];
         FName saveName = FName(*path);
-        if(!)
         FRpyAudioOptions options;
         options.volume = GetFloat(params[3]);
         options.fadeOut = GetFloat(params[4]);
         options.fadeIn = GetFloat(params[5]);
-        FRpyAudio audio={nullptr,path};
-        script->audios.Add(saveName,audio);
-        if(cmd=="queue")
-            return new QueueInstruction(script, rpyLine,channel,saveName,options);
-        return new PlayInstruction(script, rpyLine,channel,saveName,options);
+        FRpyAudio audio = { nullptr,path };
+        script->audios.Add(saveName, audio);
+        if (cmd == "queue")
+            return new QueueInstruction(script, rpyLine, channel, saveName, options);
+        return new PlayInstruction(script, rpyLine, channel, saveName, options);
     };
 };
 
 //play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
-struct PlayQueueAudioParser : public RpyParser {
-    PlayQueueAudioParser() :RpyParser(6, "^(play|queue) "+reg_name+" \"("+reg_path+")\"(?: volume "+reg_ufloatUnit+")?(?: fadeout "+reg_ufloatUnit+")?(?: fadein ("+reg_ufloatUnit+")?$") { };
+struct PlayQueueVarAudioParser : public RpyParser {
+    PlayQueueVarAudioParser() :RpyParser(6, "^(play|queue) " + reg_name + " " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloatUnit + ")?(?: fadein (" + reg_ufloatUnit + ")?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
-        auto cmd=params[0];
+        auto cmd = params[0];
         FName channel = FName(*params[1]);
         FName keyName = FName(*params[2]);
         FRpyAudioOptions options;
         options.volume = GetFloat(params[3]);
         options.fadeOut = GetFloat(params[4]);
         options.fadeIn = GetFloat(params[5]);
-        if(!script->audios.Contains(keyName)) {
+        if (!script->audios.Contains(keyName)) {
             UE_LOG(LogTemp, Error, TEXT("audio name '%s' not found"), (*keyName.ToString()));
             return nullptr;
         }
-        if(cmd=="queue")
-            return new QueueInstruction(script, rpyLine,channel,keyName,options);
-        return new PlayInstruction(script, rpyLine,channel,keyName,options);
+        if (cmd == "queue")
+            return new QueueInstruction(script, rpyLine, channel, keyName, options);
+        return new PlayInstruction(script, rpyLine, channel, keyName, options);
     };
 };
 
@@ -176,17 +175,17 @@ struct CharacterSayParser : public RpyParser {
 };
 
 struct ImageParser : public RpyParser {
-    ImageParser() :RpyParser(2, "^image " + reg_image_name + " = \""+reg_path+"\"$") { };
+    ImageParser() :RpyParser(2, "^image " + reg_image_name + " = \"" + reg_path + "\"$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         FName name = FName(*params[0]);
         FString path = params[1];
         FRpyImage rpyImage;
-        rpyImage.name=name;
-        rpyImage.path=path;
+        rpyImage.name = name;
+        rpyImage.path = path;
         auto names = RpyParser::GetNames(params[0]);
-        rpyImage.tag=names[0];
+        rpyImage.tag = names[0];
         names.RemoveAt(0);
-        rpyImage.attributes=names;
+        rpyImage.attributes = names;
         script->images.Add(name, rpyImage);
         return new BlankInstruction(script, rpyLine);
     };
@@ -194,7 +193,7 @@ struct ImageParser : public RpyParser {
 struct ShowParser : public RpyParser {
     ShowParser() :RpyParser(3, "^show " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
-        FName name=FName(*params[0]);
+        FName name = FName(*params[0]);
         FName at = FName(*params[1]);
         FName with = FName(*params[2]);
         if (!script->images.Contains(name))
@@ -205,7 +204,7 @@ struct ShowParser : public RpyParser {
 struct HideParser : public RpyParser {
     HideParser() :RpyParser(3, "^hide " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
-        FName name=FName(*params[0]);
+        FName name = FName(*params[0]);
         FName at = FName(*params[1]);
         FName with = FName(*params[2]);
         if (!script->images.Contains(name))

@@ -34,20 +34,20 @@ public:
     virtual bool Hide_Implementation(FRpyImage rpyImage, FName at, FName with) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool PauseAudio(float timeout);
+        bool PauseAudio(float timeout);
     virtual bool PauseAudio_Implementation(float timeout) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool StopAudio(FName channel,FRpyAudioOptions options);
-    virtual bool StopAudio_Implementation(FName channel,FRpyAudioOptions options) = 0;
+        bool StopAudio(FName channel, FRpyAudioOptions options);
+    virtual bool StopAudio_Implementation(FName channel, FRpyAudioOptions options) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool QueueAudio(FName channel,FRpyAudio audio,FRpyAudioOptions options);
-    virtual bool QueueAudio_Implementation(FName channel,FRpyAudio audio,FRpyAudioOptions options) = 0;
+        bool QueueAudio(FName channel, FRpyAudio audio, FRpyAudioOptions options);
+    virtual bool QueueAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-    bool PlayAudio(FName channel,FRpyAudio audio,FRpyAudioOptions options);
-    virtual bool PlayAudio_Implementation(FName channel,FRpyAudio audio,FRpyAudioOptions options) = 0;
+        bool PlayAudio(FName channel, FRpyAudio audio, FRpyAudioOptions options);
+    virtual bool PlayAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) = 0;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
         bool Menu(const FString& statement, const TArray<FString>& choices);

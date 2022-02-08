@@ -97,41 +97,41 @@ struct SayInstruction : public RpyInstruction {
 
 
 struct StopInstruction : public RpyInstruction {
-FName channel;
-FRpyAudioOptions options;
-StopInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel,FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel),options(options) {};
+  FName channel;
+  FRpyAudioOptions options;
+  StopInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), options(options) {};
   virtual bool Execute(URpySession* session) {
     RpyInstruction::Execute(session);
-    return IRpyInterpreter::Execute_StopAudio(session->interpreter.GetObject(),channel, options);
+    return IRpyInterpreter::Execute_StopAudio(session->interpreter.GetObject(), channel, options);
   };
 };
 
 struct QueueInstruction : public RpyInstruction {
-FName channel;
-FName name;
-FRpyAudioOptions options;
-QueueInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel,FName name,FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel),name(name),options(options) {};
+  FName channel;
+  FName name;
+  FRpyAudioOptions options;
+  QueueInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name), options(options) {};
   virtual bool Execute(URpySession* session) {
     RpyInstruction::Execute(session);
     auto rpyAudio = script->audios[name];
     if (!rpyAudio.audio)
       return false;
-    return IRpyInterpreter::Execute_QueueAudio(session->interpreter.GetObject(),channel, rpyAudio, options);
+    return IRpyInterpreter::Execute_QueueAudio(session->interpreter.GetObject(), channel, rpyAudio, options);
   };
 };
 
 struct PlayInstruction : public RpyInstruction {
-FName channel;
-FName name;
-FRpyAudioOptions options;
+  FName channel;
+  FName name;
+  FRpyAudioOptions options;
 
-PlayInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel,FName name,FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel),name(name),options(options) {};
+  PlayInstruction(URpyScript* script, FRpyLine* rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name), options(options) {};
   virtual bool Execute(URpySession* session) {
     RpyInstruction::Execute(session);
     auto rpyAudio = script->audios[name];
     if (!rpyAudio.audio)
       return false;
-    return IRpyInterpreter::Execute_PlayAudio(session->interpreter.GetObject(),channel, rpyAudio, options);
+    return IRpyInterpreter::Execute_PlayAudio(session->interpreter.GetObject(), channel, rpyAudio, options);
   };
 };
 
@@ -141,6 +141,6 @@ struct PauseInstruction : public RpyInstruction {
   PauseInstruction(URpyScript* script, FRpyLine* rpyLine, float timeout) : RpyInstruction(script, rpyLine), timeout(timeout) {};
   virtual bool Execute(URpySession* session) {
     RpyInstruction::Execute(session);
-    return IRpyInterpreter::Execute_Pause(session->interpreter.GetObject(), this->timeout);
+    return IRpyInterpreter::Execute_PauseAudio(session->interpreter.GetObject(), this->timeout);
   };
 };

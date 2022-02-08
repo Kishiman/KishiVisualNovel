@@ -56,7 +56,7 @@ void URpyScript::PostLoad()
 		}
 		else {
 			UE_LOG(LogTemp, Error, TEXT("FRpyAudio not found at path : %s"), (*path));
-		}	
+		}
 	};
 	keys.Empty();
 };
