@@ -25,6 +25,8 @@ struct FRpyCharacter
 	FName name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName image;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName voice;
 };
 USTRUCT(BlueprintType)
 struct FRpyAudioOptions
@@ -46,6 +48,20 @@ struct FRpyAudio
 	USoundWave* audio=nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
+};
+
+USTRUCT(BlueprintType)
+struct FRpyMovie
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UFileMediaSource* movie=nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString path;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UFileMediaSource* maskMovie=nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString maskPath;
 };
 
 USTRUCT(BlueprintType)
@@ -86,6 +102,8 @@ public:
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyImage> images;
+	UPROPERTY(EditAnywhere)
+	TMap<FName,FRpyAudio> audios;
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyAudio> audios;
 

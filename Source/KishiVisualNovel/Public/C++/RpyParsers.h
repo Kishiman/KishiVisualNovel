@@ -23,13 +23,14 @@ struct InitParser : public RpyParser {
 };
 //"$ e = Character('Eileen')"
 struct DefineCharacterParser : public RpyParser {
-    DefineCharacterParser() :RpyParser(3, reg_define_char) { };
+    DefineCharacterParser() :RpyParser(4, "^\\$ " + reg_name + " = Character\\(" + reg_string + "(?:, image=" + reg_string + ")?(?:, voice_tag=" + reg_string + ")?\\)$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         FName varName = FName(*params[0]);
         FName characterName = FName(*params[1]);
         FName characterImage = FName(*params[2]);
-        FRpyCharacter character = { characterName,characterImage };
+        FName characterVoice = FName(*params[3]);
+        FRpyCharacter character = { characterName,characterImage,characterVoice };
         script->characters.Add(varName, character);
         // script->compileData.names.Add(varName, characterName);
         return new BlankInstruction(script, rpyLine);
@@ -60,6 +61,23 @@ struct StopAudioParser : public RpyParser {
         return new StopInstruction(script, rpyLine, channel, options);
     };
 };
+//voice "waves.opus"
+struct VoiceParser : public RpyParser {
+    VoiceParser() :RpyParser(6, "^voice \"(" + reg_path + ")\"$") { };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
+    {
+        FName channel = FName("voice");
+        FString& path = params[0];
+        FName saveName = FName(*path);
+        FRpyAudioOptions options;
+        if(!script->audios.Contains(saveName)){
+            FRpyAudio audio = { nullptr,path };
+            script->audios.Add(saveName, audio);
+        }
+        return new PlayInstruction(script, rpyLine, channel, saveName, options);
+    };
+};
+
 //play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
 struct PlayQueueAudioParser : public RpyParser {
     PlayQueueAudioParser() :RpyParser(6, "^(play|queue) " + reg_name + " \"(" + reg_path + ")\"(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloatUnit + ")?(?: fadein (" + reg_ufloatUnit + ")?$") { };
@@ -73,8 +91,10 @@ struct PlayQueueAudioParser : public RpyParser {
         options.volume = GetFloat(params[3]);
         options.fadeOut = GetFloat(params[4]);
         options.fadeIn = GetFloat(params[5]);
-        FRpyAudio audio = { nullptr,path };
-        script->audios.Add(saveName, audio);
+        if(!script->audios.Contains(saveName)){
+            FRpyAudio audio = { nullptr,path };
+            script->audios.Add(saveName, audio);
+        }
         if (cmd == "queue")
             return new QueueInstruction(script, rpyLine, channel, saveName, options);
         return new PlayInstruction(script, rpyLine, channel, saveName, options);
@@ -105,7 +125,7 @@ struct PlayQueueVarAudioParser : public RpyParser {
 
 //"label start:"
 struct LabelParser : public RpyParser {
-    LabelParser() :RpyParser(1, reg_label) { };
+    LabelParser() :RpyParser(1, "^label " + reg_name + ":$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
         RpyInstruction* label = new BlankInstruction(script, rpyLine);
         script->labels.Add(FName(*params[0]), label);
