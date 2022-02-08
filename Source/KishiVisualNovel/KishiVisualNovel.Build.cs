@@ -31,6 +31,7 @@ public class KishiVisualNovel : ModuleRules
 				"Kishi",
 				"UMG",
 				"Paper2D",
+				"MediaAssets",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

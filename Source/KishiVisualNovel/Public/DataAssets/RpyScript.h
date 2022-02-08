@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PaperSprite.h"
 #include "Sound/SoundWave.h"
+#include "FileMediaSource.h" 
 
 
 #include "KishiDataAsset.h"
@@ -102,8 +103,6 @@ public:
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyImage> images;
-	UPROPERTY(EditAnywhere)
-	TMap<FName,FRpyAudio> audios;
 	UPROPERTY(EditAnywhere)
 	TMap<FName,FRpyAudio> audios;
 
