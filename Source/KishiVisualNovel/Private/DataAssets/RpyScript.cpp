@@ -41,7 +41,7 @@ void URpyScript::PostLoad()
 	};
 	keys.Empty();
 	//audios
-	images.GetKeys(keys);
+	audios.GetKeys(keys);
 	for (auto& key : keys) {
 		FRpyAudio& rpyAudio = audios[key];
 		FString path = basePath + "/Audios/" + rpyAudio.path;
@@ -151,7 +151,9 @@ bool URpyScript::Parse()
 	parsers.Add(new DefineCharacterParser());
 	parsers.Add(new DefineAudioParser());
 	parsers.Add(new StopAudioParser());
+	parsers.Add(new VoiceParser());
 	parsers.Add(new PlayQueueAudioParser());
+	parsers.Add(new PlayQueueVarAudioParser());
 	parsers.Add(new LabelParser());
 	parsers.Add(new JumpParser());
 	parsers.Add(new CallParser());

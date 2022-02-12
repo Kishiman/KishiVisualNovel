@@ -12,7 +12,10 @@ public:
     int paramsNum;
     FString query;
     std::regex reg_query;
-    RpyParser(int paramsNum, std::string query) :paramsNum(paramsNum), query(query.c_str()), reg_query(query) {};
+    RpyParser(int paramsNum, std::string query) :paramsNum(paramsNum), query(query.c_str()) {
+        UE_LOG(LogTemp, Warning, TEXT("RpyParser.query:%s"), (*this->query));
+        reg_query = query;
+    };
     virtual ~RpyParser() = default;
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) = 0;
 
