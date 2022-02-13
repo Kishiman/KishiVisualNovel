@@ -77,4 +77,4 @@ std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|imag
 std::string RpyParser::reg_name = "([a-zA-Z_]\\w*)";
 std::string RpyParser::reg_image_name = "((?:(?!(?:at |with ))\\w+)(?: (?!(?:at |with ))\\w+)*)";
 std::string RpyParser::reg_string = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
-std::string RpyParser::reg_path = "([/\\w\\.\\s]+)";
+std::string RpyParser::reg_path = "([/\\w\\.]+)";

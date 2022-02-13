@@ -12,12 +12,7 @@
 #include <stdexcept>
 
 using namespace std;
-void URpyScript::PostLoad()
-{
-	Super::PostLoad();
-	UE_LOG(LogTemp, Warning, TEXT("PostLoad, rpyLines:%d"), rpyLines.Num());
-	Parse();
-	Compile();
+void URpyScript::LoadRpyData(){
 	FString basePath, right;
 	this->AssetImportData->GetPathName().Split("/", &basePath, &right, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 	TArray<FName> keys;
@@ -59,7 +54,16 @@ void URpyScript::PostLoad()
 		}
 	};
 	keys.Empty();
+}
+void URpyScript::PostLoad()
+{
+	Super::PostLoad();
+	UE_LOG(LogTemp, Warning, TEXT("PostLoad, rpyLines:%d"), rpyLines.Num());
+	Parse();
+	Compile();
+	LoadRpyData();
 };
+
 void URpyScript::PostInitProperties()
 {
 	Super::PostInitProperties();

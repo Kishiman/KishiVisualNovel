@@ -25,6 +25,8 @@ bool URpyScriptImporterFactory::FactoryUpdateString(UClass *InClass, UObject *Ob
 	if (!allGood)
 		return false;
 	UE_LOG(LogTemp, Display, TEXT("URpyScript.Compile"));
+	rpyScript->LoadRpyData();
+	UE_LOG(LogTemp, Display, TEXT("URpyScript.LoadRpyData"));
 	return true;
 };
 EReimportResult::Type URpyScriptImporterFactory::Reimport(UObject *Obj)

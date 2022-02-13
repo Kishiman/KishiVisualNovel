@@ -17,6 +17,13 @@ class IRpyInterpreter;
 class RpyInstruction;
 /**
  */
+UENUM(BlueprintType)
+enum struct ESchrodBool : uint8 
+{
+	ETrue UMETA(DisplayName="True"),
+	EFalse UMETA(DisplayName="False"),
+	ENone UMETA(DisplayName="None"),
+};
  
 USTRUCT(BlueprintType)
 struct FRpyCharacter
@@ -39,6 +46,14 @@ struct FRpyAudioOptions
 	float fadeOut=0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float volume=1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESchrodBool loop=ESchrodBool::ENone;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESchrodBool tight=ESchrodBool::ENone;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool synchroStart=false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool if_changed=false;
 };
 
 USTRUCT(BlueprintType)
@@ -138,6 +153,7 @@ public:
 	bool ImportRpyLines(FString text, uint8 TabSize);
 	bool Parse();
 	bool Compile();
+	void LoadRpyData();
 
 private:
 };
