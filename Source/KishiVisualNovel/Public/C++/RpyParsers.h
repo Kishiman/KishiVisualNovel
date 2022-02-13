@@ -50,7 +50,7 @@ struct DefineAudioParser : public RpyParser {
 };
 //stop music volume 0.25 fadeout 1.0 fadein 1.0
 struct StopAudioParser : public RpyParser {
-    StopAudioParser() :RpyParser(6, "^stop " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloatUnit + ")?(?: fadein " + reg_ufloatUnit + ")?(?: (loop|noloop))?(?: (if_changed))?$") { };
+    StopAudioParser() :RpyParser(6, "^stop " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         FName channel = FName(*params[0]);
@@ -83,7 +83,7 @@ struct VoiceParser : public RpyParser {
 
 //play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
 struct PlayQueueAudioParser : public RpyParser {
-    PlayQueueAudioParser() :RpyParser(8, "^(play|queue) " + reg_name + " \"" + reg_path + "\"(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloatUnit + ")?(?: fadein " + reg_ufloatUnit + ")?(?: (loop|noloop))?(?: (if_changed))?$") { };
+    PlayQueueAudioParser() :RpyParser(8, "^(play|queue) " + reg_name + " \"" + reg_path + "\"(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         auto cmd = params[0];
@@ -109,7 +109,7 @@ struct PlayQueueAudioParser : public RpyParser {
 
 //play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
 struct PlayQueueVarAudioParser : public RpyParser {
-    PlayQueueVarAudioParser() :RpyParser(8, "^(play|queue) " + reg_name + " " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloatUnit + ")?(?: fadein " + reg_ufloatUnit + ")?(?: (loop|noloop))?(?: (if_changed))?$") { };
+    PlayQueueVarAudioParser() :RpyParser(8, "^(play|queue) " + reg_name + " " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$") { };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params)
     {
         auto cmd = params[0];
