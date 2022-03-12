@@ -57,7 +57,7 @@ public:
             array.Add(string.Mid(1, string.Len() - 2));
         }
         return array;
-    } 
+    }
 
     static FString GetString(FString param) {
         return param.Mid(1, param.Len() - 2);

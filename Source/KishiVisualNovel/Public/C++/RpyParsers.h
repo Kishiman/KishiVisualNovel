@@ -58,9 +58,9 @@ struct StopAudioParser : public RpyParser {
         options.volume = GetFloat(params[1]);
         options.fadeOut = GetFloat(params[2]);
         options.fadeIn = GetFloat(params[3]);
-        if(params[4]!="")
-        options.loop=params[4]=="loop"?ESchrodBool::ETrue:ESchrodBool::ETrue;
-        options.if_changed=params[5]!=""?true:false;
+        if (params[4] != "")
+            options.loop = params[4] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
+        options.if_changed = params[5] != "" ? true : false;
         return new StopInstruction(script, rpyLine, channel, options);
     };
 };
@@ -94,9 +94,9 @@ struct PlayQueueAudioParser : public RpyParser {
         options.volume = GetFloat(params[3]);
         options.fadeOut = GetFloat(params[4]);
         options.fadeIn = GetFloat(params[5]);
-        if(params[6]!="")
-        options.loop=params[6]=="loop"?ESchrodBool::ETrue:ESchrodBool::ETrue;
-        options.if_changed=params[7]!=""?true:false;
+        if (params[6] != "")
+            options.loop = params[6] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
+        options.if_changed = params[7] != "" ? true : false;
         if (!script->audios.Contains(saveName)) {
             FRpyAudio audio = { nullptr,path };
             script->audios.Add(saveName, audio);
@@ -119,9 +119,9 @@ struct PlayQueueVarAudioParser : public RpyParser {
         options.volume = GetFloat(params[3]);
         options.fadeOut = GetFloat(params[4]);
         options.fadeIn = GetFloat(params[5]);
-        if(params[6]!="")
-        options.loop=params[6]=="loop"?ESchrodBool::ETrue:ESchrodBool::ETrue;
-        options.if_changed=params[7]!=""?true:false;
+        if (params[6] != "")
+            options.loop = params[6] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
+        options.if_changed = params[7] != "" ? true : false;
         if (!script->audios.Contains(keyName)) {
             UE_LOG(LogTemp, Error, TEXT("audio name '%s' not found"), (*keyName.ToString()));
             return nullptr;
