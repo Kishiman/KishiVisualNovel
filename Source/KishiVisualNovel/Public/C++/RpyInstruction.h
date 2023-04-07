@@ -20,7 +20,10 @@ public:
         return true;
     };
     virtual RpyInstruction* GetNext(const TScriptInterface<IRpyInterpreter>& interpreter) {
-        return this->next;
+        return GetNextInTree();
+    };
+    RpyInstruction* GetNextInTree() {
+        return this->children.Num()>0?children[0]: this->next;
     };
     //
     URpyScript* script = nullptr;

@@ -62,6 +62,15 @@ struct SayParser : public RpyParser {
         return new SayInstruction(script, rpyLine, name, params[1]);
     };
 };
+//"\"Hope everything is okay\""
+struct SayParser2 : public RpyParser {
+    SayParser2() { query = "^\"(.*)\"$"; };
+    virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
+        FName name = FName("");
+        return new SayInstruction(script, rpyLine, name, params[0]);
+    };
+};
+
 struct ImageParser : public RpyParser {
     ImageParser() { query = "^image((\\s\\w+)+) = \"([/\\w\\.\\s]+)\"$"; };
     virtual RpyInstruction* GetRpyInstruction(URpyScript* script, FRpyLine* rpyLine, TArray<FString> params) {
