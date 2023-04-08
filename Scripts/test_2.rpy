@@ -12,9 +12,13 @@ label start:
     e "I'm standing in front of the White House."
 
     #show eileen upset
-
-    e "I once wanted to go on a tour of the West Wing, but you have to know somebody to get in."
-
-    "For some reason, she really seems upset about this."
+    if False:
+        e "I once wanted to go on a tour of the West Wing, but you have to know somebody to get in."
+        
+        "For some reason, she really seems upset about this."
 
     e "I considered sneaking in, but that probably isn't a good idea."
+
+label loop:
+
+    e "that's OK"

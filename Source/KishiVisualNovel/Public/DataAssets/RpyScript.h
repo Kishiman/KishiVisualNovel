@@ -35,14 +35,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
-	TMap<FName,UPaperSprite*> images;
+	TMap<FName, UPaperSprite *> images;
 
 	FDynamicObject compileData;
 
 	RpyInstruction *current = nullptr;
-	RpyInstruction * init=nullptr;
+	RpyInstruction *init = nullptr;
 	TArray<RpyInstruction *> instructions;
-	
+
 	TMap<FName, RpyInstruction *> labels;
 
 	UFUNCTION(BlueprintPure)

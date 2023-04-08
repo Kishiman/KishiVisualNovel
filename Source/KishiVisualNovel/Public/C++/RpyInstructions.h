@@ -2,11 +2,11 @@
 
 #include "C++/RpyInstruction.h"
 
-class BlankInstruction : public RpyInstruction
+class LabelInstruction : public RpyInstruction
 {
 public:
-  BlankInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
-  virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
+  LabelInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
+  virtual bool Compile() override;
 };
 
 class SceneInstruction : public RpyInstruction
@@ -25,7 +25,7 @@ public:
   FName at;
   FName with;
 
-  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name,FName at,FName with) : RpyInstruction(script, rpyLine), name(name), at(at),with(with){};
+  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with){};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
 
@@ -64,5 +64,33 @@ public:
   float timeout;
 
   PauseInstruction(URpyScript *script, FRpyLine *rpyLine, float timeout) : RpyInstruction(script, rpyLine), timeout(timeout){};
+  virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
+};
+//^\s*if\s+[\w\s\.<>=!]+:\s*$
+class IfInstruction : public RpyInstruction
+{
+public:
+  bool condition = true;
+
+  IfInstruction(URpyScript *script, FRpyLine *rpyLine, bool condition = true) : RpyInstruction(script, rpyLine), condition(condition){};
+  virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override { return true; };
+  virtual RpyInstruction *GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) override;
+};
+
+class IfBoolInstruction : public IfInstruction
+{
+public:
+  FName varName;
+  bool reverse;
+
+  IfBoolInstruction(URpyScript *script, FRpyLine *rpyLine, FName varName, bool reverse) : IfInstruction(script, rpyLine), varName(varName), reverse(reverse){};
+  virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
+};
+class JumpInstruction : public RpyInstruction
+{
+  FName label;
+
+public:
+  JumpInstruction(URpyScript *script, FRpyLine *rpyLine, FName label) : RpyInstruction(script, rpyLine), label(label){};
   virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
