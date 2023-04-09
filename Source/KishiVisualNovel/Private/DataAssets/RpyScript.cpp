@@ -2,7 +2,7 @@
 #include "C++/RpyParsers.h"
 #include "C++/RpyInstructions.h"
 #include "Interfaces/RpyInterpreter.h"
-#include "Misc/FileHelper.h" 
+#include "Misc/FileHelper.h"
 
 // Online IDE - Code Editor, parser, Interpreter
 
@@ -12,44 +12,53 @@
 #include <stdexcept>
 
 using namespace std;
-void URpyScript::LoadRpyData(){
+void URpyScript::LoadRpyData()
+{
 	FString basePath, right;
 	this->AssetImportData->GetPathName().Split("/", &basePath, &right, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
 	TArray<FName> keys;
-	//load images
+	// load images
 	images.GetKeys(keys);
-	for (auto& key : keys) {
-		FRpyImage& rpyImage = images[key];
+	for (auto &key : keys)
+	{
+		FRpyImage &rpyImage = images[key];
 		FString path = basePath + "/Images/" + rpyImage.path;
 		FText err;
-		if (!FFileHelper::IsFilenameValidForSaving(path, err)) {
+		if (!FFileHelper::IsFilenameValidForSaving(path, err))
+		{
 			UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
 			continue;
 		}
-		UPaperSprite* image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
-		if (image) {
+		UPaperSprite *image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
+		if (image)
+		{
 			rpyImage.image = image;
 		}
-		else {
+		else
+		{
 			UE_LOG(LogTemp, Error, TEXT("RpyImage not found at path : %s"), (*path));
 		}
 	};
 	keys.Empty();
-	//audios
+	// audios
 	audios.GetKeys(keys);
-	for (auto& key : keys) {
-		FRpyAudio& rpyAudio = audios[key];
+	for (auto &key : keys)
+	{
+		FRpyAudio &rpyAudio = audios[key];
 		FString path = basePath + "/Audios/" + rpyAudio.path;
 		FText err;
-		if (!FFileHelper::IsFilenameValidForSaving(path, err)) {
+		if (!FFileHelper::IsFilenameValidForSaving(path, err))
+		{
 			UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
 			continue;
 		}
-		USoundWave* audio = Cast<USoundWave>(StaticLoadObject(USoundWave::StaticClass(), NULL, *path));
-		if (audio) {
+		USoundWave *audio = Cast<USoundWave>(StaticLoadObject(USoundWave::StaticClass(), NULL, *path));
+		if (audio)
+		{
 			rpyAudio.audio = audio;
 		}
-		else {
+		else
+		{
 			UE_LOG(LogTemp, Error, TEXT("FRpyAudio not found at path : %s"), (*path));
 		}
 	};
@@ -149,7 +158,7 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
 
 bool URpyScript::Parse()
 {
-	TArray<RpyParser*> parsers;
+	TArray<RpyParser *> parsers;
 	// TODO
 	parsers.Add(new InitParser());
 	parsers.Add(new DefineCharacterParser());
@@ -173,21 +182,21 @@ bool URpyScript::Parse()
 		delete instruction;
 	}
 	instructions.Empty();
-	for (auto& rpyLine : rpyLines)
+	for (auto &rpyLine : rpyLines)
 	{
 		bool matched = false;
 		for (auto parser : parsers)
 		{
 			std::smatch m;
 			string target = TCHAR_TO_UTF8(*rpyLine.line);
-			std::regex& query = parser->reg_query;
+			std::regex &query = parser->reg_query;
 			matched = std::regex_match(target, m, query);
 			if (matched)
 			{
 				UE_LOG(LogTemp, Display, TEXT("matched query:%s"), (*parser->query));
 				TArray<FString> params;
 				int counter = -1;
-				for (auto& param : m)
+				for (auto &param : m)
 				{
 					++counter;
 					if (counter)
@@ -198,13 +207,14 @@ bool URpyScript::Parse()
 						params.Add(fs);
 					}
 				}
-				if (params.Num() != parser->paramsNum) {
+				if (params.Num() != parser->paramsNum)
+				{
 					matched = false;
 					UE_LOG(LogTemp, Warning, TEXT("number of params(%d) not equal to parser (%d)"), params.Num(), parser->paramsNum);
 					continue;
 				}
 
-				RpyInstruction* instruction = parser->GetRpyInstruction(this, &rpyLine, params);
+				RpyInstruction *instruction = parser->GetRpyInstruction(this, &rpyLine, params);
 				if (!instruction)
 				{
 					matched = false;
@@ -221,7 +231,8 @@ bool URpyScript::Parse()
 			return false;
 		}
 	}
-	for (auto parser : parsers) {
+	for (auto parser : parsers)
+	{
 		delete parser;
 	}
 	return true;
@@ -233,12 +244,12 @@ bool URpyScript::Compile()
 	{
 		instructions[idx]->next = instructions[idx + 1];
 	}
-	TArray<RpyInstruction*> stack;
-	RpyInstruction* current;
+	TArray<RpyInstruction *> stack;
+	RpyInstruction *current;
 	for (int idx = 0; idx < instructions.Num(); ++idx)
 	{
 		auto num = stack.Num();
-		RpyInstruction* last = num > 0 ? stack[num - 1] : nullptr;
+		RpyInstruction *last = num > 0 ? stack[num - 1] : nullptr;
 		current = instructions[idx];
 		int currentTabs = current->rpyLine->tabs;
 		if (last)

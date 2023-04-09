@@ -6,21 +6,43 @@
 #include <stdexcept>
 
 using namespace std;
-//regex:
-string rpyKeywords[] = { "at","call","elif","else","expression","hide","if","image","init","jump","label","menu","onlayer","pass","python","return","scene","set","show","with","while", };
-//regex
+// regex:
+string rpyKeywords[] = {
+    "at",
+    "call",
+    "elif",
+    "else",
+    "expression",
+    "hide",
+    "if",
+    "image",
+    "init",
+    "jump",
+    "label",
+    "menu",
+    "onlayer",
+    "pass",
+    "python",
+    "return",
+    "scene",
+    "set",
+    "show",
+    "with",
+    "while",
+};
+// regex
 
-
-class RegexLib {
+class RegexLib
+{
 public:
-    //primitive
+    // primitive
     static string reg_integer;
-    //rpy
+    // rpy
     static string reg_keyword;
     static string reg_name;
     static string reg_image_name;
     static string reg_string;
-    //parser
+    // parser
     static string reg_label;
     static string reg_say;
     static string reg_define_char;
@@ -36,8 +58,8 @@ string RegexLib::reg_label = "^label " + RegexLib::reg_name + ":$";
 string RegexLib::reg_say = "^(?:(?:(\\w+)|\"(\\w+)\") (?:(\\w+) )?(?:@ (\\w+) )?)?" + RegexLib::reg_string + "(?: with (\\w+))?$";
 string RegexLib::reg_define_char = "^\\$ " + RegexLib::reg_name + " = Character\\('(\\w+)'\\)$";
 
-
-int _main() {
+int _main()
+{
     regex regs[] = {
         regex(RegexLib::reg_label),
         regex(RegexLib::reg_say),
@@ -90,20 +112,26 @@ int _main() {
         "image eileen = \"/KishiVisualNovel/Rpy/Images/eileen_happy\"",
         "e happy @ vhappy \"Bam!!\" with vpunch",
     };
-    for (string& line : lines) {
+    for (string &line : lines)
+    {
         bool matched = false;
-        for (auto& reg : regs) {
+        for (auto &reg : regs)
+        {
             std::smatch m;
             matched = std::regex_match(line, m, reg);
-            if (matched) {
+            if (matched)
+            {
                 int counter = -1;
-                for (auto& param : m) {
+                for (auto &param : m)
+                {
                     ++counter;
-                    if (counter) {
+                    if (counter)
+                    {
                         cout << param;
                         cout << "|";
                     }
-                    else {
+                    else
+                    {
                         cout << param << "\n=>|";
                     }
                 }

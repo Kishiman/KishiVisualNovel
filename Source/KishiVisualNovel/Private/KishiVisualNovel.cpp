@@ -16,5 +16,5 @@ void FVisualNovelModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FVisualNovelModule, KishiVisualNovel)

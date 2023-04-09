@@ -18,15 +18,15 @@ class KISHIVISUALNOVEL_API URpySession : public UObject
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(BlueprintReadWrite,meta=(ExposeOnSpawn="true"))
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
 	TScriptInterface<IRpyInterpreter> interpreter;
-	UPROPERTY(BlueprintReadWrite,meta=(ExposeOnSpawn="true"))
-	TArray<URpyScript*> Scripts;
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
+	TArray<URpyScript *> Scripts;
 	UPROPERTY(BlueprintReadWrite)
 	FDynamicObject RuntimeData;
 
-	RpyInstruction* current = nullptr;
-	TArray<RpyInstruction*> callStack;
+	RpyInstruction *current = nullptr;
+	TArray<RpyInstruction *> callStack;
 
 	UFUNCTION(BlueprintPure)
 	TArray<FName> GetLabels() const;

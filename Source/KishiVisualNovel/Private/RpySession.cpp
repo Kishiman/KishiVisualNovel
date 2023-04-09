@@ -5,11 +5,11 @@
 
 // Online IDE - Code Editor, parser, Interpreter
 
-
 TArray<FName> URpySession::GetLabels() const
 {
 	TArray<FName> out;
-	for(auto script:Scripts){
+	for (auto script : Scripts)
+	{
 		script->labels.GetKeys(out);
 	}
 	return out;
@@ -17,7 +17,8 @@ TArray<FName> URpySession::GetLabels() const
 
 bool URpySession::StartLabel(FName label)
 {
-	for(auto script:Scripts){
+	for (auto script : Scripts)
+	{
 		this->current = script->labels[label];
 		if (this->current)
 			break;

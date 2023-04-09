@@ -2,7 +2,7 @@
 #include <iostream>
 
 URpyScriptImporterFactory::URpyScriptImporterFactory(const FObjectInitializer &ObjectInitializer)
-	: Super(ObjectInitializer, URpyScript::StaticClass(), "rpy", "Renpy Script Files", false, true, true), FKishiDataAssetReimportHandler(this){};
+		: Super(ObjectInitializer, URpyScript::StaticClass(), "rpy", "Renpy Script Files", false, true, true), FKishiDataAssetReimportHandler(this){};
 
 FText URpyScriptImporterFactory::GetToolTip() const
 {

@@ -5,8 +5,7 @@
 #include "CoreMinimal.h"
 #include "PaperSprite.h"
 #include "Sound/SoundWave.h"
-#include "FileMediaSource.h" 
-
+#include "FileMediaSource.h"
 
 #include "KishiDataAsset.h"
 #include "Structs/DynamicObject.h"
@@ -18,13 +17,13 @@ class RpyInstruction;
 /**
  */
 UENUM(BlueprintType)
-enum struct ESchrodBool : uint8 
+enum struct ESchrodBool : uint8
 {
-	ETrue UMETA(DisplayName="True"),
-	EFalse UMETA(DisplayName="False"),
-	ENone UMETA(DisplayName="None"),
+	ETrue UMETA(DisplayName = "True"),
+	EFalse UMETA(DisplayName = "False"),
+	ENone UMETA(DisplayName = "None"),
 };
- 
+
 USTRUCT(BlueprintType)
 struct FRpyCharacter
 {
@@ -41,19 +40,19 @@ struct FRpyAudioOptions
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float fadeIn=0;
+	float fadeIn = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float fadeOut=0;
+	float fadeOut = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float volume=1;
+	float volume = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ESchrodBool loop=ESchrodBool::ENone;
+	ESchrodBool loop = ESchrodBool::ENone;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ESchrodBool tight=ESchrodBool::ENone;
+	ESchrodBool tight = ESchrodBool::ENone;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool synchroStart=false;
+	bool synchroStart = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool if_changed=false;
+	bool if_changed = false;
 };
 
 USTRUCT(BlueprintType)
@@ -61,7 +60,7 @@ struct FRpyAudio
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USoundWave* audio=nullptr;
+	USoundWave *audio = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
 };
@@ -71,11 +70,11 @@ struct FRpyMovie
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UFileMediaSource* movie=nullptr;
+	UFileMediaSource *movie = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UFileMediaSource* maskMovie=nullptr;
+	UFileMediaSource *maskMovie = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString maskPath;
 };
@@ -85,7 +84,7 @@ struct FRpyImage
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UPaperSprite* image=nullptr;
+	UPaperSprite *image = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -117,20 +116,20 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
-	TMap<FName,FRpyImage> images;
+	TMap<FName, FRpyImage> images;
 	UPROPERTY(EditAnywhere)
-	TMap<FName,FRpyAudio> audios;
+	TMap<FName, FRpyAudio> audios;
 
 	UPROPERTY(EditAnywhere)
-	TMap<FName,FRpyCharacter> characters;
+	TMap<FName, FRpyCharacter> characters;
 
 	FDynamicObject compileData;
 
 	// RpyInstruction *current = nullptr;
-	RpyInstruction * init=nullptr;
+	RpyInstruction *init = nullptr;
 	TArray<RpyInstruction *> instructions;
 	// TArray<RpyInstruction *> callStack;
-	
+
 	TMap<FName, RpyInstruction *> labels;
 
 	UFUNCTION(BlueprintPure)
