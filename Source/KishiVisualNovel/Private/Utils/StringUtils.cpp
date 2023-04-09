@@ -23,7 +23,7 @@ bool UStringUtils::Set(FTaggedString &Target, FString SourceString)
     FString TagName = Target.SourceString.Mid(OpenPos + 1, ClosePos - OpenPos - 1);
     if (Target.SourceString[OpenPos + 1] == '/' && Target.SourceString[OpenPos + 2] == '>')
     {
-      auto &lastTag = Target.Tags[Target.Tags.Num() - 1];
+      auto &lastTag = Target.Tags.Last();
       lastTag.end = ClosePos + 1;
     }
     else
@@ -115,7 +115,7 @@ FString UStringUtils::FlattenTaggedString(const FString &TaggedString)
         ResultString += FString::Printf(TEXT("</>"));
         OpenTags.Pop();
         if (OpenTags.Num() > 0)
-          ResultString += FString::Printf(TEXT("<%s>"), *(OpenTags[OpenTags.Num() - 1]));
+          ResultString += FString::Printf(TEXT("<%s>"), *(OpenTags.Last()));
         i = i + 2;
       }
       // Check for opening tag
