@@ -14,7 +14,6 @@ class KISHIVISUALNOVEL_API IVNBackground
 {
     GENERATED_BODY()
 public:
-
 };
 
 UINTERFACE(BlueprintType)
@@ -27,7 +26,6 @@ class KISHIVISUALNOVEL_API IVNSpeaker
 {
     GENERATED_BODY()
 public:
-
 };
 UINTERFACE(BlueprintType)
 class KISHIVISUALNOVEL_API UVNDialogueManager : public UInterface
@@ -39,7 +37,6 @@ class KISHIVISUALNOVEL_API IVNDialogueManager
 {
     GENERATED_BODY()
 public:
-
 };
 UINTERFACE(BlueprintType)
 class KISHIVISUALNOVEL_API UVNSpriteManager : public UInterface
@@ -51,7 +48,6 @@ class KISHIVISUALNOVEL_API IVNSpriteManager
 {
     GENERATED_BODY()
 public:
-
 };
 UINTERFACE(BlueprintType)
 class KISHIVISUALNOVEL_API UVNSoundManager : public UInterface
@@ -63,5 +59,4 @@ class KISHIVISUALNOVEL_API IVNSoundManager
 {
     GENERATED_BODY()
 public:
-
 };

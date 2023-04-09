@@ -10,7 +10,7 @@
 #include "KVNGameMode.generated.h"
 
 UCLASS(Blueprintable)
-class KISHIVISUALNOVEL_API AKVNGameMode : public AGameModeBase//, public IRpyInterpreter
+class KISHIVISUALNOVEL_API AKVNGameMode : public AGameModeBase //, public IRpyInterpreter
 {
     GENERATED_BODY()
 public:

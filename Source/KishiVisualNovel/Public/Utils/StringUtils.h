@@ -4,7 +4,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "StringUtils.generated.h"
 
-struct Tag {
+struct Tag
+{
   FString tagName;
   int32 start;
   int32 end;
@@ -13,7 +14,8 @@ struct Tag {
 };
 
 USTRUCT(BlueprintType)
-struct FTaggedString {
+struct FTaggedString
+{
   GENERATED_BODY()
 
 public:
@@ -23,7 +25,8 @@ public:
 };
 
 UCLASS()
-class KISHIVISUALNOVEL_API UStringUtils : public UBlueprintFunctionLibrary {
+class KISHIVISUALNOVEL_API UStringUtils : public UBlueprintFunctionLibrary
+{
   GENERATED_BODY()
 public:
   UFUNCTION(BlueprintPure)
@@ -36,8 +39,7 @@ public:
   static int32 Length(const FTaggedString &Target);
 
   UFUNCTION(BlueprintPure)
-  static FString SubString(const FTaggedString &Target, int32 StartIndex,
-                           int32 Length);
+  static FString SubString(const FTaggedString &Target, int32 StartIndex, int32 Length);
   UFUNCTION(BlueprintPure)
   static FString FlattenTaggedString(const FString &TaggedString);
 
