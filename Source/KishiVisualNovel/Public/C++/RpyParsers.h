@@ -47,6 +47,15 @@ struct LabelParser : public RpyParser
 		return label;
 	};
 };
+//"jump loop"
+struct JumpParser : public RpyParser
+{
+	JumpParser() { query = "^jump (\\w+)$"; };
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		return new JumpInstruction(script, rpyLine, FName(*params[0]));
+	};
+};
 
 //"\"Sylvie\" \"Hi there! how was class?\""
 struct SayParser : public RpyParser

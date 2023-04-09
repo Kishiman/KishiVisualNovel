@@ -64,3 +64,12 @@ bool IfBoolInstruction::Execute(const TScriptInterface<IRpyInterpreter> &interpr
   this->condition = this->condition ^ this->reverse;
   return true;
 };
+
+bool JumpInstruction::Compile()
+{
+  return this->script->labels.Contains(this->label);
+};
+RpyInstruction *JumpInstruction::GetNext(const TScriptInterface<IRpyInterpreter> &interpreter)
+{
+  return this->script->labels[this->label];
+};

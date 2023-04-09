@@ -110,6 +110,7 @@ bool URpyScript::Parse()
   // TODO
   parsers.Add(new InitParser());
   parsers.Add(new LabelParser());
+  parsers.Add(new JumpParser());
   parsers.Add(new DefineCharacterParser());
   parsers.Add(new SayParser());
   parsers.Add(new SayParser2());

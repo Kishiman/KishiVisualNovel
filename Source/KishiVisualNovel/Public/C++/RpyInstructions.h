@@ -89,8 +89,8 @@ public:
 class JumpInstruction : public RpyInstruction
 {
   FName label;
-
 public:
   JumpInstruction(URpyScript *script, FRpyLine *rpyLine, FName label) : RpyInstruction(script, rpyLine), label(label){};
-  virtual bool Execute(const TScriptInterface<IRpyInterpreter> &interpreter) override;
+  virtual bool Compile() override;
+  virtual RpyInstruction *GetNext(const TScriptInterface<IRpyInterpreter> &interpreter) override;
 };
