@@ -21,7 +21,7 @@ bool UStringUtils::Set(FTaggedString &Target, FString SourceString)
 
     // Extract the tag name and position information
     FString TagName = Target.SourceString.Mid(OpenPos + 1, ClosePos - OpenPos - 1);
-    if (TagName[0] == '/')
+    if (Target.SourceString[OpenPos + 1] == '/' && Target.SourceString[OpenPos + 2] == '>')
     {
       auto &lastTag = Target.Tags[Target.Tags.Num() - 1];
       lastTag.end = ClosePos + 1;
@@ -37,7 +37,7 @@ bool UStringUtils::Set(FTaggedString &Target, FString SourceString)
   for (auto &tag : Target.Tags)
   {
     tag.taggedStart = tag.start - skippedCharLen;
-    skippedCharLen += 2 * tag.tagName.Len() + 5;
+    skippedCharLen += tag.tagName.Len() + 5;
     tag.taggedEnd = tag.end - skippedCharLen;
   }
 
@@ -55,8 +55,7 @@ int32 UStringUtils::Length(const FTaggedString &Target)
   return Target.Length;
 }
 
-FString UStringUtils::SubString(const FTaggedString &Target, int32 StartIndex,
-                                int32 Length = -1)
+FString UStringUtils::SubString(const FTaggedString &Target, int32 StartIndex, int32 Length = -1)
 {
   int32 EndIndex = Length > -1 ? StartIndex + Length : Target.Length;
   int32 StartPos = StartIndex;
@@ -89,7 +88,7 @@ FString UStringUtils::SubString(const FTaggedString &Target, int32 StartIndex,
     {
       EndPos = EndIndex + (tag.start - tag.taggedStart);
       EndPos += tag.tagName.Len() + 2;
-      sufix = FString::Printf(TEXT("</%s>"), *tag.tagName);
+      sufix = FString::Printf(TEXT("</>"), *tag.tagName);
       break;
     }
   }
@@ -111,29 +110,13 @@ FString UStringUtils::FlattenTaggedString(const FString &TaggedString)
     if (TaggedString[i] == '<')
     {
       // Check for closing tag
-      if (TaggedString[i + 1] == '/')
+      if (i + 2 < TaggedString.Len() && TaggedString[i + 1] == '/' && TaggedString[i + 2] == '>')
       {
-        FString CloseTagName;
-        int32 CloseTagIndex = TaggedString.Find(">", ESearchCase::IgnoreCase, ESearchDir::FromStart, i + 2);
-        if (CloseTagIndex != -1)
-        {
-          CloseTagName = TaggedString.Mid(i + 2, CloseTagIndex - i - 2);
-
-          // Find matching open tag and remove it from the list
-          for (int32 j = OpenTags.Num() - 1; j >= 0; j--)
-          {
-            if (OpenTags[j].Equals(CloseTagName, ESearchCase::IgnoreCase))
-            {
-              ResultString += FString::Printf(TEXT("</%s>"), *OpenTags[j]);
-              OpenTags.RemoveAt(j);
-              if (OpenTags.Num() > 0)
-                ResultString += FString::Printf(TEXT("<%s>"), *(OpenTags[OpenTags.Num() - 1]));
-              break;
-            }
-          }
-
-          i = CloseTagIndex;
-        }
+        ResultString += FString::Printf(TEXT("</>"));
+        OpenTags.Pop();
+        if (OpenTags.Num() > 0)
+          ResultString += FString::Printf(TEXT("<%s>"), *(OpenTags[OpenTags.Num() - 1]));
+        i = i + 2;
       }
       // Check for opening tag
       else
@@ -143,11 +126,10 @@ FString UStringUtils::FlattenTaggedString(const FString &TaggedString)
         if (OpenTagIndex != -1)
         {
           if (OpenTags.Num() > 0)
-            ResultString += FString::Printf(TEXT("</%s>"), *(OpenTags[OpenTags.Num() - 1]));
+            ResultString += FString::Printf(TEXT("</>"));
           OpenTagName = TaggedString.Mid(i + 1, OpenTagIndex - i - 1);
           OpenTags.Add(OpenTagName);
           ResultString += FString::Printf(TEXT("<%s>"), *OpenTagName);
-
           i = OpenTagIndex;
         }
       }
@@ -157,11 +139,10 @@ FString UStringUtils::FlattenTaggedString(const FString &TaggedString)
       ResultString.AppendChar(TaggedString[i]);
     }
   }
-
   // Close any remaining open tags
   for (int32 i = OpenTags.Num() - 1; i >= 0; i--)
   {
-    ResultString += FString::Printf(TEXT("</%s>"), *OpenTags[i]);
+    ResultString += FString::Printf(TEXT("</>"), *OpenTags[i]);
   }
 
   return ResultString;

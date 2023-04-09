@@ -8,7 +8,7 @@
 
 void FVisualNovelModule::StartupModule()
 {
-  FString TaggedString = TEXT("Hi <green>hello<red>world</red>!</green>");
+  FString TaggedString = TEXT("Hi <green>hello<red>world</>!</>");
   FString FlattenedString = UStringUtils::FlattenTaggedString(TaggedString);
 
   UE_LOG(LogTemp, Warning, TEXT("Start Test"));

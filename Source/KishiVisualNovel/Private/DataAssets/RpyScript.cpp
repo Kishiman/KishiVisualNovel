@@ -97,7 +97,7 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
     if (lines[idx][rpyLine.tabs] == '#')
       continue;
     rpyLine.LineNumber = idx;
-    rpyLine.line = lines[idx].RightChop(rpyLine.tabs);
+    rpyLine.line = lines[idx].RightChop(rpyLine.tabs).TrimStartAndEnd();
     rpyLine.tabs = (rpyLine.tabs + 1) / TabSize;
     rpyLines.Add(rpyLine);
   }
