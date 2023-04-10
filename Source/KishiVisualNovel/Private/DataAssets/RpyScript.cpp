@@ -8,8 +8,8 @@
 
 #include <iostream>
 #include <regex>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 using namespace std;
 void URpyScript::LoadRpyData()
@@ -77,8 +77,8 @@ void URpyScript::PostInitProperties()
 {
 	Super::PostInitProperties();
 	UE_LOG(LogTemp, Warning, TEXT("PostInitProperties, rpyLines:%d"), rpyLines.Num());
-	// Parse();
-	// Compile();
+	Parse();
+	Compile();
 };
 void URpyScript::Serialize(FStructuredArchiveRecord Record)
 {
@@ -89,8 +89,8 @@ void URpyScript::Serialize(FStructuredArchiveRecord Record)
 URpyScript::URpyScript() : UKishiDataAsset()
 {
 	UE_LOG(LogTemp, Warning, TEXT("URpyScript(), rpyLines:%d"), rpyLines.Num());
-	// Parse();
-	// Compile();
+	Parse();
+	Compile();
 };
 TArray<FName> URpyScript::GetLabels() const
 {
@@ -98,10 +98,7 @@ TArray<FName> URpyScript::GetLabels() const
 	labels.GetKeys(out);
 	return out;
 };
-int URpyScript::GetInstructionsLength() const
-{
-	return instructions.Num();
-};
+int URpyScript::GetInstructionsLength() const { return instructions.Num(); };
 
 // bool URpyScript::RunInstruction(const TScriptInterface<IRpyInterpreter>& interpreter, int index)
 // {
@@ -142,14 +139,16 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
 	{
 		FRpyLine rpyLine;
 		// uint8 tabs=0;
-		while (lines[idx][rpyLine.tabs] == ' ' || lines[idx][rpyLine.tabs] == '\t')
+		while (rpyLine.tabs < lines[idx].Len() && (lines[idx][rpyLine.tabs] == ' ' || lines[idx][rpyLine.tabs] == '\t'))
 		{
 			++rpyLine.tabs;
 		}
+		if (rpyLine.tabs == lines[idx].Len())
+			continue;
 		if (lines[idx][rpyLine.tabs] == '#')
 			continue;
 		rpyLine.LineNumber = idx;
-		rpyLine.line = lines[idx].RightChop(rpyLine.tabs);
+		rpyLine.line = lines[idx].RightChop(rpyLine.tabs).TrimStartAndEnd();
 		rpyLine.tabs = (rpyLine.tabs + 1) / TabSize;
 		rpyLines.Add(rpyLine);
 	}
@@ -161,7 +160,6 @@ bool URpyScript::Parse()
 	TArray<RpyParser *> parsers;
 	// TODO
 	parsers.Add(new InitParser());
-	parsers.Add(new DefineCharacterParser());
 	parsers.Add(new DefineAudioParser());
 	parsers.Add(new StopAudioParser());
 	parsers.Add(new VoiceParser());
@@ -170,7 +168,10 @@ bool URpyScript::Parse()
 	parsers.Add(new LabelParser());
 	parsers.Add(new JumpParser());
 	parsers.Add(new CallParser());
+	parsers.Add(new DefineCharacterParser());
 	parsers.Add(new SayParser());
+	parsers.Add(new SayParser2());
+	parsers.Add(new IfBoolParser());
 	parsers.Add(new NarratorSayParser());
 	parsers.Add(new CharacterSayParser());
 	parsers.Add(new ImageParser());
@@ -213,12 +214,14 @@ bool URpyScript::Parse()
 					UE_LOG(LogTemp, Warning, TEXT("number of params(%d) not equal to parser (%d)"), params.Num(), parser->paramsNum);
 					continue;
 				}
-
-				RpyInstruction *instruction = parser->GetRpyInstruction(this, &rpyLine, params);
+				RpyInstruction *instruction =
+						parser->GetRpyInstruction(this, &rpyLine, params);
 				if (!instruction)
 				{
 					matched = false;
-					UE_LOG(LogTemp, Warning, TEXT("Failed to GetRpyInstruction from line %d : %s"), rpyLine.LineNumber, (*rpyLine.line));
+					UE_LOG(LogTemp, Warning,
+								 TEXT("Failed to GetRpyInstruction from line %d : %s"),
+								 rpyLine.LineNumber, (*rpyLine.line));
 					continue;
 				}
 				instructions.Add(instruction);
@@ -265,14 +268,15 @@ bool URpyScript::Compile()
 				int count = num - currentTabs;
 				while (count--)
 				{
-					stack.Pop();
+					stack.Pop()->next = current;
 				}
 				current->parent = currentTabs > 0 ? stack[currentTabs - 1] : nullptr;
 				stack.Add(current);
 			}
 			else
 			{
-				UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->LineNumber);
+				UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"),
+							 current->rpyLine->LineNumber);
 				return false;
 			}
 		}
@@ -282,7 +286,8 @@ bool URpyScript::Compile()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->LineNumber);
+			UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"),
+						 current->rpyLine->LineNumber);
 			return false;
 		}
 		if (current->parent)
@@ -295,7 +300,8 @@ bool URpyScript::Compile()
 	{
 		if (!instruction->Compile())
 		{
-			UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), current->rpyLine->LineNumber, (*current->rpyLine->line));
+			UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"),
+             instruction->rpyLine->LineNumber, (*instruction->rpyLine->line));
 			return false;
 		}
 	}

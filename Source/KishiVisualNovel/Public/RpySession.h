@@ -38,9 +38,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool Run();
 
-	// virtual void PostLoad() override;
-	// virtual void PostInitProperties() override;
-	// virtual void Serialize(FStructuredArchiveRecord Record) override;
-
 private:
 };

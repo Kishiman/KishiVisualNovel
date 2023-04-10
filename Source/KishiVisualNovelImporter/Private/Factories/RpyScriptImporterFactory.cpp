@@ -11,23 +11,34 @@ FText URpyScriptImporterFactory::GetToolTip() const
 
 bool URpyScriptImporterFactory::FactoryUpdateString(UClass *InClass, UObject *Object, FString &content)
 {
-	URpyScript *rpyScript = (URpyScript *)(Object);
-	bool allGood = true;
-	allGood = rpyScript->ImportRpyLines(content, TabSize);
-	if (!allGood)
+	try
+	{
+		URpyScript *rpyScript = (URpyScript *)(Object);
+		bool allGood = true;
+		allGood = rpyScript->ImportRpyLines(content, TabSize);
+		if (!allGood)
+			return false;
+		UE_LOG(LogTemp, Display, TEXT("URpyScript.ImportRpyLines"));
+		allGood = rpyScript->Parse();
+		if (!allGood)
+			return false;
+		UE_LOG(LogTemp, Display, TEXT("URpyScript.Parse"));
+		allGood = rpyScript->Compile();
+		if (!allGood)
+			return false;
+		UE_LOG(LogTemp, Display, TEXT("URpyScript.Compile"));
+		return true;
+	}
+	catch (const std::exception &e)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), UTF8_TO_TCHAR(e.what()));
 		return false;
-	UE_LOG(LogTemp, Display, TEXT("URpyScript.ImportRpyLines"));
-	allGood = rpyScript->Parse();
-	if (!allGood)
+	}
+	catch (...)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Caught unknown exception"));
 		return false;
-	UE_LOG(LogTemp, Display, TEXT("URpyScript.Parse"));
-	allGood = rpyScript->Compile();
-	if (!allGood)
-		return false;
-	UE_LOG(LogTemp, Display, TEXT("URpyScript.Compile"));
-	rpyScript->LoadRpyData();
-	UE_LOG(LogTemp, Display, TEXT("URpyScript.LoadRpyData"));
-	return true;
+	}
 };
 EReimportResult::Type URpyScriptImporterFactory::Reimport(UObject *Obj)
 {
