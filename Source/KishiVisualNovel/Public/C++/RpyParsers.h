@@ -8,13 +8,14 @@
 
 #include "C++/RpyParser.h"
 #include "C++/RpyInstructions.h"
+#include <string>
 
 /**
  */
 //"init:"
 struct InitParser : public RpyParser
 {
-	InitParser() : RpyParser(0, "^init:$"){};
+	InitParser() : RpyParser(0, "^init:$", "InitParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		RpyInstruction *init = new RpyInstruction(script, rpyLine);
@@ -25,7 +26,7 @@ struct InitParser : public RpyParser
 //"$ e = Character('Eileen')"
 struct DefineCharacterParser : public RpyParser
 {
-	DefineCharacterParser() : RpyParser(4, FString::Printf(TEXT("^\\$ %s = Character\\(%s(?:, image=%s)?(?:, voice_tag=%s)?\\)$"), *reg_name, *reg_string, *reg_string, *reg_string)){};
+	DefineCharacterParser() : RpyParser(4, "^\\$ " + reg_name + " = Character\\(" + reg_string + "(?:, image=" + reg_string + ")?(?:, voice_tag=" + reg_string + ")?\\)$", "DefineCharacterParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName varName = FName(*params[0]);
@@ -40,7 +41,7 @@ struct DefineCharacterParser : public RpyParser
 // define audio.sunflower = "music/sun-flower-slow-jam.ogg"
 struct DefineAudioParser : public RpyParser
 {
-	DefineAudioParser() : RpyParser(2, FString::Printf(TEXT("^define audio.%s = \"%s\"$"), *reg_name, *reg_path)){};
+	DefineAudioParser() : RpyParser(2, "^define audio." + reg_name + " = \"" + reg_path + "\"$", "DefineAudioParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -53,8 +54,8 @@ struct DefineAudioParser : public RpyParser
 // stop music volume 0.25 fadeout 1.0 fadein 1.0
 struct StopAudioParser : public RpyParser
 {
-	StopAudioParser() : RpyParser(6, FString::Printf(TEXT("^stop %s(?: volume %s)?(?: fadeout %s)?(?: fadein %s)?(?: (loop|noloop))?(?: (if_changed))?%s$"),
-																									 *reg_name, *reg_ufloatUnit, *reg_ufloat, *reg_ufloat, *reg_name)){};
+	StopAudioParser() : RpyParser(6, "^stop " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "StopAudioParser"){};
+
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName channel = FName(*params[0]);
@@ -71,7 +72,7 @@ struct StopAudioParser : public RpyParser
 // voice "waves.opus"
 struct VoiceParser : public RpyParser
 {
-	VoiceParser() : RpyParser(1, FString::Printf(TEXT("^voice " % s "$"), *reg_path)){};
+	VoiceParser() : RpyParser(1, "^voice \"" + reg_path + "\"$", "VoiceParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName channel = FName("voice");
@@ -90,8 +91,7 @@ struct VoiceParser : public RpyParser
 // play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
 struct PlayQueueAudioParser : public RpyParser
 {
-	PlayQueueAudioParser() : RpyParser(8, FString::Printf(TEXT("^(play|queue) %s \"%s\"(?: volume %.2f)?(?: fadeout %.2f)?(?: fadein %.2f)?(?: (loop|noloop))?(?: (if_changed))?$"),
-																												*reg_name, *reg_path, reg_ufloat, reg_ufloat, reg_ufloat)){};
+	PlayQueueAudioParser() : RpyParser(8, "^(play|queue) " + reg_name + " \"" + reg_path + "\"(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "PlayQueueAudioParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		auto cmd = params[0];
@@ -119,8 +119,7 @@ struct PlayQueueAudioParser : public RpyParser
 // play music track_1 volume 0.25 fadeout 1.0 fadein 1.0
 struct PlayQueueVarAudioParser : public RpyParser
 {
-	PlayQueueVarAudioParser() : RpyParser(8, FString::Printf(TEXT("^(play|queue) %s %s(?: volume %s)?(?: fadeout %s)?(?: fadein %s)?(?: (loop|noloop))?(?: (if_changed))?$"),
-																													 *reg_name, *reg_name, *reg_ufloatUnit, *reg_ufloat, *reg_ufloat)){};
+	PlayQueueVarAudioParser() : RpyParser(8, "^(play|queue) " + reg_name + " " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "PlayQueueVarAudioParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		auto cmd = params[0];
@@ -147,7 +146,7 @@ struct PlayQueueVarAudioParser : public RpyParser
 // label start:
 struct LabelParser : public RpyParser
 {
-	LabelParser() : RpyParser(1, FString::Printf(TEXT("^label %s:$"), *reg_name)){};
+	LabelParser() : RpyParser(1, "^label " + reg_name + ":$", "LabelParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		RpyInstruction *label = new LabelInstruction(script, rpyLine);
@@ -159,7 +158,7 @@ struct LabelParser : public RpyParser
 // jump loop
 struct JumpParser : public RpyParser
 {
-	JumpParser() : RpyParser(1, FString::Printf(TEXT("^jump %s$"), *reg_name)){};
+	JumpParser() : RpyParser(1, "^jump (\\w+)$", "JumpParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		return new JumpInstruction(script, rpyLine, FName(*params[0]));
@@ -169,7 +168,7 @@ struct JumpParser : public RpyParser
 //"\"Sylvie\" \"Hi there! how was class?\""
 struct SayParser : public RpyParser
 {
-	SayParser() : RpyParser(3, FString::Printf(TEXT("^\"(\\w+)\" %s(?: with (\\w+))?$"), *reg_string)){};
+	SayParser() : RpyParser(3, "^(?:(\\w+|\".+\") )?" + reg_string + "(?: with (\\w+))?$", "SayParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		bool literal = params[0].StartsWith("\"") && params[0].EndsWith("\"");
@@ -193,7 +192,7 @@ struct SayParser : public RpyParser
 //"\"Hope everything is okay\""
 struct SayParser2 : public RpyParser
 {
-	SayParser2() : RpyParser(2, FString::Printf(TEXT("^%s(?: with (\\w+))?$"), *reg_string)){};
+	SayParser2() : RpyParser(2, "^" + reg_string + "(?: with (\\w+))?$", "SayParser2"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName("");
@@ -206,7 +205,7 @@ struct SayParser2 : public RpyParser
 // image = "cool_image"
 struct ImageParser : public RpyParser
 {
-	ImageParser() : RpyParser(2, FString::Printf(TEXT("^image %s = \"%s\"$"), *reg_image_name, *reg_path)){};
+	ImageParser() : RpyParser(2, "^image " + reg_image_name + " = \"" + reg_path + "\"$", "ImageParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -219,14 +218,14 @@ struct ImageParser : public RpyParser
 		names.RemoveAt(0);
 		rpyImage.attributes = names;
 		script->images.Add(name, rpyImage);
-		return new BlankInstruction(script, rpyLine);
+		return new RpyInstruction(script, rpyLine);
 	};
 };
 
 // show john happy
 struct ShowParser : public RpyParser
 {
-	ShowParser() : RpyParser(3, FString::Printf(TEXT("^show %s(?: at (\\w+))?(?: with (\\w+))?$"), *reg_image_name)){};
+	ShowParser() : RpyParser(3, "^show " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$", "ShowParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -241,7 +240,7 @@ struct ShowParser : public RpyParser
 // if True :
 struct IfBoolParser : public RpyParser
 {
-	IfBoolParser() : RpyParser(1, FString::Printf(TEXT("^if (!)?(\\w+|True|False):$"))){};
+	IfBoolParser() : RpyParser(1, "^if (!)?(\\w+|True|False):$", "IfBoolParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		bool reverse = params[0] == "!";
@@ -261,7 +260,7 @@ struct IfBoolParser : public RpyParser
 //"call start"
 struct CallParser : public RpyParser
 {
-	CallParser() : RpyParser(1, FString::Printf(TEXT("^call (\\w+)$"))){};
+	CallParser() : RpyParser(1, "^call (\\w+)$", "CallParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -272,7 +271,7 @@ struct CallParser : public RpyParser
 
 struct NarratorSayParser : public RpyParser
 {
-	NarratorSayParser() : RpyParser(2, FString::Printf(TEXT("^%s(?: with (\\w+))?$"), *reg_string)){};
+	NarratorSayParser() : RpyParser(2, "^" + reg_string + "(?: with (\\w+))?$", "NarratorSayParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name;
@@ -285,7 +284,7 @@ struct NarratorSayParser : public RpyParser
 
 struct CharacterSayParser : public RpyParser
 {
-	CharacterSayParser() : RpyParser(5, FString::Printf(TEXT("^(\\w+)(?: %s)?(?: @ %s)? %s(?: with (\\w+))?$"), *reg_image_name, *reg_image_name, *reg_string)){};
+	CharacterSayParser() : RpyParser(5, "^(\\w+)(?: " + reg_image_name + ")?(?: @ " + reg_image_name + ")? " + reg_string + "(?: with (\\w+))?$", "CharacterSayParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -308,8 +307,7 @@ struct CharacterSayParser : public RpyParser
 
 struct HideParser : public RpyParser
 {
-	HideParser() : RpyParser(3, FString::Printf(TEXT("^hide %s(?: at (\\w+))?(?: with (\\w+))?$"), *reg_image_name)){};
-	HideParser() : RpyParser(3, "^hide " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$"){};
+	HideParser() : RpyParser(3, "^hide " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$", "HideParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);

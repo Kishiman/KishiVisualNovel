@@ -5,7 +5,7 @@
 #include "RpySession.h"
 
 // Labels & Control Flow
-class LabelInstruction : public RpyInstruction
+struct LabelInstruction : public RpyInstruction
 {
   LabelInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
   virtual bool Compile()
@@ -124,7 +124,7 @@ public:
   virtual bool Compile() override;
   virtual RpyInstruction *GetNext(URpySession *session) override;
 };
-class ElseInstruction : public RpyInstruction
+struct ElseInstruction : public RpyInstruction
 {
 public:
   bool condition = false;
@@ -257,3 +257,4 @@ RpyInstruction *IfInstruction::GetNext(URpySession *session)
   }
   return this->next;
 };
+

@@ -6,15 +6,15 @@
 
 #include "DataAssets/RpyScript.h"
 
-class RpyParser
+struct RpyParser
 {
-public:
 	int paramsNum;
 	FString query;
+	FString parserName;
 	std::regex reg_query;
-	RpyParser(int paramsNum, std::string query) : paramsNum(paramsNum), query(query.c_str())
+	RpyParser(int paramsNum, std::string query, FString parserName = "") : paramsNum(paramsNum), query(query.c_str()), parserName(parserName)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RpyParser.query:%s"), (*this->query));
+		UE_LOG(LogTemp, Warning, TEXT("RpyParser.query[%s]:%s"), *this->parserName, *this->query);
 		reg_query = query;
 	};
 

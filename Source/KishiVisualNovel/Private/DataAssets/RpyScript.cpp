@@ -1,6 +1,6 @@
 #include "DataAssets/RpyScript.h"
-#include "C++/RpyParsers.h"
 #include "C++/RpyInstructions.h"
+#include "C++/RpyParsers.h"
 #include "Interfaces/RpyInterpreter.h"
 #include "Misc/FileHelper.h"
 
@@ -9,6 +9,7 @@
 #include <iostream>
 #include <regex>
 #include <stdexcept>
+#include <string>
 #include <string>
 
 using namespace std;
@@ -76,7 +77,8 @@ void URpyScript::PostLoad()
 void URpyScript::PostInitProperties()
 {
 	Super::PostInitProperties();
-	UE_LOG(LogTemp, Warning, TEXT("PostInitProperties, rpyLines:%d"), rpyLines.Num());
+	UE_LOG(LogTemp, Warning, TEXT("PostInitProperties, rpyLines:%d"),
+				 rpyLines.Num());
 	Parse();
 	Compile();
 };
@@ -194,7 +196,7 @@ bool URpyScript::Parse()
 			matched = std::regex_match(target, m, query);
 			if (matched)
 			{
-				UE_LOG(LogTemp, Display, TEXT("matched query:%s"), (*parser->query));
+				UE_LOG(LogTemp, Display, TEXT("matched query[%s]:%s"), *parser->parserName, *parser->query);
 				TArray<FString> params;
 				int counter = -1;
 				for (auto &param : m)
@@ -214,14 +216,11 @@ bool URpyScript::Parse()
 					UE_LOG(LogTemp, Warning, TEXT("number of params(%d) not equal to parser (%d)"), params.Num(), parser->paramsNum);
 					continue;
 				}
-				RpyInstruction *instruction =
-						parser->GetRpyInstruction(this, &rpyLine, params);
+				RpyInstruction *instruction = parser->GetRpyInstruction(this, &rpyLine, params);
 				if (!instruction)
 				{
 					matched = false;
-					UE_LOG(LogTemp, Warning,
-								 TEXT("Failed to GetRpyInstruction from line %d : %s"),
-								 rpyLine.LineNumber, (*rpyLine.line));
+					UE_LOG(LogTemp, Warning, TEXT("Failed to GetRpyInstruction from line %d : %s"), rpyLine.LineNumber, (*rpyLine.line));
 					continue;
 				}
 				instructions.Add(instruction);
@@ -230,7 +229,7 @@ bool URpyScript::Parse()
 		}
 		if (!matched)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.LineNumber, (*rpyLine.line));
+			UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.LineNumber + 1, (*rpyLine.line));
 			return false;
 		}
 	}
@@ -301,7 +300,7 @@ bool URpyScript::Compile()
 		if (!instruction->Compile())
 		{
 			UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"),
-             instruction->rpyLine->LineNumber, (*instruction->rpyLine->line));
+						 instruction->rpyLine->LineNumber, (*instruction->rpyLine->line));
 			return false;
 		}
 	}
