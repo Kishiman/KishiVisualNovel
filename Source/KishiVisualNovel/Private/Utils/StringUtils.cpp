@@ -1,5 +1,5 @@
 #include "Utils/StringUtils.h"
-bool UStringUtils::Set(FTaggedString &Target, FString SourceString)
+bool UStringUtils::StringToTaggedString(const FString &SourceString, FTaggedString &Target)
 {
   Target.SourceString = FlattenTaggedString(SourceString);
   int32 StartPos = 0;
@@ -45,7 +45,7 @@ bool UStringUtils::Set(FTaggedString &Target, FString SourceString)
   return true;
 }
 
-FString UStringUtils::Get(const FTaggedString &Target)
+FString UStringUtils::GetTaggedString(const FTaggedString &Target)
 {
   return Target.SourceString;
 }

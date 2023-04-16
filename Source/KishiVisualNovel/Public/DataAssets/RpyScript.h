@@ -123,6 +123,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyCharacter> characters;
 
+	UPROPERTY(BlueprintReadOnly)
 	FDynamicObject compileData;
 
 	// RpyInstruction *current = nullptr;

@@ -93,6 +93,7 @@ std::string RpyParser::reg_float = "([+-]?(?:\\d*\\.)?\\d+)";
 std::string RpyParser::reg_ufloat = "((?:\\d*\\.)?\\d+)";
 std::string RpyParser::reg_ufloatUnit = "(0(?:\\.\\d+)?|1(?:\\.0+)?)";
 std::string RpyParser::reg_string = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
+// std::string RpyParser::reg_string = "((?:'(?:[^'\\\\]|\\\\.)*')|(?:\"(?:[^\"\\\\]|\\\\.)*\")|(?:`(?:[^`\\\\]|\\\\.)*`))";
 
 std::string RpyParser::reg_bool = "(True|False|None)";
 

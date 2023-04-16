@@ -31,7 +31,7 @@ class RpyInstruction
 public:
     RpyInstruction(URpyScript *script, FRpyLine *rpyLine) : script(script), rpyLine(rpyLine){};
     virtual ~RpyInstruction() = default;
-        virtual RpyInstructionType Type() const
+    virtual RpyInstructionType Type() const
     {
         return RpyInstructionType::Base;
     }
@@ -39,9 +39,10 @@ public:
     {
         return true;
     }
-    virtual bool Execute(URpySession *session)
+    virtual bool Execute(URpySession *session, bool &autoExecuteNext)
     {
         UE_LOG(LogTemp, Display, TEXT("Executing rpy:%s"), (*this->rpyLine->line));
+        autoExecuteNext=true;
         return true;
     };
     virtual RpyInstruction *GetNext(URpySession *session)

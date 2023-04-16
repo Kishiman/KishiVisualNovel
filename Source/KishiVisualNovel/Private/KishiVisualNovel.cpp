@@ -15,7 +15,7 @@ void FVisualNovelModule::StartupModule()
   UE_LOG(LogTemp, Log, TEXT("Input: %s"), *TaggedString);
   UE_LOG(LogTemp, Log, TEXT("Output: %s"), *FlattenedString);
   FTaggedString taggedString;
-  UStringUtils::Set(taggedString, FlattenedString);
+  UStringUtils::StringToTaggedString(FlattenedString, taggedString);
   UE_LOG(LogTemp, Log, TEXT("Length: %d"), taggedString.Length);
 
   for (int32 idx = 1; idx < taggedString.Length; ++idx)

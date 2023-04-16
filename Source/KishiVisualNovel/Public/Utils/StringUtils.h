@@ -30,10 +30,10 @@ class KISHIVISUALNOVEL_API UStringUtils : public UBlueprintFunctionLibrary
   GENERATED_BODY()
 public:
   UFUNCTION(BlueprintPure)
-  static FString Get(const FTaggedString &Target);
+  static FString GetTaggedString(const FTaggedString &Target);
 
   UFUNCTION(BlueprintCallable)
-  static bool Set(FTaggedString &Target, FString SourceString);
+  static bool StringToTaggedString(const FString &SourceString, FTaggedString &Target);
 
   UFUNCTION(BlueprintPure)
   static int32 Length(const FTaggedString &Target);

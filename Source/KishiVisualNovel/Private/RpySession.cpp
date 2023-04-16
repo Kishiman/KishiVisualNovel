@@ -34,11 +34,15 @@ bool URpySession::RunNext()
 };
 bool URpySession::Run()
 {
-	while (this->current && IRpyInterpreter::Execute_AutoRunNext(interpreter.GetObject()))
+	bool autoNext = true;
+	while (this->current)
 	{
-		bool allGood = this->current->Execute(this);
+
+		bool allGood = this->current->Execute(this, autoNext);
 		if (!allGood)
 			return false;
+		if (!autoNext)
+			break;
 		this->current = this->current->GetNext(this);
 	}
 	return true;

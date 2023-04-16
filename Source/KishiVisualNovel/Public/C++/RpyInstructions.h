@@ -24,10 +24,10 @@ struct SceneInstruction : public RpyInstruction
   TMap<FName, FString> params;
 
   SceneInstruction(URpyScript *script, FRpyLine *rpyLine, TMap<FName, FString> params) : RpyInstruction(script, rpyLine), params(params){};
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
-    RpyInstruction::Execute(session);
-    return IRpyInterpreter::Execute_Scene(session->interpreter.GetObject(), this->params);
+    RpyInstruction::Execute(session, autoExecuteNext);
+    return IRpyInterpreter::Execute_Scene(session->interpreter.GetObject(), autoExecuteNext, this->params);
   };
 };
 
@@ -38,13 +38,13 @@ struct ShowInstruction : public RpyInstruction
   FName with;
 
   ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with){};
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
-    RpyInstruction::Execute(session);
+    RpyInstruction::Execute(session, autoExecuteNext);
     auto rpyImage = script->images[name];
     if (!rpyImage.image)
       return false;
-    return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), rpyImage, at, with);
+    return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), autoExecuteNext, rpyImage, at, with);
   };
 };
 
@@ -55,13 +55,13 @@ struct HideInstruction : public RpyInstruction
   FName with;
 
   HideInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with){};
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
-    RpyInstruction::Execute(session);
+    RpyInstruction::Execute(session, autoExecuteNext);
     auto rpyImage = script->images[name];
     if (!rpyImage.image)
       return false;
-    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(), rpyImage, at, with);
+    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(), autoExecuteNext, rpyImage, at, with);
   };
 };
 
@@ -72,10 +72,10 @@ struct SayInstruction : public RpyInstruction
   FName with;
 
   SayInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FString statement, FName with = "") : RpyInstruction(script, rpyLine), name(name), statement(statement), with(with){};
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
-    RpyInstruction::Execute(session);
-    return IRpyInterpreter::Execute_Say(session->interpreter.GetObject(), this->name, this->statement);
+    RpyInstruction::Execute(session, autoExecuteNext);
+    return IRpyInterpreter::Execute_Say(session->interpreter.GetObject(), autoExecuteNext, this->name, this->statement);
   };
 };
 struct PlayInstruction : public RpyInstruction
@@ -85,13 +85,13 @@ struct PlayInstruction : public RpyInstruction
   FRpyAudioOptions options;
 
   PlayInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name), options(options){};
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
-    RpyInstruction::Execute(session);
+    RpyInstruction::Execute(session, autoExecuteNext);
     auto rpyAudio = script->audios[name];
     if (!rpyAudio.audio)
       return false;
-    return IRpyInterpreter::Execute_PlayAudio(session->interpreter.GetObject(), channel, rpyAudio, options);
+    return IRpyInterpreter::Execute_PlayAudio(session->interpreter.GetObject(), autoExecuteNext, channel, rpyAudio, options);
   };
 };
 
@@ -100,10 +100,10 @@ struct PauseInstruction : public RpyInstruction
   float timeout;
 
   PauseInstruction(URpyScript *script, FRpyLine *rpyLine, float timeout) : RpyInstruction(script, rpyLine), timeout(timeout){};
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
-    RpyInstruction::Execute(session);
-    return IRpyInterpreter::Execute_PauseAudio(session->interpreter.GetObject(), this->timeout);
+    RpyInstruction::Execute(session, autoExecuteNext);
+    return IRpyInterpreter::Execute_PauseAudio(session->interpreter.GetObject(), autoExecuteNext, this->timeout);
   };
 };
 
@@ -153,7 +153,7 @@ public:
 
   IfBoolInstruction(URpyScript *script, FRpyLine *rpyLine, FName varName, bool reverse) : IfInstruction(script, rpyLine), varName(varName), reverse(reverse){};
 
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
     this->condition = session->RuntimeData.bools[this->varName];
     this->condition = this->condition ^ this->reverse;
@@ -199,10 +199,10 @@ struct StopInstruction : public RpyInstruction
   FName channel;
   FRpyAudioOptions options;
   StopInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), options(options){};
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
-    RpyInstruction::Execute(session);
-    return IRpyInterpreter::Execute_StopAudio(session->interpreter.GetObject(), channel, options);
+    RpyInstruction::Execute(session, autoExecuteNext);
+    return IRpyInterpreter::Execute_StopAudio(session->interpreter.GetObject(), autoExecuteNext, channel, options);
   };
 };
 
@@ -212,13 +212,13 @@ struct QueueInstruction : public RpyInstruction
   FName name;
   FRpyAudioOptions options;
   QueueInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name), options(options){};
-  virtual bool Execute(URpySession *session)
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
   {
-    RpyInstruction::Execute(session);
+    RpyInstruction::Execute(session, autoExecuteNext);
     auto rpyAudio = script->audios[name];
     if (!rpyAudio.audio)
       return false;
-    return IRpyInterpreter::Execute_QueueAudio(session->interpreter.GetObject(), channel, rpyAudio, options);
+    return IRpyInterpreter::Execute_QueueAudio(session->interpreter.GetObject(), autoExecuteNext, channel, rpyAudio, options);
   };
 };
 
@@ -257,4 +257,3 @@ RpyInstruction *IfInstruction::GetNext(URpySession *session)
   }
   return this->next;
 };
-
