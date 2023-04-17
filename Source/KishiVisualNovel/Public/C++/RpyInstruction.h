@@ -31,6 +31,10 @@ class RpyInstruction
 public:
     RpyInstruction(URpyScript *script, FRpyLine *rpyLine) : script(script), rpyLine(rpyLine){};
     virtual ~RpyInstruction() = default;
+    virtual EInstructionRunTimeType RunTimeType() const
+    {
+        return EInstructionRunTimeType::NONE;
+    }
     virtual RpyInstructionType Type() const
     {
         return RpyInstructionType::Base;

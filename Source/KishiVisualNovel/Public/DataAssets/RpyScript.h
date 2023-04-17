@@ -16,6 +16,20 @@ class IRpyInterpreter;
 class RpyInstruction;
 /**
  */
+
+UENUM(BlueprintType)
+enum class EInstructionRunTimeType : uint8
+{
+	NONE,
+	SAY,
+	SCENE,
+	STOP,
+	PLAY,
+	PAUSE,
+	SHOW,
+	HIDE,
+};
+
 UENUM(BlueprintType)
 enum struct ESchrodBool : uint8
 {

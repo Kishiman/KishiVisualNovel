@@ -37,6 +37,8 @@ public:
 	bool RunNext();
 	UFUNCTION(BlueprintCallable)
 	bool Run();
+	UFUNCTION(BlueprintPure)
+	EInstructionRunTimeType GetRunTimeType() const;
 
 private:
 };

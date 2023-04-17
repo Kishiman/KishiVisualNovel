@@ -14,6 +14,12 @@ TArray<FName> URpySession::GetLabels() const
 	}
 	return out;
 };
+EInstructionRunTimeType URpySession::GetRunTimeType() const
+{
+	if (this->current)
+		return this->current->RunTimeType();
+	return EInstructionRunTimeType::NONE;
+}
 
 bool URpySession::StartLabel(FName label)
 {
