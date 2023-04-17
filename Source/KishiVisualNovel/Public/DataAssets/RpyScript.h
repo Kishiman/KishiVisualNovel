@@ -29,6 +29,7 @@ enum class EInstructionRunTimeType : uint8
 	SHOW,
 	HIDE,
 };
+DECLARE_DYNAMIC_DELEGATE(FInstructionCompleteDelegate);
 
 UENUM(BlueprintType)
 enum struct ESchrodBool : uint8
@@ -37,6 +38,7 @@ enum struct ESchrodBool : uint8
 	EFalse UMETA(DisplayName = "False"),
 	ENone UMETA(DisplayName = "None"),
 };
+
 
 USTRUCT(BlueprintType)
 struct FRpyCharacter
