@@ -1,6 +1,6 @@
 #include "RpySession.h"
-#include "C++/RpyParsers.h"
 #include "C++/RpyInstructions.h"
+#include "C++/RpyParsers.h"
 #include "Interfaces/RpyInterpreter.h"
 
 // Online IDE - Code Editor, parser, Interpreter
@@ -35,6 +35,8 @@ bool URpySession::StartLabel(FName label)
 };
 bool URpySession::RunNext()
 {
+	if (!this->current)
+		return false;
 	this->current = this->current->GetNext(this);
 	return Run();
 };
