@@ -1,5 +1,5 @@
 init:
-    image eileen happy = "/KishiVisualNovel/Rpy/Images/eileen_happy"
+    image eileen happy = "eileen_happy"
     $ e = Character('Eileen')
 
 label start:
@@ -7,4 +7,7 @@ label start:
     show eileen happy
 
     e "I'm happy hunting hunters"
+    hide eileen happy
+    
+    "Are you a hunter too?"
 
