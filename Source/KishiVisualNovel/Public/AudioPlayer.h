@@ -12,7 +12,7 @@
  */
 
 UCLASS(BlueprintType)
-class KISHIVISUALNOVEL_API AAudioPlayer : public AActor
+class KISHIVISUALNOVEL_API UAudioPlayer : public UObject
 {
 	GENERATED_BODY()
 public:
