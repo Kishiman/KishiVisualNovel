@@ -39,7 +39,6 @@ enum struct ESchrodBool : uint8
 	ENone UMETA(DisplayName = "None"),
 };
 
-
 USTRUCT(BlueprintType)
 struct FRpyCharacter
 {
@@ -129,7 +128,7 @@ class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
 	GENERATED_BODY()
 public:
 	URpyScript();
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyImage> images;
