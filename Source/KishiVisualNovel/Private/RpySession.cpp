@@ -43,6 +43,8 @@ bool URpySession::RunNext()
 bool URpySession::Run()
 {
 	bool autoNext = true;
+	if (!this->current)
+		return false;
 	while (this->current)
 	{
 

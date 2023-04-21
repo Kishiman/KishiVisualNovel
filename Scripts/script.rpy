@@ -3,8 +3,7 @@
 label start:
 
     stop music fadeout 2.0
-        scene black
-            with Pause (2.0)
+    scene black with Pause (2.0)
     play sound alarm
     "*Ring ring ring.*"
     u "..."
@@ -20,8 +19,7 @@ label start:
     th "I turned my head the right to see a small, old-fashioned alarm clock on the nightstand. The time read 7:30."
     u "7:30…? In the morning or evening?"
     th "I reached over to stop the alarm when suddenly I felt a dull pain in the back of my head."
-    play sound exclaim
-    with flash
+    play sound exclaim with flash
     u "Ngh...?!"
 
     th """I sat up from the bed to rub my head and shut off the alarm, and it was then did I really take in the surroundings.

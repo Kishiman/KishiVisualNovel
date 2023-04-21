@@ -14,8 +14,7 @@ label start:
     # Start by playing some music.
     play music "illurock.opus"
 
-    scene bg lecturehall
-    with fade
+    scene bg lecturehall with fade
 
     "It's only when I hear the sounds of shuffling feet and supplies being put away that I realize that the lecture's over."
 
@@ -25,13 +24,11 @@ label start:
 
     "It's a question that I've been meaning to ask a certain someone."
 
-    scene bg uni
-    with fade
+    scene bg uni with fade
 
     "When we come out of the university, I spot her right away."
 
-    show sylvie green normal
-    with dissolve
+    show sylvie green normal with dissolve
 
     "I've known Sylvie since we were kids. She's got a big heart and she's always been a good friend to me."
 
@@ -66,8 +63,7 @@ label rightaway:
 
     s "Sure!"
 
-    scene bg meadow
-    with fade
+    scene bg meadow with fade
 
     "After a short while, we reach the meadows just outside the neighborhood where we both live."
 
@@ -77,8 +73,7 @@ label rightaway:
 
     m "Hey... Umm..."
 
-    show sylvie green smile
-    with dissolve
+    show sylvie green smile with dissolve
 
     "She turns to me and smiles. She looks so welcoming that I feel my nervousness melt away."
 
@@ -160,13 +155,11 @@ label book:
 
 label marry:
 
-    scene black
-    with dissolve
+    scene black with dissolve
 
     "And so, we become a visual novel creating duo."
 
-    scene bg club
-    with dissolve
+    scene bg club with dissolve
 
     "Over the years, we make lots of games and have a lot of fun making them."
 
@@ -178,8 +171,7 @@ label marry:
 
     "And one day..."
 
-    show sylvie blue normal
-    with dissolve
+    show sylvie blue normal with dissolve
 
     s "Hey..."
 
@@ -223,8 +215,7 @@ label marry:
 
     s "You worry too much. If only this were a visual novel and I could pick an option to give you more courage!"
 
-    scene black
-    with dissolve
+    scene black with dissolve
 
     "We get married shortly after that."
 
@@ -240,8 +231,7 @@ label later:
 
     "I can't get up the nerve to ask right now. With a gulp, I decide to ask her later."
 
-    scene black
-    with dissolve
+    scene black with dissolve
 
     "But I'm an indecisive person."
 
