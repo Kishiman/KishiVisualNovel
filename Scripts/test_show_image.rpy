@@ -1,5 +1,5 @@
 init:
-    image eileen happy = "eileen_happy"
+    image eileen happy = "/KishiVisualNovel/Scripts/Images/eileen_happy"
     $ e = Character('Eileen')
 
 label start:

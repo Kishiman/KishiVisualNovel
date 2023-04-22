@@ -2,7 +2,7 @@ init:
 
 label start:
 
-    play music "A_mystical_journey_3" volume 0.75 fadeout 1.0 fadein 2.0 loop if_changed
+    play music "/KishiVisualNovel/Scripts/Audios/A_mystical_journey_3" volume 0.75 fadeout 1.0 fadein 2.0 loop if_changed
 
     "Igor" "Yokuso Velvet Room eh"
 

@@ -23,7 +23,7 @@ void URpyScript::LoadRpyData()
   for (auto &key : keys)
   {
     FRpyImage &rpyImage = images[key];
-    FString path = basePath + "/Images/" + rpyImage.path;
+    FString path = rpyImage.path;
     try
     {
       FText err;
@@ -54,7 +54,7 @@ void URpyScript::LoadRpyData()
   for (auto &key : keys)
   {
     FRpyAudio &rpyAudio = audios[key];
-    FString path = basePath + "/Audios/" + rpyAudio.path;
+    FString path = rpyAudio.path;
     try
     {
       FText err;

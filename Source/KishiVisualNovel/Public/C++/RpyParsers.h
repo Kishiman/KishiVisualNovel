@@ -23,6 +23,20 @@ struct InitParser : public RpyParser
 		return init;
 	};
 };
+//$ variable_name = "Hello, world!"
+struct DefineStringParser : public RpyParser
+{
+	DefineStringParser() : RpyParser(4, "^(\\$|default) " + reg_name + " = " + reg_string + "$", "DefineStringParser"){};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		bool isDefault = params[0] == "default";
+		FName varName = FName(*params[1]);
+		FString value = GetString(params[2]);
+		if (isDefault)
+			script->compileData.strings.Add(varName, value);
+		return new AssignInstruction<FString>(script, rpyLine, varName, value);
+	};
+};
 //"$ e = Character('Eileen')"
 struct DefineCharacterParser : public RpyParser
 {
@@ -240,7 +254,7 @@ struct ShowParser : public RpyParser
 // if True :
 struct IfBoolParser : public RpyParser
 {
-	IfBoolParser() : RpyParser(1, "^if (!)?(\\w+|True|False):$", "IfBoolParser"){};
+	IfBoolParser() : RpyParser(2, "^if (!)?(\\w+|True|False):$", "IfBoolParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		bool reverse = params[0] == "!";

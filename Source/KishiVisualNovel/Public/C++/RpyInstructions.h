@@ -19,6 +19,28 @@ struct LabelInstruction : public RpyInstruction
     return true;
   };
 };
+template <typename T>
+struct AssignInstruction : public RpyInstruction
+{
+  FName varName;
+  T value;
+
+  AssignInstruction(URpyScript *script, FRpyLine *rpyLine, FName varName, T value) : RpyInstruction(script, rpyLine), varName(varName), value(value){};
+  virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SCENE; }
+  void SetValue(URpySession *session);
+  virtual bool Execute(URpySession *session, bool &autoExecuteNext)
+  {
+    RpyInstruction::Execute(session, autoExecuteNext);
+    SetValue(session);
+    return true;
+  };
+};
+void AssignInstruction<bool>::SetValue(URpySession *session) { session->RuntimeData.bools.Add(varName, value); }
+void AssignInstruction<FName>::SetValue(URpySession *session) { session->RuntimeData.names.Add(varName, value); }
+void AssignInstruction<FString>::SetValue(URpySession *session) { session->RuntimeData.strings.Add(varName, value); }
+void AssignInstruction<int>::SetValue(URpySession *session) { session->RuntimeData.ints.Add(varName, value); }
+void AssignInstruction<float>::SetValue(URpySession *session) { session->RuntimeData.floats.Add(varName, value); }
+
 struct SceneInstruction : public RpyInstruction
 {
   TMap<FName, FString> params;
