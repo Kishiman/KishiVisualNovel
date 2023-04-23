@@ -235,6 +235,19 @@ struct ImageParser : public RpyParser
 		return new RpyInstruction(script, rpyLine);
 	};
 };
+struct SceneParser : public RpyParser
+{
+	SceneParser() : RpyParser(2, "^scene " + reg_image_name + "(?: with (\\w+))?$", "SceneParser"){};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		FName name = FName(*params[0]);
+		if (!script->images.Contains(name))
+			return nullptr;
+		FRpyImageOptions options;
+		options.with = FName(*params[1]);
+		return new SceneInstruction(script, rpyLine, name, options);
+	};
+};
 
 // show john happy
 struct ShowParser : public RpyParser
@@ -268,6 +281,15 @@ struct IfBoolParser : public RpyParser
 			return nullptr;
 		}
 		return new IfBoolInstruction(script, rpyLine, name, reverse);
+	};
+};
+// else:
+struct ElseParser : public RpyParser
+{
+	ElseParser() : RpyParser(0, "^else\\s*:$", "ElseParser"){};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		return new ElseInstruction(script, rpyLine);
 	};
 };
 

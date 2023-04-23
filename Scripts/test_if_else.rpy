@@ -11,10 +11,9 @@ label start:
     e "I'm gonna survive.. right?"
     if False:
         "I have survived"
-    else
+    else:
         "I have not survived"
         jump death
-    
     "A new day is waiting"
 
 

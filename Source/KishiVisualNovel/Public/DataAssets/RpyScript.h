@@ -95,6 +95,19 @@ struct FRpyMovie
 };
 
 USTRUCT(BlueprintType)
+struct FRpyImageOptions
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName layer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName with;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float fadeTime = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float desolveTime = 0;
+};
+USTRUCT(BlueprintType)
 struct FRpyImage
 {
 	GENERATED_USTRUCT_BODY()

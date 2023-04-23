@@ -1,5 +1,5 @@
 init:
-    image bg whitehouse = "whitehouse.jpg"
+    image bg whitehouse = "/KishiVisualNovel/Images/whitehouse"
     $ e = Character('Eileen')
 
 label start:

@@ -43,10 +43,8 @@ public:
     {
         return true;
     }
-    virtual bool Execute(URpySession *session, bool &autoExecuteNext)
+    virtual bool Execute(URpySession *session)
     {
-        UE_LOG(LogTemp, Display, TEXT("Executing rpy:%s"), (*this->rpyLine->line));
-        autoExecuteNext=true;
         return true;
     };
     virtual RpyInstruction *GetNext(URpySession *session)

@@ -42,18 +42,24 @@ bool URpySession::RunNext()
 };
 bool URpySession::Run()
 {
-	bool autoNext = true;
 	if (!this->current)
 		return false;
 	while (this->current)
 	{
 
-		bool allGood = this->current->Execute(this, autoNext);
-		if (!allGood)
+		UE_LOG(LogTemp, Display, TEXT("Executing rpy:%s"), (*this->current->rpyLine->line));
+		try
+		{
+			bool autoNext = this->current->Execute(this);
+			if (!autoNext)
+				break;
+			this->current = this->current->GetNext(this);
+		}
+		catch (const std::exception &e)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
 			return false;
-		if (!autoNext)
-			break;
-		this->current = this->current->GetNext(this);
+		}
 	}
 	return true;
 };

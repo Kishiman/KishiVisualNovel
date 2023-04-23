@@ -31,7 +31,7 @@ label start:
     The only odd thing about it was that there didn't seem to be any windows. There were curtains, but they were drawn open against a wall featuring a single unassuming painting."""
 
     u "The room is comfortable enough but how on Earth did I get here…?"
-    scene black with d
+    scene black with d 
     th """I closed my eyes and furrowed my brow.
 
     Think back. Remember who you are and what you were doing last.

@@ -42,9 +42,10 @@ void URpyScript::LoadRpyData()
         UE_LOG(LogTemp, Error, TEXT("RpyImage not found at path : %s"), (*path));
       }
     }
-    catch (...)
+    catch (const std::exception &e)
     {
       UE_LOG(LogTemp, Error, TEXT("error at path : %s"), (*path));
+      UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
       continue;
     }
   };
@@ -73,9 +74,10 @@ void URpyScript::LoadRpyData()
         UE_LOG(LogTemp, Error, TEXT("FRpyAudio not found at path : %s"), (*path));
       }
     }
-    catch (...)
+    catch (const std::exception &e)
     {
       UE_LOG(LogTemp, Error, TEXT("error at path : %s"), (*path));
+      UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
       continue;
     }
   };
@@ -162,10 +164,12 @@ bool URpyScript::Parse()
   parsers.Add(new SayParser());
   parsers.Add(new SayParser2());
   parsers.Add(new IfBoolParser());
+  parsers.Add(new ElseParser());
   parsers.Add(new NarratorSayParser());
   parsers.Add(new CharacterSayParser());
   parsers.Add(new ImageParser());
   parsers.Add(new ShowParser());
+  parsers.Add(new SceneParser());
   parsers.Add(new HideParser());
   //
   for (auto instruction : instructions)

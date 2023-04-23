@@ -33,7 +33,7 @@ bool URpyScriptImporterFactory::FactoryUpdateString(UClass *InClass, UObject *Ob
 	}
 	catch (const std::exception &e)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), UTF8_TO_TCHAR(e.what()));
+		UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
 		return false;
 	}
 	catch (...)
