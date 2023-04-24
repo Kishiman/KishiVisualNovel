@@ -149,22 +149,8 @@ public:
 struct ElseInstruction : public RpyInstruction
 {
 public:
-  bool condition = false;
-
   ElseInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
-  virtual RpyInstructionType Type() const
-  {
-    return RpyInstructionType::Else;
-  }
-  virtual RpyInstruction *GetNext(URpySession *session)
-  {
-    if (this->condition)
-    {
-      this->condition = false;
-      return this->children[0];
-    }
-    return this->next;
-  };
+  virtual RpyInstructionType Type() const { return RpyInstructionType::Else; }
 };
 
 class IfBoolInstruction : public IfInstruction
@@ -248,8 +234,10 @@ bool IfInstruction::Compile()
   RpyInstruction *current = this;
   while (current->next)
   {
+    uint8 nextType = static_cast<uint8>(current->next->Type());
+    bool nestTpeIsElse = !!(nextType & static_cast<uint8>(RpyInstructionType::Else));
     // check if the instruction is of type else and in the same tabs scope
-    if (!!(current->next->Type() & RpyInstructionType::Else) && current->next->rpyLine->tabs == this->rpyLine->tabs)
+    if (nestTpeIsElse && current->next->rpyLine->tabs == this->rpyLine->tabs)
     {
       current = current->next;
     }
@@ -268,13 +256,8 @@ bool IfInstruction::Compile()
 RpyInstruction *IfInstruction::GetNext(URpySession *session)
 {
   if (this->condition)
-  {
     return this->children[0];
-  }
   else if (this->elseInstruction)
-  {
-    this->elseInstruction->condition = true;
     return this->elseInstruction;
-  }
   return this->next;
 };
