@@ -1,7 +1,7 @@
-#include "RpySession.h"
-#include "C++/RpyInstructions.h"
-#include "C++/RpyParsers.h"
-#include "Interfaces/RpyInterpreter.h"
+#include "Rpy/RpySession.h"
+#include "Rpy/RpyInstructions.h"
+#include "Rpy/RpyParsers.h"
+#include "Rpy/RpyInterpreter.h"
 
 // Online IDE - Code Editor, parser, Interpreter
 

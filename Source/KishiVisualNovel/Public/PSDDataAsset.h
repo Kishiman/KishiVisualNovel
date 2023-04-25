@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "KishiDataAsset.h"
-#include "Interfaces/Layerable.h"
+#include "Layerable.h"
 #include "PaperSprite.h"
 #include "PSDDataAsset.generated.h"
 

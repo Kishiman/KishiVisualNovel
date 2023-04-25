@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Libraries/Tree/ArrayTree.h"
-#include "DataAssets/RpyScript.h"
+#include "Rpy/RpyScript.h"
 
 class IRpyInterpreter;
 class URpySession;

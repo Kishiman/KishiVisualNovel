@@ -1,7 +1,7 @@
-#include "DataAssets/RpyScript.h"
-#include "C++/RpyInstructions.h"
-#include "C++/RpyParsers.h"
-#include "Interfaces/RpyInterpreter.h"
+#include "Rpy/RpyScript.h"
+#include "Rpy/RpyInstructions.h"
+#include "Rpy/RpyParsers.h"
+#include "Rpy/RpyInterpreter.h"
 #include "Misc/FileHelper.h"
 
 // Online IDE - Code Editor, parser, Interpreter

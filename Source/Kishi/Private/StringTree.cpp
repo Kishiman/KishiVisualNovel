@@ -1,4 +1,4 @@
-#include "Interfaces/StringTree.h"
+#include "StringTree.h"
 #include "Misc/Paths.h"
 
 bool UStringTreeLibrary::IsLeaf(const TScriptInterface<IStringTree> &Target)

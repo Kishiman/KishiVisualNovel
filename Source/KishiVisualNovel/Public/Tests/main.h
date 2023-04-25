@@ -1,6 +1,6 @@
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
-#include "RpyInterpreterTest.h"
+#include "Rpy/RpyInterpreterTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMyProjectUnitTest, "MyProject.UnitTest", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 

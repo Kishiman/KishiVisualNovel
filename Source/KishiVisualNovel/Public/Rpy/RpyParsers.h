@@ -6,8 +6,8 @@
 #include "CoreMinimal.h"
 #include "EngineUtils.h"
 
-#include "C++/RpyParser.h"
-#include "C++/RpyInstructions.h"
+#include "Rpy/RpyParser.h"
+#include "Rpy/RpyInstructions.h"
 #include <string>
 
 /**

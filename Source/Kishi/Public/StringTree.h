@@ -8,11 +8,11 @@
 
 
 UINTERFACE()
-class KISHIVISUALNOVEL_API UStringTree : public UInterface
+class KISHI_API UStringTree : public UInterface
 {
     GENERATED_BODY()
 };
-class KISHIVISUALNOVEL_API IStringTree
+class KISHI_API IStringTree
 {
     GENERATED_BODY()
 public:
@@ -52,7 +52,7 @@ public:
 #define ISTRINGTREE(Object,Method)          IStringTree::Execute_##Method(Object.GetObject())
 #define ISTRINGTREE_1(Object,Method,A)      IStringTree::Execute_##Method(Object.GetObject(),A)
 UCLASS()
-class KISHIVISUALNOVEL_API UStringTreeLibrary : public UBlueprintFunctionLibrary
+class KISHI_API UStringTreeLibrary : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 public:

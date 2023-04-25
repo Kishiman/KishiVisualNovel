@@ -1,5 +1,5 @@
 #include "KishiDataAssetImporterFactory.h"
-#include "DataAssets/TextFile.h"
+#include "TextFile.h"
 #include "Misc/Paths.h"
 
 UKishiDataAssetImporterFactory::UKishiDataAssetImporterFactory(const FObjectInitializer& ObjectInitializer)

@@ -4,7 +4,7 @@
 #include <regex>
 #include <string>
 
-#include "DataAssets/RpyScript.h"
+#include "Rpy/RpyScript.h"
 
 struct RpyParser
 {

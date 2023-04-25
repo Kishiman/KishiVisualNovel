@@ -2,7 +2,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
-#include "DataAssets/RpyScript.h"
+#include "Rpy/RpyScript.h"
 
 #include "RpyInterpreter.generated.h"
 

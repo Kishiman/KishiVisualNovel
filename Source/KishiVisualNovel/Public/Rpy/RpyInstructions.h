@@ -1,8 +1,8 @@
 #pragma once
 
-#include "C++/RpyInstruction.h"
-#include "Interfaces/RpyInterpreter.h"
-#include "RpySession.h"
+#include "Rpy/RpyInstruction.h"
+#include "Rpy/RpyInterpreter.h"
+#include "Rpy/RpySession.h"
 
 // Labels & Control Flow
 struct LabelInstruction : public RpyInstruction

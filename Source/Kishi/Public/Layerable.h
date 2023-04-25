@@ -8,11 +8,11 @@
 
 
 UINTERFACE()
-class KISHIVISUALNOVEL_API ULayerable : public UInterface
+class KISHI_API ULayerable : public UInterface
 {
     GENERATED_BODY()
 };
-class KISHIVISUALNOVEL_API ILayerable
+class KISHI_API ILayerable
 {
     GENERATED_BODY()
 public:
@@ -33,7 +33,7 @@ public:
 };
 
 UCLASS()
-class KISHIVISUALNOVEL_API ULayerableLibrary : public UBlueprintFunctionLibrary
+class KISHI_API ULayerableLibrary : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 public:

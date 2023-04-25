@@ -3,7 +3,7 @@
 
 #include "KishiDataAssetReimportHandler.h"
 #include "KishiVisualNovelImporterLog.h"
-// #include "DataAssets/TextFile.h"
+// #include "TextFile.h"
 #include "HAL/FileManager.h"
 #include "EditorFramework/AssetImportData.h"
 //////////////////////////////////////////////////////////////////////////

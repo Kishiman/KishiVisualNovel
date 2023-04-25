@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "KishiDataAssetReimportHandler.h"
-#include "DataAssets/PSDDataAsset.h"
+#include "PSDDataAsset.h"
 #include "PSDDataAssetImporterFactory.generated.h"
 
 /**
