@@ -40,7 +40,7 @@ public:
     // rpy
     static string reg_keyword;
     static string reg_name;
-    static string reg_image_name;
+    static string reg_multi_name;
     static string reg_string;
     // parser
     static string reg_label;
@@ -51,7 +51,7 @@ string RegexLib::reg_integer = "([a-zA-Z_]\\w*)";
 
 string RegexLib::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
 string RegexLib::reg_name = "([a-zA-Z_]\\w*)";
-string RegexLib::reg_image_name = "((?:\\w+)(?: \\w+)*)";
+string RegexLib::reg_multi_name = "((?:\\w+)(?: \\w+)*)";
 string RegexLib::reg_string = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
 
 string RegexLib::reg_label = "^label " + RegexLib::reg_name + ":$";
@@ -80,7 +80,7 @@ int _main()
         regex("^if (\\w+):$"),
         regex("^(else if|elif) (\\w+):$"),
         regex("^else:$"),
-        regex("^image " + RegexLib::reg_image_name + " = \"([/\\w\\.\\s]+)\"$"),
+        regex("^image " + RegexLib::reg_multi_name + " = \"([/\\w\\.\\s]+)\"$"),
     };
     string lines[] = {
         "label start:",

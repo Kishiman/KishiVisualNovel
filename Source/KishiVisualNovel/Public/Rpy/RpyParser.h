@@ -31,7 +31,7 @@ struct RpyParser
 	// rpy
 	static std::string reg_keyword;
 	static std::string reg_name;
-	static std::string reg_image_name;
+	static std::string reg_multi_name;
 	static std::string reg_path;
 	static std::string reg_array_path;
 	//
@@ -67,6 +67,8 @@ struct RpyParser
 
 	static FString GetString(FString param)
 	{
+		if (param == "")
+			return param;
 		return param.Mid(1, param.Len() - 2);
 	}
 	static TArray<FName> GetNames(FString param)
@@ -88,18 +90,52 @@ struct RpyParser
 		return names;
 	}
 };
+std::string RpyParser::reg_bool = "(True|False|None)";
 std::string RpyParser::reg_integer = "(\\d*)";
 std::string RpyParser::reg_float = "([+-]?(?:\\d*\\.)?\\d+)";
 std::string RpyParser::reg_ufloat = "((?:\\d*\\.)?\\d+)";
 std::string RpyParser::reg_ufloatUnit = "(0(?:\\.\\d+)?|1(?:\\.0+)?)";
-std::string RpyParser::reg_string = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
-// std::string RpyParser::reg_string = "((?:'(?:[^'\\\\]|\\\\.)*')|(?:\"(?:[^\"\\\\]|\\\\.)*\")|(?:`(?:[^`\\\\]|\\\\.)*`))";
 
-std::string RpyParser::reg_bool = "(True|False|None)";
+/*
+((?:'[^']*')|(?:"[^"]*")|(?:`[^`]*`))
+matches a string that is enclosed in either single quotes, double quotes, or backticks, while also capturing the string itself. For example, the following strings would match this regular expression:
+		'Hello, world!'
+		"Hello, world!"
+		`Hello, world!`
+*/
+std::string RpyParser::reg_string = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
 
 std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
+/*
+([a-zA-Z_]\w*)
+matches any valid identifier that starts with a letter or underscore, followed by any number of letters, digits, or underscores. For example, the following identifiers would match this regular expression:
+
+		variable_name
+		ClassName
+		_private_member
+*/
 std::string RpyParser::reg_name = "([a-zA-Z_]\\w*)";
-std::string RpyParser::reg_image_name = "((?:(?!(?:at |with ))\\w+)(?: (?!(?:at |with ))\\w+)*)";
+
+/*
+((?:(?!(?:at |with ))\w+)(?: (?!(?:at |with ))\w+)*)
+matches one or more words separated by a single space, where each word does not begin with the phrases "at" or "with"
+*/
+std::string RpyParser::reg_multi_name = "((?:(?!(?:at |with ))\\w+)(?: (?!(?:at |with ))\\w+)*)";
+/*
+([/\w\.]+)
+matches any file path or file name that contains only letters, digits, periods, underscores, and forward slashes. For example, the following file paths or file names would match this regular expression:
+
+		/home/user/Documents/my_file.txt
+		C:\Users\user\Desktop\my_file.docx
+		script.js
+*/
 std::string RpyParser::reg_path = "([/\\w\\.]+)";
-//\[(|(?:"[\/\w\.]+"(?:, "[\/\w\.]+")*?))\]
+/*
+\[(|(?:"[\/\w\.]+"(?:, "[\/\w\.]+")*?))\]
+matches a string that is enclosed in square brackets, where the string may be empty or may contain one or more comma-separated quoted strings. For example, the following strings would match this regular expression:
+
+		[]
+		[ "file.txt" ]
+		[ "file.txt", "dir/file2.txt" ]
+*/
 std::string RpyParser::reg_array_path = "\\[(|(?:\"[/\\w\\.]+\"(?:, \"[/\\w\\.]+\")*?))\\]";

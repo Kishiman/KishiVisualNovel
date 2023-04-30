@@ -44,6 +44,9 @@ struct DefineCharacterParser : public RpyParser
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName varName = FName(*params[0]);
+		params[1] = GetString(params[1]);
+		params[2] = GetString(params[2]);
+		params[3] = GetString(params[3]);
 		FName characterName = FName(*params[1]);
 		FName characterImage = FName(*params[2]);
 		FName characterVoice = FName(*params[3]);
@@ -187,7 +190,7 @@ struct SayParser : public RpyParser
 	{
 		bool literal = params[0].StartsWith("\"") && params[0].EndsWith("\"");
 		if (literal)
-			params[0] = params[0].Mid(1, params[0].Len() - 2);
+			params[0] = GetString(params[0]);
 		FName name = FName(*params[0]);
 		FString statement = GetString(params[1]);
 		FName with = FName(*params[2]);
@@ -219,7 +222,7 @@ struct SayParser2 : public RpyParser
 // image = "cool_image"
 struct ImageParser : public RpyParser
 {
-	ImageParser() : RpyParser(2, "^image " + reg_image_name + " = \"" + reg_path + "\"$", "ImageParser"){};
+	ImageParser() : RpyParser(2, "^image " + reg_multi_name + " = \"" + reg_path + "\"$", "ImageParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -237,7 +240,7 @@ struct ImageParser : public RpyParser
 };
 struct SceneParser : public RpyParser
 {
-	SceneParser() : RpyParser(2, "^scene " + reg_image_name + "(?: with (\\w+))?$", "SceneParser"){};
+	SceneParser() : RpyParser(2, "^scene " + reg_multi_name + "(?: with (\\w+))?$", "SceneParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -252,7 +255,7 @@ struct SceneParser : public RpyParser
 // show john happy
 struct ShowParser : public RpyParser
 {
-	ShowParser() : RpyParser(3, "^show " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$", "ShowParser"){};
+	ShowParser() : RpyParser(3, "^show " + reg_multi_name + "(?: at (\\w+))?(?: with (\\w+))?$", "ShowParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -320,7 +323,7 @@ struct NarratorSayParser : public RpyParser
 
 struct CharacterSayParser : public RpyParser
 {
-	CharacterSayParser() : RpyParser(5, "^(\\w+)(?: " + reg_image_name + ")?(?: @ " + reg_image_name + ")? " + reg_string + "(?: with (\\w+))?$", "CharacterSayParser"){};
+	CharacterSayParser() : RpyParser(5, "^(\\w+)(?: " + reg_multi_name + ")?(?: @ " + reg_multi_name + ")? " + reg_string + "(?: with (\\w+))?$", "CharacterSayParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -343,7 +346,7 @@ struct CharacterSayParser : public RpyParser
 
 struct HideParser : public RpyParser
 {
-	HideParser() : RpyParser(3, "^hide " + reg_image_name + "(?: at (\\w+))?(?: with (\\w+))?$", "HideParser"){};
+	HideParser() : RpyParser(3, "^hide " + reg_multi_name + "(?: at (\\w+))?(?: with (\\w+))?$", "HideParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
