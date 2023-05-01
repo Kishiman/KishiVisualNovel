@@ -6,7 +6,6 @@
 
 #include "Rpy/RpyScript.h"
 
-
 struct RpyParser
 {
 	int paramsNum;
@@ -32,6 +31,7 @@ struct RpyParser
 	static std::string reg_string_simple;
 	// rpy
 	static std::string reg_keyword;
+	static std::string reg_var_name;
 	static std::string reg_args_map;
 	static std::string reg_rpy_options;
 
@@ -167,7 +167,8 @@ std::string RpyParser::reg_string_simple = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]
 
 std::string RpyParser::reg_string = "((?:\"(?:[^\"\\\\]|\\\\.)+\")|(?:'(?:[^'\\\\]|\\\\.)+')|(?:`(?:[^`\\\\]|\\\\.)+`))";
 
-std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
+std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while)";
+std::string RpyParser::reg_var_name = "((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\\w+))";
 /*
 ([a-zA-Z_]\w*)
 matches any valid identifier that starts with a letter or underscore, followed by any number of letters, digits, or underscores. For example, the following identifiers would match this regular expression:

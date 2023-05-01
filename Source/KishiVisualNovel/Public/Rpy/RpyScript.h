@@ -175,6 +175,8 @@ public:
 	bool IsAssetUnderProjectContent();
 	bool IsAssetUnderPluginContent();
 	bool AddDefaultImage(FString name);
+	bool AddDefaultAudio(FString param);
+
 
 	bool ImportRpyLines(FString text, uint8 TabSize);
 	bool Parse();

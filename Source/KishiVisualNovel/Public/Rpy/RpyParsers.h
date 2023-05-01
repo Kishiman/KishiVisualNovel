@@ -28,7 +28,7 @@ struct InitParser : public RpyParser
 //$ variable_name = "Hello, world!"
 struct DefineStringParser : public RpyParser
 {
-	DefineStringParser() : RpyParser(4, "^(\\$|default) " + reg_name + " = " + reg_string + "$", "DefineStringParser"){};
+	DefineStringParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_string + "$", "DefineStringParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		bool isDefault = params[0] == "default";
@@ -42,7 +42,7 @@ struct DefineStringParser : public RpyParser
 //"$ e = Character('Eileen')"
 struct DefineCharacterParser : public RpyParser
 {
-	DefineCharacterParser() : RpyParser(3, "^(?:define|\\$) " + reg_name + " = Character\\(" + reg_string_simple + reg_args_map + "?\\)$", "DefineCharacterParser"){};
+	DefineCharacterParser() : RpyParser(3, "^(?:define|\\$) " + reg_var_name + " = Character\\(" + reg_string_simple + reg_args_map + "?\\)$", "DefineCharacterParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName varName = FName(*params[0]);
@@ -127,57 +127,39 @@ struct VoiceParser : public RpyParser
 };
 
 // play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
+// play music track_1 volume 0.25 fadeout 1.0 fadein 1.0
 struct AudioParser : public RpyParser
 {
-	AudioParser() : RpyParser(8, "^(play|queue) " + reg_name + " \"" + reg_path + "\"(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "AudioParser"){};
+	AudioParser() : RpyParser(9, "^(play|queue) " + reg_name + " (?:" + reg_name + "|\"" + reg_path + "\")(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "AudioParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		auto cmd = params[0];
 		FName channel = FName(*params[1]);
-		FString &path = params[2];
-		FName saveName = FName(*path);
-		FRpyAudioOptions options;
-		options.volume = GetFloat(params[3]);
-		options.fadeOut = GetFloat(params[4]);
-		options.fadeIn = GetFloat(params[5]);
-		if (params[6] != "")
-			options.loop = params[6] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
-		options.if_changed = params[7] != "" ? true : false;
-		if (!script->audios.Contains(saveName))
+		FString path;
+		if (params[2] != "")
 		{
-			FRpyAudio audio = {nullptr, path};
-			script->audios.Add(saveName, audio);
+			path = params[2];
+		}
+		else if (params[3] != "")
+		{
+			path = params[3];
+		}
+		FName name = FName(*path);
+		FRpyAudioOptions options;
+		options.volume = GetFloat(params[4]);
+		options.fadeOut = GetFloat(params[5]);
+		options.fadeIn = GetFloat(params[6]);
+		if (params[7] != "")
+			options.loop = params[7] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
+		options.if_changed = params[8] != "" ? true : false;
+		if (!script->audios.Contains(name))
+		{
+			if (!script->AddDefaultAudio(path))
+				return nullptr;
 		}
 		if (cmd == "queue")
-			return new QueueInstruction(script, rpyLine, channel, saveName, options);
-		return new PlayInstruction(script, rpyLine, channel, saveName, options);
-	};
-};
-
-// play music track_1 volume 0.25 fadeout 1.0 fadein 1.0
-struct PlayQueueVarAudioParser : public RpyParser
-{
-	PlayQueueVarAudioParser() : RpyParser(8, "^(play|queue) " + reg_name + " " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "PlayQueueVarAudioParser"){};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		auto cmd = params[0];
-		FName channel = FName(*params[1]);
-		FName keyName = FName(*params[2]);
-		FRpyAudioOptions options;
-		options.volume = GetFloat(params[3]);
-		options.fadeOut = GetFloat(params[4]);
-		options.fadeIn = GetFloat(params[5]);
-		if (params[6] != "")
-			options.loop = params[6] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
-		options.if_changed = params[7] != "" ? true : false;
-		if (!script->audios.Contains(keyName))
-		{
-			UE_LOG(LogTemp, Error, TEXT("audio name '%s' not found"), (*keyName.ToString()));
-			return nullptr;
-		}
-		if (cmd == "queue")
-			return new QueueInstruction(script, rpyLine, channel, keyName, options);
-		return new PlayInstruction(script, rpyLine, channel, keyName, options);
+			return new QueueInstruction(script, rpyLine, channel, name, options);
+		return new PlayInstruction(script, rpyLine, channel, name, options);
 	};
 };
 
@@ -333,7 +315,7 @@ struct NarratorSayParser : public RpyParser
 
 struct CharacterSayParser : public RpyParser
 {
-	CharacterSayParser() : RpyParser(5, "^(\\w+)(?: " + reg_multi_name + ")?(?: @ " + reg_multi_name + ")? " + reg_string + reg_rpy_options + "$", "CharacterSayParser"){};
+	CharacterSayParser() : RpyParser(5, "^" + reg_var_name + "(?: " + reg_multi_name + ")?(?: @ " + reg_multi_name + ")? " + reg_string + reg_rpy_options + "$", "CharacterSayParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);

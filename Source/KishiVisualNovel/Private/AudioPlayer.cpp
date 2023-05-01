@@ -90,20 +90,21 @@ void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, fl
 void UAudioPlayer::StopAudio(FName channel, float fadeOut)
 {
 	// Check if the audio component exists and is playing or paused
-	if (AudioComponents.Contains(channel) &&
-			(AudioComponents[channel]->GetPlayState() == EAudioComponentPlayState::Playing || AudioComponents[channel]->GetPlayState() == EAudioComponentPlayState::Paused))
+	if (AudioComponents.Contains(channel))
 	{
-		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::StopAudio %s"), *channel.ToString());
-		UAudioComponent *audioComponent = AudioComponents[channel];
+		auto PlayState = AudioComponents[channel]->GetPlayState();
+		if (PlayState != EAudioComponentPlayState::Stopped)
+		{
+			UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::StopAudio %s"), *channel.ToString());
+			UAudioComponent *audioComponent = AudioComponents[channel];
 
-		// Fade out and stop the audio
-		audioComponent->FadeOut(fadeOut, 0);
+			// Fade out and stop the audio
+			audioComponent->FadeOut(fadeOut, 0);
 
-		// Clear the audio queue
-		AudioQueue.FindOrAdd(channel).Empty();
+			// Clear the audio queue
+			AudioQueue.FindOrAdd(channel).Empty();
+			return;
+		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed UAudioPlayer::StopAudio %s"), *channel.ToString());
-	}
+	UE_LOG(LogTemp, Error, TEXT("Failed UAudioPlayer::StopAudio %s"), *channel.ToString());
 }

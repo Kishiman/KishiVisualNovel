@@ -42,8 +42,11 @@ bool URpyScript::AddDefaultImage(FString param)
   TArray<FString> searchPaths;
   FString path;
   FString searchParam = param.Replace(TEXT(" "), TEXT("_"));
+  searchPaths.Add("/Game/" + searchParam);
   searchPaths.Add("/Game/Images/" + searchParam);
+  searchPaths.Add("/KishiVisualNovel/" + searchParam);
   searchPaths.Add("/KishiVisualNovel/Images/" + searchParam);
+
   for (auto &searchPath : searchPaths)
   {
     if (FPackageName::DoesPackageExist(searchPath))
@@ -56,6 +59,29 @@ bool URpyScript::AddDefaultImage(FString param)
     return false;
   FRpyImage rpyImage = FRpyImage::Make(param, path);
   this->images.Add(rpyImage.name, rpyImage);
+  return true;
+}
+bool URpyScript::AddDefaultAudio(FString param)
+{
+  TArray<FString> searchPaths;
+  FString path;
+  FString searchParam = param.Replace(TEXT(" "), TEXT("_"));
+  searchPaths.Add("/Game/" + searchParam);
+  searchPaths.Add("/Game/Audio/" + searchParam);
+  searchPaths.Add("/KishiVisualNovel/" + searchParam);
+  searchPaths.Add("/KishiVisualNovel/Audio/" + searchParam);
+  for (auto &searchPath : searchPaths)
+  {
+    if (FPackageName::DoesPackageExist(searchPath))
+    {
+      path = searchPath;
+      break;
+    }
+  }
+  if (path == "")
+    return false;
+  FRpyAudio rpyAudio = {nullptr, path};
+  this->audios.Add(FName(param), rpyAudio);
   return true;
 }
 void URpyScript::LoadRpyData()
@@ -202,7 +228,6 @@ bool URpyScript::Parse()
   parsers.Add(new StopAudioParser());
   parsers.Add(new VoiceParser());
   parsers.Add(new AudioParser());
-  parsers.Add(new PlayQueueVarAudioParser());
   parsers.Add(new LabelParser());
   parsers.Add(new JumpParser());
   parsers.Add(new CallParser());
