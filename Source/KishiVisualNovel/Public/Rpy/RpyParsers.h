@@ -10,6 +10,8 @@
 #include "Rpy/RpyInstructions.h"
 #include <string>
 
+#include "Utils/MapUtils.h"
+
 /**
  */
 //"init:"
@@ -48,12 +50,10 @@ struct DefineCharacterParser : public RpyParser
 		auto args = GetArgs(params[2]);
 		FRpyCharacter character;
 		character.name = FName(*params[1]);
-		if (args.Contains(FName("image")))
-			character.image = FName(args[FName("image")]);
-		if (args.Contains(FName("voice_tag")))
-			character.voice = FName(args[FName("voice_tag")]);
-		if (args.Contains(FName("color")))
-			character.color = FColor::FromHex(args[FName("color")]);
+		character.image = FName(MapUtils::FindOrMake(args, FName("image")));
+		character.voice = FName(MapUtils::FindOrMake(args, FName("voice_tag")));
+		// TO FIX
+		character.color = FColor::FromHex(MapUtils::FindOrMake(args, FName("color")));
 		script->characters.Add(varName, character);
 		return new RpyInstruction(script, rpyLine);
 	};
@@ -65,7 +65,7 @@ define music = "music/ok"
 */
 struct DefineMediaParser : public RpyParser
 {
-	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music)(?:.|\\s)" + reg_multi_name + " = \"" + reg_path + "\"$", "DefineMediaParser"){};
+	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music) " + reg_multi_name + " = \"" + reg_path + "\"$", "DefineMediaParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName media = FName(*params[0]);
@@ -242,7 +242,7 @@ struct SayParser2 : public RpyParser
 
 struct SceneParser : public RpyParser
 {
-	SceneParser() : RpyParser(2, "^scene " + reg_multi_name + "(?: with (\\w+))?$", "SceneParser"){};
+	SceneParser() : RpyParser(2, "^scene " + reg_multi_name + reg_rpy_options + "$", "SceneParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -250,20 +250,24 @@ struct SceneParser : public RpyParser
 			if (!script->AddDefaultImage(params[0]))
 				return nullptr;
 		FRpyImageOptions options;
-		options.with = FName(*params[1]);
+		auto rpyOptions = GetRpyOptions(params[1]);
+		options.with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
 		return new SceneInstruction(script, rpyLine, name, options);
 	};
 };
 
+// ^show
 // show john happy
+// show sylvie green smile with dissolve
 struct ShowParser : public RpyParser
 {
-	ShowParser() : RpyParser(3, "^show " + reg_multi_name + "(?: at (\\w+))?(?: with (\\w+))?$", "ShowParser"){};
+	ShowParser() : RpyParser(2, "^show " + reg_multi_name + reg_rpy_options + "$", "ShowParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
-		FName at = FName(*params[1]);
-		FName with = FName(*params[2]);
+		auto rpyOptions = GetRpyOptions(params[1]);
+		FName at = FName(MapUtils::FindOrMake(rpyOptions, FName("at")));
+		FName with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
 		if (!script->images.Contains(name))
 		{
 			if (!script->AddDefaultImage(params[0]))
@@ -329,14 +333,15 @@ struct NarratorSayParser : public RpyParser
 
 struct CharacterSayParser : public RpyParser
 {
-	CharacterSayParser() : RpyParser(5, "^(\\w+)(?: " + reg_multi_name + ")?(?: @ " + reg_multi_name + ")? " + reg_string + "(?: with (\\w+))?$", "CharacterSayParser"){};
+	CharacterSayParser() : RpyParser(5, "^(\\w+)(?: " + reg_multi_name + ")?(?: @ " + reg_multi_name + ")? " + reg_string + reg_rpy_options + "$", "CharacterSayParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
 		FName image = FName(*params[1]);
 		FName atImage = FName(*params[2]);
 		FString statement = GetString(params[3]);
-		FName with = FName(*params[4]);
+		auto rpyOptions = GetRpyOptions(params[4]);
+		FName with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
 		if (script->characters.Contains(name))
 		{
 			name = script->characters[name].name;
@@ -353,13 +358,14 @@ struct CharacterSayParser : public RpyParser
 // hide sylvie
 struct HideParser : public RpyParser
 {
-	HideParser() : RpyParser(3, "^hide " + reg_multi_name + "(?: at (\\w+))?(?: with (\\w+))?$", "HideParser"){};
+	HideParser() : RpyParser(2, "^hide " + reg_multi_name + reg_rpy_options + "$", "HideParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 
 		FName tag = RpyParser::GetNames(*params[0])[0];
-		FName at = FName(*params[1]);
-		FName with = FName(*params[2]);
+		auto rpyOptions = GetRpyOptions(params[1]);
+		FName at = FName(MapUtils::FindOrMake(rpyOptions, FName("at")));
+		FName with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
 		for (auto &pair : script->images)
 		{
 			if (pair.Value.tag == tag)

@@ -6,6 +6,7 @@
 
 #include "Rpy/RpyScript.h"
 
+
 struct RpyParser
 {
 	int paramsNum;
@@ -32,6 +33,8 @@ struct RpyParser
 	// rpy
 	static std::string reg_keyword;
 	static std::string reg_args_map;
+	static std::string reg_rpy_options;
+
 	static std::string reg_name;
 	static std::string reg_multi_name;
 	static std::string reg_path;
@@ -58,7 +61,7 @@ struct RpyParser
 		static const TCHAR *delimiters[] = {
 				TEXT(","),
 		};
-		param.ParseIntoArray(strings, delimiters, 1, true);
+		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
 		for (auto string : strings)
 		{
 			array.Add(string.TrimStartAndEnd().Mid(1, string.Len() - 2));
@@ -88,7 +91,7 @@ struct RpyParser
 						TEXT("\n"),
 						TEXT("\t"),
 				};
-		param.ParseIntoArray(strings, delimiters, 3, true);
+		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 3, true);
 		for (auto string : strings)
 		{
 			names.Add(FName(*string));
@@ -103,7 +106,7 @@ struct RpyParser
 				{
 						TEXT(","),
 				};
-		param.ParseIntoArray(strings, delimiters, 1, true);
+		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
 		for (auto string : strings)
 		{
 			TArray<FString> pair;
@@ -115,6 +118,23 @@ struct RpyParser
 		}
 		return args;
 	}
+	static TMap<FName, FString> GetRpyOptions(FString param)
+	{
+		TMap<FName, FString> options;
+		TArray<FString> strings;
+		static const TCHAR *delimiters[] =
+				{
+						TEXT(" "),
+				};
+		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
+		if (strings.Num() % 2 != 0)
+			return options;
+		for (auto idx = 0; idx < strings.Num(); idx += 2)
+		{
+			options.Add(FName(strings[idx]), strings[idx + 1]);
+		}
+		return options;
+	}
 };
 std::string RpyParser::reg_bool = "(True|False|None)";
 std::string RpyParser::reg_integer = "(\\d*)";
@@ -124,9 +144,15 @@ std::string RpyParser::reg_ufloatUnit = "(0(?:\\.\\d+)?|1(?:\\.0+)?)";
 /*
 match a string containing a series of comma-separated key-value pairs, where each key is a word and each value is a string enclosed in double quotes
 		, color="#c8ffc8", voice="ok"
+INCLUDE ", " LEFT
 */
 std::string RpyParser::reg_args_map = "((?:, \\w+=\".*\")+)";
 
+/*
+((?: (?:at |with )\w+)*)
+INCLUDE space left
+*/
+std::string RpyParser::reg_rpy_options = "((?: (?:at |with )\\w+)*)";
 /*
 (?:\"(?:[^\"\\\\]|\\\\.)+\")
 (?:'(?:[^'\\\\]|\\\\.)+')
@@ -153,10 +179,10 @@ matches any valid identifier that starts with a letter or underscore, followed b
 std::string RpyParser::reg_name = "([a-zA-Z_]\\w*)";
 
 /*
-((?:(?!(?:at |with ))\w+)(?: (?!(?:at |with ))\w+)*)
+((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)
 matches one or more words separated by a single space, where each word does not begin with the phrases "at" or "with"
 */
-std::string RpyParser::reg_multi_name = "((?:(?!(?:at |with ))\\w+)(?: (?!(?:at |with ))\\w+)*)";
+std::string RpyParser::reg_multi_name = "((?:(?!(?:at |with ))\\w+)(?:\\s+(?:(?!(?:at |with ))\\w+))*)";
 /*
 ([/\w\.]+)
 matches any file path or file name that contains only letters, digits, periods, underscores, and forward slashes. For example, the following file paths or file names would match this regular expression:
