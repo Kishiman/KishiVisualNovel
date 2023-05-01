@@ -13,6 +13,8 @@ enum class RpyInstructionType : uint8
     Base = 1 << 0,
     If = 1 << 1,
     Else = 1 << 2,
+    Menu = 1 << 3,
+    Choice = 1 << 4,
 };
 inline RpyInstructionType operator|(RpyInstructionType a, RpyInstructionType b)
 {

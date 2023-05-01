@@ -4,6 +4,11 @@
 #include "Rpy/RpyInterpreter.h"
 #include "Rpy/RpySession.h"
 
+struct IfInstruction;
+struct ElseInstruction;
+struct MenuInstruction;
+struct ChoiceInstruction;
+
 // Labels & Control Flow
 struct LabelInstruction : public RpyInstruction
 {
@@ -156,7 +161,6 @@ struct PauseAudioInstruction : public RpyInstruction
   };
 };
 
-struct ElseInstruction;
 //^\s*if\s+[\w\s\.<>=!]+:\s*$
 struct IfInstruction : public RpyInstruction
 {
@@ -195,6 +199,70 @@ public:
     return true;
   };
 };
+struct ChoiceInstruction : public RpyInstruction
+{
+  FString statement;
+  ChoiceInstruction(URpyScript *script, FRpyLine *rpyLine, FString statement) : RpyInstruction(script, rpyLine), statement(statement){};
+  virtual RpyInstructionType Type() const
+  {
+    return RpyInstructionType::Choice;
+  }
+  virtual bool Compile() override;
+};
+
+struct MenuInstruction : public RpyInstruction
+{
+  TArray<ChoiceInstruction *> choices;
+  ChoiceInstruction *selected = nullptr;
+  MenuInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
+  virtual RpyInstructionType Type() const
+  {
+    return RpyInstructionType::Menu;
+  }
+  virtual bool Compile() override
+  {
+    for (auto &child : children)
+    {
+      bool isChoice = !!(child->Type() & RpyInstructionType::Choice);
+      if (isChoice)
+        choices.Add((ChoiceInstruction *)child);
+    }
+    return true;
+  }
+  virtual bool Execute(URpySession *session) override
+  {
+    TArray<FString> statements;
+    for (auto &choice : choices)
+    {
+      statements.Add(choice->statement);
+    }
+    IRpyInterpreter::Execute_Menu(session->interpreter.GetObject(), statements);
+    return false;
+  }
+  virtual RpyInstruction *GetNext(URpySession *session) override
+  {
+
+    return selected;
+  }
+};
+bool ChoiceInstruction::Compile()
+{
+  bool isMenu = !!(parent->Type() & RpyInstructionType::Menu);
+  if (!isMenu)
+  {
+    UE_LOG(LogTemp, Error, TEXT("ChoiceInstruction not directly under MenuInstruction"));
+    return false;
+  }
+  MenuInstruction *menu = (MenuInstruction *)(this->parent);
+  if (children.Num() == 0)
+  {
+    UE_LOG(LogTemp, Error, TEXT("ChoiceInstruction has no children"));
+    return false;
+  }
+  children.Last()->next = menu->choices.Last()->next;
+  return true;
+};
+
 struct JumpInstruction : public RpyInstruction
 {
   FName label;
@@ -263,10 +331,9 @@ bool IfInstruction::Compile()
   RpyInstruction *current = this;
   while (current->next)
   {
-    uint8 nextType = static_cast<uint8>(current->next->Type());
-    bool nestTpeIsElse = !!(nextType & static_cast<uint8>(RpyInstructionType::Else));
+    bool nextTypeIsElse = !!(current->next->Type() & RpyInstructionType::Else);
     // check if the instruction is of type else and in the same tabs scope
-    if (nestTpeIsElse && current->next->rpyLine->tabs == this->rpyLine->tabs)
+    if (nextTypeIsElse && current->next->rpyLine->tabs == this->rpyLine->tabs)
     {
       current = current->next;
     }

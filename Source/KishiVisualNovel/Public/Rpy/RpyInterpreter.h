@@ -50,8 +50,8 @@ public:
   virtual bool PlayAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  bool Menu(const FString &statement, const TArray<FString> &choices);
-  virtual bool Menu_Implementation(const FString &statement, const TArray<FString> &choices) = 0;
+  bool Menu(const TArray<FString> &choices);
+  virtual bool Menu_Implementation(const TArray<FString> &choices) = 0;
 
   // Handlers Interface
 

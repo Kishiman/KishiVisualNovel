@@ -63,3 +63,20 @@ bool URpySession::Run()
 	}
 	return true;
 };
+bool URpySession::OnChoice(int index)
+{
+	bool isMenu = !!(current->Type() & RpyInstructionType::Menu);
+	if (!isMenu)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Current is not MenuInstruction"));
+		return false;
+	}
+	MenuInstruction *menu = (MenuInstruction *)(this->current);
+	if (index >= menu->choices.Num())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Choice is not in choices range"));
+		return false;
+	}
+	menu->selected = menu->choices[index];
+	return RunNext();
+}

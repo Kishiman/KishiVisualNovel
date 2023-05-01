@@ -40,5 +40,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	EInstructionRunTimeType GetRunTimeType() const;
 
+	UFUNCTION(BlueprintCallable)
+	bool OnChoice(int index);
+
 private:
 };
