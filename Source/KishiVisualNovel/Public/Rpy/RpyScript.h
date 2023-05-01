@@ -49,6 +49,8 @@ struct FRpyCharacter
 	FName image;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName voice;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FColor color;
 };
 USTRUCT(BlueprintType)
 struct FRpyAudioOptions

@@ -40,17 +40,21 @@ struct DefineStringParser : public RpyParser
 //"$ e = Character('Eileen')"
 struct DefineCharacterParser : public RpyParser
 {
-	DefineCharacterParser() : RpyParser(4, "^\\$ " + reg_name + " = Character\\(" + reg_string + "(?:, image=" + reg_string + ")?(?:, voice_tag=" + reg_string + ")?\\)$", "DefineCharacterParser"){};
+	DefineCharacterParser() : RpyParser(3, "^(?:define|\\$) " + reg_name + " = Character\\(" + reg_string_simple + reg_args_map + "?\\)$", "DefineCharacterParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName varName = FName(*params[0]);
 		params[1] = GetString(params[1]);
-		params[2] = GetString(params[2]);
-		params[3] = GetString(params[3]);
-		FName characterName = FName(*params[1]);
-		FName characterImage = FName(*params[2]);
-		FName characterVoice = FName(*params[3]);
-		script->characters.Add(varName, {characterName, characterImage, characterVoice});
+		auto args = GetArgs(params[2]);
+		FRpyCharacter character;
+		character.name = FName(*params[1]);
+		if (args.Contains(FName("image")))
+			character.image = FName(args[FName("image")]);
+		if (args.Contains(FName("voice_tag")))
+			character.voice = FName(args[FName("voice_tag")]);
+		if (args.Contains(FName("color")))
+			character.color = FColor::FromHex(args[FName("color")]);
+		script->characters.Add(varName, character);
 		return new RpyInstruction(script, rpyLine);
 	};
 };

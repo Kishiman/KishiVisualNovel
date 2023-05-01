@@ -28,8 +28,10 @@ struct RpyParser
 	static std::string reg_ufloatUnit;
 	static std::string reg_bool;
 	static std::string reg_string;
+	static std::string reg_string_simple;
 	// rpy
 	static std::string reg_keyword;
+	static std::string reg_args_map;
 	static std::string reg_name;
 	static std::string reg_multi_name;
 	static std::string reg_path;
@@ -51,7 +53,6 @@ struct RpyParser
 	}
 	static TArray<FString> GetArrayPath(FString param)
 	{
-		FString left, right;
 		TArray<FString> array;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] = {
@@ -79,7 +80,6 @@ struct RpyParser
 	}
 	static TArray<FName> GetNames(FString param)
 	{
-		FString left, right;
 		TArray<FName> names;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] =
@@ -95,12 +95,37 @@ struct RpyParser
 		}
 		return names;
 	}
+	static TMap<FName, FString> GetArgs(FString param)
+	{
+		TMap<FName, FString> args;
+		TArray<FString> strings;
+		static const TCHAR *delimiters[] =
+				{
+						TEXT(","),
+				};
+		param.ParseIntoArray(strings, delimiters, 1, true);
+		for (auto string : strings)
+		{
+			TArray<FString> pair;
+			string.TrimStartAndEnd().ParseIntoArray(pair, TEXT("="), true);
+			if (pair.Num() == 2)
+			{
+				args.Add(FName(pair[0]), pair[1]);
+			}
+		}
+		return args;
+	}
 };
 std::string RpyParser::reg_bool = "(True|False|None)";
 std::string RpyParser::reg_integer = "(\\d*)";
 std::string RpyParser::reg_float = "([+-]?(?:\\d*\\.)?\\d+)";
 std::string RpyParser::reg_ufloat = "((?:\\d*\\.)?\\d+)";
 std::string RpyParser::reg_ufloatUnit = "(0(?:\\.\\d+)?|1(?:\\.0+)?)";
+/*
+match a string containing a series of comma-separated key-value pairs, where each key is a word and each value is a string enclosed in double quotes
+		, color="#c8ffc8", voice="ok"
+*/
+std::string RpyParser::reg_args_map = "((?:, \\w+=\".*\")+)";
 
 /*
 (?:\"(?:[^\"\\\\]|\\\\.)+\")
@@ -112,6 +137,8 @@ matches a string that is enclosed in either single quotes, double quotes, or bac
 		"Hello, world!"
 		`Hello, world!`
 */
+std::string RpyParser::reg_string_simple = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
+
 std::string RpyParser::reg_string = "((?:\"(?:[^\"\\\\]|\\\\.)+\")|(?:'(?:[^'\\\\]|\\\\.)+')|(?:`(?:[^`\\\\]|\\\\.)+`))";
 
 std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
