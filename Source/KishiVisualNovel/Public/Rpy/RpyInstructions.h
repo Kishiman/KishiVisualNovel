@@ -19,6 +19,36 @@ struct LabelInstruction : public RpyInstruction
     return true;
   };
 };
+struct PauseInstruction : public RpyInstruction
+{
+  FTimerHandle TimerHandle;
+  float timeInSec = 0;
+  bool running = false;
+  PauseInstruction(URpyScript *script, FRpyLine *rpyLine, float timeInSec) : RpyInstruction(script, rpyLine), timeInSec(timeInSec){};
+  virtual bool Execute(URpySession *session)
+  {
+    running = true;
+    if (timeInSec > 0)
+    {
+      // Start the timer with a 5 second delay
+      session->GetWorld()->GetTimerManager().SetTimer(
+          TimerHandle, [this, session]()
+          {
+            this->running = false;
+            session->RunNext(); },
+          timeInSec, false);
+    }
+    return false;
+  };
+  virtual RpyInstruction *GetNext(URpySession *session) override
+  {
+    if (running == true)
+    {
+      session->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+    }
+    return RpyInstruction::GetNext(session);
+  }
+};
 template <typename T>
 struct AssignInstruction : public RpyInstruction
 {
@@ -114,11 +144,11 @@ struct PlayInstruction : public RpyInstruction
   };
 };
 
-struct PauseInstruction : public RpyInstruction
+struct PauseAudioInstruction : public RpyInstruction
 {
   float timeout;
 
-  PauseInstruction(URpyScript *script, FRpyLine *rpyLine, float timeout) : RpyInstruction(script, rpyLine), timeout(timeout){};
+  PauseAudioInstruction(URpyScript *script, FRpyLine *rpyLine, float timeout) : RpyInstruction(script, rpyLine), timeout(timeout){};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::PAUSE; }
   virtual bool Execute(URpySession *session)
   {
@@ -195,6 +225,8 @@ struct ReturnInstruction : public RpyInstruction
   ReturnInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
   virtual RpyInstruction *GetNext(URpySession *session)
   {
+    if (session->callStack.Num() == 0)
+      return nullptr;
     return session->callStack.Pop();
   };
 };

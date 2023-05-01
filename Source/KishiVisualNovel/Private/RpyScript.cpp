@@ -230,6 +230,8 @@ bool URpyScript::Parse()
   parsers.Add(new AudioParser());
   parsers.Add(new LabelParser());
   parsers.Add(new JumpParser());
+  parsers.Add(new PauseParser());
+  parsers.Add(new ReturnParser());
   parsers.Add(new CallParser());
   parsers.Add(new SayParser());
   parsers.Add(new SayParser2());

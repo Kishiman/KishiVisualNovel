@@ -185,6 +185,24 @@ struct JumpParser : public RpyParser
 	};
 };
 
+// pause 2.0
+struct PauseParser : public RpyParser
+{
+	PauseParser() : RpyParser(1, "^pause " + reg_ufloat + "$", "PauseParser"){};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		return new PauseInstruction(script, rpyLine, RpyParser::GetFloat(params[0]));
+	};
+};
+struct ReturnParser : public RpyParser
+{
+	ReturnParser() : RpyParser(0, "^return$", "ReturnParser"){};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		return new ReturnInstruction(script, rpyLine);
+	};
+};
+
 //"\"Sylvie\" \"Hi there! how was class?\""
 struct SayParser : public RpyParser
 {
