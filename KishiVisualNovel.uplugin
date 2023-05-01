@@ -26,11 +26,6 @@
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "KishiVisualNovelEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
-		},
-		{
 			"Name": "KishiVisualNovelImporter",
 			"Type": "Editor",
 			"LoadingPhase": "Default"

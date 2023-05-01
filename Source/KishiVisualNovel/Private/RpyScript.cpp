@@ -152,22 +152,21 @@ bool URpyScript::Parse()
   TArray<RpyParser *> parsers;
   // TODO
   parsers.Add(new InitParser());
-  parsers.Add(new DefineAudioParser());
+  parsers.Add(new DefineCharacterParser());
+  parsers.Add(new DefineMediaParser());
   parsers.Add(new StopAudioParser());
   parsers.Add(new VoiceParser());
-  parsers.Add(new PlayQueueAudioParser());
+  parsers.Add(new AudioParser());
   parsers.Add(new PlayQueueVarAudioParser());
   parsers.Add(new LabelParser());
   parsers.Add(new JumpParser());
   parsers.Add(new CallParser());
-  parsers.Add(new DefineCharacterParser());
   parsers.Add(new SayParser());
   parsers.Add(new SayParser2());
   parsers.Add(new IfBoolParser());
   parsers.Add(new ElseParser());
   parsers.Add(new NarratorSayParser());
   parsers.Add(new CharacterSayParser());
-  parsers.Add(new ImageParser());
   parsers.Add(new ShowParser());
   parsers.Add(new SceneParser());
   parsers.Add(new HideParser());

@@ -19,10 +19,9 @@ public class KishiVisualNovelImporter : ModuleRules
 				"UnrealEd",
 				"AssetTools",
 				"ContentBrowser",
-                "EditorStyle",
+        "EditorStyle",
 				"ToolMenus",
 				"KishiVisualNovel",
-				"KishiVisualNovelEditor",
 			});
 			PrivateIncludePaths.AddRange(
 				new string[] {

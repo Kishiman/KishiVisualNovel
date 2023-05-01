@@ -55,12 +55,12 @@ struct RpyParser
 		TArray<FString> array;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] = {
-				TEXT(", "),
+				TEXT(","),
 		};
 		param.ParseIntoArray(strings, delimiters, 1, true);
 		for (auto string : strings)
 		{
-			array.Add(string.Mid(1, string.Len() - 2));
+			array.Add(string.TrimStartAndEnd().Mid(1, string.Len() - 2));
 		}
 		return array;
 	}
@@ -69,6 +69,12 @@ struct RpyParser
 	{
 		if (param == "")
 			return param;
+		if (param.StartsWith("\""))
+			param = param.Replace(TEXT("\\\""), TEXT("\""));
+		else if (param.StartsWith("'"))
+			param = param.Replace(TEXT("\\'"), TEXT("'"));
+		else if (param.StartsWith("`"))
+			param = param.Replace(TEXT("\\`"), TEXT("`"));
 		return param.Mid(1, param.Len() - 2);
 	}
 	static TArray<FName> GetNames(FString param)
@@ -97,13 +103,16 @@ std::string RpyParser::reg_ufloat = "((?:\\d*\\.)?\\d+)";
 std::string RpyParser::reg_ufloatUnit = "(0(?:\\.\\d+)?|1(?:\\.0+)?)";
 
 /*
+(?:\"(?:[^\"\\\\]|\\\\.)+\")
+(?:'(?:[^'\\\\]|\\\\.)+')
+(?:`(?:[^`\\\\]|\\\\.)+`)
 ((?:'[^']*')|(?:"[^"]*")|(?:`[^`]*`))
 matches a string that is enclosed in either single quotes, double quotes, or backticks, while also capturing the string itself. For example, the following strings would match this regular expression:
 		'Hello, world!'
 		"Hello, world!"
 		`Hello, world!`
 */
-std::string RpyParser::reg_string = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
+std::string RpyParser::reg_string = "((?:\"(?:[^\"\\\\]|\\\\.)+\")|(?:'(?:[^'\\\\]|\\\\.)+')|(?:`(?:[^`\\\\]|\\\\.)+`))";
 
 std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|python|return|scene|set|show|with|while)";
 /*

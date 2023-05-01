@@ -51,23 +51,44 @@ struct DefineCharacterParser : public RpyParser
 		FName characterImage = FName(*params[2]);
 		FName characterVoice = FName(*params[3]);
 		script->characters.Add(varName, {characterName, characterImage, characterVoice});
-		// script->compileData.names.Add(varName, characterName);
 		return new RpyInstruction(script, rpyLine);
 	};
 };
-// define audio.sunflower = "music/sun-flower-slow-jam.ogg"
-struct DefineAudioParser : public RpyParser
+/*
+define audio.sunflower = "music/sun-flower-slow-jam"
+define image = "images/ok"
+define music = "music/ok"
+*/
+struct DefineMediaParser : public RpyParser
 {
-	DefineAudioParser() : RpyParser(2, "^define audio." + reg_name + " = \"" + reg_path + "\"$", "DefineAudioParser"){};
+	DefineMediaParser() : RpyParser(2, "^(?:define )?(audio|image|music)(?:.|\\s)" + reg_multi_name + " = \"" + reg_path + "\"$", "DefineMediaParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
-		FName name = FName(*params[0]);
-		FString path = params[1];
-		FRpyAudio audio = {nullptr, path};
-		script->audios.Add(name, audio);
-		return new RpyInstruction(script, rpyLine);
+		FName media = FName(*params[0]);
+		FName name = FName(*params[1]);
+		FString path = params[2];
+		if (media == FName("audio") || media == FName("music"))
+		{
+			FRpyAudio audio = {nullptr, path};
+			script->audios.Add(name, audio);
+			return new RpyInstruction(script, rpyLine);
+		}
+		if (media == FName("image"))
+		{
+			FRpyImage rpyImage = {nullptr, name, path};
+			auto names = RpyParser::GetNames(params[0]);
+			rpyImage.tag = names[0];
+			names.RemoveAt(0);
+			rpyImage.attributes = names;
+			script->images.Add(name, rpyImage);
+			return new RpyInstruction(script, rpyLine);
+		}
+		return nullptr;
 	};
 };
+/*
+stop music volume 0.25 fadeout 1.0 fadein 1.0
+*/
 // stop music volume 0.25 fadeout 1.0 fadein 1.0
 struct StopAudioParser : public RpyParser
 {
@@ -106,9 +127,9 @@ struct VoiceParser : public RpyParser
 };
 
 // play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
-struct PlayQueueAudioParser : public RpyParser
+struct AudioParser : public RpyParser
 {
-	PlayQueueAudioParser() : RpyParser(8, "^(play|queue) " + reg_name + " \"" + reg_path + "\"(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "PlayQueueAudioParser"){};
+	AudioParser() : RpyParser(8, "^(play|queue) " + reg_name + " \"" + reg_path + "\"(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "AudioParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		auto cmd = params[0];
@@ -188,7 +209,7 @@ struct SayParser : public RpyParser
 	SayParser() : RpyParser(3, "^(?:(\\w+|\".+\") )?" + reg_string + "(?: with (\\w+))?$", "SayParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
-		bool literal = params[0].StartsWith("\"") && params[0].EndsWith("\"");
+		bool literal = params[0].StartsWith("\"");
 		if (literal)
 			params[0] = GetString(params[0]);
 		FName name = FName(*params[0]);
@@ -219,25 +240,6 @@ struct SayParser2 : public RpyParser
 	};
 };
 
-// image = "cool_image"
-struct ImageParser : public RpyParser
-{
-	ImageParser() : RpyParser(2, "^image " + reg_multi_name + " = \"" + reg_path + "\"$", "ImageParser"){};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FName name = FName(*params[0]);
-		FString path = params[1];
-		FRpyImage rpyImage;
-		rpyImage.name = name;
-		rpyImage.path = path;
-		auto names = RpyParser::GetNames(params[0]);
-		rpyImage.tag = names[0];
-		names.RemoveAt(0);
-		rpyImage.attributes = names;
-		script->images.Add(name, rpyImage);
-		return new RpyInstruction(script, rpyLine);
-	};
-};
 struct SceneParser : public RpyParser
 {
 	SceneParser() : RpyParser(2, "^scene " + reg_multi_name + "(?: with (\\w+))?$", "SceneParser"){};
