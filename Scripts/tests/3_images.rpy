@@ -1,7 +1,7 @@
 define s = Character('Sylvie', color="#c8ffc8")
 define m = Character('Me', color="#c8c8ff")
-image logo = "renpy logo.png"
-image eileen happy = "eileen_happy_blue_dress.png"
+image eileen happy = "/KishiVisualNovel/Images/Custom/eileen_happy_blue_dress"
+image logo = "/KishiVisualNovel/Images/Custom/renpy_logo"
 
 label start:
 

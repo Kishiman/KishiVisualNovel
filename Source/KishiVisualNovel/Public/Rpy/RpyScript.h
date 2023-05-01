@@ -123,6 +123,7 @@ struct FRpyImage
 	FName tag;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> attributes;
+	static FRpyImage Make(FString name, FString path);
 };
 
 USTRUCT(BlueprintType)
@@ -168,17 +169,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	int GetInstructionsLength() const;
 
-	// UFUNCTION(BlueprintCallable)
-	// bool StartLabel(const TScriptInterface<IRpyInterpreter> &interpreter, FName label);
-
-	// UFUNCTION(BlueprintCallable)
-	// bool RunNext(const TScriptInterface<IRpyInterpreter> &interpreter);
-	// UFUNCTION(BlueprintCallable)
-	// bool RunInstruction(const TScriptInterface<IRpyInterpreter> &interpreter, int index);
-
 	virtual void PostLoad() override;
 	virtual void PostInitProperties() override;
 	virtual void Serialize(FStructuredArchiveRecord Record) override;
+	bool IsAssetUnderProjectContent();
+	bool IsAssetUnderPluginContent();
+	bool AddDefaultImage(FString name);
 
 	bool ImportRpyLines(FString text, uint8 TabSize);
 	bool Parse();

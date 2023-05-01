@@ -65,7 +65,7 @@ define music = "music/ok"
 */
 struct DefineMediaParser : public RpyParser
 {
-	DefineMediaParser() : RpyParser(2, "^(?:define )?(audio|image|music)(?:.|\\s)" + reg_multi_name + " = \"" + reg_path + "\"$", "DefineMediaParser"){};
+	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music)(?:.|\\s)" + reg_multi_name + " = \"" + reg_path + "\"$", "DefineMediaParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName media = FName(*params[0]);
@@ -79,12 +79,8 @@ struct DefineMediaParser : public RpyParser
 		}
 		if (media == FName("image"))
 		{
-			FRpyImage rpyImage = {nullptr, name, path};
-			auto names = RpyParser::GetNames(params[0]);
-			rpyImage.tag = names[0];
-			names.RemoveAt(0);
-			rpyImage.attributes = names;
-			script->images.Add(name, rpyImage);
+			FRpyImage rpyImage = FRpyImage::Make(params[1], path);
+			script->images.Add(rpyImage.name, rpyImage);
 			return new RpyInstruction(script, rpyLine);
 		}
 		return nullptr;
@@ -251,7 +247,8 @@ struct SceneParser : public RpyParser
 	{
 		FName name = FName(*params[0]);
 		if (!script->images.Contains(name))
-			return nullptr;
+			if (!script->AddDefaultImage(params[0]))
+				return nullptr;
 		FRpyImageOptions options;
 		options.with = FName(*params[1]);
 		return new SceneInstruction(script, rpyLine, name, options);
@@ -268,7 +265,10 @@ struct ShowParser : public RpyParser
 		FName at = FName(*params[1]);
 		FName with = FName(*params[2]);
 		if (!script->images.Contains(name))
-			return nullptr;
+		{
+			if (!script->AddDefaultImage(params[0]))
+				return nullptr;
+		}
 		return new ShowInstruction(script, rpyLine, name, at, with);
 	};
 };
@@ -350,16 +350,21 @@ struct CharacterSayParser : public RpyParser
 	};
 };
 
+// hide sylvie
 struct HideParser : public RpyParser
 {
 	HideParser() : RpyParser(3, "^hide " + reg_multi_name + "(?: at (\\w+))?(?: with (\\w+))?$", "HideParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
-		FName name = FName(*params[0]);
+
+		FName tag = RpyParser::GetNames(*params[0])[0];
 		FName at = FName(*params[1]);
 		FName with = FName(*params[2]);
-		if (!script->images.Contains(name))
-			return nullptr;
-		return new HideInstruction(script, rpyLine, name, at, with);
+		for (auto &pair : script->images)
+		{
+			if (pair.Value.tag == tag)
+				return new HideInstruction(script, rpyLine, tag, at, with);
+		}
+		return nullptr;
 	};
 };

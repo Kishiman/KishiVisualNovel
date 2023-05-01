@@ -13,6 +13,51 @@
 #include <string>
 
 using namespace std;
+FRpyImage FRpyImage::Make(FString name, FString path)
+{
+  FRpyImage rpyImage = {nullptr, FName(name), path};
+  auto names = RpyParser::GetNames(name);
+  rpyImage.tag = names[0];
+  names.RemoveAt(0);
+  rpyImage.attributes = names;
+  return rpyImage;
+}
+bool URpyScript::IsAssetUnderProjectContent()
+{
+  FString PackagePath = this->AssetImportData->GetPathName();
+
+  // Check if the package path starts with "/Game/"
+  return false;
+}
+
+bool URpyScript::IsAssetUnderPluginContent()
+{
+  FString PackagePath = this->AssetImportData->GetPathName();
+
+  // Check if the package path starts with "/Plugins/"
+  return PackagePath.StartsWith(TEXT("/Plugins/"));
+}
+bool URpyScript::AddDefaultImage(FString param)
+{
+  TArray<FString> searchPaths;
+  FString path;
+  FString searchParam = param.Replace(TEXT(" "), TEXT("_"));
+  searchPaths.Add("/Game/Images/" + searchParam);
+  searchPaths.Add("/KishiVisualNovel/Images/" + searchParam);
+  for (auto &searchPath : searchPaths)
+  {
+    if (FPackageName::DoesPackageExist(searchPath))
+    {
+      path = searchPath;
+      break;
+    }
+  }
+  if (path == "")
+    return false;
+  FRpyImage rpyImage = FRpyImage::Make(param, path);
+  this->images.Add(rpyImage.name, rpyImage);
+  return true;
+}
 void URpyScript::LoadRpyData()
 {
   FString basePath, right;
@@ -124,7 +169,7 @@ int URpyScript::GetInstructionsLength() const { return instructions.Num(); };
 bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
 {
   TArray<FString> lines;
-  text.ParseIntoArrayLines(lines, true);
+  text.ParseIntoArrayLines(lines, false);
   rpyLines.Empty();
   rpyLines.Reserve(lines.Num());
   for (int idx = 0; idx < lines.Num(); ++idx)
@@ -211,7 +256,7 @@ bool URpyScript::Parse()
         if (!instruction)
         {
           matched = false;
-          UE_LOG(LogTemp, Warning, TEXT("Failed to GetRpyInstruction from line %d : %s"), rpyLine.LineNumber, (*rpyLine.line));
+          UE_LOG(LogTemp, Warning, TEXT("Failed to GetRpyInstruction from %s at line %d : %s"), *parser->parserName, rpyLine.LineNumber, (*rpyLine.line));
           continue;
         }
         instructions.Add(instruction);

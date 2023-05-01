@@ -30,8 +30,8 @@ public:
   virtual bool Show_Implementation(FRpyImage rpyImage, FName at, FName with) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  bool Hide(FRpyImage rpyImage, FName at, FName with);
-  virtual bool Hide_Implementation(FRpyImage rpyImage, FName at, FName with) = 0;
+  bool Hide(FName tag, FName at, FName with);
+  virtual bool Hide_Implementation(FName tag, FName at, FName with) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool PauseAudio(float timeout);

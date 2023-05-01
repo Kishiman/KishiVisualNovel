@@ -72,18 +72,15 @@ struct ShowInstruction : public RpyInstruction
 
 struct HideInstruction : public RpyInstruction
 {
-  FName name;
+  FName tag;
   FName at;
   FName with;
 
-  HideInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with){};
+  HideInstruction(URpyScript *script, FRpyLine *rpyLine, FName tag, FName at, FName with) : RpyInstruction(script, rpyLine), tag(tag), at(at), with(with){};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::HIDE; }
   virtual bool Execute(URpySession *session)
   {
-    auto rpyImage = script->images[name];
-    if (!rpyImage.image)
-      return false;
-    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(), rpyImage, at, with);
+    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(), tag, at, with);
   };
 };
 
