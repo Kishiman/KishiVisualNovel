@@ -41,6 +41,11 @@ public:
     {
         return RpyInstructionType::Base;
     }
+    bool isOfType(RpyInstructionType type) const
+    {
+        uint8 myType = static_cast<uint8>(this->Type());
+        return !!(myType & static_cast<uint8>(type));
+    }
     virtual bool Compile()
     {
         return true;

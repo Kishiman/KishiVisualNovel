@@ -223,8 +223,7 @@ struct MenuInstruction : public RpyInstruction
   {
     for (auto &child : children)
     {
-      bool isChoice = !!(child->Type() & RpyInstructionType::Choice);
-      if (isChoice)
+      if (!child->isOfType(RpyInstructionType::Choice))
         choices.Add((ChoiceInstruction *)child);
     }
     return true;
@@ -247,8 +246,7 @@ struct MenuInstruction : public RpyInstruction
 };
 bool ChoiceInstruction::Compile()
 {
-  bool isMenu = !!(parent->Type() & RpyInstructionType::Menu);
-  if (!isMenu)
+  if (!parent->isOfType(RpyInstructionType::Menu))
   {
     UE_LOG(LogTemp, Error, TEXT("ChoiceInstruction not directly under MenuInstruction"));
     return false;
@@ -331,9 +329,7 @@ bool IfInstruction::Compile()
   RpyInstruction *current = this;
   while (current->next)
   {
-    bool nextTypeIsElse = !!(current->next->Type() & RpyInstructionType::Else);
-    // check if the instruction is of type else and in the same tabs scope
-    if (nextTypeIsElse && current->next->rpyLine->tabs == this->rpyLine->tabs)
+    if (current->next->isOfType(RpyInstructionType::Else) && current->next->rpyLine->tabs == this->rpyLine->tabs)
     {
       current = current->next;
     }

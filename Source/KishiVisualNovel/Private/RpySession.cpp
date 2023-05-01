@@ -65,8 +65,9 @@ bool URpySession::Run()
 };
 bool URpySession::OnChoice(int index)
 {
-	bool isMenu = !!(current->Type() & RpyInstructionType::Menu);
-	if (!isMenu)
+	if (!current)
+		return false;
+	if (!current->isOfType(RpyInstructionType::Menu))
 	{
 		UE_LOG(LogTemp, Error, TEXT("Current is not MenuInstruction"));
 		return false;
