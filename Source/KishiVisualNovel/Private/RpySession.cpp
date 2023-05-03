@@ -1,14 +1,31 @@
 #include "Rpy/RpySession.h"
-#include "Rpy/RpyInstructions.h"
-#include "Rpy/RpyParsers.h"
+#include "Rpy/RpyInstruction.h"
+#include "Rpy/RpyParser.h"
 #include "Rpy/RpyInterpreter.h"
 
 // Online IDE - Code Editor, parser, Interpreter
 
+void URpySession::PostInitProperties()
+{
+	Super::PostInitProperties();
+	for (auto &script : this->scripts)
+	{
+		FDynamicObject::Assign(this->RuntimeData, script->compileData);
+	}
+}
+void URpySession::AddScript(URpyScript *script)
+{
+	this->scripts.Add(script);
+	FDynamicObject::Assign(this->RuntimeData, script->compileData);
+}
+void URpySession::ClearScript(URpyScript *script)
+{
+	scripts.Empty();
+}
 TArray<FName> URpySession::GetLabels() const
 {
 	TArray<FName> out;
-	for (auto script : Scripts)
+	for (auto script : scripts)
 	{
 		script->labels.GetKeys(out);
 	}
@@ -23,7 +40,7 @@ EInstructionRunTimeType URpySession::GetRunTimeType() const
 
 bool URpySession::StartLabel(FName label)
 {
-	for (auto script : Scripts)
+	for (auto script : scripts)
 	{
 		this->current = script->labels[label];
 		if (this->current)

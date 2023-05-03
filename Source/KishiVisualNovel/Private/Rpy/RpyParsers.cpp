@@ -1,5 +1,5 @@
-#include "Rpy/RpyParser.h"
 #include "Rpy/RpyParsers.h"
+#include "Rpy/RpyParser.h"
 
 InitParser _InitParser;
 DefineCharacterParser _DefineCharacterParser;

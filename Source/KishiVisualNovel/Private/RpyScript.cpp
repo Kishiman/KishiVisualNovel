@@ -1,5 +1,5 @@
 #include "Rpy/RpyScript.h"
-#include "Rpy/RpyInstructions.h"
+#include "Rpy/RpyInstruction.h"
 #include "Rpy/RpyInterpreter.h"
 #include "Misc/FileHelper.h"
 

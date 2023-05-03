@@ -84,4 +84,11 @@ public:
     TMap<FName, float> floats;
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<FName, FVector> vectors;
+
+    static void Assign(FDynamicObject &To, const FDynamicObject &From){
+  for (auto pair : From.bools)
+    To.bools.Add(pair.Key, pair.Value);
+  for (auto pair : From.names)
+    To.names.Add(pair);
+}
 };
