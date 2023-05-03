@@ -294,7 +294,7 @@ struct ChoiceParser : public RpyParser
 	ChoiceParser() : RpyParser(1, "^" + RpyParser::reg_string + ":$", "ChoiceParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
-		return new ChoiceInstruction(script, rpyLine, params[0]);
+		return new ChoiceInstruction(script, rpyLine, RpyParser::GetString(params[0]));
 	};
 };
 

@@ -24,5 +24,12 @@ label book:
     jump marry
 
 label marry:
+    m "will you marry me?"
+    menu:
+        "Yes":
+            s "Consent!"
+
+        "No":
+            s "Objection!"
 
     "And so, we become a visual novel creating duo."
