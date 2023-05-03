@@ -12,6 +12,8 @@ struct RpyParser
 	FString query;
 	FString parserName;
 	std::regex reg_query;
+
+	static TArray<RpyParser *> parsers;
 	RpyParser(int paramsNum, std::string query, FString parserName = "") : paramsNum(paramsNum), query(query.c_str()), parserName(parserName)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("RpyParser.query[%s]:%s"), *this->parserName, *this->query);

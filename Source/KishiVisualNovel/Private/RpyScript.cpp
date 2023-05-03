@@ -1,6 +1,5 @@
 #include "Rpy/RpyScript.h"
 #include "Rpy/RpyInstructions.h"
-#include "Rpy/RpyParsers.h"
 #include "Rpy/RpyInterpreter.h"
 #include "Misc/FileHelper.h"
 
@@ -220,28 +219,7 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
 
 bool URpyScript::Parse()
 {
-  TArray<RpyParser *> parsers;
-  // TODO
-  parsers.Add(new InitParser());
-  parsers.Add(new DefineCharacterParser());
-  parsers.Add(new DefineMediaParser());
-  parsers.Add(new StopAudioParser());
-  parsers.Add(new VoiceParser());
-  parsers.Add(new AudioParser());
-  parsers.Add(new LabelParser());
-  parsers.Add(new JumpParser());
-  parsers.Add(new PauseParser());
-  parsers.Add(new ReturnParser());
-  parsers.Add(new CallParser());
-  parsers.Add(new MenuParser());
-  parsers.Add(new ChoiceParser());
-  parsers.Add(new SayParser());
-  parsers.Add(new IfBoolParser());
-  parsers.Add(new ElseParser());
-  parsers.Add(new CharacterSayParser());
-  parsers.Add(new ShowParser());
-  parsers.Add(new SceneParser());
-  parsers.Add(new HideParser());
+  UE_LOG(LogTemp, Warning, TEXT("RpyParser::parsers %d"), RpyParser::parsers.Num());
   //
   for (auto instruction : instructions)
   {
@@ -251,7 +229,7 @@ bool URpyScript::Parse()
   for (auto &rpyLine : rpyLines)
   {
     bool matched = false;
-    for (auto parser : parsers)
+    for (auto parser : RpyParser::parsers)
     {
       std::smatch m;
       string target = TCHAR_TO_UTF8(*rpyLine.line);
@@ -295,10 +273,6 @@ bool URpyScript::Parse()
       UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.LineNumber + 1, (*rpyLine.line));
       return false;
     }
-  }
-  for (auto parser : parsers)
-  {
-    delete parser;
   }
   return true;
 };

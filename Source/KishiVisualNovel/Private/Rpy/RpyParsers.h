@@ -12,8 +12,6 @@
 
 #include "Utils/MapUtils.h"
 
-/**
- */
 //"init:"
 struct InitParser : public RpyParser
 {
@@ -206,24 +204,12 @@ struct ReturnParser : public RpyParser
 //"\"Sylvie\" \"Hi there! how was class?\""
 struct SayParser : public RpyParser
 {
-	SayParser() : RpyParser(3, "^(?:(\\w+|\".+\") )?" + reg_string + "(?: with (\\w+))?$", "SayParser"){};
+	SayParser() : RpyParser(3, "^(?:" + reg_string_simple + " )?" + reg_string + "(?: with (\\w+))?$", "SayParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
-		bool literal = params[0].StartsWith("\"");
-		if (literal)
-			params[0] = GetString(params[0]);
-		FName name = FName(*params[0]);
+		FName name = FName(*GetString(params[0]));
 		FString statement = GetString(params[1]);
 		FName with = FName(*params[2]);
-		if (params[0] != "" && !literal)
-		{
-			if (script->characters.Contains(name))
-			{
-				name = script->characters[name].name;
-			}
-			else
-				return nullptr;
-		}
 		return new SayInstruction(script, rpyLine, name, statement, with);
 	};
 };
