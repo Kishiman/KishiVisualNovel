@@ -223,7 +223,7 @@ struct MenuInstruction : public RpyInstruction
   {
     for (auto &child : children)
     {
-      if (!child->isOfType(RpyInstructionType::Choice))
+      if (child->isOfType(RpyInstructionType::Choice))
         choices.Add((ChoiceInstruction *)child);
     }
     return true;
@@ -255,6 +255,11 @@ bool ChoiceInstruction::Compile()
   if (children.Num() == 0)
   {
     UE_LOG(LogTemp, Error, TEXT("ChoiceInstruction has no children"));
+    return false;
+  }
+  if (menu->choices.Num() == 0)
+  {
+    UE_LOG(LogTemp, Error, TEXT("MenuInstruction has no choices"));
     return false;
   }
   children.Last()->next = menu->choices.Last()->next;

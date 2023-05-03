@@ -215,27 +215,15 @@ struct SayParser : public RpyParser
 		FName name = FName(*params[0]);
 		FString statement = GetString(params[1]);
 		FName with = FName(*params[2]);
-		if (!literal)
+		if (params[0] != "" && !literal)
 		{
-			if (script->compileData.names.Contains(name))
+			if (script->characters.Contains(name))
 			{
-				name = script->compileData.names[name];
+				name = script->characters[name].name;
 			}
 			else
 				return nullptr;
 		}
-		return new SayInstruction(script, rpyLine, name, statement, with);
-	};
-};
-//"\"Hope everything is okay\""
-struct SayParser2 : public RpyParser
-{
-	SayParser2() : RpyParser(2, "^" + reg_string + "(?: with (\\w+))?$", "SayParser2"){};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FName name = FName("");
-		FString statement = GetString(params[0]);
-		FName with = FName(*params[1]);
 		return new SayInstruction(script, rpyLine, name, statement, with);
 	};
 };
@@ -305,6 +293,24 @@ struct ElseParser : public RpyParser
 		return new ElseInstruction(script, rpyLine);
 	};
 };
+// menu:
+struct MenuParser : public RpyParser
+{
+	MenuParser() : RpyParser(0, "^menu:$", "MenuParser"){};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		return new MenuInstruction(script, rpyLine);
+	};
+};
+// "Yes":
+struct ChoiceParser : public RpyParser
+{
+	ChoiceParser() : RpyParser(1, "^" + RpyParser::reg_string + ":$", "ChoiceParser"){};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		return new ChoiceInstruction(script, rpyLine, params[0]);
+	};
+};
 
 //"call start"
 struct CallParser : public RpyParser
@@ -315,19 +321,6 @@ struct CallParser : public RpyParser
 		FName name = FName(*params[0]);
 		auto call = new CallInstruction(script, rpyLine, name);
 		return call;
-	};
-};
-
-struct NarratorSayParser : public RpyParser
-{
-	NarratorSayParser() : RpyParser(2, "^" + reg_string + "(?: with (\\w+))?$", "NarratorSayParser"){};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FName name;
-		FString statement = GetString(params[0]);
-		FName with = FName(*params[1]);
-		auto say = new SayInstruction(script, rpyLine, name, statement, with);
-		return say;
 	};
 };
 

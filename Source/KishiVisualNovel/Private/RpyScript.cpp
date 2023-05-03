@@ -233,11 +233,11 @@ bool URpyScript::Parse()
   parsers.Add(new PauseParser());
   parsers.Add(new ReturnParser());
   parsers.Add(new CallParser());
+  parsers.Add(new MenuParser());
+  parsers.Add(new ChoiceParser());
   parsers.Add(new SayParser());
-  parsers.Add(new SayParser2());
   parsers.Add(new IfBoolParser());
   parsers.Add(new ElseParser());
-  parsers.Add(new NarratorSayParser());
   parsers.Add(new CharacterSayParser());
   parsers.Add(new ShowParser());
   parsers.Add(new SceneParser());
