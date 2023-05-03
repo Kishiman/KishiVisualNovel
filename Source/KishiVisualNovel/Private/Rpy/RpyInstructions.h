@@ -194,6 +194,11 @@ public:
 
   virtual bool Execute(URpySession *session)
   {
+    if (!session->RuntimeData.bools.Contains(this->varName))
+    {
+      UE_LOG(LogTemp, Fatal, TEXT("bool variable name %s does not exist in Runtime data"), *this->varName.ToString());
+      return false;
+    }
     this->condition = session->RuntimeData.bools[this->varName];
     this->condition = this->condition ^ this->reverse;
     return true;

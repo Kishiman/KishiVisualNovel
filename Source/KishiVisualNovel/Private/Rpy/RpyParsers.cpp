@@ -4,6 +4,8 @@
 InitParser _InitParser;
 DefineCharacterParser _DefineCharacterParser;
 DefineMediaParser _DefineMediaParser;
+DefineStringParser _DefineStringParser;
+DefineBoolParser _DefineBoolParser;
 StopAudioParser _StopAudioParser;
 VoiceParser _VoiceParser;
 AudioParser _AudioParser;
@@ -25,6 +27,8 @@ TArray<RpyParser *> RpyParser::parsers = {
     &_InitParser,
     &_DefineCharacterParser,
     &_DefineMediaParser,
+    &_DefineStringParser,
+    &_DefineBoolParser,
     &_StopAudioParser,
     &_VoiceParser,
     &_AudioParser,

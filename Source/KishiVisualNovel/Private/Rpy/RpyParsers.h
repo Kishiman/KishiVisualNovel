@@ -37,6 +37,20 @@ struct DefineStringParser : public RpyParser
 		return new AssignInstruction<FString>(script, rpyLine, varName, value);
 	};
 };
+//$ variable_name = True
+struct DefineBoolParser : public RpyParser
+{
+	DefineBoolParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_bool + "$", "DefineBoolParser"){};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		bool isDefault = params[0] == "default";
+		FName varName = FName(*params[1]);
+		bool value = GetBool(params[2]);
+		if (isDefault)
+			script->compileData.bools.Add(varName, value);
+		return new AssignInstruction<bool>(script, rpyLine, varName, value);
+	};
+};
 //"$ e = Character('Eileen')"
 struct DefineCharacterParser : public RpyParser
 {
@@ -251,7 +265,7 @@ struct ShowParser : public RpyParser
 	};
 };
 
-// if True :
+// if True:
 struct IfBoolParser : public RpyParser
 {
 	IfBoolParser() : RpyParser(2, "^if (!)?(\\w+|True|False):$", "IfBoolParser"){};

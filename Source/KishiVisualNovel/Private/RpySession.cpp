@@ -8,15 +8,10 @@
 void URpySession::PostInitProperties()
 {
 	Super::PostInitProperties();
-	for (auto &script : this->scripts)
-	{
-		FDynamicObject::Assign(this->RuntimeData, script->compileData);
-	}
 }
 void URpySession::AddScript(URpyScript *script)
 {
 	this->scripts.Add(script);
-	FDynamicObject::Assign(this->RuntimeData, script->compileData);
 }
 void URpySession::ClearScript(URpyScript *script)
 {
@@ -44,7 +39,10 @@ bool URpySession::StartLabel(FName label)
 	{
 		this->current = script->labels[label];
 		if (this->current)
+		{
+			FDynamicObject::AssignIfNotExist(this->RuntimeData, script->compileData);
 			break;
+		}
 	}
 	if (!this->current)
 		return true;

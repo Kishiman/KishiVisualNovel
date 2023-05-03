@@ -85,10 +85,20 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<FName, FVector> vectors;
 
-    static void Assign(FDynamicObject &To, const FDynamicObject &From){
-  for (auto pair : From.bools)
-    To.bools.Add(pair.Key, pair.Value);
-  for (auto pair : From.names)
-    To.names.Add(pair);
-}
+    static void Assign(FDynamicObject &To, const FDynamicObject &From)
+    {
+        for (auto pair : From.bools)
+            To.bools.Add(pair);
+        for (auto pair : From.names)
+            To.names.Add(pair);
+    }
+    static void AssignIfNotExist(FDynamicObject &To, const FDynamicObject &From)
+    {
+        for (auto pair : From.bools)
+            if (!To.bools.Contains(pair.Key))
+                To.bools.Add(pair);
+        for (auto pair : From.names)
+            if (!To.names.Contains(pair.Key))
+                To.names.Add(pair);
+    }
 };
