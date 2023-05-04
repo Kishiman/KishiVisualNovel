@@ -163,6 +163,8 @@ struct AudioParser : public RpyParser
 		options.fadeIn = GetFloat(params[6]);
 		if (params[7] != "")
 			options.loop = params[7] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
+		else if (channel == FName("music"))
+			options.loop = ESchrodBool::ETrue;
 		options.if_changed = params[8] != "" ? true : false;
 		if (!script->audios.Contains(name))
 		{

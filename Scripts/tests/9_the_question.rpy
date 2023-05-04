@@ -1,7 +1,6 @@
 # Declare characters used by this game.
-define s = Character(_("Sylvie"), color="#c8ffc8")
-define m = Character(_("Me"), color="#c8c8ff")
-
+define s = Character("Sylvie", color="#c8ffc8")
+define m = Character("Me", color="#c8c8ff")
 
 # This is a variable that is True if you've compared a VN to a book, and False
 # otherwise.
@@ -12,7 +11,7 @@ default book = False
 label start:
 
     # Start by playing some music.
-    play music "illurock.opus"
+    play music "illurock"
 
     scene bg lecturehall with fade
 
@@ -35,10 +34,10 @@ label start:
     "But recently... I've felt that I want something more."
 
     "More than just talking, more than just walking home together when our classes end."
+    
+    "As soon as she catches my eye, I decide..."
 
     menu:
-
-        "As soon as she catches my eye, I decide..."
 
         "To ask her right away.":
 
@@ -91,9 +90,9 @@ label rightaway:
 
     show sylvie green smile
 
-    menu:
+    s "Sure, but what's a \"visual novel?\""
 
-        s "Sure, but what's a \"visual novel?\""
+    menu:
 
         "It's a videogame.":
             jump game

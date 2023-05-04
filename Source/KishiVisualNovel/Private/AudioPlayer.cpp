@@ -3,7 +3,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
-void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut)
+void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut, bool loop)
 {
 	// Check if the audio channel exists
 	if (audioChannels.Contains(channel))
@@ -19,6 +19,9 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 		}
 
 		UAudioComponent *audioComponent = AudioComponents[channel];
+
+		// Enable looping
+		audio->bLooping = loop ? 1 : 0;
 
 		// Set the audio and fade parameters
 		audioComponent->SetSound(audio);
@@ -67,7 +70,7 @@ void UAudioPlayer::ResumeAudio(FName channel, float fadeIn)
 	}
 }
 
-void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut)
+void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut, bool loop)
 {
 	// Check if the audio channel exists
 	if (audioChannels.Contains(channel))
@@ -78,6 +81,7 @@ void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, fl
 		audioInfo.Audio = audio;
 		audioInfo.FadeIn = fadeIn;
 		audioInfo.FadeOut = fadeOut;
+		audioInfo.loop = loop;
 
 		AudioQueue.FindOrAdd(channel).Add(audioInfo);
 	}

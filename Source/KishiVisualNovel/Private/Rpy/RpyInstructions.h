@@ -84,7 +84,10 @@ struct SceneInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SCENE; }
   virtual bool Execute(URpySession *session)
   {
-    return IRpyInterpreter::Execute_Scene(session->interpreter.GetObject(), name, options);
+    auto rpyImage = script->images[name];
+    if (!rpyImage.image)
+      return false;
+    return IRpyInterpreter::Execute_Scene(session->interpreter.GetObject(), rpyImage, options);
   };
 };
 

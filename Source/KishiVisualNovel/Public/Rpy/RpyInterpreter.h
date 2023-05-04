@@ -22,8 +22,8 @@ public:
   virtual bool Say_Implementation(FName name, const FString &statement) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  bool Scene(FName name, FRpyImageOptions options);
-  virtual bool Scene_Implementation(FName name, FRpyImageOptions options) = 0;
+  bool Scene(FRpyImage rpyImage, FRpyImageOptions options);
+  virtual bool Scene_Implementation(FRpyImage rpyImage, FRpyImageOptions options) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool Show(FRpyImage rpyImage, FName at, FName with);

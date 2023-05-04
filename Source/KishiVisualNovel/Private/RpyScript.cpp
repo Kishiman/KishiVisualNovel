@@ -41,6 +41,10 @@ bool URpyScript::AddDefaultImage(FString param)
   TArray<FString> searchPaths;
   FString path;
   FString searchParam = param.Replace(TEXT(" "), TEXT("_"));
+  searchPaths.Add("/Game/" + searchParam + "_Sprite");
+  searchPaths.Add("/Game/Images/" + searchParam + "_Sprite");
+  searchPaths.Add("/KishiVisualNovel/" + searchParam + "_Sprite");
+  searchPaths.Add("/KishiVisualNovel/Images/" + searchParam + "_Sprite");
   searchPaths.Add("/Game/" + searchParam);
   searchPaths.Add("/Game/Images/" + searchParam);
   searchPaths.Add("/KishiVisualNovel/" + searchParam);
@@ -50,8 +54,12 @@ bool URpyScript::AddDefaultImage(FString param)
   {
     if (FPackageName::DoesPackageExist(searchPath))
     {
-      path = searchPath;
-      break;
+      UPaperSprite *image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *searchPath));
+      if (image)
+      {
+        path = searchPath;
+        break;
+      }
     }
   }
   if (path == "")
@@ -209,7 +217,7 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
       continue;
     if (lines[idx][rpyLine.tabs] == '#')
       continue;
-    rpyLine.LineNumber = idx;
+    rpyLine.LineNumber = idx + 1;
     rpyLine.line = lines[idx].RightChop(rpyLine.tabs).TrimStartAndEnd();
     rpyLine.tabs = (rpyLine.tabs + 1) / TabSize;
     rpyLines.Add(rpyLine);
@@ -220,6 +228,7 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
 bool URpyScript::Parse()
 {
   UE_LOG(LogTemp, Warning, TEXT("RpyParser::parsers %d"), RpyParser::parsers.Num());
+  bool success = true;
   //
   for (auto instruction : instructions)
   {
@@ -270,11 +279,11 @@ bool URpyScript::Parse()
     }
     if (!matched)
     {
-      UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.LineNumber + 1, (*rpyLine.line));
-      return false;
+      UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.LineNumber, (*rpyLine.line));
+      success = false;
     }
   }
-  return true;
+  return success;
 };
 bool URpyScript::Compile()
 {

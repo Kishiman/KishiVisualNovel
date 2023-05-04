@@ -18,11 +18,11 @@ class KISHIVISUALNOVEL_API UAudioPlayer : public UObject
 public:
 	// each channel corresponds to a sound class that controls the configuration of the sound
 	UPROPERTY(BlueprintReadWrite)
-	TMap<FName, USoundClass*> audioChannels;
+	TMap<FName, USoundClass *> audioChannels;
 
 	// play audio in an audio channel
 	UFUNCTION(BlueprintCallable)
-	void PlayAudio(FName channel, USoundWave *audio, float fadeIn = 0, float fadeOut = 0);
+	void PlayAudio(FName channel, USoundWave *audio, float fadeIn = 0, float fadeOut = 0, bool loop = false);
 
 	// pause the audio channel
 	UFUNCTION(BlueprintCallable)
@@ -34,7 +34,7 @@ public:
 
 	// add audio the audio channel queue
 	UFUNCTION(BlueprintCallable)
-	void QueueAudio(FName channel, USoundWave *audio, float fadeIn = 0, float fadeOut = 0);
+	void QueueAudio(FName channel, USoundWave *audio, float fadeIn = 0, float fadeOut = 0, bool loop = false);
 
 	// stop the audio channel and clear all audios from the queue
 	UFUNCTION(BlueprintCallable)
@@ -44,12 +44,12 @@ protected:
 	// Map of audio components for each audio channel
 	TMap<FName, UAudioComponent *> AudioComponents;
 
-
 	struct FAudioInfo
 	{
 		USoundWave *Audio;
 		float FadeIn;
 		float FadeOut;
+		bool loop;
 	};
 	// Map of queue with fadeIn and fade out for each audio channel
 	TMap<FName, TArray<FAudioInfo>> AudioQueue;
