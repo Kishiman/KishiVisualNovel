@@ -32,6 +32,12 @@ public:
   UFUNCTION(BlueprintPure)
   static FString GetTaggedString(const FTaggedString &Target);
 
+  UFUNCTION(BlueprintPure)
+  static TArray<FName> SplitPathtoNames(const FString &Target);
+
+  UFUNCTION(BlueprintPure)
+  static void HeadAndTails(const TArray<FName> &Target,FName& Head,TArray<FName> &Tails);
+
   UFUNCTION(BlueprintCallable)
   static bool StringToTaggedString(const FString &SourceString, FTaggedString &Target);
 

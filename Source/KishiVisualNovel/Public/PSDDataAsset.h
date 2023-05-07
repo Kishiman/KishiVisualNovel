@@ -9,7 +9,6 @@
 #include "PSDDataAsset.generated.h"
 
 /**
- * 
  */
 
 USTRUCT(BlueprintType)
@@ -17,17 +16,18 @@ struct FSpriteLayer
 {
 	GENERATED_USTRUCT_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,category="Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Data")
+	FVector2D offset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Data")
 	FString Path;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,category="Data")
-	UPaperSprite* Sprite;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Data")
+	UPaperSprite *Sprite;
 };
 UCLASS(BlueprintType)
 class KISHIVISUALNOVEL_API UPSDDataAsset : public UKishiDataAsset
 {
 	GENERATED_BODY()
 public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,category="Data")
-	TArray<FSpriteLayer>	SpriteLayers;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Data")
+	TArray<FSpriteLayer> SpriteLayers;
 };

@@ -49,6 +49,34 @@ FString UStringUtils::GetTaggedString(const FTaggedString &Target)
 {
   return Target.SourceString;
 }
+TArray<FName> UStringUtils::SplitPathtoNames(const FString &Target)
+{
+  TArray<FName> names;
+  TArray<FString> strings;
+  static const TCHAR *delimiters[] =
+      {
+          TEXT("/"),
+      };
+  Target.ParseIntoArray(strings, delimiters, 1, true);
+  for (auto &string : strings)
+  {
+    names.Add(FName(string));
+  }
+  return names;
+}
+
+void UStringUtils::HeadAndTails(const TArray<FName> &Target, FName &Head, TArray<FName> &Tails)
+{
+  if (Target.Num() == 0)
+  {
+    Head = FName();
+    Tails = {};
+  }
+  Head = Target[0];
+  Tails.Empty(Target.Num() - 1);
+  Tails.Append(Target.GetData() + 1, Target.Num() - 1);
+  return;
+}
 
 int32 UStringUtils::Length(const FTaggedString &Target)
 {
