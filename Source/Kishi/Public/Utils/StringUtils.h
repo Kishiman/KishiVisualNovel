@@ -25,7 +25,7 @@ public:
 };
 
 UCLASS()
-class KISHIVISUALNOVEL_API UStringUtils : public UBlueprintFunctionLibrary
+class KISHI_API UStringUtils : public UBlueprintFunctionLibrary
 {
   GENERATED_BODY()
 public:
