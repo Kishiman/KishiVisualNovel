@@ -56,17 +56,21 @@ struct RpyParser
 	{
 		return param == "True";
 	}
+	static FString GetPath(FString param)
+	{
+		return param.TrimStartAndEnd().Mid(1, param.Len() - 2);
+	}
 	static TArray<FString> GetArrayPath(FString param)
 	{
 		TArray<FString> array;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] = {
-				TEXT(","),
+			TEXT(","),
 		};
 		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
 		for (auto string : strings)
 		{
-			array.Add(string.TrimStartAndEnd().Mid(1, string.Len() - 2));
+			array.Add(GetPath(string));
 		}
 		return array;
 	}
@@ -88,11 +92,11 @@ struct RpyParser
 		TArray<FName> names;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] =
-				{
-						TEXT(" "),
-						TEXT("\n"),
-						TEXT("\t"),
-				};
+			{
+				TEXT(" "),
+				TEXT("\n"),
+				TEXT("\t"),
+			};
 		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 3, true);
 		for (auto string : strings)
 		{
@@ -105,9 +109,9 @@ struct RpyParser
 		TMap<FName, FString> args;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] =
-				{
-						TEXT(","),
-				};
+			{
+				TEXT(","),
+			};
 		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
 		for (auto string : strings)
 		{
@@ -125,9 +129,9 @@ struct RpyParser
 		TMap<FName, FString> options;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] =
-				{
-						TEXT(" "),
-				};
+			{
+				TEXT(" "),
+			};
 		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
 		if (strings.Num() % 2 != 0)
 			return options;
@@ -194,7 +198,7 @@ matches any file path or file name that contains only letters, digits, periods, 
 		C:\Users\user\Desktop\my_file.docx
 		script.js
 */
-std::string RpyParser::reg_path = "([/\\w\\.]+)";
+std::string RpyParser::reg_path = "(\"[/\\w\\.]+\")";
 /*
 \[(|(?:"[\/\w\.]+"(?:, "[\/\w\.]+")*?))\]
 matches a string that is enclosed in square brackets, where the string may be empty or may contain one or more comma-separated quoted strings. For example, the following strings would match this regular expression:

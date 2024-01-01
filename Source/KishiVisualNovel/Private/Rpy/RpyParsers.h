@@ -77,12 +77,12 @@ define music = "music/ok"
 */
 struct DefineMediaParser : public RpyParser
 {
-	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music) " + reg_multi_name + " = \"" + reg_path + "\"$", "DefineMediaParser"){};
+	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music) " + reg_multi_name + " = " + reg_path + "$", "DefineMediaParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName media = FName(*params[0]);
 		FName name = FName(*params[1]);
-		FString path = params[2];
+		FString path = GetPath(params[2]);
 		if (media == FName("audio") || media == FName("music"))
 		{
 			FRpyAudio audio = {nullptr, path};
@@ -122,11 +122,11 @@ struct StopAudioParser : public RpyParser
 // voice "waves.opus"
 struct VoiceParser : public RpyParser
 {
-	VoiceParser() : RpyParser(1, "^voice \"" + reg_path + "\"$", "VoiceParser"){};
+	VoiceParser() : RpyParser(1, "^voice " + reg_path + "$", "VoiceParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName channel = FName("voice");
-		FString &path = params[0];
+		FString path = GetPath(params[0]);
 		FName saveName = FName(*path);
 		FRpyAudioOptions options;
 		if (!script->audios.Contains(saveName))
@@ -142,7 +142,7 @@ struct VoiceParser : public RpyParser
 // play music track_1 volume 0.25 fadeout 1.0 fadein 1.0
 struct AudioParser : public RpyParser
 {
-	AudioParser() : RpyParser(9, "^(play|queue) " + reg_name + " (?:" + reg_name + "|\"" + reg_path + "\")(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "AudioParser"){};
+	AudioParser() : RpyParser(9, "^(play|queue) " + reg_name + " (?:" + reg_name + "|" + reg_path + ")(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?$", "AudioParser"){};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		auto cmd = params[0];
@@ -154,7 +154,7 @@ struct AudioParser : public RpyParser
 		}
 		else if (params[3] != "")
 		{
-			path = params[3];
+			path = GetPath(params[3]);
 		}
 		FName name = FName(*path);
 		FRpyAudioOptions options;
