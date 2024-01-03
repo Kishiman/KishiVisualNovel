@@ -8,6 +8,7 @@
 #include "FileMediaSource.h"
 
 #include "KishiDataAsset.h"
+#include "PSDDataAsset.h"
 #include "Structs/DynamicObject.h"
 
 #include "RpyScript.generated.h"
@@ -127,13 +128,26 @@ struct FRpyImage
 };
 
 USTRUCT(BlueprintType)
+struct FRpyLayeredImage
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPSDDataAsset *image = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString path;
+	static FRpyLayeredImage Make(FString name, FString path);
+};
+
+USTRUCT(BlueprintType)
 struct FRpyLine
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
 	uint8 tabs = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
-	int LineNumber = 0;
+	int lineNumber = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
 	FString line;
 };
@@ -176,7 +190,6 @@ public:
 	bool IsAssetUnderPluginContent();
 	bool AddDefaultImage(FString name);
 	bool AddDefaultAudio(FString param);
-
 
 	bool ImportRpyLines(FString text, uint8 TabSize);
 	bool Parse();

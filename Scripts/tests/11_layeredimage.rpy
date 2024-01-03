@@ -1,30 +1,27 @@
-default evil = True
-
 layeredimage augustina:
+    zoom 1.4
+    at recolor_transform
 
-    always "augustina_base"
+    always:
+        "augustina_base"
 
-    group outfit auto
+    attribute base2 default
 
-    group eyes auto:
-        attribute open default
+    group outfit:
+        attribute dress default:
+            "augustina_dress"
+        attribute uniform
 
-    group eyebrows auto:
-        attribute normal default
-
-    group mouth auto:
+    group face auto:
         pos (100, 100)
-        attribute smile default
+        attribute neutral default
 
-    if evil:
-        "augustina_glasses_evil"
-    else:
-        "augustina_glasses"
+label start:
+    show augustina # displaying dress and neutral
+    aug "I like this dress."
 
-show augustina jeans
+    show augustina happy # auto-defined in the auto group
+    aug "But what I like even more..."
 
-show augustina wink
-
-show augustina open
-
-show augustina -wink
+    show augustina uniform -happy # uniform replaces dress, neutral replaces happy
+    aug "Is this uniform !"

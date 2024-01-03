@@ -12,22 +12,25 @@
  */
 
 USTRUCT(BlueprintType)
-struct FSpriteLayer
+struct KISHIVISUALNOVEL_API FSpriteLayer
 {
 	GENERATED_USTRUCT_BODY()
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector2D offset;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Data")
-	FString Path;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Data")
-	UPaperSprite *Sprite;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName group;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString path;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool displayed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPaperSprite *sprite;
 };
 UCLASS(BlueprintType)
 class KISHIVISUALNOVEL_API UPSDDataAsset : public UKishiDataAsset
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Data")
-	TArray<FSpriteLayer> SpriteLayers;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FSpriteLayer> layers;
 };

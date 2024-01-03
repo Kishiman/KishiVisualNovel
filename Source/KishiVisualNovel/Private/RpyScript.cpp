@@ -21,6 +21,13 @@ FRpyImage FRpyImage::Make(FString name, FString path)
   rpyImage.attributes = names;
   return rpyImage;
 }
+FRpyLayeredImage FRpyLayeredImage::Make(FString name, FString path)
+{
+  FRpyLayeredImage rpyLayeredImage = {nullptr, FName(name), path};
+  auto names = RpyParser::GetNames(name);
+  return rpyLayeredImage;
+}
+
 bool URpyScript::IsAssetUnderProjectContent()
 {
   FString PackagePath = this->AssetImportData->GetPathName();
@@ -217,7 +224,7 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
       continue;
     if (lines[idx][rpyLine.tabs] == '#')
       continue;
-    rpyLine.LineNumber = idx + 1;
+    rpyLine.lineNumber = idx + 1;
     rpyLine.line = lines[idx].RightChop(rpyLine.tabs).TrimStartAndEnd();
     rpyLine.tabs = (rpyLine.tabs + 1) / TabSize;
     rpyLines.Add(rpyLine);
@@ -270,7 +277,7 @@ bool URpyScript::Parse()
         if (!instruction)
         {
           matched = false;
-          UE_LOG(LogTemp, Warning, TEXT("Failed to GetRpyInstruction from %s at line %d : %s"), *parser->parserName, rpyLine.LineNumber, (*rpyLine.line));
+          UE_LOG(LogTemp, Warning, TEXT("Failed to GetRpyInstruction from %s at line %d : %s"), *parser->parserName, rpyLine.lineNumber, (*rpyLine.line));
           continue;
         }
         instructions.Add(instruction);
@@ -279,7 +286,7 @@ bool URpyScript::Parse()
     }
     if (!matched)
     {
-      UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.LineNumber, (*rpyLine.line));
+      UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.lineNumber, (*rpyLine.line));
       success = false;
     }
   }
@@ -320,7 +327,7 @@ bool URpyScript::Compile()
       }
       else
       {
-        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->LineNumber);
+        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->lineNumber);
         return false;
       }
     }
@@ -330,7 +337,7 @@ bool URpyScript::Compile()
     }
     else
     {
-      UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->LineNumber);
+      UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->lineNumber);
       return false;
     }
     if (current->parent)
@@ -343,7 +350,7 @@ bool URpyScript::Compile()
   {
     if (!instruction->Compile())
     {
-      UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), instruction->rpyLine->LineNumber, (*instruction->rpyLine->line));
+      UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), instruction->rpyLine->lineNumber, (*instruction->rpyLine->line));
       return false;
     }
   }
