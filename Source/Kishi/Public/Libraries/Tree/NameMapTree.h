@@ -25,7 +25,6 @@ public:
     virtual TArray<FName> GetNames_Implementation() const = 0;
     //IArrayTree overrides
     virtual TScriptInterface<IArrayTree> GetChild_Implementation(uint8 index) const override;
-    //IArrayTree overrides
     virtual TArray<TScriptInterface<IBaseTree>> GetDirectChildren_Implementation() const override;
     virtual uint8 GetDirectChildrenSize_Implementation() const override;
 

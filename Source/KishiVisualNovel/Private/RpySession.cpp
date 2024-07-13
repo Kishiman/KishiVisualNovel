@@ -1,4 +1,5 @@
 #include "Rpy/RpySession.h"
+#include "./Rpy/RpyParsers.h"
 #include "Rpy/RpyInstruction.h"
 #include "Rpy/RpyParser.h"
 #include "Rpy/RpyInterpreter.h"

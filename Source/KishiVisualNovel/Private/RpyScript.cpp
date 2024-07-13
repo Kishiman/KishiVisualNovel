@@ -1,4 +1,5 @@
 #include "Rpy/RpyScript.h"
+#include "Rpy/RpyParser.h"
 #include "Rpy/RpyInstruction.h"
 #include "Rpy/RpyInterpreter.h"
 #include "Misc/FileHelper.h"
@@ -17,10 +18,14 @@ FRpyImage FRpyImage::Make(FString name, FString path)
   FRpyImage rpyImage = {nullptr, FName(name), path};
   auto names = RpyParser::GetNames(name);
   rpyImage.tag = names[0];
-  names.RemoveAt(0);
-  rpyImage.attributes = names;
   return rpyImage;
 }
+FRpyLayeredImage FRpyLayeredImage::Make(FString name, FString path)
+{
+  FRpyLayeredImage rpyLayeredImage = {nullptr, FName(name), path};
+  return rpyLayeredImage;
+}
+
 bool URpyScript::IsAssetUnderProjectContent()
 {
   FString PackagePath = this->AssetImportData->GetPathName();
@@ -40,22 +45,28 @@ bool URpyScript::AddDefaultImage(FString param)
 {
   TArray<FString> searchPaths;
   FString path;
+  UPaperSprite *image = nullptr;
+  ULayeredSprite *layeredImage = nullptr;
   FString searchParam = param.Replace(TEXT(" "), TEXT("_"));
   searchPaths.Add("/Game/" + searchParam + "_Sprite");
   searchPaths.Add("/Game/Images/" + searchParam + "_Sprite");
   searchPaths.Add("/KishiVisualNovel/" + searchParam + "_Sprite");
   searchPaths.Add("/KishiVisualNovel/Images/" + searchParam + "_Sprite");
-  searchPaths.Add("/Game/" + searchParam);
-  searchPaths.Add("/Game/Images/" + searchParam);
-  searchPaths.Add("/KishiVisualNovel/" + searchParam);
-  searchPaths.Add("/KishiVisualNovel/Images/" + searchParam);
+  auto names = RpyParser::GetNames(param);
+  auto layeredImageSearch = names[0].ToString();
+  searchPaths.Add("/Game/" + layeredImageSearch);
+  searchPaths.Add("/Game/Images/" + layeredImageSearch);
+  searchPaths.Add("/KishiVisualNovel/" + layeredImageSearch);
+  searchPaths.Add("/KishiVisualNovel/Images/" + layeredImageSearch);
+  UE_LOG(LogTemp, Error, TEXT("searching for image : %s(%s)"), (*searchParam), (*layeredImageSearch));
 
   for (auto &searchPath : searchPaths)
   {
     if (FPackageName::DoesPackageExist(searchPath))
     {
-      UPaperSprite *image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *searchPath));
-      if (image)
+      image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *searchPath));
+      layeredImage = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *searchPath));
+      if (image || layeredImage)
       {
         path = searchPath;
         break;
@@ -64,9 +75,19 @@ bool URpyScript::AddDefaultImage(FString param)
   }
   if (path == "")
     return false;
-  FRpyImage rpyImage = FRpyImage::Make(param, path);
-  this->images.Add(rpyImage.name, rpyImage);
-  return true;
+  if (image)
+  {
+    FRpyImage rpyImage = FRpyImage::Make(param, path);
+    this->images.Add(rpyImage.name, rpyImage);
+    return true;
+  }
+  else if (layeredImage)
+  {
+    FRpyLayeredImage rpyLayeredImage = FRpyLayeredImage::Make(param, path);
+    this->layeredImages.Add(rpyLayeredImage.name, rpyLayeredImage);
+    return true;
+  }
+  return false;
 }
 bool URpyScript::AddDefaultAudio(FString param)
 {
@@ -94,6 +115,7 @@ bool URpyScript::AddDefaultAudio(FString param)
 void URpyScript::LoadRpyData()
 {
   FString basePath, right;
+  FText err;
   this->AssetImportData->GetPathName().Split("/", &basePath, &right, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
   TArray<FName> keys;
   // load images
@@ -104,7 +126,6 @@ void URpyScript::LoadRpyData()
     FString path = rpyImage.path;
     try
     {
-      FText err;
       if (!FFileHelper::IsFilenameValidForSaving(path, err))
       {
         UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
@@ -128,6 +149,37 @@ void URpyScript::LoadRpyData()
     }
   };
   keys.Empty();
+  // load layered images
+  layeredImages.GetKeys(keys);
+  for (auto &key : keys)
+  {
+    FRpyLayeredImage &rpyLayeredImage = layeredImages[key];
+    FString path = rpyLayeredImage.path;
+    try
+    {
+      if (!FFileHelper::IsFilenameValidForSaving(path, err))
+      {
+        UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
+        continue;
+      }
+      ULayeredSprite *image = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *path));
+      if (image)
+      {
+        rpyLayeredImage.image = image;
+      }
+      else
+      {
+        UE_LOG(LogTemp, Error, TEXT("RpyLayeredImage not found at path : %s"), (*path));
+      }
+    }
+    catch (const std::exception &e)
+    {
+      UE_LOG(LogTemp, Error, TEXT("error at path : %s"), (*path));
+      UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
+      continue;
+    }
+  };
+  keys.Empty();
   // audios
   audios.GetKeys(keys);
   for (auto &key : keys)
@@ -136,7 +188,6 @@ void URpyScript::LoadRpyData()
     FString path = rpyAudio.path;
     try
     {
-      FText err;
       if (!FFileHelper::IsFilenameValidForSaving(path, err))
       {
         UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
@@ -217,7 +268,7 @@ bool URpyScript::ImportRpyLines(FString text, uint8 TabSize)
       continue;
     if (lines[idx][rpyLine.tabs] == '#')
       continue;
-    rpyLine.LineNumber = idx + 1;
+    rpyLine.lineNumber = idx + 1;
     rpyLine.line = lines[idx].RightChop(rpyLine.tabs).TrimStartAndEnd();
     rpyLine.tabs = (rpyLine.tabs + 1) / TabSize;
     rpyLines.Add(rpyLine);
@@ -270,7 +321,7 @@ bool URpyScript::Parse()
         if (!instruction)
         {
           matched = false;
-          UE_LOG(LogTemp, Warning, TEXT("Failed to GetRpyInstruction from %s at line %d : %s"), *parser->parserName, rpyLine.LineNumber, (*rpyLine.line));
+          UE_LOG(LogTemp, Warning, TEXT("Failed to GetRpyInstruction from %s at line %d : %s"), *parser->parserName, rpyLine.lineNumber, (*rpyLine.line));
           continue;
         }
         instructions.Add(instruction);
@@ -279,7 +330,7 @@ bool URpyScript::Parse()
     }
     if (!matched)
     {
-      UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.LineNumber, (*rpyLine.line));
+      UE_LOG(LogTemp, Error, TEXT("Failed to match line %d : %s"), rpyLine.lineNumber, (*rpyLine.line));
       success = false;
     }
   }
@@ -320,7 +371,7 @@ bool URpyScript::Compile()
       }
       else
       {
-        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->LineNumber);
+        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->lineNumber);
         return false;
       }
     }
@@ -330,7 +381,7 @@ bool URpyScript::Compile()
     }
     else
     {
-      UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->LineNumber);
+      UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->lineNumber);
       return false;
     }
     if (current->parent)
@@ -343,7 +394,7 @@ bool URpyScript::Compile()
   {
     if (!instruction->Compile())
     {
-      UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), instruction->rpyLine->LineNumber, (*instruction->rpyLine->line));
+      UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), instruction->rpyLine->lineNumber, (*instruction->rpyLine->line));
       return false;
     }
   }

@@ -34,6 +34,10 @@ public:
   virtual bool Hide_Implementation(FName tag, FName at, FName with) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  bool ShowLayeredImage(FRpyLayeredImage rpyLayeredImage, FName at, FName with);
+  virtual bool ShowLayeredImage_Implementation(FRpyLayeredImage rpyLayeredImage, FName at, FName with) = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool PauseAudio(float timeout);
   virtual bool PauseAudio_Implementation(float timeout) = 0;
 

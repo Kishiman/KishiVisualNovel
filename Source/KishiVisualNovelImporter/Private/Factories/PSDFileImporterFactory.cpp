@@ -1,7 +1,7 @@
 #include "Factories/PSDDataAssetImporterFactory.h"
 
 UPSDDataAssetImporterFactory::UPSDDataAssetImporterFactory(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer,UPSDDataAsset::StaticClass(),"psd","Photoshop document",false,true,false),FKishiDataAssetReimportHandler(this)
+	: Super(ObjectInitializer,ULayeredSprite::StaticClass(),"psd","Photoshop document",false,true,false),FKishiDataAssetReimportHandler(this)
 {
 };
 
@@ -12,7 +12,7 @@ FText UPSDDataAssetImporterFactory::GetToolTip() const
 };
 
 bool UPSDDataAssetImporterFactory::FactoryUpdateBinary(UClass* InClass,UObject* Object,const uint8* data,uint8 size){
-	UPSDDataAsset* psdFile = (UPSDDataAsset*)(Object);
+	ULayeredSprite* psdFile = (ULayeredSprite*)(Object);
 	FString path=psdFile->AssetImportData->GetPathName();
 	//psdFile->layers.Add(...)
 	//TODO

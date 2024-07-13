@@ -1,30 +1,14 @@
-default evil = True
+define aug = Character('Augustina', color="#c8ffc8")
 
-layeredimage augustina:
+label start:
+    show Augustina
+    # displaying dress and neutral
+    aug "I like this dress."
 
-    always "augustina_base"
+    show Augustina happy
+    # auto-defined in the auto group
+    aug "But what I like even more..."
 
-    group outfit auto
-
-    group eyes auto:
-        attribute open default
-
-    group eyebrows auto:
-        attribute normal default
-
-    group mouth auto:
-        pos (100, 100)
-        attribute smile default
-
-    if evil:
-        "augustina_glasses_evil"
-    else:
-        "augustina_glasses"
-
-show augustina jeans
-
-show augustina wink
-
-show augustina open
-
-show augustina -wink
+    show Augustina uniform happy
+    # uniform replaces dress, neutral replaces happy
+    aug "Is this uniform !"

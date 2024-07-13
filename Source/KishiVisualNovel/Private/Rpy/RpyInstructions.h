@@ -102,9 +102,12 @@ struct ShowInstruction : public RpyInstruction
   virtual bool Execute(URpySession *session)
   {
     auto rpyImage = script->images[name];
-    if (!rpyImage.image)
-      return false;
-    return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), rpyImage, at, with);
+    if (rpyImage.image)
+      return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), rpyImage, at, with);
+    auto rpyLayeredImage = script->layeredImages[name];
+    if (rpyLayeredImage.image)
+      return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), rpyLayeredImage, at, with);
+    return false;
   };
 };
 

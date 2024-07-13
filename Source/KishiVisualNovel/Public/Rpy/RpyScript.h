@@ -8,6 +8,7 @@
 #include "FileMediaSource.h"
 
 #include "KishiDataAsset.h"
+#include "LayeredSprite.h"
 #include "Structs/DynamicObject.h"
 
 #include "RpyScript.generated.h"
@@ -121,9 +122,20 @@ struct FRpyImage
 	FString path;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName tag;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> attributes;
 	static FRpyImage Make(FString name, FString path);
+};
+
+USTRUCT(BlueprintType)
+struct FRpyLayeredImage
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ULayeredSprite *image = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString path;
+	static FRpyLayeredImage Make(FString name, FString path);
 };
 
 USTRUCT(BlueprintType)
@@ -133,7 +145,7 @@ struct FRpyLine
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
 	uint8 tabs = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
-	int LineNumber = 0;
+	int lineNumber = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
 	FString line;
 };
@@ -148,6 +160,8 @@ public:
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyImage> images;
+	UPROPERTY(EditAnywhere)
+	TMap<FName, FRpyLayeredImage> layeredImages;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyAudio> audios;
 
@@ -176,7 +190,6 @@ public:
 	bool IsAssetUnderPluginContent();
 	bool AddDefaultImage(FString name);
 	bool AddDefaultAudio(FString param);
-
 
 	bool ImportRpyLines(FString text, uint8 TabSize);
 	bool Parse();
