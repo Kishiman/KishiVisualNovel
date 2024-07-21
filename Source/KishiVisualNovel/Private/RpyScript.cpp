@@ -20,9 +20,9 @@ FRpyImage FRpyImage::Make(FString name, FString path)
   rpyImage.tag = names[0];
   return rpyImage;
 }
-FRpyLayeredImage FRpyLayeredImage::Make(FString name, FString path)
+FRpyLayeredImage FRpyLayeredImage::Make(FName name, FString path)
 {
-  FRpyLayeredImage rpyLayeredImage = {nullptr, FName(name), path};
+  FRpyLayeredImage rpyLayeredImage = {nullptr, name, path};
   return rpyLayeredImage;
 }
 
@@ -41,7 +41,7 @@ bool URpyScript::IsAssetUnderPluginContent()
   // Check if the package path starts with "/Plugins/"
   return PackagePath.StartsWith(TEXT("/Plugins/"));
 }
-bool URpyScript::AddDefaultImage(FString param)
+bool URpyScript::AddDefaultImage(FString param, TArray<FName> names)
 {
   TArray<FString> searchPaths;
   FString path;
@@ -52,8 +52,8 @@ bool URpyScript::AddDefaultImage(FString param)
   searchPaths.Add("/Game/Images/" + searchParam + "_Sprite");
   searchPaths.Add("/KishiVisualNovel/" + searchParam + "_Sprite");
   searchPaths.Add("/KishiVisualNovel/Images/" + searchParam + "_Sprite");
-  auto names = RpyParser::GetNames(param);
-  auto layeredImageSearch = names[0].ToString();
+  auto mainName = names[0];
+  auto layeredImageSearch = mainName.ToString();
   searchPaths.Add("/Game/" + layeredImageSearch);
   searchPaths.Add("/Game/Images/" + layeredImageSearch);
   searchPaths.Add("/KishiVisualNovel/" + layeredImageSearch);
@@ -78,12 +78,14 @@ bool URpyScript::AddDefaultImage(FString param)
   if (image)
   {
     FRpyImage rpyImage = FRpyImage::Make(param, path);
+    rpyImage.image = image;
     this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
   else if (layeredImage)
   {
-    FRpyLayeredImage rpyLayeredImage = FRpyLayeredImage::Make(param, path);
+    FRpyLayeredImage rpyLayeredImage = FRpyLayeredImage::Make(mainName, path);
+    rpyLayeredImage.image = layeredImage;
     this->layeredImages.Add(rpyLayeredImage.name, rpyLayeredImage);
     return true;
   }

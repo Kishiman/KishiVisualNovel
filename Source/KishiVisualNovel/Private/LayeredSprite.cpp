@@ -1,39 +1,53 @@
 #include "LayeredSprite.h"
 
-FSpriteLayer ULayeredSprite::FindLayerByName(FName LayerName, TArray<FSpriteLayer> &groupLayers) const
+bool ULayeredSprite::FindLayerByName(FName LayerName, FSpriteLayer &foundLayer, TArray<FSpriteLayer> &groupLayers) const
 {
-	FSpriteLayer out;
+	auto layerString = LayerName.ToString();
 	for (const auto &layer : layers)
 	{
-		if (layer.name == LayerName)
+		auto groupString = layer.group.ToString();
+		auto groupMatch = FString::Printf(TEXT("%s %s"), *groupString, *layerString);
+		if (layer.name == LayerName || groupMatch == layer.name.ToString())
 		{
-			out = layer;
+			foundLayer = layer;
 			break;
 		}
 	}
-	if (out.name == NAME_None)
-		return out;
+	if (foundLayer.name == NAME_None)
+		return false;
 	for (const auto &layer : layers)
 	{
-		if (layer.name != LayerName && layer.group == out.group)
+		if (layer.name != foundLayer.name && layer.group == foundLayer.group)
 		{
 			groupLayers.Add(layer);
 		}
 	}
 
-	return out;
+	return true;
 }
 
-TArray<FSpriteLayer> ULayeredSprite::FindLayersByGroup(FName GroupName) const
+bool ULayeredSprite::DisplayLayer(FName LayerName)
 {
-	TArray<FSpriteLayer> foundLayers;
+	FSpriteLayer foundLayer;
+	TArray<FSpriteLayer> groupLayers;
+	auto result = this->FindLayerByName(LayerName, foundLayer, groupLayers);
+	if (!result)
+		return result;
+	foundLayer.displayed = true;
+	for (auto layer : groupLayers)
+	{
+		layer.displayed = false;
+	}
+	return true;
+}
+
+void ULayeredSprite::FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const
+{
 	for (const FSpriteLayer &layer : layers)
 	{
 		if (layer.group == GroupName)
 		{
-			foundLayers.Add(layer);
+			groupLayers.Add(layer);
 		}
 	}
-
-	return foundLayers;
 }

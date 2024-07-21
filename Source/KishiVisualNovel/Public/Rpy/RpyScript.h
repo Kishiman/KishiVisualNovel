@@ -135,7 +135,7 @@ struct FRpyLayeredImage
 	FName name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
-	static FRpyLayeredImage Make(FString name, FString path);
+	static FRpyLayeredImage Make(FName name, FString path);
 };
 
 USTRUCT(BlueprintType)
@@ -188,7 +188,7 @@ public:
 	virtual void Serialize(FStructuredArchiveRecord Record) override;
 	bool IsAssetUnderProjectContent();
 	bool IsAssetUnderPluginContent();
-	bool AddDefaultImage(FString name);
+	bool AddDefaultImage(FString param, TArray<FName> names);
 	bool AddDefaultAudio(FString param);
 
 	bool ImportRpyLines(FString text, uint8 TabSize);

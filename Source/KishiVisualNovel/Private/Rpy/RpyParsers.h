@@ -236,8 +236,9 @@ struct SceneParser : public RpyParser
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
+		auto names = RpyParser::GetNames(name.ToString());
 		if (!script->images.Contains(name))
-			if (!script->AddDefaultImage(params[0]))
+			if (!script->AddDefaultImage(params[0], names))
 				return nullptr;
 		FRpyImageOptions options;
 		auto rpyOptions = GetRpyOptions(params[1]);
@@ -255,15 +256,38 @@ struct ShowParser : public RpyParser
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
+		auto names = RpyParser::GetNames(name.ToString());
+		auto mainName = names[0];
 		auto rpyOptions = GetRpyOptions(params[1]);
 		FName at = FName(MapUtils::FindOrMake(rpyOptions, FName("at")));
 		FName with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
-		if (!script->images.Contains(name))
+		auto image = script->images.Find(name);
+		auto layeredImage = script->layeredImages.Find(mainName);
+		if (!image || layeredImage)
 		{
-			if (!script->AddDefaultImage(params[0]))
+			if (!script->AddDefaultImage(params[0], names))
 				return nullptr;
 		}
-		return new ShowInstruction(script, rpyLine, name, at, with);
+		image = script->images.Find(name);
+		if (image)
+			return new ShowInstruction(script, rpyLine, name, at, with);
+		layeredImage = script->layeredImages.Find(mainName);
+		if (layeredImage)
+		{
+			names.RemoveAt(0);
+			// for (auto attribute : names)
+			// {
+			// 	if (!layeredImage->image->layers.FindByPredicate(
+			// 					[attribute](const FSpriteLayer &layer)
+			// 					{
+			// 						auto groupString = layer.group.ToString() + TEXT(" ") + layer.name.ToString();
+			// 						return layer.name == attribute || layer.name.ToString() == groupString;
+			// 					}))
+			// 		return nullptr;
+			// }
+			return new ShowLayeredInstruction(script, rpyLine, mainName, names, at, with);
+		}
+		return nullptr;
 	};
 };
 
@@ -393,25 +417,25 @@ ShowParser _ShowParser;
 SceneParser _SceneParser;
 HideParser _HideParser;
 TArray<RpyParser *> RpyParser::parsers = {
-    &_InitParser,
-    &_DefineCharacterParser,
-    &_DefineMediaParser,
-    &_DefineStringParser,
-    &_DefineBoolParser,
-    &_StopAudioParser,
-    &_VoiceParser,
-    &_AudioParser,
-    &_LabelParser,
-    &_JumpParser,
-    &_PauseParser,
-    &_ReturnParser,
-    &_CallParser,
-    &_MenuParser,
-    &_ChoiceParser,
-    &_SayParser,
-    &_IfBoolParser,
-    &_ElseParser,
-    &_CharacterSayParser,
-    &_ShowParser,
-    &_SceneParser,
-    &_HideParser};
+		&_InitParser,
+		&_DefineCharacterParser,
+		&_DefineMediaParser,
+		&_DefineStringParser,
+		&_DefineBoolParser,
+		&_StopAudioParser,
+		&_VoiceParser,
+		&_AudioParser,
+		&_LabelParser,
+		&_JumpParser,
+		&_PauseParser,
+		&_ReturnParser,
+		&_CallParser,
+		&_MenuParser,
+		&_ChoiceParser,
+		&_SayParser,
+		&_IfBoolParser,
+		&_ElseParser,
+		&_CharacterSayParser,
+		&_ShowParser,
+		&_SceneParser,
+		&_HideParser};

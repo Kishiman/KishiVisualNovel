@@ -102,12 +102,26 @@ struct ShowInstruction : public RpyInstruction
   virtual bool Execute(URpySession *session)
   {
     auto rpyImage = script->images.Find(name);
-    if (rpyImage)
-      return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), *rpyImage, at, with);
+    if (!rpyImage)
+      return false;
+    return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), *rpyImage, at, with);
+  };
+};
+struct ShowLayeredInstruction : public RpyInstruction
+{
+  FName name;
+  TArray<FName> attributes;
+  FName at;
+  FName with;
+
+  ShowLayeredInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, TArray<FName> attributes, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), attributes(attributes), at(at), with(with){};
+  virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
+  virtual bool Execute(URpySession *session)
+  {
     auto rpyLayeredImage = script->layeredImages.Find(name);
-    if (rpyLayeredImage)
-      return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), *rpyLayeredImage, at, with);
-    return false;
+    if (!rpyLayeredImage)
+      return false;
+    return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), *rpyLayeredImage, attributes, at, with);
   };
 };
 

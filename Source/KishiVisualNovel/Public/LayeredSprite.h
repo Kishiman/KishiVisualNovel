@@ -35,8 +35,11 @@ public:
 	TArray<FSpriteLayer> layers;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
-	FSpriteLayer FindLayerByName(FName LayerName, TArray<FSpriteLayer> &groupLayers) const;
+	bool FindLayerByName(FName LayerName, FSpriteLayer &layer, TArray<FSpriteLayer> &groupLayers) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
-	TArray<FSpriteLayer> FindLayersByGroup(FName GroupName) const;
+	void FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
+	bool DisplayLayer(FName LayerName);
 };
