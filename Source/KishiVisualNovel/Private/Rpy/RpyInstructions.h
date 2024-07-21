@@ -84,10 +84,10 @@ struct SceneInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SCENE; }
   virtual bool Execute(URpySession *session)
   {
-    auto rpyImage = script->images[name];
-    if (!rpyImage.image)
+    auto rpyImage = script->images.Find(name);
+    if (!rpyImage)
       return false;
-    return IRpyInterpreter::Execute_Scene(session->interpreter.GetObject(), rpyImage, options);
+    return IRpyInterpreter::Execute_Scene(session->interpreter.GetObject(), *rpyImage, options);
   };
 };
 
@@ -101,12 +101,12 @@ struct ShowInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
   virtual bool Execute(URpySession *session)
   {
-    auto rpyImage = script->images[name];
-    if (rpyImage.image)
-      return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), rpyImage, at, with);
-    auto rpyLayeredImage = script->layeredImages[name];
-    if (rpyLayeredImage.image)
-      return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), rpyLayeredImage, at, with);
+    auto rpyImage = script->images.Find(name);
+    if (rpyImage)
+      return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), *rpyImage, at, with);
+    auto rpyLayeredImage = script->layeredImages.Find(name);
+    if (rpyLayeredImage)
+      return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), *rpyLayeredImage, at, with);
     return false;
   };
 };
