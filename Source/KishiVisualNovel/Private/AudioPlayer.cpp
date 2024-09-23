@@ -20,6 +20,9 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 
 		UAudioComponent *audioComponent = AudioComponents[channel];
 
+		// Clear the audio queue
+		AudioQueue.FindOrAdd(channel).Empty();
+
 		// Enable looping
 		audio->bLooping = loop ? 1 : 0;
 

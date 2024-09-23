@@ -74,7 +74,10 @@ bool URpyScript::AddDefaultImage(FString param, TArray<FName> names)
     }
   }
   if (path == "")
+  {
+    UE_LOG(LogTemp, Error, TEXT("Could Not Found Default Image : %s"), (*searchParam));
     return false;
+  }
   if (image)
   {
     FRpyImage rpyImage = FRpyImage::Make(param, path);
@@ -89,12 +92,14 @@ bool URpyScript::AddDefaultImage(FString param, TArray<FName> names)
     this->layeredImages.Add(rpyLayeredImage.name, rpyLayeredImage);
     return true;
   }
+  UE_LOG(LogTemp, Error, TEXT("Unvalid Default Image : %s"), (*searchParam));
   return false;
 }
 bool URpyScript::AddDefaultAudio(FString param)
 {
   TArray<FString> searchPaths;
   FString path;
+  USoundWave *soundWave = nullptr;
   FString searchParam = param.Replace(TEXT(" "), TEXT("_"));
   searchPaths.Add("/Game/" + searchParam);
   searchPaths.Add("/Game/Audio/" + searchParam);
@@ -104,13 +109,20 @@ bool URpyScript::AddDefaultAudio(FString param)
   {
     if (FPackageName::DoesPackageExist(searchPath))
     {
-      path = searchPath;
-      break;
+      soundWave = Cast<USoundWave>(StaticLoadObject(USoundWave::StaticClass(), NULL, *searchPath));
+      if (soundWave)
+      {
+        path = searchPath;
+        break;
+      }
     }
   }
   if (path == "")
+  {
+    UE_LOG(LogTemp, Error, TEXT("Could Not Found Default Audio : %s"), (*searchParam));
     return false;
-  FRpyAudio rpyAudio = {nullptr, path};
+  }
+  FRpyAudio rpyAudio = {soundWave, path};
   this->audios.Add(FName(param), rpyAudio);
   return true;
 }

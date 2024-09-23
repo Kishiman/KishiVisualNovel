@@ -198,7 +198,7 @@ matches any file path or file name that contains only letters, digits, periods, 
 		C:\Users\user\Desktop\my_file.docx
 		script.js
 */
-std::string RpyParser::reg_path = "(\"[/\\w\\.]+\")";
+std::string RpyParser::reg_path = "(\"[/\\w\\.-]+\")";
 /*
 \[(|(?:"[\/\w\.]+"(?:, "[\/\w\.]+")*?))\]
 matches a string that is enclosed in square brackets, where the string may be empty or may contain one or more comma-separated quoted strings. For example, the following strings would match this regular expression:
@@ -207,4 +207,4 @@ matches a string that is enclosed in square brackets, where the string may be em
 		[ "file.txt" ]
 		[ "file.txt", "dir/file2.txt" ]
 */
-std::string RpyParser::reg_array_path = "\\[(|(?:\"[/\\w\\.]+\"(?:, \"[/\\w\\.]+\")*?))\\]";
+std::string RpyParser::reg_array_path = "\\[(|(?:\"[/\\w\\.-]+\"(?:, \"[/\\w\\.-]+\")*?))\\]";

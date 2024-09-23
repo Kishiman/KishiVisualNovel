@@ -11,11 +11,13 @@ default book = False
 label start:
 
     # Start by playing some music.
-    play music "illurock"
+    play music "Music/illurock"
 
     scene bg lecturehall with fade
 
     "It's only when I hear the sounds of shuffling feet and supplies being put away that I realize that the lecture's over."
+
+    voice "Voice/cicifyre/BrightFemale/01-good_afternoon"
 
     "Professor Eileen's lectures are usually interesting, but today I just couldn't concentrate on it."
 
@@ -27,6 +29,8 @@ label start:
 
     "When we come out of the university, I spot her right away."
 
+    stop music fadeout 0.5 
+
     show sylvie green normal with dissolve
 
     "I've known Sylvie since we were kids. She's got a big heart and she's always been a good friend to me."
@@ -34,6 +38,8 @@ label start:
     "But recently... I've felt that I want something more."
 
     "More than just talking, more than just walking home together when our classes end."
+    
+    play music "Music/illurock"
     
     "As soon as she catches my eye, I decide..."
 
@@ -52,11 +58,15 @@ label rightaway:
 
     show sylvie green smile
 
+    voice "Voice/cicifyre/BrightFemale/01-good_afternoon"
+
     s "Hi there! How was class?"
 
     m "Good..."
 
     "I can't bring myself to admit that it all went in one ear and out the other."
+
+    voice "Voice/cicifyre/BrightFemale/01-good_afternoon"
 
     m "Are you going home now? Wanna walk back with me?"
 
@@ -90,6 +100,8 @@ label rightaway:
 
     show sylvie green smile
 
+    voice "Voice/cicifyre/BrightFemale/01-laughter"
+
     s "Sure, but what's a \"visual novel?\""
 
     menu:
@@ -109,6 +121,8 @@ label game:
 
     m "Sometimes, you also get to make choices that affect the outcome of the story."
 
+    voice "Voice/cicifyre/BrightFemale/01-okay"
+
     s "So it's like those choose-your-adventure books?"
 
     m "Exactly! I've got lots of different ideas that I think would work."
@@ -118,6 +132,8 @@ label game:
     m "It'd be hard for me to make a visual novel alone."
 
     show sylvie green normal
+
+    voice "Voice/cicifyre/BrightFemale/01-see_ya_later"
 
     s "Well, sure! I can try. I just hope I don't disappoint you."
 
