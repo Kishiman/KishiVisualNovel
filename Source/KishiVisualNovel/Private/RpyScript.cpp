@@ -41,24 +41,25 @@ bool URpyScript::IsAssetUnderPluginContent()
   // Check if the package path starts with "/Plugins/"
   return PackagePath.StartsWith(TEXT("/Plugins/"));
 }
-bool URpyScript::AddDefaultImage(FString param, TArray<FName> names)
+bool URpyScript::AddDefaultImage(FName name, FString path)
 {
+  auto names = RpyParser::GetNames(path);
+  auto mainName = names[0];
   TArray<FString> searchPaths;
-  FString path;
+  FString foundPath;
   UPaperSprite *image = nullptr;
   ULayeredSprite *layeredImage = nullptr;
-  FString searchParam = param.Replace(TEXT(" "), TEXT("_"));
+  FString searchParam = path.Replace(TEXT(" "), TEXT("_"));
   searchPaths.Add("/Game/" + searchParam + "_Sprite");
   searchPaths.Add("/Game/Images/" + searchParam + "_Sprite");
   searchPaths.Add("/KishiVisualNovel/" + searchParam + "_Sprite");
   searchPaths.Add("/KishiVisualNovel/Images/" + searchParam + "_Sprite");
-  auto mainName = names[0];
+
   auto layeredImageSearch = mainName.ToString();
   searchPaths.Add("/Game/" + layeredImageSearch);
   searchPaths.Add("/Game/Images/" + layeredImageSearch);
   searchPaths.Add("/KishiVisualNovel/" + layeredImageSearch);
   searchPaths.Add("/KishiVisualNovel/Images/" + layeredImageSearch);
-  UE_LOG(LogTemp, Error, TEXT("searching for image : %s(%s)"), (*searchParam), (*layeredImageSearch));
 
   for (auto &searchPath : searchPaths)
   {
@@ -68,39 +69,44 @@ bool URpyScript::AddDefaultImage(FString param, TArray<FName> names)
       layeredImage = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *searchPath));
       if (image || layeredImage)
       {
-        path = searchPath;
+        foundPath = searchPath;
         break;
       }
     }
   }
-  if (path == "")
+  if (foundPath == "")
   {
     UE_LOG(LogTemp, Error, TEXT("Could Not Found Default Image : %s"), (*searchParam));
     return false;
   }
   if (image)
   {
-    FRpyImage rpyImage = FRpyImage::Make(param, path);
+    FRpyImage rpyImage;
+    rpyImage.name = name;
     rpyImage.image = image;
+    rpyImage.path = foundPath;
+    rpyImage.tag = mainName;
     this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
   else if (layeredImage)
   {
-    FRpyLayeredImage rpyLayeredImage = FRpyLayeredImage::Make(mainName, path);
+    FRpyLayeredImage rpyLayeredImage;
+    rpyLayeredImage.name = mainName;
     rpyLayeredImage.image = layeredImage;
+    rpyLayeredImage.path = foundPath;
     this->layeredImages.Add(rpyLayeredImage.name, rpyLayeredImage);
     return true;
   }
   UE_LOG(LogTemp, Error, TEXT("Unvalid Default Image : %s"), (*searchParam));
   return false;
 }
-bool URpyScript::AddDefaultAudio(FString param)
+bool URpyScript::AddDefaultAudio(FName name, FString path)
 {
   TArray<FString> searchPaths;
-  FString path;
+  FString foundPath;
   USoundWave *soundWave = nullptr;
-  FString searchParam = param.Replace(TEXT(" "), TEXT("_"));
+  FString searchParam = path.Replace(TEXT(" "), TEXT("_"));
   searchPaths.Add("/Game/" + searchParam);
   searchPaths.Add("/Game/Audio/" + searchParam);
   searchPaths.Add("/KishiVisualNovel/" + searchParam);
@@ -112,18 +118,18 @@ bool URpyScript::AddDefaultAudio(FString param)
       soundWave = Cast<USoundWave>(StaticLoadObject(USoundWave::StaticClass(), NULL, *searchPath));
       if (soundWave)
       {
-        path = searchPath;
+        foundPath = searchPath;
         break;
       }
     }
   }
-  if (path == "")
+  if (foundPath == "")
   {
     UE_LOG(LogTemp, Error, TEXT("Could Not Found Default Audio : %s"), (*searchParam));
     return false;
   }
-  FRpyAudio rpyAudio = {soundWave, path};
-  this->audios.Add(FName(param), rpyAudio);
+  FRpyAudio rpyAudio = {soundWave, foundPath};
+  this->audios.Add(name, rpyAudio);
   return true;
 }
 void URpyScript::LoadRpyData()

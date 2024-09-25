@@ -32,7 +32,7 @@ label test2:
 
 label test3:
     scene bg meadow with None
-    show sylvie smile with dissolve
+    show sylvie green smile with dissolve
 
 label test3:
     show sylvie green smile at right

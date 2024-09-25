@@ -32,6 +32,7 @@ struct RpyParser
 	static std::string reg_string;
 	static std::string reg_string_simple;
 	// rpy
+	static std::string reg_comment;
 	static std::string reg_keyword;
 	static std::string reg_var_name;
 	static std::string reg_args_map;
@@ -65,7 +66,7 @@ struct RpyParser
 		TArray<FString> array;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] = {
-			TEXT(","),
+				TEXT(","),
 		};
 		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
 		for (auto string : strings)
@@ -92,11 +93,11 @@ struct RpyParser
 		TArray<FName> names;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] =
-			{
-				TEXT(" "),
-				TEXT("\n"),
-				TEXT("\t"),
-			};
+				{
+						TEXT(" "),
+						TEXT("\n"),
+						TEXT("\t"),
+				};
 		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 3, true);
 		for (auto string : strings)
 		{
@@ -109,9 +110,9 @@ struct RpyParser
 		TMap<FName, FString> args;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] =
-			{
-				TEXT(","),
-			};
+				{
+						TEXT(","),
+				};
 		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
 		for (auto string : strings)
 		{
@@ -129,9 +130,9 @@ struct RpyParser
 		TMap<FName, FString> options;
 		TArray<FString> strings;
 		static const TCHAR *delimiters[] =
-			{
-				TEXT(" "),
-			};
+				{
+						TEXT(" "),
+				};
 		param.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
 		if (strings.Num() % 2 != 0)
 			return options;
@@ -172,6 +173,8 @@ matches a string that is enclosed in either single quotes, double quotes, or bac
 std::string RpyParser::reg_string_simple = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]*`))";
 
 std::string RpyParser::reg_string = "((?:\"(?:[^\"\\\\]|\\\\.)+\")|(?:'(?:[^'\\\\]|\\\\.)+')|(?:`(?:[^`\\\\]|\\\\.)+`))";
+
+std::string RpyParser::reg_comment = "(?:\\s*#.*)?$";
 
 std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while)";
 std::string RpyParser::reg_var_name = "((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\\w+))";

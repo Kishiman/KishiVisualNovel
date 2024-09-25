@@ -188,8 +188,8 @@ public:
 	virtual void Serialize(FStructuredArchiveRecord Record) override;
 	bool IsAssetUnderProjectContent();
 	bool IsAssetUnderPluginContent();
-	bool AddDefaultImage(FString param, TArray<FName> names);
-	bool AddDefaultAudio(FString param);
+	bool AddDefaultImage(FName name, FString path);
+	bool AddDefaultAudio(FName name, FString path);
 
 	bool ImportRpyLines(FString text, uint8 TabSize);
 	bool Parse();

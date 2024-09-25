@@ -1,0 +1,475 @@
+LogFactory: FactoryCreateFile: RpyScript with RpyScriptImporterFactory (0 1 D:/Projects/Unreal/JailBrain/Plugins/KishiVisualNovel/Scripts/db_cooper.rpy)
+LogTemp: Warning: URpyScript(), rpyLines:0
+LogTemp: Warning: RpyParser::parsers 22
+LogTemp: Warning: PostInitProperties, rpyLines:0
+LogTemp: Warning: RpyParser::parsers 22
+LogTemp: Display: URpyScript.ImportRpyLines
+LogTemp: Warning: RpyParser::parsers 22
+LogTemp: Display: matched query[DefineCharacterParser]:^(?:define|\$) ((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+)) = Character\(((?:'[^']*')|(?:"[^"]*")|(?:`[^`]*`))((?:, \w+=".*")+)?\)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:""
+LogTemp: Display: param[2]:
+LogTemp: Display: matched query[DefineCharacterParser]:^(?:define|\$) ((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+)) = Character\(((?:'[^']*')|(?:"[^"]*")|(?:`[^`]*`))((?:, \w+=".*")+)?\)(?:\s*#.*)?$
+LogTemp: Display: param[0]:cooper
+LogTemp: Display: param[1]:"Cooper"
+LogTemp: Display: param[2]:, color="#FF0000"
+LogTemp: Display: matched query[DefineCharacterParser]:^(?:define|\$) ((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+)) = Character\(((?:'[^']*')|(?:"[^"]*")|(?:`[^`]*`))((?:, \w+=".*")+)?\)(?:\s*#.*)?$
+LogTemp: Display: param[0]:flight_attendant
+LogTemp: Display: param[1]:"Flight Attendant"
+LogTemp: Display: param[2]:, color="#00BFFF"
+LogTemp: Display: matched query[DefineCharacterParser]:^(?:define|\$) ((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+)) = Character\(((?:'[^']*')|(?:"[^"]*")|(?:`[^`]*`))((?:, \w+=".*")+)?\)(?:\s*#.*)?$
+LogTemp: Display: param[0]:pilot
+LogTemp: Display: param[1]:"Pilot"
+LogTemp: Display: param[2]:, color="#FFA500"
+LogTemp: Display: matched query[DefineMediaParser]:^(?:define )?(audio|image|music|sound|voice) ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*) = ("[/\w\.-]+")(?:\s*#.*)?$
+LogTemp: Display: param[0]:image
+LogTemp: Display: param[1]:bg_airport
+LogTemp: Display: param[2]:"bg_uni"
+LogTemp: Error: searching for image : bg_uni(bg_uni)
+LogUObjectGlobals: Warning: Failed to find object 'LayeredSprite None./KishiVisualNovel/Images/bg_uni_Sprite'
+LogTemp: Display: matched query[DefineMediaParser]:^(?:define )?(audio|image|music|sound|voice) ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*) = ("[/\w\.-]+")(?:\s*#.*)?$
+LogTemp: Display: param[0]:image
+LogTemp: Display: param[1]:bg_airplane
+LogTemp: Display: param[2]:"bg_uni"
+LogTemp: Error: searching for image : bg_uni(bg_uni)
+LogUObjectGlobals: Warning: Failed to find object 'LayeredSprite None./KishiVisualNovel/Images/bg_uni_Sprite'
+LogTemp: Display: matched query[DefineMediaParser]:^(?:define )?(audio|image|music|sound|voice) ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*) = ("[/\w\.-]+")(?:\s*#.*)?$
+LogTemp: Display: param[0]:image
+LogTemp: Display: param[1]:bg_briefcase
+LogTemp: Display: param[2]:"bg_uni"
+LogTemp: Error: searching for image : bg_uni(bg_uni)
+LogUObjectGlobals: Warning: Failed to find object 'LayeredSprite None./KishiVisualNovel/Images/bg_uni_Sprite'
+LogTemp: Display: matched query[DefineMediaParser]:^(?:define )?(audio|image|music|sound|voice) ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*) = ("[/\w\.-]+")(?:\s*#.*)?$
+LogTemp: Display: param[0]:image
+LogTemp: Display: param[1]:bg_note
+LogTemp: Display: param[2]:"bg_uni"
+LogTemp: Error: searching for image : bg_uni(bg_uni)
+LogUObjectGlobals: Warning: Failed to find object 'LayeredSprite None./KishiVisualNovel/Images/bg_uni_Sprite'
+LogTemp: Display: matched query[DefineMediaParser]:^(?:define )?(audio|image|music|sound|voice) ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*) = ("[/\w\.-]+")(?:\s*#.*)?$
+LogTemp: Display: param[0]:image
+LogTemp: Display: param[1]:flight_attendant
+LogTemp: Display: param[2]:"bg_uni"
+LogTemp: Error: searching for image : bg_uni(bg_uni)
+LogUObjectGlobals: Warning: Failed to find object 'LayeredSprite None./KishiVisualNovel/Images/bg_uni_Sprite'
+LogTemp: Display: matched query[DefineMediaParser]:^(?:define )?(audio|image|music|sound|voice) ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*) = ("[/\w\.-]+")(?:\s*#.*)?$
+LogTemp: Display: param[0]:sound
+LogTemp: Display: param[1]:engine
+LogTemp: Display: param[2]:"Music/illurock"
+LogTemp: Display: matched query[DefineMediaParser]:^(?:define )?(audio|image|music|sound|voice) ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*) = ("[/\w\.-]+")(?:\s*#.*)?$
+LogTemp: Display: param[0]:sound
+LogTemp: Display: param[1]:footsteps
+LogTemp: Display: param[2]:"Sound/effect"
+LogTemp: Display: matched query[DefineMediaParser]:^(?:define )?(audio|image|music|sound|voice) ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*) = ("[/\w\.-]+")(?:\s*#.*)?$
+LogTemp: Display: param[0]:sound
+LogTemp: Display: param[1]:tense_music
+LogTemp: Display: param[2]:"Sound/effect"
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:start
+LogTemp: Display: matched query[SceneParser]:^scene ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:bg_airport
+LogTemp: Display: param[1]: with fade
+LogTemp: Display: matched query[AudioParser]:^(play|queue) ([a-zA-Z_]\w*) (?:([a-zA-Z_]\w*)|("[/\w\.-]+"))(?: volume (0(?:\.\d+)?|1(?:\.0+)?))?(?: fadeout ((?:\d*\.)?\d+))?(?: fadein ((?:\d*\.)?\d+))?(?: (loop|noloop))?(?: (if_changed))?(?:\s*#.*)?$
+LogTemp: Display: param[0]:play
+LogTemp: Display: param[1]:sound
+LogTemp: Display: param[2]:footsteps
+LogTemp: Display: param[3]:
+LogTemp: Display: param[4]:
+LogTemp: Display: param[5]:
+LogTemp: Display: param[6]:
+LogTemp: Display: param[7]:
+LogTemp: Display: param[8]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:cooper
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"It???s November 24, 1971. Northwest Orient Flight 305. The ticket cost $20."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You step through the crowded airport, holding a briefcase in one hand and a ticket to Seattle in the other."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[StopAudioParser]:^stop ([a-zA-Z_]\w*)(?: volume (0(?:\.\d+)?|1(?:\.0+)?))?(?: fadeout ((?:\d*\.)?\d+))?(?: fadein ((?:\d*\.)?\d+))?(?: (loop|noloop))?(?: (if_changed))?(?:\s*#.*)?$
+LogTemp: Display: param[0]:sound
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:
+LogTemp: Display: param[4]:
+LogTemp: Display: param[5]:
+LogTemp: Display: matched query[SceneParser]:^scene ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:bg_airplane
+LogTemp: Display: param[1]: with fade
+LogTemp: Display: matched query[AudioParser]:^(play|queue) ([a-zA-Z_]\w*) (?:([a-zA-Z_]\w*)|("[/\w\.-]+"))(?: volume (0(?:\.\d+)?|1(?:\.0+)?))?(?: fadeout ((?:\d*\.)?\d+))?(?: fadein ((?:\d*\.)?\d+))?(?: (loop|noloop))?(?: (if_changed))?(?:\s*#.*)?$
+LogTemp: Display: param[0]:play
+LogTemp: Display: param[1]:sound
+LogTemp: Display: param[2]:engine
+LogTemp: Display: param[3]:
+LogTemp: Display: param[4]:
+LogTemp: Display: param[5]:
+LogTemp: Display: param[6]:
+LogTemp: Display: param[7]:loop
+LogTemp: Display: param[8]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You board the Boeing 727. The hum of the engines vibrates beneath your feet as you make your way to seat 18C."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You sit down, adjusting your tie and lighting a cigarette. You glance around the cabin, watching passengers find their seats."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[MenuParser]:^menu:(?:\s*#.*)?$
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Observe the passengers"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:observe_passengers
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Review the plan"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:review_plan
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:observe_passengers
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You watch the other passengers boarding. Businessmen, families, and a few lone travelers."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"They have no idea what???s about to happen."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:review_plan
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:review_plan
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"The plan is simple. Once the plane is airborne, you???ll pass a note to the flight attendant."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Inside your briefcase is the key???a bomb. Or at least, what looks like one."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[MenuParser]:^menu:(?:\s*#.*)?$
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Check the briefcase"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:check_briefcase
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Wait for the plane to take off"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:wait_takeoff
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:check_briefcase
+LogTemp: Display: matched query[SceneParser]:^scene ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:bg_briefcase
+LogTemp: Display: param[1]: with dissolve
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You quietly open the briefcase under your seat. Inside, wires, red sticks, and a battery are neatly arranged."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"It looks convincing enough to fool anyone."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:cooper
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Perfect."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:wait_takeoff
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:wait_takeoff
+LogTemp: Display: matched query[SceneParser]:^scene ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:bg_airplane
+LogTemp: Display: param[1]: with fade
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"The plane takes off, lifting into the cloudy skies. You feel the weight of what???s about to happen."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"It???s time."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[MenuParser]:^menu:(?:\s*#.*)?$
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Call the flight attendant"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:call_flight_attendant
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Wait a little longer"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:wait_longer
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:call_flight_attendant
+LogTemp: Display: matched query[ShowParser]:^show ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:flight_attendant
+LogTemp: Display: param[1]: with dissolve
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:flight_attendant
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Sir, may I get you something?"
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You hand her the folded note you prepared earlier."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[MenuParser]:^menu:(?:\s*#.*)?$
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Let her walk away with the note"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:let_walk_away
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Tell her to read it now"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:tell_read_now
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:wait_longer
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You hesitate, watching as the passengers settle in. Your heart pounds."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Suddenly, you realize you???ve waited too long."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"The flight attendant passes by, but you say nothing."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"The opportunity slips through your fingers."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Game Over - Bad Ending 1: You missed your chance to initiate the hijacking."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[ReturnParser]:^return(?:\s*#.*)?$
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:let_walk_away
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"She glances at the note but doesn???t open it immediately. You watch as she walks toward the front of the plane."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Now, you wait."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:alert_cockpit
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:tell_read_now
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Before she walks away, you lean in slightly, keeping your voice low."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:cooper
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Miss, you might want to read that now."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Her smile falters as she opens the note. Her eyes widen in shock."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[ShowParser]:^show ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:bg_note
+LogTemp: Display: param[1]: with fade
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"{i}I have a bomb in my briefcase. I want $200,000 in cash, four parachutes, and a fuel truck ready in Seattle. No funny business, or I???ll do it.{/i}"
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:flight_attendant
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"(Whispers) Oh my god???"
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"She stiffens, nods, and quickly walks toward the cockpit."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:alert_cockpit
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:alert_cockpit
+LogTemp: Display: matched query[SceneParser]:^scene ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:bg_airplane
+LogTemp: Display: param[1]: with fade
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You watch her disappear into the cockpit to speak with the pilots. The tension in the cabin increases, but outwardly, nothing seems amiss."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You glance down at the briefcase by your side. It???s all going according to plan."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Now, you wait for the negotiations to begin."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[MenuParser]:^menu:(?:\s*#.*)?$
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Light a cigarette"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:light_cigarette
+LogTemp: Display: matched query[ChoiceParser]:^((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`)):(?:\s*#.*)?$
+LogTemp: Display: param[0]:"Review the demands in your head"
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:review_demands
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:light_cigarette
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You light another cigarette, watching the smoke curl up toward the ceiling."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"You savor the moment???everything is still under your control."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:review_demands
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:review_demands
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Your demands are simple: $200,000 in cash, four parachutes, and a fuel truck in Seattle."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"If they comply, you???ll release the passengers and take off again."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"The money is the key???small bills, unmarked. It will give you a head start."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[JumpParser]:^jump (\w+)(?:\s*#.*)?$
+LogTemp: Display: param[0]:next_phase
+LogTemp: Display: matched query[LabelParser]:^label ([a-zA-Z_]\w*):(?:\s*#.*)?$
+LogTemp: Display: param[0]:next_phase
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Time drags on as you wait for the cockpit to respond. The hum of the engines continues, but the tension in the air is palpable."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"It???s only a matter of time before the pilots contact air traffic control to begin negotiations."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[CharacterSayParser]:^((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\w+))(?: ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))?(?: @ ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*))? ((?:"(?:[^"\\]|\\.)+")|(?:'(?:[^
+'\\]|\\.)+')|(?:`(?:[^`\\]|\\.)+`))((?: (?:at |with )\w+)*)(?:\s*#.*)?$
+LogTemp: Display: param[0]:narrator
+LogTemp: Display: param[1]:
+LogTemp: Display: param[2]:
+LogTemp: Display: param[3]:"Everything depends on the next few moments."
+LogTemp: Display: param[4]:
+LogTemp: Display: matched query[ReturnParser]:^return(?:\s*#.*)?$
+LogTemp: Display: URpyScript.Parse
+LogTemp: Display: URpyScript.Compile
+LogTemp: Display: URpyScript.LoadRpyData
+LogTemp: Display: Import Successful
