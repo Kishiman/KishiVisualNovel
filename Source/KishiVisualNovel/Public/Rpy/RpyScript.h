@@ -30,6 +30,28 @@ enum class EInstructionRunTimeType : uint8
 	SHOW,
 	HIDE,
 };
+
+UENUM(BlueprintType)
+enum class ESceneType : uint8
+{
+	PAPER_SPRITE,
+	CAMERA_SCENE,
+};
+
+UENUM(BlueprintType)
+enum class EShowType : uint8
+{
+	PAPER_SPRITE,
+	LAYERED_IMAGE,
+	MOVIE,
+};
+
+UENUM(BlueprintType)
+enum class EPlayType : uint8
+{
+	AUDIO,
+};
+
 DECLARE_DYNAMIC_DELEGATE(FInstructionCompleteDelegate);
 
 UENUM(BlueprintType)
@@ -52,6 +74,24 @@ struct FRpyCharacter
 	FName voice;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FColor color;
+};
+USTRUCT(BlueprintType)
+struct FRpySceneOptions
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESceneType type;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UObject *asset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName layer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName with;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float fadeTime = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float desolveTime = 0;
 };
 USTRUCT(BlueprintType)
 struct FRpyAudioOptions
