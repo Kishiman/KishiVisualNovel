@@ -12,7 +12,7 @@ struct ChoiceInstruction;
 // Labels & Control Flow
 struct LabelInstruction : public RpyInstruction
 {
-  LabelInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
+  LabelInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine) {};
   virtual bool Compile()
   {
     this->next = nullptr;
@@ -29,7 +29,7 @@ struct PauseInstruction : public RpyInstruction
   FTimerHandle TimerHandle;
   float timeInSec = 0;
   bool running = false;
-  PauseInstruction(URpyScript *script, FRpyLine *rpyLine, float timeInSec) : RpyInstruction(script, rpyLine), timeInSec(timeInSec){};
+  PauseInstruction(URpyScript *script, FRpyLine *rpyLine, float timeInSec) : RpyInstruction(script, rpyLine), timeInSec(timeInSec) {};
   virtual bool Execute(URpySession *session)
   {
     running = true;
@@ -60,8 +60,8 @@ struct AssignInstruction : public RpyInstruction
   FName varName;
   T value;
 
-  AssignInstruction(URpyScript *script, FRpyLine *rpyLine, FName varName, T value) : RpyInstruction(script, rpyLine), varName(varName), value(value){};
-  virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SCENE; }
+  AssignInstruction(URpyScript *script, FRpyLine *rpyLine, FName varName, T value) : RpyInstruction(script, rpyLine), varName(varName), value(value) {};
+  virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::NONE; }
   void SetValue(URpySession *session);
   virtual bool Execute(URpySession *session)
   {
@@ -80,7 +80,7 @@ struct SceneInstruction : public RpyInstruction
   FName name;
   FRpyImageOptions options;
 
-  SceneInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FRpyImageOptions options) : RpyInstruction(script, rpyLine), name(name), options(options){};
+  SceneInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FRpyImageOptions options) : RpyInstruction(script, rpyLine), name(name), options(options) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SCENE; }
   virtual bool Execute(URpySession *session)
   {
@@ -97,7 +97,7 @@ struct ShowInstruction : public RpyInstruction
   FName at;
   FName with;
 
-  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with){};
+  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
   virtual bool Execute(URpySession *session)
   {
@@ -114,7 +114,7 @@ struct ShowLayeredInstruction : public RpyInstruction
   FName at;
   FName with;
 
-  ShowLayeredInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, TArray<FName> attributes, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), attributes(attributes), at(at), with(with){};
+  ShowLayeredInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, TArray<FName> attributes, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), attributes(attributes), at(at), with(with) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
   virtual bool Execute(URpySession *session)
   {
@@ -131,7 +131,7 @@ struct HideInstruction : public RpyInstruction
   FName at;
   FName with;
 
-  HideInstruction(URpyScript *script, FRpyLine *rpyLine, FName tag, FName at, FName with) : RpyInstruction(script, rpyLine), tag(tag), at(at), with(with){};
+  HideInstruction(URpyScript *script, FRpyLine *rpyLine, FName tag, FName at, FName with) : RpyInstruction(script, rpyLine), tag(tag), at(at), with(with) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::HIDE; }
   virtual bool Execute(URpySession *session)
   {
@@ -145,7 +145,7 @@ struct SayInstruction : public RpyInstruction
   FString statement;
   FName with;
 
-  SayInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FString statement, FName with = "") : RpyInstruction(script, rpyLine), name(name), statement(statement), with(with){};
+  SayInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FString statement, FName with = "") : RpyInstruction(script, rpyLine), name(name), statement(statement), with(with) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SAY; }
   virtual bool Execute(URpySession *session)
   {
@@ -158,7 +158,7 @@ struct PlayInstruction : public RpyInstruction
   FName name;
   FRpyAudioOptions options;
 
-  PlayInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name), options(options){};
+  PlayInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name), options(options) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::PLAY; }
   virtual bool Execute(URpySession *session)
   {
@@ -173,7 +173,7 @@ struct PauseAudioInstruction : public RpyInstruction
 {
   float timeout;
 
-  PauseAudioInstruction(URpyScript *script, FRpyLine *rpyLine, float timeout) : RpyInstruction(script, rpyLine), timeout(timeout){};
+  PauseAudioInstruction(URpyScript *script, FRpyLine *rpyLine, float timeout) : RpyInstruction(script, rpyLine), timeout(timeout) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::PAUSE; }
   virtual bool Execute(URpySession *session)
   {
@@ -189,7 +189,7 @@ protected:
   ElseInstruction *elseInstruction = nullptr;
 
 public:
-  IfInstruction(URpyScript *script, FRpyLine *rpyLine, bool condition = true) : RpyInstruction(script, rpyLine), condition(condition){};
+  IfInstruction(URpyScript *script, FRpyLine *rpyLine, bool condition = true) : RpyInstruction(script, rpyLine), condition(condition) {};
   virtual RpyInstructionType Type() const
   {
     return RpyInstructionType::If;
@@ -200,7 +200,7 @@ public:
 struct ElseInstruction : public RpyInstruction
 {
 public:
-  ElseInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
+  ElseInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine) {};
   virtual RpyInstructionType Type() const { return RpyInstructionType::Else; }
 };
 
@@ -210,7 +210,7 @@ public:
   FName varName;
   bool reverse;
 
-  IfBoolInstruction(URpyScript *script, FRpyLine *rpyLine, FName varName, bool reverse) : IfInstruction(script, rpyLine), varName(varName), reverse(reverse){};
+  IfBoolInstruction(URpyScript *script, FRpyLine *rpyLine, FName varName, bool reverse) : IfInstruction(script, rpyLine), varName(varName), reverse(reverse) {};
 
   virtual bool Execute(URpySession *session)
   {
@@ -227,7 +227,7 @@ public:
 struct ChoiceInstruction : public RpyInstruction
 {
   FString statement;
-  ChoiceInstruction(URpyScript *script, FRpyLine *rpyLine, FString statement) : RpyInstruction(script, rpyLine), statement(statement){};
+  ChoiceInstruction(URpyScript *script, FRpyLine *rpyLine, FString statement) : RpyInstruction(script, rpyLine), statement(statement) {};
   virtual RpyInstructionType Type() const
   {
     return RpyInstructionType::Choice;
@@ -239,7 +239,8 @@ struct MenuInstruction : public RpyInstruction
 {
   TArray<ChoiceInstruction *> choices;
   ChoiceInstruction *selected = nullptr;
-  MenuInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
+  MenuInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine) {};
+  virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::MENU; }
   virtual RpyInstructionType Type() const
   {
     return RpyInstructionType::Menu;
@@ -295,7 +296,7 @@ struct JumpInstruction : public RpyInstruction
 {
   FName label;
 
-  JumpInstruction(URpyScript *script, FRpyLine *rpyLine, FName label) : RpyInstruction(script, rpyLine), label(label){};
+  JumpInstruction(URpyScript *script, FRpyLine *rpyLine, FName label) : RpyInstruction(script, rpyLine), label(label) {};
   virtual bool Compile()
   {
     return this->script->labels.Contains(this->label);
@@ -308,7 +309,7 @@ struct JumpInstruction : public RpyInstruction
 
 struct CallInstruction : public JumpInstruction
 {
-  CallInstruction(URpyScript *script, FRpyLine *rpyLine, FName name) : JumpInstruction(script, rpyLine, name){};
+  CallInstruction(URpyScript *script, FRpyLine *rpyLine, FName name) : JumpInstruction(script, rpyLine, name) {};
   virtual RpyInstruction *GetNext(URpySession *session)
   {
     session->callStack.Add(next);
@@ -318,7 +319,7 @@ struct CallInstruction : public JumpInstruction
 
 struct ReturnInstruction : public RpyInstruction
 {
-  ReturnInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine){};
+  ReturnInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine) {};
   virtual RpyInstruction *GetNext(URpySession *session)
   {
     if (session->callStack.Num() == 0)
@@ -331,7 +332,7 @@ struct StopInstruction : public RpyInstruction
 {
   FName channel;
   FRpyAudioOptions options;
-  StopInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), options(options){};
+  StopInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), options(options) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::STOP; }
   virtual bool Execute(URpySession *session)
   {
@@ -344,7 +345,7 @@ struct QueueInstruction : public RpyInstruction
   FName channel;
   FName name;
   FRpyAudioOptions options;
-  QueueInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name), options(options){};
+  QueueInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name), options(options) {};
   virtual bool Execute(URpySession *session)
   {
     auto rpyAudio = script->audios[name];

@@ -23,6 +23,7 @@ enum class EInstructionRunTimeType : uint8
 {
 	NONE,
 	SAY,
+	MENU,
 	SCENE,
 	STOP,
 	PLAY,
