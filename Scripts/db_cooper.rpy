@@ -9,21 +9,22 @@ define flight_attendant = Character("Flight Attendant", color="#00BFFF")
 define pilot = Character("Pilot", color="#FFA500")
 
 # Images
-image bg_airport = "bg_uni"
-image bg_airplane = "bg_uni"
-image bg_briefcase = "bg_uni"
-image bg_note = "bg_uni"
-image flight_attendant = "bg_uni"
+image bg_airport = "DBCooper/bg_airport"
+image bg_airplane = "DBCooper/bg_airplane"
+image bg_briefcase = "DBCooper/bg_briefcase"
+image bg_note = "DBCooper/bg_note"
+image flight_attendant = "DBCooper/airplane_attendent"
 
 # Sounds and Music
-sound engine = "Music/illurock"
-sound footsteps = "Sound/effect"
-sound tense_music = "Sound/effect"
+sound engine = "Lemmino/Aloft_BGM"
+sound footsteps = "pixabay/footsteps-in-a-hallway"
+sound tense_music = "Lemmino/Aloft_BGM"
 
 # Scene 1: Onboarding at the Airport
 label start:
+    play music tense_music
     scene bg_airport with fade
-    play sound footsteps
+    play sound footsteps loop
     
     cooper "It's November 24, 1971. Northwest Orient Flight 305. The ticket cost $20."
     

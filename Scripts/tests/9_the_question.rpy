@@ -11,13 +11,13 @@ default book = False
 label start:
 
     # Start by playing some music.
-    play music "Music/illurock"
+    play music "illurock"
 
     scene bg lecturehall with fade
 
     "It's only when I hear the sounds of shuffling feet and supplies being put away that I realize that the lecture's over."
 
-    voice "Voice/cicifyre/BrightFemale/01-good_afternoon"
+    voice "cicifyre/BrightFemale/01-good_afternoon"
 
     "Professor Eileen's lectures are usually interesting, but today I just couldn't concentrate on it."
 
@@ -39,7 +39,7 @@ label start:
 
     "More than just talking, more than just walking home together when our classes end."
     
-    play music "Music/illurock"
+    play music "illurock"
     
     "As soon as she catches my eye, I decide..."
 
@@ -58,7 +58,7 @@ label rightaway:
 
     show sylvie green smile
 
-    voice "Voice/cicifyre/BrightFemale/01-good_afternoon"
+    voice "cicifyre/BrightFemale/01-good_afternoon"
 
     s "Hi there! How was class?"
 
@@ -66,7 +66,7 @@ label rightaway:
 
     "I can't bring myself to admit that it all went in one ear and out the other."
 
-    voice "Voice/cicifyre/BrightFemale/01-good_afternoon"
+    voice "cicifyre/BrightFemale/01-good_afternoon"
 
     m "Are you going home now? Wanna walk back with me?"
 
@@ -100,7 +100,7 @@ label rightaway:
 
     show sylvie green smile
 
-    voice "Voice/cicifyre/BrightFemale/01-laughter"
+    voice "cicifyre/BrightFemale/01-laughter"
 
     s "Sure, but what's a \"visual novel?\""
 
@@ -121,7 +121,7 @@ label game:
 
     m "Sometimes, you also get to make choices that affect the outcome of the story."
 
-    voice "Voice/cicifyre/BrightFemale/01-okay"
+    voice "cicifyre/BrightFemale/01-okay"
 
     s "So it's like those choose-your-adventure books?"
 
@@ -133,7 +133,7 @@ label game:
 
     show sylvie green normal
 
-    voice "Voice/cicifyre/BrightFemale/01-see_ya_later"
+    voice "cicifyre/BrightFemale/01-see_ya_later"
 
     s "Well, sure! I can try. I just hope I don't disappoint you."
 
