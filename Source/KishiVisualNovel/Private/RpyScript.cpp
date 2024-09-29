@@ -85,7 +85,7 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
     rpyImage.name = name;
     rpyImage.image = image;
     rpyImage.path = foundPath;
-    rpyImage.tag = mainName;
+    rpyImage.tag = name;
     this->images.Add(rpyImage.name, rpyImage);
     return true;
   }

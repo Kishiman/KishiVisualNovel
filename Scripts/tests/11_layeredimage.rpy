@@ -4,6 +4,9 @@ label start:
     show Augustina
     # displaying dress and neutral
     aug "I like this dress."
+    
+    hide Augustina
+    aug "I like this dress."
 
     show Augustina happy
     # auto-defined in the auto group

@@ -16,13 +16,13 @@ image bg_note = "DBCooper/bg_note"
 image flight_attendant = "DBCooper/airplane_attendent"
 
 # Sounds and Music
-sound engine = "Lemmino/Aloft_BGM"
+sound db_cooper = "EliotHolmes/Hard_Heart"
 sound footsteps = "pixabay/footsteps-in-a-hallway"
 sound tense_music = "Lemmino/Aloft_BGM"
 
 # Scene 1: Onboarding at the Airport
 label start:
-    play music tense_music
+    play music tense_music loop
     scene bg_airport with fade
     play sound footsteps loop
     
@@ -33,7 +33,6 @@ label start:
     stop sound
 
     scene bg_airplane with fade
-    play music engine loop
     
     narrator "You board the Boeing 727. The hum of the engines vibrates beneath your feet as you make your way to seat 18C."
     
@@ -55,7 +54,7 @@ label observe_passengers:
 # Option 2: Reviewing the plan
 label review_plan:
     narrator "The plan is simple. Once the plane is airborne, you'll pass a note to the flight attendant."
-    narrator "Inside your briefcase is the key—a bomb. Or at least, what looks like one."
+    narrator "Inside your briefcase is the key, a bomb. Or at least, what looks like one."
 
     menu:
         "Check the briefcase":
@@ -94,6 +93,7 @@ label call_flight_attendant:
     
     narrator "You hand her the folded note you prepared earlier."
     
+    hide flight_attendant
     menu:
         "Let her walk away with the note":
             jump let_walk_away
@@ -122,6 +122,8 @@ label let_walk_away:
 label tell_read_now:
     narrator "Before she walks away, you lean in slightly, keeping your voice low."
     
+    play music db_cooper fadein 3 loop
+
     cooper "Miss, you might want to read that now."
 
     narrator "Her smile falters as she opens the note. Her eyes widen in shock."
@@ -129,9 +131,12 @@ label tell_read_now:
     show bg_note with fade
     narrator "{i}I have a bomb in my briefcase. I want $200,000 in cash, four parachutes, and a fuel truck ready in Seattle. No funny business, or I'll do it.{/i}"
 
+    show flight_attendant
     flight_attendant "(Whispers) Oh my god…"
 
     narrator "She stiffens, nods, and quickly walks toward the cockpit."
+    
+    hide flight_attendant
 
     jump alert_cockpit
 
@@ -153,7 +158,7 @@ label alert_cockpit:
 # Light a Cigarette
 label light_cigarette:
     narrator "You light another cigarette, watching the smoke curl up toward the ceiling."
-    narrator "You savor the moment—everything is still under your control."
+    narrator "You savor the moment, everything is still under your control."
 
     jump review_demands
 
@@ -162,7 +167,7 @@ label review_demands:
     narrator "Your demands are simple: $200,000 in cash, four parachutes, and a fuel truck in Seattle."
     narrator "If they comply, you'll release the passengers and take off again."
 
-    narrator "The money is the key—small bills, unmarked. It will give you a head start."
+    narrator "The money is the key, small bills, unmarked. It will give you a head start."
 
     jump next_phase
 
