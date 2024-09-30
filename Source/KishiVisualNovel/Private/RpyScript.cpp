@@ -13,13 +13,7 @@
 #include <string>
 
 using namespace std;
-FRpyImage FRpyImage::Make(FString name, FString path)
-{
-  FRpyImage rpyImage = {nullptr, FName(name), path};
-  auto names = RpyParser::GetNames(name);
-  rpyImage.tag = names[0];
-  return rpyImage;
-}
+
 FRpyLayeredImage FRpyLayeredImage::Make(FName name, FString path)
 {
   FRpyLayeredImage rpyLayeredImage = {nullptr, name, path};
@@ -43,8 +37,10 @@ bool URpyScript::IsAssetUnderPluginContent()
 }
 bool URpyScript::AddDefaultImage(FName name, FString path)
 {
-  auto names = RpyParser::GetNames(path);
-  auto mainName = names[0];
+  auto nameSegments = RpyParser::GetNames(name.ToString());
+  auto pathSegments = RpyParser::GetNames(path);
+  auto mainName = nameSegments[0];
+  auto mainPath = pathSegments[0];
   TArray<FString> searchPaths;
   FString foundPath;
   UPaperSprite *image = nullptr;
@@ -55,7 +51,7 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   searchPaths.Add("/KishiVisualNovel/" + searchParam + "_Sprite");
   searchPaths.Add("/KishiVisualNovel/Images/" + searchParam + "_Sprite");
 
-  auto layeredImageSearch = mainName.ToString();
+  auto layeredImageSearch = mainPath.ToString();
   searchPaths.Add("/Game/" + layeredImageSearch);
   searchPaths.Add("/Game/Images/" + layeredImageSearch);
   searchPaths.Add("/KishiVisualNovel/" + layeredImageSearch);
@@ -85,7 +81,7 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
     rpyImage.name = name;
     rpyImage.image = image;
     rpyImage.path = foundPath;
-    rpyImage.tag = name;
+    rpyImage.tag = mainName;
     this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
@@ -93,6 +89,7 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   {
     FRpyLayeredImage rpyLayeredImage;
     rpyLayeredImage.name = mainName;
+    rpyLayeredImage.tag = mainName;
     rpyLayeredImage.image = layeredImage;
     rpyLayeredImage.path = foundPath;
     this->layeredImages.Add(rpyLayeredImage.name, rpyLayeredImage);

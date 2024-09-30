@@ -123,7 +123,6 @@ struct FRpyImage
 	FString path;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName tag;
-	static FRpyImage Make(FString name, FString path);
 };
 
 USTRUCT(BlueprintType)
@@ -136,6 +135,8 @@ struct FRpyLayeredImage
 	FName name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName tag;
 	static FRpyLayeredImage Make(FName name, FString path);
 };
 

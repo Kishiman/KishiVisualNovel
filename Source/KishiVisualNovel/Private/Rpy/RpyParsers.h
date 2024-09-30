@@ -375,14 +375,19 @@ struct HideParser : public RpyParser
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 
-		FName name = RpyParser::GetNames(*params[0])[0];
+		FName tag = RpyParser::GetNames(*params[0])[0];
 		auto rpyOptions = GetRpyOptions(params[1]);
 		FName at = FName(MapUtils::FindOrMake(rpyOptions, FName("at")));
 		FName with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
 		for (auto &pair : script->images)
 		{
-			if (pair.Value.tag == name)
-				return new HideInstruction(script, rpyLine, name, at, with);
+			if (pair.Value.tag == tag)
+				return new HideInstruction(script, rpyLine, tag, at, with);
+		}
+		for (auto &pair : script->layeredImages)
+		{
+			if (pair.Value.tag == tag)
+				return new HideInstruction(script, rpyLine, tag, at, with);
 		}
 		return nullptr;
 	};

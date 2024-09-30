@@ -1,17 +1,21 @@
 define s = Character('Sylvie', color="#c8ffc8")
 define m = Character('Me', color="#c8c8ff")
-image eileen happy = "/KishiVisualNovel/Images/Custom/eileen_happy_blue_dress"
-image logo = "/KishiVisualNovel/Images/Custom/renpy_logo"
+image eileen happy = "Custom/eileen_happy_blue_dress"
+image logo = "Custom/renpy_logo"
 
 label start:
 
     scene bg meadow
+
+    show sylvie green smile
 
     "After a short while, we reach the meadows just outside the neighborhood where we both live."
 
     "It's a scenic view I've grown used to. Autumn is especially beautiful here."
 
     "When we were children, we played in these meadows a lot, so they're full of memories."
+
+    hide sylvie
 
     m "Hey... Umm..."
 
