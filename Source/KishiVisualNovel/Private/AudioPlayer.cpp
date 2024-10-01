@@ -5,20 +5,42 @@
 
 void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut, bool loop)
 {
+	// Check if the audio not null
+	if (!audio || audio->IsPendingKill())
+	{
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): NULL or invalid audio"), *channel.ToString());
+		return;
+	}
 	// Check if the audio channel exists
-	if (audioChannels.Contains(channel))
+	if (!audioChannels.Contains(channel))
+	{
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): channel does not exist "), *channel.ToString());
+		return;
+	}
+	try
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PlayAudio %s"), *channel.ToString());
 		// Create an audio component if it doesn't exist
 		if (!AudioComponents.Contains(channel))
 		{
 			UAudioComponent *newComponent = UGameplayStatics::SpawnSound2D(this, audio);
+			if (!newComponent)
+			{
+				UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Failed to spawn sound component"), *channel.ToString());
+				return;
+			}
 			newComponent->SetUISound(true);
 			newComponent->SoundClassOverride = audioChannels[channel];
 			AudioComponents.Add(channel, newComponent);
 		}
 
 		UAudioComponent *audioComponent = AudioComponents[channel];
+
+		if (!audioComponent)
+		{
+			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): audioComponent is null"), *channel.ToString());
+			return;
+		}
 
 		// Clear the audio queue
 		AudioQueue.FindOrAdd(channel).Empty();
@@ -29,12 +51,23 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 		// Set the audio and fade parameters
 		audioComponent->SetSound(audio);
 
+		if (!audioComponent)
+		{
+			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): audioComponent is null"), *channel.ToString());
+			return;
+		}
+		if (!audioComponent->Sound)
+		{
+			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Failed to set audio"), *channel.ToString());
+			return;
+		}
+
 		// Play the audio
 		audioComponent->FadeIn(fadeIn);
 	}
-	else
+	catch (const std::exception &e)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed UAudioPlayer::PlayAudio %s"), *channel.ToString());
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Caught exception: %s"), *channel.ToString(), e.what());
 	}
 }
 
@@ -75,9 +108,21 @@ void UAudioPlayer::ResumeAudio(FName channel, float fadeIn)
 
 void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut, bool loop)
 {
-	// Check if the audio channel exists
-	if (audioChannels.Contains(channel))
+	// Check if the audio not null
+	if (!audio || audio->IsPendingKill())
 	{
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): NULL or invalid audio"), *channel.ToString());
+		return;
+	}
+	// Check if the audio channel exists
+	if (!audioChannels.Contains(channel))
+	{
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::QueueAudio(%s): channel does not exist "), *channel.ToString());
+		return;
+	}
+	try
+	{
+		/* code */
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::QueueAudio %s"), *channel.ToString());
 		// Add the audio info to the queue
 		FAudioInfo audioInfo;
@@ -88,9 +133,9 @@ void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, fl
 
 		AudioQueue.FindOrAdd(channel).Add(audioInfo);
 	}
-	else
+	catch (const std::exception &e)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed UAudioPlayer::QueueAudio %s"), *channel.ToString());
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::QueueAudio(%s): Caught exception: %s"), *channel.ToString(), e.what());
 	}
 }
 

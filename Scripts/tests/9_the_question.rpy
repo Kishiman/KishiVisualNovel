@@ -40,6 +40,8 @@ label start:
     "More than just talking, more than just walking home together when our classes end."
     
     play music "illurock"
+
+    hide sylvie
     
     "As soon as she catches my eye, I decide..."
 
@@ -66,13 +68,15 @@ label rightaway:
 
     "I can't bring myself to admit that it all went in one ear and out the other."
 
-    voice "cicifyre/BrightFemale/01-good_afternoon"
-
     m "Are you going home now? Wanna walk back with me?"
+
+    voice "cicifyre/BrightFemale/01-good_afternoon"
 
     s "Sure!"
 
     scene bg meadow with fade
+
+    hide sylvie
 
     "After a short while, we reach the meadows just outside the neighborhood where we both live."
 
@@ -87,6 +91,8 @@ label rightaway:
     "She turns to me and smiles. She looks so welcoming that I feel my nervousness melt away."
 
     "I'll ask her...!"
+
+    hide sylvie
 
     m "Ummm... Will you..."
 
@@ -115,15 +121,23 @@ label rightaway:
 
 label game:
 
+    $ game = True
+
+    hide sylvie
+
     m "It's a kind of videogame you can play on your computer or a console."
 
     m "Visual novels tell a story with pictures and music."
 
     m "Sometimes, you also get to make choices that affect the outcome of the story."
 
+    show sylvie green surprised
+
     voice "cicifyre/BrightFemale/01-okay"
 
     s "So it's like those choose-your-adventure books?"
+
+    hide sylvie
 
     m "Exactly! I've got lots of different ideas that I think would work."
 
@@ -150,9 +164,13 @@ label book:
 
     show sylvie green surprised
 
+    voice "cicifyre/BrightFemale/01-good_afternoon"
+
     s "Interactive?"
 
     m "You can make choices that lead to different events and endings in the story."
+
+    voice "cicifyre/BrightFemale/01-good_afternoon"
 
     s "So where does the \"visual\" part come in?"
 
@@ -160,15 +178,21 @@ label book:
 
     show sylvie green smile
 
+    voice "cicifyre/BrightFemale/01-good_afternoon"
+
     s "I see! That certainly sounds like fun. I actually used to make webcomics way back when, so I've got lots of story ideas."
 
     m "That's great! So...would you be interested in working with me as an artist?"
+
+    voice "cicifyre/BrightFemale/01-okay"
 
     s "I'd love to!"
 
     jump marry
 
 label marry:
+
+    hide sylvie
 
     scene black with dissolve
 
@@ -179,6 +203,8 @@ label marry:
     "Over the years, we make lots of games and have a lot of fun making them."
 
     if book:
+
+        voice "cicifyre/BrightFemale/01-laughter"
 
         "Our first game is based on one of Sylvie's ideas, but afterwards I get to come up with stories of my own, too."
 
