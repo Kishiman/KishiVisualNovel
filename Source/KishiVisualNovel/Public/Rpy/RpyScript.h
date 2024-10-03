@@ -43,10 +43,10 @@ enum class ELayerType : uint8
 };
 
 TMap<FString, ELayerType> const stringToELayer = {
-		{"MASTER", ELayerType::MASTER},
-		{"TRANSIENT", ELayerType::TRANSIENT},
-		{"UNDERLAY", ELayerType::UNDERLAY},
-		{"OVERLAY", ELayerType::OVERLAY},
+		{"master", ELayerType::MASTER},
+		{"transient", ELayerType::TRANSIENT},
+		{"underlay", ELayerType::UNDERLAY},
+		{"overlay", ELayerType::OVERLAY},
 };
 
 UENUM(BlueprintType)
@@ -61,6 +61,17 @@ enum class ERPYTransitionType : uint8
 	WIPE_DOWN,
 	ZOOM,
 	BLUR,
+};
+
+TMap<FString, ERPYTransitionType> const stringToERPYTransition = {
+		{"dissolve", ERPYTransitionType::DISSLOVE},
+		{"fade", ERPYTransitionType::FADE},
+		{"wipeleft", ERPYTransitionType::WIPE_LEFT},
+		{"wiperight", ERPYTransitionType::WIPE_RIGHT},
+		{"wipeup", ERPYTransitionType::WIPE_UP},
+		{"wipedown", ERPYTransitionType::WIPE_DOWN},
+		{"zoom", ERPYTransitionType::ZOOM},
+		{"blur", ERPYTransitionType::BLUR},
 };
 
 DECLARE_DYNAMIC_DELEGATE(FInstructionCompleteDelegate);

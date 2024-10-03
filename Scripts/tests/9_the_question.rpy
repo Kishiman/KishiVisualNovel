@@ -13,7 +13,7 @@ label start:
     # Start by playing some music.
     play music "illurock"
 
-    scene bg lecturehall with fade
+    scene bg lecturehall with fade 1.0 at (1.0,2.0,3.2) onlayer master
 
     "It's only when I hear the sounds of shuffling feet and supplies being put away that I realize that the lecture's over."
 

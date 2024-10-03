@@ -236,7 +236,11 @@ struct SayParser : public RpyParser
 
 struct SceneParser : public RpyParser
 {
-	SceneParser() : RpyParser(2, "^scene " + reg_multi_name + reg_rpy_options + reg_comment, "SceneParser") {};
+	SceneParser() : RpyParser(6, "^scene " + reg_multi_name + reg_rpy_scene_options + reg_comment, "SceneParser")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("reg_rpy_options:%s"), *FString(RpyParser::reg_rpy_options.c_str()));
+		UE_LOG(LogTemp, Warning, TEXT("reg_rpy_scene_options:%s"), *FString(RpyParser::reg_rpy_scene_options.c_str()));
+	};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName name = FName(*params[0]);
@@ -244,9 +248,8 @@ struct SceneParser : public RpyParser
 		if (!script->images.Contains(name))
 			if (!script->AddDefaultImage(name, params[0]))
 				return nullptr;
-		FRpySceneOptions options;
-		auto rpyOptions = GetRpyOptions(params[1]);
-		options.with = ERPYTransitionType::NONE;
+
+		auto options = GetRpySceneOptions(params, 1);
 		return new SceneInstruction(script, rpyLine, name, options);
 	};
 };
