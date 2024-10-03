@@ -159,7 +159,7 @@ std::string RpyParser::reg_args_map = "((?:, \\w+=\".*\")+)";
 ((?: (?:at |with )\w+)*)
 INCLUDE space left
 */
-std::string RpyParser::reg_rpy_options = "((?: (?:at |with )\\w+)*)";
+std::string RpyParser::reg_rpy_options = "((?: (?:at|with|onlayer) \\w+)*)";
 /*
 (?:\"(?:[^\"\\\\]|\\\\.)+\")
 (?:'(?:[^'\\\\]|\\\\.)+')

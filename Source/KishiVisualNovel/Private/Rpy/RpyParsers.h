@@ -244,9 +244,9 @@ struct SceneParser : public RpyParser
 		if (!script->images.Contains(name))
 			if (!script->AddDefaultImage(name, params[0]))
 				return nullptr;
-		FRpyImageOptions options;
+		FRpySceneOptions options;
 		auto rpyOptions = GetRpyOptions(params[1]);
-		options.with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
+		options.with = ERPYTransitionType::NONE;
 		return new SceneInstruction(script, rpyLine, name, options);
 	};
 };

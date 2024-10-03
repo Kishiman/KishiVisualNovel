@@ -31,6 +31,38 @@ enum class EInstructionRunTimeType : uint8
 	SHOW,
 	HIDE,
 };
+
+UENUM(BlueprintType)
+enum class ELayerType : uint8
+{
+	NONE,
+	MASTER,
+	TRANSIENT,
+	UNDERLAY,
+	OVERLAY,
+};
+
+TMap<FString, ELayerType> const stringToELayer = {
+		{"MASTER", ELayerType::MASTER},
+		{"TRANSIENT", ELayerType::TRANSIENT},
+		{"UNDERLAY", ELayerType::UNDERLAY},
+		{"OVERLAY", ELayerType::OVERLAY},
+};
+
+UENUM(BlueprintType)
+enum class ERPYTransitionType : uint8
+{
+	NONE,
+	DISSLOVE,
+	FADE,
+	WIPE_LEFT,
+	WIPE_RIGHT,
+	WIPE_UP,
+	WIPE_DOWN,
+	ZOOM,
+	BLUR,
+};
+
 DECLARE_DYNAMIC_DELEGATE(FInstructionCompleteDelegate);
 
 UENUM(BlueprintType)
@@ -99,17 +131,17 @@ struct FRpyMovie
 };
 
 USTRUCT(BlueprintType)
-struct FRpyImageOptions
+struct FRpySceneOptions
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName layer;
+	ELayerType layer = ELayerType::MASTER;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName with;
+	ERPYTransitionType with = ERPYTransitionType::NONE;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float fadeTime = 0;
+	FVector position;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float desolveTime = 0;
+	float transitionTime = 0;
 };
 USTRUCT(BlueprintType)
 struct FRpyImage

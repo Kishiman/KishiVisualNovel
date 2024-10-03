@@ -78,9 +78,9 @@ void AssignInstruction<float>::SetValue(URpySession *session) { session->Runtime
 struct SceneInstruction : public RpyInstruction
 {
   FName name;
-  FRpyImageOptions options;
+  FRpySceneOptions options;
 
-  SceneInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FRpyImageOptions options) : RpyInstruction(script, rpyLine), name(name), options(options) {};
+  SceneInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name), options(options) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SCENE; }
   virtual bool Execute(URpySession *session)
   {
