@@ -8,11 +8,46 @@
 #include "Rpy/RpyScript.h"
 
 TMap<FString, FVector> const stringToFVector = {
-		{"left", FVector(0, 0.5, 0)},
-		{"right", FVector(1, 0.5, 0)},
-		{"center", FVector(0.5, 0.5, 0)},
-		{"top", FVector(0.5, 1.0, 0)},
+		{"left", FVector(0, 0, 0)},
+		{"right", FVector(1, 0, 0)},
+		{"center", FVector(0.5, 0, 0)},
+		{"top", FVector(0.5, 1, 0)},
 		{"bottom", FVector(0.5, 0, 0)},
+		{"topleft", FVector(0, 1, 0)},
+		{"topright", FVector(1, 1, 0)},
+};
+
+TMap<FString, TTuple<ERPYTransitionType, ERPYTransitionDirection>> const stringToERPYTransitionTD = {
+		{"blur", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::BLUR, ERPYTransitionDirection::NONE)},
+		{"dissolve", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::DISSOLVE, ERPYTransitionDirection::NONE)},
+		{"ease", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::NONE)},
+		{"fade", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::FADE, ERPYTransitionDirection::NONE)},
+		{"move", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::NONE)},
+		{"punch", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::SHAKE, ERPYTransitionDirection::NONE)},
+		{"shake", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::SHAKE, ERPYTransitionDirection::NONE)},
+		{"wipe", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::WIPE, ERPYTransitionDirection::NONE)},
+		{"zoom", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::ZOOM, ERPYTransitionDirection::NONE)},
+
+		{"moveinleft", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::LEFT)},
+		{"moveinright", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::RIGHT)},
+		{"moveinup", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::UP)},
+		{"moveindown", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::DOWN)},
+		{"moveoutleft", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::LEFT)},
+		{"moveoutright", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::RIGHT)},
+		{"moveoutup", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::UP)},
+		{"moveoutdown", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::DOWN)},
+
+		{"hpunch", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::SHAKE, ERPYTransitionDirection::LEFT)},
+		{"vpunch", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::SHAKE, ERPYTransitionDirection::UP)},
+
+		{"wipeleft", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::WIPE, ERPYTransitionDirection::LEFT)},
+		{"wiperight", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::WIPE, ERPYTransitionDirection::RIGHT)},
+		{"wipeup", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::WIPE, ERPYTransitionDirection::UP)},
+		{"wipedown", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::WIPE, ERPYTransitionDirection::DOWN)},
+
+		{"zoomin", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::ZOOM, ERPYTransitionDirection::NONE)},
+		{"zoomout", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::ZOOM, ERPYTransitionDirection::NONE)},
+		{"zoominout", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::ZOOM, ERPYTransitionDirection::NONE)},
 };
 struct RpyParser
 {
@@ -178,7 +213,7 @@ struct RpyParser
 	static FRpySceneOptions GetRpySceneOptions(TArray<FString> params, int offset = 0)
 	{
 		FRpySceneOptions options;
-		if ((params.Num() + offset) < 5)
+		if ((params.Num() + offset) < 6)
 		{
 			return options;
 		}
@@ -187,10 +222,12 @@ struct RpyParser
 		FString positionEnum = params[2 + offset];
 		FString positionVector = params[3 + offset];
 		FString layer = params[4 + offset];
+		FString zorder = params[5 + offset];
 		if (!with.IsEmpty())
 		{
-			options.with = stringToERPYTransition[with];
-			options.transitionTime = GetFloat(transitionTime);
+			options.with = stringToERPYTransitionTD[with].Key;
+			options.direction = stringToERPYTransitionTD[with].Value;
+			options.transitionTime = !transitionTime.IsEmpty() ? GetFloat(transitionTime) : 1.0;
 		}
 		if (!layer.IsEmpty())
 		{
@@ -205,11 +242,16 @@ struct RpyParser
 			auto position = GetVector(positionVector);
 			options.position.Set(position.X, position.Y, position.Z);
 		}
+		if (!zorder.IsEmpty())
+		{
+			options.zorder = GetInteger(zorder);
+		}
 		return options;
 	}
 };
 
 std::string reg_float_nc = "(?:[+-]?(?:\\d*\\.)?\\d+)";
+std::string reg_integer_nc = "(?:[+-]?\\d+)";
 
 std::string RpyParser::reg_bool = "(True|False|None)";
 std::string RpyParser::reg_integer = "(\\d*)";
@@ -237,18 +279,27 @@ std::string reg_layer_nc = "master|transient|underlay|overlay";
 std::string reg_position_enum_nc = "left|right|center|top|bottom";
 // | 'dissolve'
 // | 'fade'
+// | 'ease'
 // | 'wipeleft'
 // | 'wiperight'
 // | 'wipeup'
 // | 'wipedown'
+// | 'moveinleft'
+// | 'moveinright'
+// | 'moveinup'
+// | 'moveindown'
+// | 'moveoutleft'
+// | 'moveoutright'
+// | 'moveoutup'
+// | 'moveoutdown'
 // | 'zoom'
 // | 'blur'
-std::string reg_transition_enum_nc = "dissolve|fade|wipeleft|wiperight|wipeup|wipedown|zoom|blur";
+std::string reg_transition_enum_nc = "dissolve|fade|ease|wipeleft|wiperight|wipeup|wipedown|moveinleft|moveinright|moveinup|moveindown|moveoutleft|moveoutright|moveoutup|moveoutdown|zoom|blur";
 
 // 2
 std::string reg_position = "(?:(" + reg_position_enum_nc + ")|" + RpyParser::reg_vector + ")";
 
-std::string RpyParser::reg_rpy_scene_options = "(?:(?:\\s*with\\s*(" + reg_transition_enum_nc + ")\\s*(" + reg_float_nc + ")?)?(?:\\s*at\\s*" + reg_position + ")?(?:\\s*onlayer\\s*(" + reg_layer_nc + "))?)";
+std::string RpyParser::reg_rpy_scene_options = "(?:(?:\\s*with\\s*(" + reg_transition_enum_nc + ")\\s*(" + reg_float_nc + ")?)?(?:\\s*at\\s*" + reg_position + ")?(?:\\s*onlayer\\s*(" + reg_layer_nc + "))?(?:\\s*zorder\\s*(" + reg_integer_nc + "))?)";
 
 /*
 (?:\"(?:[^\"\\\\]|\\\\.)+\")

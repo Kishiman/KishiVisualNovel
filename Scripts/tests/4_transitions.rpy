@@ -31,7 +31,7 @@ label test2:
     show sylvie green smile with dissolve
 
 label test3:
-    scene bg meadow with None
+    scene bg meadow
     show sylvie green smile with dissolve
 
 label test3:

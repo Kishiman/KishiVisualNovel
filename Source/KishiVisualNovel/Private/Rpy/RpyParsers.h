@@ -12,196 +12,15 @@
 
 #include "Utils/MapUtils.h"
 
-//"init:"
-struct InitParser : public RpyParser
-{
-	InitParser() : RpyParser(0, "^init:" + reg_comment, "InitParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		RpyInstruction *init = new RpyInstruction(script, rpyLine);
-		script->init = init;
-		return init;
-	};
-};
-//$ variable_name = "Hello, world!"
-struct DefineStringParser : public RpyParser
-{
-	DefineStringParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_string + reg_comment, "DefineStringParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		bool isDefault = params[0] == "default";
-		FName varName = FName(*params[1]);
-		FString value = GetString(params[2]);
-		if (isDefault)
-			script->compileData.strings.Add(varName, value);
-		return new AssignInstruction<FString>(script, rpyLine, varName, value);
-	};
-};
-//$ variable_name = True
-struct DefineBoolParser : public RpyParser
-{
-	DefineBoolParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_bool + reg_comment, "DefineBoolParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		bool isDefault = params[0] == "default";
-		FName varName = FName(*params[1]);
-		bool value = GetBool(params[2]);
-		if (isDefault)
-			script->compileData.bools.Add(varName, value);
-		return new AssignInstruction<bool>(script, rpyLine, varName, value);
-	};
-};
-//"$ e = Character('Eileen')"
-struct DefineCharacterParser : public RpyParser
-{
-	DefineCharacterParser() : RpyParser(3, "^(?:define|\\$) " + reg_var_name + " = Character\\(" + reg_string_simple + reg_args_map + "?\\)" + reg_comment, "DefineCharacterParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FName varName = FName(*params[0]);
-		params[1] = GetString(params[1]);
-		auto args = GetArgs(params[2]);
-		FRpyCharacter character;
-		character.name = FName(*params[1]);
-		character.image = FName(MapUtils::FindOrMake(args, FName("image")));
-		character.voice = FName(MapUtils::FindOrMake(args, FName("voice_tag")));
-		// TO FIX
-		character.color = FColor::FromHex(MapUtils::FindOrMake(args, FName("color")));
-		script->characters.Add(varName, character);
-		return new RpyInstruction(script, rpyLine);
-	};
-};
-/*
-define audio.sunflower = "music/sun-flower-slow-jam"
-define image = "images/ok"
-define music = "music/ok"
-*/
-struct DefineMediaParser : public RpyParser
-{
-	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music|sound|voice) " + reg_multi_name + " = " + reg_path + reg_comment, "DefineMediaParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FString mediaPath = params[0];
-		FName media = FName(*mediaPath);
-		FName name = FName(*params[1]);
-		FString path = GetPath(params[2]);
-		auto names = RpyParser::GetNames(path);
-		if (media == FName("audio") || media == FName("music") || media == FName("sound") || media == FName("voice"))
-		{
-			if (!script->audios.Contains(name))
-				if (!script->AddDefaultAudio(name, path))
-					return nullptr;
-			return new RpyInstruction(script, rpyLine);
-		}
-		if (media == FName("image"))
-		{
-			if (!script->images.Contains(name))
-				if (!script->AddDefaultImage(name, path))
-					return nullptr;
-			return new RpyInstruction(script, rpyLine);
-		}
-		return nullptr;
-	};
-};
-/*
-stop music volume 0.25 fadeout 1.0 fadein 1.0
-*/
-// stop music volume 0.25 fadeout 1.0 fadein 1.0
-struct StopAudioParser : public RpyParser
-{
-	StopAudioParser() : RpyParser(6, "^stop " + reg_name + "(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?" + reg_comment, "StopAudioParser") {};
-
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FName channel = FName(*params[0]);
-		FRpyAudioOptions options;
-		options.volume = GetFloat(params[1]);
-		options.fadeOut = GetFloat(params[2]);
-		options.fadeIn = GetFloat(params[3]);
-		if (params[4] != "")
-			options.loop = params[4] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
-		options.if_changed = params[5] != "" ? true : false;
-		return new StopInstruction(script, rpyLine, channel, options);
-	};
-};
-// voice "waves.opus"
-struct VoiceParser : public RpyParser
-{
-	VoiceParser() : RpyParser(1, "^voice " + reg_path + reg_comment, "VoiceParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FName channel = FName("voice");
-		FString path = GetPath(params[0]);
-		FName saveName = FName(*path);
-		FRpyAudioOptions options;
-		if (!script->audios.Contains(saveName))
-		{
-			if (!script->AddDefaultAudio(saveName, path))
-				return nullptr;
-		}
-		return new PlayInstruction(script, rpyLine, channel, saveName, options);
-	};
-};
-
-// play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
-// play music track_1 volume 0.25 fadeout 1.0 fadein 1.0
-struct AudioParser : public RpyParser
-{
-	AudioParser() : RpyParser(9, "^(play|queue) " + reg_name + " (?:" + reg_name + "|" + reg_path + ")(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?" + reg_comment, "AudioParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		auto cmd = params[0];
-		FName channel = FName(*params[1]);
-		FString path;
-		if (params[2] != "")
-		{
-			path = params[2];
-		}
-		else if (params[3] != "")
-		{
-			path = GetPath(params[3]);
-		}
-		FName name = FName(*path);
-		FRpyAudioOptions options;
-		options.volume = GetFloat(params[4]);
-		options.fadeOut = GetFloat(params[5]);
-		options.fadeIn = GetFloat(params[6]);
-		if (params[7] != "")
-			options.loop = params[7] == "loop" ? ESchrodBool::ETrue : ESchrodBool::ETrue;
-		else if (channel == FName("music"))
-			options.loop = ESchrodBool::ETrue;
-		options.if_changed = params[8] != "" ? true : false;
-		if (!script->audios.Contains(name))
-		{
-			if (!script->AddDefaultAudio(name, path))
-				return nullptr;
-		}
-		if (cmd == "queue")
-			return new QueueInstruction(script, rpyLine, channel, name, options);
-		return new PlayInstruction(script, rpyLine, channel, name, options);
-	};
-};
-
-// label start:
-struct LabelParser : public RpyParser
-{
-	LabelParser() : RpyParser(1, "^label " + reg_name + ":" + reg_comment, "LabelParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		RpyInstruction *label = new LabelInstruction(script, rpyLine);
-		script->labels.Add(FName(*params[0]), label);
-		return label;
-	};
-};
-
-// jump loop
-struct JumpParser : public RpyParser
-{
-	JumpParser() : RpyParser(1, "^jump (\\w+)" + reg_comment, "JumpParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		return new JumpInstruction(script, rpyLine, FName(*params[0]));
-	};
-};
+#include "./AudioParser.h"
+#include "./DefineParser.h"
+#include "./InitParser.h"
+#include "./LabelParser.h"
+#include "./JumpParser.h"
+#include "./SceneParser.h"
+#include "./ShowParser.h"
+#include "./StopAudioParser.h"
+#include "./VoiceParser.h"
 
 // pause 2.0
 struct PauseParser : public RpyParser
@@ -231,60 +50,6 @@ struct SayParser : public RpyParser
 		FString statement = GetString(params[1]);
 		FName with = FName(*params[2]);
 		return new SayInstruction(script, rpyLine, name, statement, with);
-	};
-};
-
-struct SceneParser : public RpyParser
-{
-	SceneParser() : RpyParser(6, "^scene " + reg_multi_name + reg_rpy_scene_options + reg_comment, "SceneParser")
-	{
-		UE_LOG(LogTemp, Warning, TEXT("reg_rpy_options:%s"), *FString(RpyParser::reg_rpy_options.c_str()));
-		UE_LOG(LogTemp, Warning, TEXT("reg_rpy_scene_options:%s"), *FString(RpyParser::reg_rpy_scene_options.c_str()));
-	};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FName name = FName(*params[0]);
-		auto names = RpyParser::GetNames(name.ToString());
-		if (!script->images.Contains(name))
-			if (!script->AddDefaultImage(name, params[0]))
-				return nullptr;
-
-		auto options = GetRpySceneOptions(params, 1);
-		return new SceneInstruction(script, rpyLine, name, options);
-	};
-};
-
-// ^show
-// show john happy
-// show sylvie green smile with dissolve
-struct ShowParser : public RpyParser
-{
-	ShowParser() : RpyParser(2, "^show " + reg_multi_name + reg_rpy_options + reg_comment, "ShowParser") {};
-	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-	{
-		FName name = FName(*params[0]);
-		auto names = RpyParser::GetNames(name.ToString());
-		auto mainName = names[0];
-		auto rpyOptions = GetRpyOptions(params[1]);
-		FName at = FName(MapUtils::FindOrMake(rpyOptions, FName("at")));
-		FName with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
-		auto image = script->images.Find(name);
-		auto layeredImage = script->layeredImages.Find(mainName);
-		if (!(image || layeredImage))
-		{
-			if (!script->AddDefaultImage(name, params[0]))
-				return nullptr;
-		}
-		image = script->images.Find(name);
-		if (image)
-			return new ShowInstruction(script, rpyLine, name, at, with);
-		layeredImage = script->layeredImages.Find(mainName);
-		if (layeredImage)
-		{
-			names.RemoveAt(0);
-			return new ShowLayeredInstruction(script, rpyLine, mainName, names, at, with);
-		}
-		return nullptr;
 	};
 };
 
@@ -374,23 +139,21 @@ struct CharacterSayParser : public RpyParser
 // hide sylvie
 struct HideParser : public RpyParser
 {
-	HideParser() : RpyParser(2, "^hide " + reg_multi_name + reg_rpy_options + reg_comment, "HideParser") {};
+	HideParser() : RpyParser(7, "^hide " + reg_multi_name + reg_rpy_scene_options + reg_comment, "HideParser") {};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 
 		FName tag = RpyParser::GetNames(*params[0])[0];
-		auto rpyOptions = GetRpyOptions(params[1]);
-		FName at = FName(MapUtils::FindOrMake(rpyOptions, FName("at")));
-		FName with = FName(MapUtils::FindOrMake(rpyOptions, FName("with")));
+		auto options = GetRpySceneOptions(params, 1);
 		for (auto &pair : script->images)
 		{
 			if (pair.Value.tag == tag)
-				return new HideInstruction(script, rpyLine, tag, at, with);
+				return new HideInstruction(script, rpyLine, tag, options);
 		}
 		for (auto &pair : script->layeredImages)
 		{
 			if (pair.Value.tag == tag)
-				return new HideInstruction(script, rpyLine, tag, at, with);
+				return new HideInstruction(script, rpyLine, tag, options);
 		}
 		return nullptr;
 	};

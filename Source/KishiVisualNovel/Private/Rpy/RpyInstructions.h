@@ -94,48 +94,45 @@ struct SceneInstruction : public RpyInstruction
 struct ShowInstruction : public RpyInstruction
 {
   FName name;
-  FName at;
-  FName with;
+  FRpySceneOptions options;
 
-  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), at(at), with(with) {};
+  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name), options(options) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
   virtual bool Execute(URpySession *session)
   {
     auto rpyImage = script->images.Find(name);
     if (!rpyImage)
       return false;
-    return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), *rpyImage, at, with);
+    return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), *rpyImage, options);
   };
 };
 struct ShowLayeredInstruction : public RpyInstruction
 {
   FName name;
   TArray<FName> attributes;
-  FName at;
-  FName with;
+  FRpySceneOptions options;
 
-  ShowLayeredInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, TArray<FName> attributes, FName at, FName with) : RpyInstruction(script, rpyLine), name(name), attributes(attributes), at(at), with(with) {};
+  ShowLayeredInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, TArray<FName> attributes, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name), attributes(attributes), options(options) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
   virtual bool Execute(URpySession *session)
   {
     auto rpyLayeredImage = script->layeredImages.Find(name);
     if (!rpyLayeredImage)
       return false;
-    return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), *rpyLayeredImage, attributes, at, with);
+    return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), *rpyLayeredImage, attributes, options);
   };
 };
 
 struct HideInstruction : public RpyInstruction
 {
   FName tag;
-  FName at;
-  FName with;
+  FRpySceneOptions options;
 
-  HideInstruction(URpyScript *script, FRpyLine *rpyLine, FName tag, FName at, FName with) : RpyInstruction(script, rpyLine), tag(tag), at(at), with(with) {};
+  HideInstruction(URpyScript *script, FRpyLine *rpyLine, FName tag, FRpySceneOptions options) : RpyInstruction(script, rpyLine), tag(tag), options(options) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::HIDE; }
   virtual bool Execute(URpySession *session)
   {
-    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(), tag, at, with);
+    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(), tag, options);
   };
 };
 

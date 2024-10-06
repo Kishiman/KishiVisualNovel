@@ -53,25 +53,24 @@ UENUM(BlueprintType)
 enum class ERPYTransitionType : uint8
 {
 	NONE,
-	DISSLOVE,
-	FADE,
-	WIPE_LEFT,
-	WIPE_RIGHT,
-	WIPE_UP,
-	WIPE_DOWN,
-	ZOOM,
 	BLUR,
+	DISSOLVE,
+	EASE,
+	FADE,
+	MOVE,
+	SHAKE,
+	WIPE,
+	ZOOM,
 };
 
-TMap<FString, ERPYTransitionType> const stringToERPYTransition = {
-		{"dissolve", ERPYTransitionType::DISSLOVE},
-		{"fade", ERPYTransitionType::FADE},
-		{"wipeleft", ERPYTransitionType::WIPE_LEFT},
-		{"wiperight", ERPYTransitionType::WIPE_RIGHT},
-		{"wipeup", ERPYTransitionType::WIPE_UP},
-		{"wipedown", ERPYTransitionType::WIPE_DOWN},
-		{"zoom", ERPYTransitionType::ZOOM},
-		{"blur", ERPYTransitionType::BLUR},
+UENUM(BlueprintType)
+enum class ERPYTransitionDirection : uint8
+{
+	NONE,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN,
 };
 
 DECLARE_DYNAMIC_DELEGATE(FInstructionCompleteDelegate);
@@ -150,9 +149,13 @@ struct FRpySceneOptions
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ERPYTransitionType with = ERPYTransitionType::NONE;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ERPYTransitionDirection direction = ERPYTransitionDirection::NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector position;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float transitionTime = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int zorder = 0;
 };
 USTRUCT(BlueprintType)
 struct FRpyImage
