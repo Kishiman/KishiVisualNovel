@@ -46,16 +46,16 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   UPaperSprite *image = nullptr;
   ULayeredSprite *layeredImage = nullptr;
   FString searchParam = path.Replace(TEXT(" "), TEXT("_"));
-  searchPaths.Add("/Game/" + searchParam + "_Sprite");
-  searchPaths.Add("/Game/Images/" + searchParam + "_Sprite");
-  searchPaths.Add("/KishiVisualNovel/" + searchParam + "_Sprite");
-  searchPaths.Add("/KishiVisualNovel/Images/" + searchParam + "_Sprite");
-
   auto layeredImageSearch = mainPath.ToString();
   searchPaths.Add("/Game/" + layeredImageSearch);
   searchPaths.Add("/Game/Images/" + layeredImageSearch);
   searchPaths.Add("/KishiVisualNovel/" + layeredImageSearch);
   searchPaths.Add("/KishiVisualNovel/Images/" + layeredImageSearch);
+
+  searchPaths.Add("/Game/" + searchParam + "_Sprite");
+  searchPaths.Add("/Game/Images/" + searchParam + "_Sprite");
+  searchPaths.Add("/KishiVisualNovel/" + searchParam + "_Sprite");
+  searchPaths.Add("/KishiVisualNovel/Images/" + searchParam + "_Sprite");
 
   for (auto &searchPath : searchPaths)
   {

@@ -12,8 +12,8 @@ define pilot = Character("Pilot", color="#FFA500")
 image bg_airport = "DBCooper/bg_airport"
 image bg_airplane = "DBCooper/bg_airplane"
 image bg_briefcase = "DBCooper/bg_briefcase"
-image bg_note = "DBCooper/bg_note"
-image flight_attendant = "DBCooper/airplane_attendent"
+image note = "DBCooper/note_LS"
+image flight_attendant = "DBCooper/airplane_attendent_LS"
 
 # Sounds and Music
 sound db_cooper = "EliotHolmes/Hard_Heart"
@@ -128,7 +128,7 @@ label tell_read_now:
 
     narrator "Her smile falters as she opens the note. Her eyes widen in shock."
 
-    show bg_note with fade
+    show note with fade
     narrator "{i}I have a bomb in my briefcase. I want $200,000 in cash, four parachutes, and a fuel truck ready in Seattle. No funny business, or I'll do it.{/i}"
 
     show flight_attendant

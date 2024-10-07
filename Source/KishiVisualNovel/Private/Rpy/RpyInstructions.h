@@ -109,17 +109,17 @@ struct ShowInstruction : public RpyInstruction
 struct ShowLayeredInstruction : public RpyInstruction
 {
   FName name;
-  TArray<FName> attributes;
+  FString attribute;
   FRpySceneOptions options;
 
-  ShowLayeredInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, TArray<FName> attributes, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name), attributes(attributes), options(options) {};
+  ShowLayeredInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FString attribute, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name), attribute(attribute), options(options) {};
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
   virtual bool Execute(URpySession *session)
   {
     auto rpyLayeredImage = script->layeredImages.Find(name);
     if (!rpyLayeredImage)
       return false;
-    return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), *rpyLayeredImage, attributes, options);
+    return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), *rpyLayeredImage, attribute, options);
   };
 };
 

@@ -35,11 +35,20 @@ public:
 	TArray<FSpriteLayer> layers;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
+	bool FindOnlyLayerByName(FName LayerName) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	bool FindLayerByName(FName LayerName, FSpriteLayer &layer, TArray<FSpriteLayer> &groupLayers) const;
+
+	UFUNCTION(BlueprintPure, Category = "LayeredSprite")
+	void FindLayersByAttribute(FString Attribute, TArray<FSpriteLayer> &FoundLayers, TArray<FSpriteLayer> &groupLayers) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	void FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	bool DisplayLayer(FName LayerName);
+
+	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
+	static FName GetNameFromAssetName(FString AssetName);
 };

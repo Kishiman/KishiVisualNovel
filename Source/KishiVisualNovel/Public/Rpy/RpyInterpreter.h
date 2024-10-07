@@ -34,8 +34,8 @@ public:
   virtual bool Hide_Implementation(FName tag, FRpySceneOptions options) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  bool ShowLayeredImage(FRpyLayeredImage rpyLayeredImage, const TArray<FName> &attributes, FRpySceneOptions options);
-  virtual bool ShowLayeredImage_Implementation(FRpyLayeredImage rpyLayeredImage, const TArray<FName> &attributes, FRpySceneOptions options) = 0;
+  bool ShowLayeredImage(FRpyLayeredImage rpyLayeredImage, const FString &attribute, FRpySceneOptions options);
+  virtual bool ShowLayeredImage_Implementation(FRpyLayeredImage rpyLayeredImage, const FString &attribute, FRpySceneOptions options) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool PauseAudio(float timeout);

@@ -1,7 +1,5 @@
 define s = Character('Sylvie', color="#c8ffc8")
 define m = Character('Me', color="#c8c8ff")
-image eileen happy = "Custom/eileen_happy_blue_dress"
-image logo = "Custom/renpy_logo"
 
 label start:
 
