@@ -1,7 +1,7 @@
 define aug = Character('Augustina', color="#c8ffc8")
 
 label start:
-    show Augustina with fade
+    show Augustina dress smile with fade
     # displaying dress and neutral
     aug "I like this dress."
     

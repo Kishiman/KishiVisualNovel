@@ -6,6 +6,8 @@
 #include "KishiDataAsset.h"
 #include "Layerable.h"
 #include "PaperSprite.h"
+#include "ThumbnailRendering/SceneThumbnailInfoWithPrimitive.h"
+
 #include "LayeredSprite.generated.h"
 
 /**
@@ -35,19 +37,25 @@ public:
 	TArray<FSpriteLayer> layers;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
-	bool FindOnlyLayerByName(FName LayerName) const;
+	bool FindOnlyLayerByName(FName LayerName, FSpriteLayer &FoundLayer) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
-	bool FindLayerByName(FName LayerName, FSpriteLayer &layer, TArray<FSpriteLayer> &groupLayers) const;
+	bool FindLayerByName(FName LayerName, FSpriteLayer &Layer, TArray<FSpriteLayer> &InvertLayers) const;
 
 	UFUNCTION(BlueprintPure, Category = "LayeredSprite")
-	void FindLayersByAttribute(FString Attribute, TArray<FSpriteLayer> &FoundLayers, TArray<FSpriteLayer> &groupLayers) const;
+	void FindNamesByAttribute(FString Attribute, TArray<FName> &Names, TArray<FName> &InvertNames) const;
+
+	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
+	void FindNamesToDisplayByAttribute(FString Attribute, TArray<FName> &NamesToShow, TArray<FName> &NamesToHide) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	void FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	bool DisplayLayer(FName LayerName);
+
+	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
+	void DisplayLayersByAttribute(FString Attribute);
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	static FName GetNameFromAssetName(FString AssetName);

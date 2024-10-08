@@ -7,7 +7,7 @@ label start:
     
     "scene bg meadow"
 
-    show sylvie green smile with fade
+    show sylvie green normal with fade
 
     "show sylvie green smile with fade"
 
