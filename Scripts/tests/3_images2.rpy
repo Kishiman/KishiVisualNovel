@@ -23,11 +23,11 @@ label start:
 
     "show sylvie green smile with fade"
 
-    show sylvie green surprised with fade
+    show sylvie green surprised with dissolve
 
-    "show sylvie green surprised with fade"
+    "show sylvie green surprised with dissolve"
 
-    hide sylvie with fade
+    hide sylvie with fade 2.0
 
-    "hide sylvie with fade"
+    "hide sylvie with fade 2.0"
 
