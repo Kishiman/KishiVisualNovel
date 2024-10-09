@@ -76,7 +76,7 @@ void ULayeredSprite::FindNamesByAttribute(FString Attribute, TArray<FName> &Name
 	}
 }
 
-void ULayeredSprite::FindNamesToDisplayByAttribute(FString Attribute, TArray<FName> &NamesToShow, TArray<FName> &NamesToHide) const
+void ULayeredSprite::FindNamesToDisplayByAttribute(FString Attribute, TArray<FName> &NamesToShow, TArray<FName> &NamesToHide)
 {
 	TArray<FName> Names;
 	TArray<FName> InvertNames;
@@ -95,19 +95,16 @@ void ULayeredSprite::FindNamesToDisplayByAttribute(FString Attribute, TArray<FNa
 	return;
 }
 
-bool ULayeredSprite::DisplayLayer(FName LayerName)
+void ULayeredSprite::SetLayerDisplay(FName LayerName, bool Value)
 {
-	FSpriteLayer foundLayer;
-	TArray<FSpriteLayer> groupLayers;
-	auto result = this->FindLayerByName(LayerName, foundLayer, groupLayers);
-	if (!result)
-		return result;
-	foundLayer.displayed = true;
-	for (auto layer : groupLayers)
+	for (auto &layer : layers)
 	{
-		layer.displayed = false;
+		if (layer.name == LayerName)
+		{
+			layer.displayed = Value;
+			return;
+		}
 	}
-	return true;
 }
 
 void ULayeredSprite::FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const

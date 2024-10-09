@@ -15,6 +15,10 @@ label start:
 
     "hide sylvie with fade"
 
+    show sylvie green giggle
+
+    "show sylvie green giggle"
+
     show sylvie green smile with fade
 
     "show sylvie green smile with fade"

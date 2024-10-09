@@ -46,13 +46,13 @@ public:
 	void FindNamesByAttribute(FString Attribute, TArray<FName> &Names, TArray<FName> &InvertNames) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
-	void FindNamesToDisplayByAttribute(FString Attribute, TArray<FName> &NamesToShow, TArray<FName> &NamesToHide) const;
+	void FindNamesToDisplayByAttribute(FString Attribute, TArray<FName> &NamesToShow, TArray<FName> &NamesToHide);
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	void FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
-	bool DisplayLayer(FName LayerName);
+	void SetLayerDisplay(FName LayerName, bool Value);
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	void DisplayLayersByAttribute(FString Attribute);
