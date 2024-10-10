@@ -7,27 +7,39 @@ label start:
     
     "scene bg meadow"
 
-    show sylvie green normal with fade
+    # show sylvie green normal with fade
 
-    "show sylvie green smile with fade"
+    # "show sylvie green smile with fade"
 
-    hide sylvie with fade
+    # show sylvie green giggle with fade
 
-    "hide sylvie with fade"
+    # "show sylvie green giggle with fade"
 
-    show sylvie green giggle
+    # hide sylvie with fade
 
-    "show sylvie green giggle"
+    # "hide sylvie with fade"
 
-    show sylvie green smile with fade
+    # show sylvie green normal with dissolve
 
-    "show sylvie green smile with fade"
+    # "show sylvie green smile with dissolve"
 
-    show sylvie green surprised with dissolve
+    # show sylvie green giggle with dissolve
 
-    "show sylvie green surprised with dissolve"
+    # "show sylvie green giggle with dissolve"
 
-    hide sylvie with fade 2.0
+    # hide sylvie with dissolve
 
-    "hide sylvie with fade 2.0"
+    # "hide sylvie with dissolve"
+
+    show sylvie green normal with zoom
+
+    "show sylvie green smile with zoom"
+
+    show sylvie green giggle with zoom
+
+    "show sylvie green giggle with zoom"
+
+    hide sylvie with zoom
+
+    "hide sylvie with zoom"
 
