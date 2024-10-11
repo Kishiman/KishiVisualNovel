@@ -4,41 +4,66 @@ define m = Character('Me', color="#c8c8ff")
 label start:
 
     scene bg meadow
+    
+    "scene bg meadow"
 
-    show sylvie green smile with fade
+    # show sylvie green normal with fade
 
-    "After a short while, we reach the meadows just outside the neighborhood where we both live."
+    # "show sylvie green smile with fade"
 
-    "It's a scenic view I've grown used to. Autumn is especially beautiful here."
+    # show sylvie green giggle with fade
 
-    "When we were children, we played in these meadows a lot, so they're full of memories."
+    # "show sylvie green giggle with fade"
 
-    hide sylvie with fade
+    # hide sylvie with fade 0.5
 
-    m "Hey... Umm..."
+    # "hide sylvie with fade 0.5"
 
-    show sylvie green smile with fade
+    show sylvie green normal with easeinright
 
-    "She turns to me and smiles. She looks so welcoming that I feel my nervousness melt away."
+    "show sylvie green smile with easeinright"
 
-    "I'll ask her...!"
+    show sylvie green giggle with easeinleft
 
-    m "Ummm... Will you..."
+    "show sylvie green giggle with easeinleft"
 
-    m "Will you be my artist for a visual novel?"
+    hide sylvie with easeinbottom 0.5
 
-    show sylvie green surprised with fade
+    "hide sylvie with easeinbottom 0.5"
 
-    "Silence."
+    show sylvie green normal with moveinright
 
-    jump leaving
+    "show sylvie green smile with moveinright"
 
-label leaving:
+    show sylvie green giggle with moveinleft
 
-    s "I'll get right on it!"
+    "show sylvie green giggle with moveinleft"
 
-    hide sylvie with fade
+    hide sylvie with moveinbottom 0.5
 
-    "..."
+    "hide sylvie with moveinbottom 0.5"
 
-    m "That wasn't what I meant!"
+    show sylvie green normal with dissolve
+
+    "show sylvie green smile with dissolve"
+
+    show sylvie green giggle with dissolve
+
+    "show sylvie green giggle with dissolve"
+
+    hide sylvie with dissolve 0.5
+
+    "hide sylvie with dissolve 0.5"
+
+    show sylvie green normal with zoom
+
+    "show sylvie green smile with zoom"
+
+    show sylvie green giggle with zoom
+
+    "show sylvie green giggle with zoom"
+
+    hide sylvie with zoom 0.5
+
+    "hide sylvie with zoom 0.5"
+

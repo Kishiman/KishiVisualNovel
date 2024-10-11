@@ -8,12 +8,12 @@
 #include "Rpy/RpyScript.h"
 
 TMap<FString, FVector> const stringToFVector = {
-		{"left", FVector(0, 0, 0)},
+		{"left", FVector(-1, 0, 0)},
 		{"right", FVector(1, 0, 0)},
-		{"center", FVector(0.5, 0, 0)},
-		{"top", FVector(0.5, 1, 0)},
-		{"bottom", FVector(0.5, 0, 0)},
-		{"topleft", FVector(0, 1, 0)},
+		{"center", FVector(0, 0, 0)},
+		{"top", FVector(0, 1, 0)},
+		{"bottom", FVector(0, 0, 0)},
+		{"topleft", FVector(-1, 1, 0)},
 		{"topright", FVector(1, 1, 0)},
 };
 
@@ -28,15 +28,23 @@ TMap<FString, TTuple<ERPYTransitionType, ERPYTransitionDirection>> const stringT
 		{"wipe", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::WIPE, ERPYTransitionDirection::NONE)},
 		{"zoom", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::ZOOM, ERPYTransitionDirection::NONE)},
 
+		{"easeinleft", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::LEFT)},
+		{"easeinright", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::RIGHT)},
+		{"easeintop", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::UP)},
+		{"easeinbottom", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::DOWN)},
+		{"easeoutleft", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::LEFT)},
+		{"easeoutright", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::RIGHT)},
+		{"easeouttop", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::UP)},
+		{"easeoutbottom", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::EASE, ERPYTransitionDirection::DOWN)},
+
 		{"moveinleft", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::LEFT)},
 		{"moveinright", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::RIGHT)},
-		{"moveinup", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::UP)},
-		{"moveindown", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::DOWN)},
+		{"moveintop", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::UP)},
+		{"moveinbottom", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::DOWN)},
 		{"moveoutleft", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::LEFT)},
 		{"moveoutright", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::RIGHT)},
-		{"moveoutup", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::UP)},
-		{"moveoutdown", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::DOWN)},
-
+		{"moveouttop", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::UP)},
+		{"moveoutbottom", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::MOVE, ERPYTransitionDirection::DOWN)},
 		{"hpunch", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::SHAKE, ERPYTransitionDirection::LEFT)},
 		{"vpunch", TTuple<ERPYTransitionType, ERPYTransitionDirection>(ERPYTransitionType::SHAKE, ERPYTransitionDirection::UP)},
 
@@ -284,17 +292,27 @@ std::string reg_position_enum_nc = "left|right|center|top|bottom";
 // | 'wiperight'
 // | 'wipeup'
 // | 'wipedown'
+
+// | 'easeinleft'
+// | 'easeinright'
+// | 'easeintop'
+// | 'easeinbottom'
+// | 'easeoutleft'
+// | 'easeoutright'
+// | 'easeouttop'
+// | 'easeoutbottom'
+
 // | 'moveinleft'
 // | 'moveinright'
-// | 'moveinup'
-// | 'moveindown'
+// | 'moveintop'
+// | 'moveinbottom'
 // | 'moveoutleft'
 // | 'moveoutright'
-// | 'moveoutup'
-// | 'moveoutdown'
+// | 'moveouttop'
+// | 'moveoutbottom'
 // | 'zoom'
 // | 'blur'
-std::string reg_transition_enum_nc = "dissolve|fade|ease|wipeleft|wiperight|wipeup|wipedown|moveinleft|moveinright|moveinup|moveindown|moveoutleft|moveoutright|moveoutup|moveoutdown|zoom|blur";
+std::string reg_transition_enum_nc = "dissolve|fade|ease|wipeleft|wiperight|wipeup|wipedown|easeinleft|easeinright|easeintop|easeinbottom|easeoutleft|easeoutright|easeouttop|easeoutbottom|moveinleft|moveinright|moveintop|moveinbottom|moveoutleft|moveoutright|moveouttop|moveoutbottom|zoom|blur";
 
 // 2
 std::string reg_position = "(?:(" + reg_position_enum_nc + ")|" + RpyParser::reg_vector + ")";

@@ -10,6 +10,10 @@
 #include "MovieSceneSequence.h"
 #include "MovieScenePossessable.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "MovieScene.h"
+#include "MovieSceneSection.h"
+#include "Channels/MovieSceneFloatChannel.h"
+#include "AnimationSolverVector2D.h"
 
 #include "WidgetAnimationLibrary.generated.h"
 
