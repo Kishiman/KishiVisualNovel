@@ -8,13 +8,13 @@
 #include "Rpy/RpyScript.h"
 
 TMap<FString, FVector> const stringToFVector = {
-		{"left", FVector(-1, 0, 0)},
-		{"right", FVector(1, 0, 0)},
+		{"left", FVector(-0.5, 0, 0)},
+		{"right", FVector(0.5, 0, 0)},
 		{"center", FVector(0, 0, 0)},
-		{"top", FVector(0, 1, 0)},
+		{"top", FVector(0, 0.5, 0)},
 		{"bottom", FVector(0, 0, 0)},
-		{"topleft", FVector(-1, 1, 0)},
-		{"topright", FVector(1, 1, 0)},
+		{"topleft", FVector(-0.5, 0.5, 0)},
+		{"topright", FVector(0.5, 0.5, 0)},
 };
 
 TMap<FString, TTuple<ERPYTransitionType, ERPYTransitionDirection>> const stringToERPYTransitionTD = {

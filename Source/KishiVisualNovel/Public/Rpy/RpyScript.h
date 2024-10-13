@@ -151,7 +151,7 @@ struct FRpySceneOptions
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ERPYTransitionDirection direction = ERPYTransitionDirection::NONE;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector position;
+	FVector position = FVector(0, 0, 0);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float transitionTime = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
