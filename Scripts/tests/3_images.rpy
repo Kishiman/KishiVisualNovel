@@ -13,6 +13,10 @@ label start:
 
     show sylvie green giggle with fade at left
 
+    pause 2.0
+
+    show sylvie green surprised with fade at right
+
     "show sylvie green giggle with fade at left"
 
     hide sylvie with fade 0.5
