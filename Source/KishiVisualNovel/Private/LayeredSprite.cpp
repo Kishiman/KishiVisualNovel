@@ -76,37 +76,6 @@ void ULayeredSprite::FindNamesByAttribute(FString Attribute, TArray<FName> &Name
 	}
 }
 
-void ULayeredSprite::FindNamesToDisplayByAttribute(FString Attribute, TArray<FName> &NamesToShow, TArray<FName> &NamesToHide)
-{
-	TArray<FName> Names;
-	TArray<FName> InvertNames;
-	FindNamesByAttribute(Attribute, Names, InvertNames);
-	for (const auto &layer : layers)
-	{
-		if (Names.Contains(layer.name) && !layer.displayed)
-		{
-			NamesToShow.Add(layer.name);
-		}
-		else if (InvertNames.Contains(layer.name) && layer.displayed)
-		{
-			NamesToHide.Add(layer.name);
-		}
-	}
-	return;
-}
-
-void ULayeredSprite::SetLayerDisplay(FName LayerName, bool Value)
-{
-	for (auto &layer : layers)
-	{
-		if (layer.name == LayerName)
-		{
-			layer.displayed = Value;
-			return;
-		}
-	}
-}
-
 void ULayeredSprite::FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const
 {
 	for (const FSpriteLayer &layer : layers)
@@ -114,32 +83,6 @@ void ULayeredSprite::FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &gr
 		if (layer.group == GroupName)
 		{
 			groupLayers.Add(layer);
-		}
-	}
-}
-
-void ULayeredSprite::DisplayLayersByAttribute(FString Attribute)
-{
-	TSet<FName> groupsFound;
-	TArray<FName> namesFound;
-	for (const auto &layer : layers)
-	{
-		if (Attribute.Contains(layer.name.ToString()))
-		{
-			namesFound.Add(layer.name);
-			groupsFound.Add(layer.group);
-		}
-	}
-
-	for (auto &layer : layers)
-	{
-		if (namesFound.Contains(layer.name))
-		{
-			layer.displayed = true;
-		}
-		else if (groupsFound.Contains(layer.group))
-		{
-			layer.displayed = false;
 		}
 	}
 }

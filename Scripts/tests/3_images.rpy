@@ -9,13 +9,11 @@ label start:
 
     show sylvie green normal with fade at right
 
-    "show sylvie green smile with fade at right"
-
-    show sylvie green giggle with fade at left
+    "show sylvie green smile with fade at right \npause 2.0"
 
     pause 2.0
 
-    show sylvie green surprised with fade at right
+    show sylvie green giggle with fade at left
 
     "show sylvie green giggle with fade at left"
 
