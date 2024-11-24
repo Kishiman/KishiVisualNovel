@@ -1,15 +1,23 @@
 define s = Character('Sylvie', color="#c8ffc8")
 define m = Character('Me', color="#c8c8ff")
 
+image flight_attendant = "DBCooper/airplane_attendent_LS"
+
 label start:
 
     scene bg meadow
     
     "scene bg meadow"
 
+    show flight_attendant with fade at left
+
+    "show flight_attendant with fade at left"
+
+    hide flight_attendant
+
     show sylvie green normal with fade at right
 
-    "show sylvie green smile with fade at right \npause 2.0"
+    "hide flight_attendant \n show sylvie green smile with fade at right \npause 2.0"
 
     pause 2.0
 
