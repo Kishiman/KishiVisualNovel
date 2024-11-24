@@ -43,6 +43,7 @@ public class KishiVisualNovel : ModuleRules
       {
         "CoreUObject",
         "Engine",
+        "Kishi",
 				//"Slate",
 				//"SlateCore",
 				// ... add private dependencies that you statically link with here ...	

@@ -2,27 +2,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Templates/KishiInterfaceLinker.h"
 
-//Comment for git test
+// Comment for git test
 template <class InterfaceType>
 struct TKishiScriptInterface : public TScriptInterface<InterfaceType>
 {
 
 	TKishiScriptInterface() {}
 	TKishiScriptInterface(TYPE_OF_NULLPTR)
-		: TScriptInterface<InterfaceType>() {}
+			: TScriptInterface<InterfaceType>() {}
 
 	template <class UObjectType>
 	TKishiScriptInterface(UObjectType *SourceObject)
-		: TScriptInterface<InterfaceType>(SourceObject) {}
+			: TScriptInterface<InterfaceType>(SourceObject) {}
 
 	TKishiScriptInterface(const TScriptInterface<InterfaceType> &Other)
-		: TScriptInterface<InterfaceType>(Other) {}
+			: TScriptInterface<InterfaceType>(Other) {}
 
 	template <class OtherInterfaceType>
 	TKishiScriptInterface(const TScriptInterface<OtherInterfaceType> &Other)
-		: TScriptInterface<InterfaceType>(Other.GetObject()) {}
+			: TScriptInterface<InterfaceType>(Other.GetObject()) {}
 
 	FORCEINLINE bool operator==(const UObject *Other) const
 	{
