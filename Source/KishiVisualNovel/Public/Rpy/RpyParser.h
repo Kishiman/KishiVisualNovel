@@ -239,7 +239,7 @@ struct RpyParser
 		}
 		if (!layer.IsEmpty())
 		{
-			options.layer = stringToELayer[layer];
+			options.layer = FName(layer);
 		}
 		if (!positionEnum.IsEmpty())
 		{

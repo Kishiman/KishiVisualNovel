@@ -66,22 +66,19 @@ void ULayeredSprite::FindNamesByAttribute(FString Attribute, TArray<FName> &Name
 			groupsFound.Add(layer.group);
 		}
 	}
-	if (Names.Num() == 0)
-	{
-		for (const auto &layer : layers)
-		{
-			layer.displayed ? Names.Add(layer.name) : InvertNames.Add(layer.name);
-		}
-		return;
-	}
 
 	for (const auto &layer : layers)
 	{
+		if (layer.displayed && !groupsFound.Contains(layer.group))
+		{
+			Names.Add(layer.name);
+		}
 		if (!Names.Contains(layer.name) && groupsFound.Contains(layer.group))
 		{
 			InvertNames.Add(layer.name);
 		}
 	}
+	return;
 }
 
 void ULayeredSprite::FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const

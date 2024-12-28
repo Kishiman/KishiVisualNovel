@@ -131,6 +131,8 @@ label tell_read_now:
     show note with fade
     narrator "{i}I have a bomb in my briefcase. I want $200,000 in cash, four parachutes, and a fuel truck ready in Seattle. No funny business, or I'll do it.{/i}"
 
+    hide note with fade
+
     show flight_attendant
     flight_attendant "(Whispers) Oh my god…"
 

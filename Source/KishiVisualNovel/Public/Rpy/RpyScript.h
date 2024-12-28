@@ -13,7 +13,7 @@
 
 #include "RpyScript.generated.h"
 
-class IRpyInterpreter;
+class IRpyScriptInterpreter;
 class RpyInstruction;
 /**
  */
@@ -145,7 +145,7 @@ struct FRpySceneOptions
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ELayerType layer = ELayerType::MASTER;
+	FName layer = FName("master");
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ERPYTransitionType with = ERPYTransitionType::NONE;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

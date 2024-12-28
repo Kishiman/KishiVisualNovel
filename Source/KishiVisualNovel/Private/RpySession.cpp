@@ -2,7 +2,7 @@
 #include "./Rpy/RpyParsers.h"
 #include "Rpy/RpyInstruction.h"
 #include "Rpy/RpyParser.h"
-#include "Rpy/RpyInterpreter.h"
+#include "Interfaces/RpyScriptInterpreter.h"
 
 // Online IDE - Code Editor, parser, Interpreter
 

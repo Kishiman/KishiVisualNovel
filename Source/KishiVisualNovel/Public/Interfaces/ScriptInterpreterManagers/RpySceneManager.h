@@ -19,18 +19,6 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool Scene(FRpyImage rpyImage, FRpySceneOptions options);
   virtual bool Scene_Implementation(FRpyImage rpyImage, FRpySceneOptions options) = 0;
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  bool Show(FRpyImage rpyImage, FRpySceneOptions options);
-  virtual bool Show_Implementation(FRpyImage rpyImage, FRpySceneOptions options) = 0;
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  bool Hide(FName tag, FRpySceneOptions options);
-  virtual bool Hide_Implementation(FName tag, FRpySceneOptions options) = 0;
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  bool ShowLayeredImage(FRpyLayeredImage rpyLayeredImage, const FString &attribute, FRpySceneOptions options);
-  virtual bool ShowLayeredImage_Implementation(FRpyLayeredImage rpyLayeredImage, const FString &attribute, FRpySceneOptions options) = 0;
 };
 
 // UCLASS()
@@ -40,4 +28,5 @@ public:
 // public:
 // protected:
 // private:
+
 // };

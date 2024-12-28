@@ -1,7 +1,7 @@
 #include "Rpy/RpyScript.h"
 #include "Rpy/RpyParser.h"
 #include "Rpy/RpyInstruction.h"
-#include "Rpy/RpyInterpreter.h"
+#include "Interfaces/RpyScriptInterpreter.h"
 #include "Misc/FileHelper.h"
 
 // Online IDE - Code Editor, parser, Interpreter

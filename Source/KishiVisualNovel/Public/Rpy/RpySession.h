@@ -8,7 +8,7 @@
 
 #include "RpySession.generated.h"
 
-class IRpyInterpreter;
+class IRpyScriptInterpreter;
 class RpyInstruction;
 /**
  */
@@ -19,7 +19,7 @@ class KISHIVISUALNOVEL_API URpySession : public UObject
 	GENERATED_BODY()
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
-	TScriptInterface<IRpyInterpreter> interpreter;
+	TScriptInterface<IRpyScriptInterpreter> interpreter;
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn = "true"))
 	TArray<URpyScript *> scripts;
 	UPROPERTY(BlueprintReadWrite)

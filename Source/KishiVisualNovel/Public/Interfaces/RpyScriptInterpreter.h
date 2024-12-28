@@ -28,24 +28,24 @@ public:
   virtual URpySession *GetSession_Implementation() const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  TScriptInterface<IRpyAudioManager> GetAudioManager(FName channel) const;
-  virtual TScriptInterface<IRpyAudioManager> GetAudioManager_Implementation(FName channel) const = 0;
+  TScriptInterface<IRpyAudioManager> GetAudioManager() const;
+  virtual TScriptInterface<IRpyAudioManager> GetAudioManager_Implementation() const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  TScriptInterface<IRpyChoiceManager> GetChoiceManager(FName layer) const;
-  virtual TScriptInterface<IRpyChoiceManager> GetChoiceManager_Implementation(FName layer) const = 0;
+  TScriptInterface<IRpyChoiceManager> GetChoiceManager() const;
+  virtual TScriptInterface<IRpyChoiceManager> GetChoiceManager_Implementation() const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  TScriptInterface<IRpySceneManager> GetSceneManager(FName layer) const;
-  virtual TScriptInterface<IRpySceneManager> GetSceneManager_Implementation(FName layer) const = 0;
+  TScriptInterface<IRpySceneManager> GetSceneManager() const;
+  virtual TScriptInterface<IRpySceneManager> GetSceneManager_Implementation() const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  TScriptInterface<IRpyShowManager> GetShowManager(FName layer) const;
-  virtual TScriptInterface<IRpyShowManager> GetShowManager_Implementation(FName layer) const = 0;
+  TScriptInterface<IRpyShowManager> GetShowManager() const;
+  virtual TScriptInterface<IRpyShowManager> GetShowManager_Implementation() const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  TScriptInterface<IRpyStatementManager> GetStatementManager(FName layer) const;
-  virtual TScriptInterface<IRpyStatementManager> GetStatementManager_Implementation(FName layer) const = 0;
+  TScriptInterface<IRpyStatementManager> GetStatementManager() const;
+  virtual TScriptInterface<IRpyStatementManager> GetStatementManager_Implementation() const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   void OnInstructionComplete(EInstructionRunTimeType type);

@@ -1,7 +1,13 @@
 #pragma once
 
 #include "Rpy/RpyInstruction.h"
-#include "Rpy/RpyInterpreter.h"
+#include "Interfaces/RpyScriptInterpreter.h"
+
+#include "Interfaces/ScriptInterpreterManagers/RpyAudioManager.h"
+#include "Interfaces/ScriptInterpreterManagers/RpyChoiceManager.h"
+#include "Interfaces/ScriptInterpreterManagers/RpySceneManager.h"
+#include "Interfaces/ScriptInterpreterManagers/RpyShowManager.h"
+#include "Interfaces/ScriptInterpreterManagers/RpyStatementManager.h"
 #include "Rpy/RpySession.h"
 
 struct IfInstruction;
@@ -87,10 +93,10 @@ struct SceneInstruction : public RpyInstruction
     auto rpyImage = script->images.Find(name);
     if (!rpyImage)
       return false;
-    return IRpyInterpreter::Execute_Scene(session->interpreter.GetObject(), *rpyImage, options);
+    auto sceneManager = IRpyScriptInterpreter::Execute_GetSceneManager(session->interpreter.GetObject());
+    return IRpySceneManager::Execute_Scene(sceneManager.GetObject(), *rpyImage, options);
   };
 };
-
 struct ShowInstruction : public RpyInstruction
 {
   FName name;
@@ -103,7 +109,9 @@ struct ShowInstruction : public RpyInstruction
     auto rpyImage = script->images.Find(name);
     if (!rpyImage)
       return false;
-    return IRpyInterpreter::Execute_Show(session->interpreter.GetObject(), *rpyImage, options);
+    auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(session->interpreter.GetObject());
+
+    return IRpyShowManager::Execute_Show(showManager.GetObject(), *rpyImage, options);
   };
 };
 struct ShowLayeredInstruction : public RpyInstruction
@@ -119,7 +127,9 @@ struct ShowLayeredInstruction : public RpyInstruction
     auto rpyLayeredImage = script->layeredImages.Find(name);
     if (!rpyLayeredImage)
       return false;
-    return IRpyInterpreter::Execute_ShowLayeredImage(session->interpreter.GetObject(), *rpyLayeredImage, attribute, options);
+    auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(session->interpreter.GetObject());
+
+    return IRpyShowManager::Execute_ShowLayeredImage(showManager.GetObject(), *rpyLayeredImage, attribute, options);
   };
 };
 
@@ -132,7 +142,9 @@ struct HideInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::HIDE; }
   virtual bool Execute(URpySession *session)
   {
-    return IRpyInterpreter::Execute_Hide(session->interpreter.GetObject(), tag, options);
+    auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(session->interpreter.GetObject());
+
+    return IRpyShowManager::Execute_Hide(showManager.GetObject(), tag, options);
   };
 };
 
@@ -146,7 +158,9 @@ struct SayInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SAY; }
   virtual bool Execute(URpySession *session)
   {
-    return IRpyInterpreter::Execute_Say(session->interpreter.GetObject(), this->name, this->statement);
+    auto statementManager = IRpyScriptInterpreter::Execute_GetStatementManager(session->interpreter.GetObject());
+
+    return IRpyStatementManager::Execute_Say(statementManager.GetObject(), this->name, this->statement);
   };
 };
 struct PlayInstruction : public RpyInstruction
@@ -162,7 +176,9 @@ struct PlayInstruction : public RpyInstruction
     auto rpyAudio = script->audios[name];
     if (!rpyAudio.audio)
       return false;
-    return IRpyInterpreter::Execute_PlayAudio(session->interpreter.GetObject(), channel, rpyAudio, options);
+    auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
+
+    return IRpyAudioManager::Execute_PlayAudio(audioManager.GetObject(), channel, rpyAudio, options);
   };
 };
 
@@ -174,7 +190,9 @@ struct PauseAudioInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::PAUSE; }
   virtual bool Execute(URpySession *session)
   {
-    return IRpyInterpreter::Execute_PauseAudio(session->interpreter.GetObject(), this->timeout);
+    auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
+
+    return IRpyAudioManager::Execute_PauseAudio(audioManager.GetObject(), this->timeout);
   };
 };
 
@@ -258,7 +276,9 @@ struct MenuInstruction : public RpyInstruction
     {
       statements.Add(choice->statement);
     }
-    IRpyInterpreter::Execute_Menu(session->interpreter.GetObject(), statements);
+    auto choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(session->interpreter.GetObject());
+
+    IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), statements);
     return false;
   }
   virtual RpyInstruction *GetNext(URpySession *session) override
@@ -333,7 +353,9 @@ struct StopInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::STOP; }
   virtual bool Execute(URpySession *session)
   {
-    return IRpyInterpreter::Execute_StopAudio(session->interpreter.GetObject(), channel, options);
+    auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
+
+    return IRpyAudioManager::Execute_StopAudio(audioManager.GetObject(), channel, options);
   };
 };
 
@@ -348,7 +370,9 @@ struct QueueInstruction : public RpyInstruction
     auto rpyAudio = script->audios[name];
     if (!rpyAudio.audio)
       return false;
-    return IRpyInterpreter::Execute_QueueAudio(session->interpreter.GetObject(), channel, rpyAudio, options);
+    auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
+
+    return IRpyAudioManager::Execute_QueueAudio(audioManager.GetObject(), channel, rpyAudio, options);
   };
 };
 

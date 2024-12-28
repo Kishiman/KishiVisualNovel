@@ -5,7 +5,7 @@
 #include "Libraries/Tree/ArrayTree.h"
 #include "Rpy/RpyScript.h"
 
-class IRpyInterpreter;
+class IRpyScriptInterpreter;
 class URpySession;
 enum class RpyInstructionType : uint8
 {
@@ -31,7 +31,7 @@ constexpr bool operator!(RpyInstructionType value)
 class RpyInstruction
 {
 public:
-    RpyInstruction(URpyScript *script, FRpyLine *rpyLine) : script(script), rpyLine(rpyLine){};
+    RpyInstruction(URpyScript *script, FRpyLine *rpyLine) : script(script), rpyLine(rpyLine) {};
     virtual ~RpyInstruction() = default;
     virtual EInstructionRunTimeType RunTimeType() const
     {
