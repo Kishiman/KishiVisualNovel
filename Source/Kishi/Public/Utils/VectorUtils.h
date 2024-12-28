@@ -14,6 +14,10 @@ public:
   static FVector2D GetSize(UPaperSprite *Target);
   UFUNCTION(BlueprintPure)
   static FVector2D ClampPreserveRatio(FVector2D Target, FVector2D max);
+  UFUNCTION(BlueprintPure)
+  static FVector2D ClampPreserveRatioMin(FVector2D Target, FVector2D min);
+  UFUNCTION(BlueprintPure)
+  static FVector2D ClampPreserveRatioMinMax(FVector2D Target, FVector2D min, FVector2D max);
 
 protected:
 private:

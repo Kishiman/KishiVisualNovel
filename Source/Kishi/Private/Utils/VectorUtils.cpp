@@ -32,3 +32,39 @@ FVector2D UVectorUtils::ClampPreserveRatio(FVector2D Target, FVector2D Max)
 
     return Target;
 }
+
+FVector2D UVectorUtils::ClampPreserveRatioMin(FVector2D Target, FVector2D Min)
+{
+    if (Min.X == 0 && Min.Y == 0)
+    {
+        // Min size is 0, return original vector
+        return Target;
+    }
+    if (Target.X == 0 || Target.Y == 0)
+    {
+        // No ratio, standard Reverse Clamp
+        return FVector2D(Target.X == 0 ? Target.X : FMath::Max(Target.X, Min.X), Target.Y == 0 ? Target.Y : FMath::Max(Target.Y, Min.Y));
+    }
+
+    const float AspectRatio = Target.X / Target.Y;
+    float scale = 1;
+    if (Min.X && Min.X > Target.X)
+    {
+        scale = Min.X / Target.X;
+    }
+    if (Min.Y && Min.Y > Target.Y)
+    {
+        scale = FMath::Max(scale, Min.Y / Target.Y);
+    }
+    Target.X *= scale;
+    Target.Y *= scale;
+
+    return Target;
+}
+
+FVector2D UVectorUtils::ClampPreserveRatioMinMax(FVector2D Target, FVector2D Min, FVector2D Max)
+{
+    auto MinClamp = ClampPreserveRatioMin(Target, Min);
+    auto MaxClamp = ClampPreserveRatio(MinClamp, Max);
+    return MaxClamp;
+}
