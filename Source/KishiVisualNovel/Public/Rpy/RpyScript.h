@@ -147,6 +147,8 @@ struct FRpySceneOptions
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName layer = FName("master");
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString attribute;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ERPYTransitionType with = ERPYTransitionType::NONE;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ERPYTransitionDirection direction = ERPYTransitionDirection::NONE;
@@ -157,33 +159,32 @@ struct FRpySceneOptions
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int zorder = 0;
 };
+
+UENUM(BlueprintType)
+enum struct ERpyImageType : uint8
+{
+	ENONE UMETA(DisplayName = "None"),
+	ESPRITE UMETA(DisplayName = "Sprite"),
+	ELAYERED_SPRITE UMETA(DisplayName = "Layered Sprite"),
+};
+
 USTRUCT(BlueprintType)
 struct FRpyImage
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UPaperSprite *image = nullptr;
+	ERpyImageType type = ERpyImageType::ENONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPaperSprite *sprite = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ULayeredSprite *layeredSprite = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName tag;
-};
-
-USTRUCT(BlueprintType)
-struct FRpyLayeredImage
-{
-	GENERATED_USTRUCT_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ULayeredSprite *image = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString path;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName tag;
-	static FRpyLayeredImage Make(FName name, FString path);
+	static FRpyImage MakeLayeredImage(FName name, FString path);
 };
 
 USTRUCT(BlueprintType)
@@ -208,8 +209,6 @@ public:
 	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyImage> images;
-	UPROPERTY(EditAnywhere)
-	TMap<FName, FRpyLayeredImage> layeredImages;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyAudio> audios;
 

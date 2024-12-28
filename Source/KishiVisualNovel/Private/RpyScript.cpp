@@ -14,9 +14,12 @@
 
 using namespace std;
 
-FRpyLayeredImage FRpyLayeredImage::Make(FName name, FString path)
+FRpyImage FRpyImage::MakeLayeredImage(FName name, FString path)
 {
-  FRpyLayeredImage rpyLayeredImage = {nullptr, name, path};
+  FRpyImage rpyLayeredImage;
+  rpyLayeredImage.type = ERpyImageType::ELAYERED_SPRITE;
+  rpyLayeredImage.name = name;
+  rpyLayeredImage.path = path;
   return rpyLayeredImage;
 }
 
@@ -78,8 +81,9 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   if (image)
   {
     FRpyImage rpyImage;
+    rpyImage.type = ERpyImageType::ESPRITE;
     rpyImage.name = name;
-    rpyImage.image = image;
+    rpyImage.sprite = image;
     rpyImage.path = foundPath;
     rpyImage.tag = mainName;
     this->images.Add(rpyImage.name, rpyImage);
@@ -87,12 +91,13 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   }
   else if (layeredImage)
   {
-    FRpyLayeredImage rpyLayeredImage;
+    FRpyImage rpyLayeredImage;
+    rpyLayeredImage.type = ERpyImageType::ELAYERED_SPRITE;
     rpyLayeredImage.name = mainName;
     rpyLayeredImage.tag = mainName;
-    rpyLayeredImage.image = layeredImage;
+    rpyLayeredImage.layeredSprite = layeredImage;
     rpyLayeredImage.path = foundPath;
-    this->layeredImages.Add(rpyLayeredImage.name, rpyLayeredImage);
+    this->images.Add(rpyLayeredImage.name, rpyLayeredImage);
     return true;
   }
   UE_LOG(LogTemp, Error, TEXT("Unvalid Default Image : %s"), (*searchParam));
@@ -148,45 +153,20 @@ void URpyScript::LoadRpyData()
         UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
         continue;
       }
-      UPaperSprite *image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
-      if (image)
+      switch (rpyImage.type)
       {
-        rpyImage.image = image;
+      case ERpyImageType::ESPRITE:
+        rpyImage.sprite = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
+        break;
+      case ERpyImageType::ELAYERED_SPRITE:
+        rpyImage.layeredSprite = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *path));
+        break;
+      default:
+        break;
       }
-      else
+      if (!rpyImage.sprite && !rpyImage.layeredSprite)
       {
         UE_LOG(LogTemp, Error, TEXT("RpyImage not found at path : %s"), (*path));
-      }
-    }
-    catch (const std::exception &e)
-    {
-      UE_LOG(LogTemp, Error, TEXT("error at path : %s"), (*path));
-      UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
-      continue;
-    }
-  };
-  keys.Empty();
-  // load layered images
-  layeredImages.GetKeys(keys);
-  for (auto &key : keys)
-  {
-    FRpyLayeredImage &rpyLayeredImage = layeredImages[key];
-    FString path = rpyLayeredImage.path;
-    try
-    {
-      if (!FFileHelper::IsFilenameValidForSaving(path, err))
-      {
-        UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
-        continue;
-      }
-      ULayeredSprite *image = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *path));
-      if (image)
-      {
-        rpyLayeredImage.image = image;
-      }
-      else
-      {
-        UE_LOG(LogTemp, Error, TEXT("RpyLayeredImage not found at path : %s"), (*path));
       }
     }
     catch (const std::exception &e)

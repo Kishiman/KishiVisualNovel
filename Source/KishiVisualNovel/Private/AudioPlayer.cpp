@@ -45,9 +45,16 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 		// Clear the audio queue
 		AudioQueue.FindOrAdd(channel).Empty();
 
+		// if (!audio->load())
+		// {
+		// 	audio->ConditionalPostLoad();
+		// 	UE_LOG(LogTemp, Warning, TEXT("UAudioPlayer::PlayAudio(%s): Forcing load of audio asset"), *channel.ToString());
+		// }
 		// Enable looping
 		audio->bLooping = loop ? 1 : 0;
 
+		// UGameplayStatics::PlaySound2D(this, audio);
+		// return;
 		// Set the audio and fade parameters
 		audioComponent->SetSound(audio);
 
@@ -56,7 +63,7 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): audioComponent is null"), *channel.ToString());
 			return;
 		}
-		if (!audioComponent->Sound)
+		if (audioComponent && !(audioComponent->Sound))
 		{
 			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Failed to set audio"), *channel.ToString());
 			return;

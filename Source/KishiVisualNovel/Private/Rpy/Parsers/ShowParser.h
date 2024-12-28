@@ -21,11 +21,11 @@ struct ShowParser : public RpyParser
     FString attribute = params[0];
     FName name = FName(*params[0]);
     auto options = GetRpySceneOptions(params, 1);
+    options.attribute = attribute;
     auto names = RpyParser::GetNames(name.ToString());
     auto mainName = names[0];
     auto image = script->images.Find(name);
-    auto layeredImage = script->layeredImages.Find(mainName);
-    if (!(image || layeredImage))
+    if (!(image))
     {
       if (!script->AddDefaultImage(name, params[0]))
         return nullptr;
@@ -33,11 +33,9 @@ struct ShowParser : public RpyParser
     image = script->images.Find(name);
     if (image)
       return new ShowInstruction(script, rpyLine, name, options);
-    layeredImage = script->layeredImages.Find(mainName);
-    if (layeredImage)
-    {
-      return new ShowLayeredInstruction(script, rpyLine, mainName, attribute, options);
-    }
+    image = script->images.Find(mainName);
+    if (image)
+      return new ShowInstruction(script, rpyLine, mainName, options);
     return nullptr;
   };
 };

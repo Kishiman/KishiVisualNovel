@@ -20,11 +20,6 @@ struct HideParser : public RpyParser
       if (pair.Value.tag == tag)
         return new HideInstruction(script, rpyLine, tag, options);
     }
-    for (auto &pair : script->layeredImages)
-    {
-      if (pair.Value.tag == tag)
-        return new HideInstruction(script, rpyLine, tag, options);
-    }
     return nullptr;
   };
 };

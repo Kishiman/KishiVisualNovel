@@ -114,24 +114,6 @@ struct ShowInstruction : public RpyInstruction
     return IRpyShowManager::Execute_Show(showManager.GetObject(), *rpyImage, options);
   };
 };
-struct ShowLayeredInstruction : public RpyInstruction
-{
-  FName name;
-  FString attribute;
-  FRpySceneOptions options;
-
-  ShowLayeredInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FString attribute, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name), attribute(attribute), options(options) {};
-  virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
-  virtual bool Execute(URpySession *session)
-  {
-    auto rpyLayeredImage = script->layeredImages.Find(name);
-    if (!rpyLayeredImage)
-      return false;
-    auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(session->interpreter.GetObject());
-
-    return IRpyShowManager::Execute_ShowLayeredImage(showManager.GetObject(), *rpyLayeredImage, attribute, options);
-  };
-};
 
 struct HideInstruction : public RpyInstruction
 {

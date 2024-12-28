@@ -11,7 +11,7 @@ label start:
     voice "cicifyre/BrightFemale/01-okay"
     aug "But what I like even more..."
 
-    show Augustina uniform happy
+    show Augustina uniform happy with dissolve 2
     voice "cicifyre/BrightFemale/01-laughter"
     # uniform replaces dress, neutral replaces happy
     aug "Is this uniform !"
