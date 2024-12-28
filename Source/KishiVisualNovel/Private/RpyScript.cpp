@@ -46,8 +46,9 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   auto mainPath = pathSegments[0];
   TArray<FString> searchPaths;
   FString foundPath;
-  UPaperSprite *image = nullptr;
+  UPaperSprite *sprite = nullptr;
   ULayeredSprite *layeredImage = nullptr;
+  ULevelSequence *levelSequence = nullptr;
   FString searchParam = path.Replace(TEXT(" "), TEXT("_"));
   auto layeredImageSearch = mainPath.ToString();
   searchPaths.Add("/Game/" + layeredImageSearch);
@@ -64,9 +65,10 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   {
     if (FPackageName::DoesPackageExist(searchPath))
     {
-      image = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *searchPath));
+      sprite = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *searchPath));
       layeredImage = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *searchPath));
-      if (image || layeredImage)
+      levelSequence = Cast<ULevelSequence>(StaticLoadObject(ULevelSequence::StaticClass(), NULL, *searchPath));
+      if (sprite || layeredImage || levelSequence)
       {
         foundPath = searchPath;
         break;
@@ -78,12 +80,12 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
     UE_LOG(LogTemp, Error, TEXT("Could Not Found Default Image : %s"), (*searchParam));
     return false;
   }
-  if (image)
+  if (sprite)
   {
     FRpyImage rpyImage;
     rpyImage.type = ERpyImageType::ESPRITE;
     rpyImage.name = name;
-    rpyImage.sprite = image;
+    rpyImage.sprite = sprite;
     rpyImage.path = foundPath;
     rpyImage.tag = mainName;
     this->images.Add(rpyImage.name, rpyImage);
@@ -96,6 +98,17 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
     rpyLayeredImage.name = mainName;
     rpyLayeredImage.tag = mainName;
     rpyLayeredImage.layeredSprite = layeredImage;
+    rpyLayeredImage.path = foundPath;
+    this->images.Add(rpyLayeredImage.name, rpyLayeredImage);
+    return true;
+  }
+  else if (levelSequence)
+  {
+    FRpyImage rpyLayeredImage;
+    rpyLayeredImage.type = ERpyImageType::ELEVEL_SEQUENCE;
+    rpyLayeredImage.name = mainName;
+    rpyLayeredImage.tag = mainName;
+    rpyLayeredImage.levelSequence = levelSequence;
     rpyLayeredImage.path = foundPath;
     this->images.Add(rpyLayeredImage.name, rpyLayeredImage);
     return true;
@@ -161,10 +174,13 @@ void URpyScript::LoadRpyData()
       case ERpyImageType::ELAYERED_SPRITE:
         rpyImage.layeredSprite = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *path));
         break;
+      case ERpyImageType::ELEVEL_SEQUENCE:
+        rpyImage.levelSequence = Cast<ULevelSequence>(StaticLoadObject(ULevelSequence::StaticClass(), NULL, *path));
+        break;
       default:
         break;
       }
-      if (!rpyImage.sprite && !rpyImage.layeredSprite)
+      if (!rpyImage.sprite && !rpyImage.layeredSprite && !rpyImage.levelSequence)
       {
         UE_LOG(LogTemp, Error, TEXT("RpyImage not found at path : %s"), (*path));
       }

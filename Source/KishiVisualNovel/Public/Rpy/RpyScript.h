@@ -6,6 +6,7 @@
 #include "PaperSprite.h"
 #include "Sound/SoundWave.h"
 #include "FileMediaSource.h"
+#include "LevelSequence.h"
 
 #include "KishiDataAsset.h"
 #include "LayeredSprite.h"
@@ -166,6 +167,7 @@ enum struct ERpyImageType : uint8
 	ENONE UMETA(DisplayName = "None"),
 	ESPRITE UMETA(DisplayName = "Sprite"),
 	ELAYERED_SPRITE UMETA(DisplayName = "Layered Sprite"),
+	ELEVEL_SEQUENCE UMETA(DisplayName = "level Sequence"),
 };
 
 USTRUCT(BlueprintType)
@@ -178,6 +180,8 @@ struct FRpyImage
 	UPaperSprite *sprite = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ULayeredSprite *layeredSprite = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ULevelSequence *levelSequence = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

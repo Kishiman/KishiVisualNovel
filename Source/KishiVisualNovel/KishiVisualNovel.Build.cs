@@ -33,6 +33,7 @@ public class KishiVisualNovel : ModuleRules
         "Paper2D",
         "MediaAssets",
         "FunctionalTesting",
+        "LevelSequence",
 				// ... add other public dependencies that you statically link with here ...
 			}
       );
