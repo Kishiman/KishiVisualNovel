@@ -5,6 +5,15 @@
 #include "PaperSprite.h"
 #include "VectorUtils.generated.h"
 
+UENUM(BlueprintType)
+enum class EScalingMethod : uint8
+{
+  Crop UMETA(DisplayName = "Crop"),
+  Fit UMETA(DisplayName = "Fit"),
+  Original UMETA(DisplayName = "Original"),
+  Stretch UMETA(DisplayName = "Stretch")
+};
+
 UCLASS()
 class KISHI_API UVectorUtils : public UBlueprintFunctionLibrary
 {
@@ -13,11 +22,7 @@ public:
   UFUNCTION(BlueprintPure)
   static FVector2D GetSize(UPaperSprite *Target);
   UFUNCTION(BlueprintPure)
-  static FVector2D ClampPreserveRatio(FVector2D Target, FVector2D max);
-  UFUNCTION(BlueprintPure)
-  static FVector2D ClampPreserveRatioMin(FVector2D Target, FVector2D min);
-  UFUNCTION(BlueprintPure)
-  static FVector2D ClampPreserveRatioMinMax(FVector2D Target, FVector2D min, FVector2D max);
+  static FVector2D ScaleResolutionScreen(FVector2D Source, FVector2D Target, EScalingMethod Method);
 
 protected:
 private:
