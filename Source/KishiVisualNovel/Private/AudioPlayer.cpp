@@ -21,20 +21,26 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PlayAudio %s"), *channel.ToString());
 		// Create an audio component if it doesn't exist
-		if (!AudioComponents.Contains(channel))
+		if (AudioComponents.Contains(channel))
 		{
-			UAudioComponent *newComponent = UGameplayStatics::SpawnSound2D(this, audio);
-			if (!newComponent)
-			{
-				UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Failed to spawn sound component"), *channel.ToString());
-				return;
-			}
-			newComponent->SetUISound(true);
-			newComponent->SoundClassOverride = audioChannels[channel];
-			AudioComponents.Add(channel, newComponent);
-		}
+			UAudioComponent *audioComponent = AudioComponents[channel];
 
-		UAudioComponent *audioComponent = AudioComponents[channel];
+			if (audioComponent)
+			{
+				audioComponent->FadeOut(fadeOut, 0);
+			}
+		}
+		UAudioComponent *newComponent = UGameplayStatics::SpawnSound2D(this, audio);
+		if (!newComponent)
+		{
+			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Failed to spawn sound component"), *channel.ToString());
+			return;
+		}
+		newComponent->SetUISound(true);
+		newComponent->SoundClassOverride = audioChannels[channel];
+		AudioComponents.Add(channel, newComponent);
+
+		UAudioComponent *audioComponent = newComponent;
 
 		if (!audioComponent)
 		{
