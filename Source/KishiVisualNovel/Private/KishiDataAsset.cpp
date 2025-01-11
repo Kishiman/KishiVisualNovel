@@ -1,31 +1,29 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "KishiDataAsset.h"
 #include "EditorFramework/AssetImportData.h"
 
+#if WITH_EDITORONLY_DATA
+
 void UKishiDataAsset::PostInitProperties()
 {
-#if WITH_EDITORONLY_DATA
 	if (!HasAnyFlags(RF_ClassDefaultObject))
 	{
 		AssetImportData = NewObject<UAssetImportData>(this, TEXT("AssetImportData"));
 	}
-#endif
 	Super::PostInitProperties();
 }
 
-#if WITH_EDITORONLY_DATA
-void UKishiDataAsset::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const
+void UKishiDataAsset::GetAssetRegistryTags(TArray<FAssetRegistryTag> &OutTags) const
 {
 	if (AssetImportData)
 	{
-		OutTags.Add( FAssetRegistryTag(SourceFileTagName(), AssetImportData->GetSourceData().ToJson(), FAssetRegistryTag::TT_Hidden) );
+		OutTags.Add(FAssetRegistryTag(SourceFileTagName(), AssetImportData->GetSourceData().ToJson(), FAssetRegistryTag::TT_Hidden));
 	}
 
 	Super::GetAssetRegistryTags(OutTags);
 }
-void UKishiDataAsset::Serialize(FArchive& Ar)
+void UKishiDataAsset::Serialize(FArchive &Ar)
 {
 	Super::Serialize(Ar);
 

@@ -6,7 +6,6 @@
 #include "KishiDataAsset.h"
 #include "Layerable.h"
 #include "PaperSprite.h"
-#include "ThumbnailRendering/SceneThumbnailInfoWithPrimitive.h"
 
 #include "LayeredSprite.generated.h"
 

@@ -23,21 +23,6 @@ FRpyImage FRpyImage::MakeLayeredImage(FName name, FString path)
   return rpyLayeredImage;
 }
 
-bool URpyScript::IsAssetUnderProjectContent()
-{
-  FString PackagePath = this->AssetImportData->GetPathName();
-
-  // Check if the package path starts with "/Game/"
-  return false;
-}
-
-bool URpyScript::IsAssetUnderPluginContent()
-{
-  FString PackagePath = this->AssetImportData->GetPathName();
-
-  // Check if the package path starts with "/Plugins/"
-  return PackagePath.StartsWith(TEXT("/Plugins/"));
-}
 bool URpyScript::AddDefaultImage(FName name, FString path)
 {
   auto nameSegments = RpyParser::GetNames(name.ToString());
@@ -413,3 +398,23 @@ bool URpyScript::Compile()
   }
   return true;
 }
+
+#if WITH_EDITORONLY_DATA
+
+bool URpyScript::IsAssetUnderProjectContent()
+{
+  FString PackagePath = this->AssetImportData->GetPathName();
+
+  // Check if the package path starts with "/Game/"
+  return false;
+}
+
+bool URpyScript::IsAssetUnderPluginContent()
+{
+  FString PackagePath = this->AssetImportData->GetPathName();
+
+  // Check if the package path starts with "/Plugins/"
+  return PackagePath.StartsWith(TEXT("/Plugins/"));
+}
+
+#endif

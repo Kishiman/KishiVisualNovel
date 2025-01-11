@@ -8,6 +8,9 @@ public class KishiVisualNovel : ModuleRules
   {
     PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
+    bUseRTTI = true; // Enable Runtime Type Information if needed.
+    bEnableExceptions = true; // Enable exceptions.
+
     PublicIncludePaths.AddRange(
       new string[] {
 				// ... add public include paths required here ...

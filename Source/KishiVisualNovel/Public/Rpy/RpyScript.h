@@ -237,8 +237,6 @@ public:
 	virtual void PostLoad() override;
 	virtual void PostInitProperties() override;
 	virtual void Serialize(FStructuredArchiveRecord Record) override;
-	bool IsAssetUnderProjectContent();
-	bool IsAssetUnderPluginContent();
 	bool AddDefaultImage(FName name, FString path);
 	bool AddDefaultAudio(FName name, FString path);
 
@@ -246,6 +244,11 @@ public:
 	bool Parse();
 	bool Compile();
 	void LoadRpyData();
+
+#if WITH_EDITORONLY_DATA
+	bool IsAssetUnderProjectContent();
+	bool IsAssetUnderPluginContent();
+#endif
 
 private:
 };
