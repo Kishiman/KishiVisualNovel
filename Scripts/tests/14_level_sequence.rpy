@@ -20,6 +20,8 @@ label start:
     # auto-defined in the auto group
     aug "Wait for it..."
 
+    scene intro onlayer student2
+
     show Augustina uniform happy with dissolve
     # uniform replaces dress, neutral replaces happy
     aug "Is this uniform !"

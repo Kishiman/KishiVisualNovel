@@ -282,7 +282,7 @@ INCLUDE space left
 std::string RpyParser::reg_rpy_options = "((?: (?:at|with|onlayer) \\w+)*)";
 
 // 'master' | 'transient' | 'underlay' | 'overlay'
-std::string reg_layer_nc = "master|transient|underlay|overlay";
+std::string reg_layer_nc = "master|transient|underlay|overlay|(?:[a-zA-Z_]\\w*)";
 // 'left' | 'right' | 'center' | 'top' | 'bottom' | Vector2D;
 std::string reg_position_enum_nc = "left|right|center|top|bottom";
 // | 'dissolve'
@@ -351,7 +351,7 @@ std::string RpyParser::reg_name = "([a-zA-Z_]\\w*)";
 ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)
 matches one or more words separated by a single space, where each word does not begin with the phrases "at" or "with"
 */
-std::string RpyParser::reg_multi_name = "((?:(?!(?:at |with ))\\w+)(?:\\s+(?:(?!(?:at |with ))\\w+))*)";
+std::string RpyParser::reg_multi_name = "((?:(?!(?:at |with |onlayer ))\\w+)(?:\\s+(?:(?!(?:at |with |onlayer ))\\w+))*)";
 /*
 ([/\w\.]+)
 matches any file path or file name that contains only letters, digits, periods, underscores, and forward slashes. For example, the following file paths or file names would match this regular expression:
