@@ -12,6 +12,9 @@ public:
   UFUNCTION(BlueprintPure)
   static AActor *FindActorByName(UWorld *World, FName ActorName);
 
+  UFUNCTION(BlueprintPure)
+  static void GetAllActorsWithInterfaceAndTag(UWorld *World, TSubclassOf<UInterface> Interface, const FName Tag, TArray<AActor *> &OutActors);
+
 protected:
 private:
 };

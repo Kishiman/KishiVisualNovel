@@ -23,3 +23,27 @@ AActor *UActorUtils::FindActorByName(UWorld *World, FName ActorName)
   }
   return nullptr; // Actor not found
 }
+
+void UActorUtils::GetAllActorsWithInterfaceAndTag(UWorld *World, TSubclassOf<UInterface> Interface, const FName Tag, TArray<AActor *> &OutActors)
+{
+  // Clear the output array
+  OutActors.Empty();
+
+  if (!World || !Interface)
+  {
+    return;
+  }
+
+  // Get all actors in the world
+  TArray<AActor *> AllActors;
+  UGameplayStatics::GetAllActorsWithInterface(World, Interface, AllActors);
+
+  // Filter actors by interface and tag
+  for (AActor *Actor : AllActors)
+  {
+    if (Actor && Actor->ActorHasTag(Tag))
+    {
+      OutActors.Add(Actor);
+    }
+  }
+}
