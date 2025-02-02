@@ -90,11 +90,16 @@ struct SceneInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SCENE; }
   virtual bool Execute(URpySession *session)
   {
-    auto rpyImage = script->images.Find(name);
-    if (!rpyImage)
-      return false;
+    FRpyImage rpyImage;
+    if (name != "_")
+    {
+      auto _rpyImage = script->images.Find(name);
+      if (!_rpyImage)
+        return false;
+      rpyImage = *_rpyImage;
+    }
     auto sceneManager = IRpyScriptInterpreter::Execute_GetSceneManager(session->interpreter.GetObject());
-    return IRpySceneManager::Execute_Scene(sceneManager.GetObject(), *rpyImage, options);
+    return IRpySceneManager::Execute_Scene(sceneManager.GetObject(), rpyImage, options);
   };
 };
 struct ShowInstruction : public RpyInstruction

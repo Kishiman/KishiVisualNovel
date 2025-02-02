@@ -1,10 +1,12 @@
 define aug = Character('Augustina', color="#c8ffc8")
 
 # Images
-image intro = "trial_intro"
+# image intro = "trial_intro"
+transition intro = "trial_intro"
 
 label start:
-    scene intro
+    # scene intro
+    scene _ with intro
     show Augustina dress smile with fade
     # displaying dress and neutral
     aug "I like this dress."
@@ -20,7 +22,8 @@ label start:
     # auto-defined in the auto group
     aug "Wait for it..."
 
-    scene intro onlayer student2
+    # scene intro onlayer student2
+    scene _ with intro onlayer student3
 
     show Augustina uniform happy with dissolve
     # uniform replaces dress, neutral replaces happy

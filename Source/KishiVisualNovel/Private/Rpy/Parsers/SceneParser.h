@@ -17,11 +17,14 @@ struct SceneParser : public RpyParser
   {
     FName name = FName(*params[0]);
     auto names = RpyParser::GetNames(name.ToString());
-    if (!script->images.Contains(name))
-      if (!script->AddDefaultImage(name, params[0]))
-        return nullptr;
+    if (name != FName("_"))
+    {
+      if (!script->images.Contains(name))
+        if (!script->AddDefaultImage(name, params[0]))
+          return nullptr;
+    }
 
-    auto options = GetRpySceneOptions(params, 1);
+    auto options = GetRpySceneOptions(script, params, 1);
     return new SceneInstruction(script, rpyLine, name, options);
   };
 };

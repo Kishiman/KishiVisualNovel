@@ -20,7 +20,7 @@ struct ShowParser : public RpyParser
     // params[0].Split(" ", &mainString, &attribute);
     FString attribute = params[0];
     FName name = FName(*params[0]);
-    auto options = GetRpySceneOptions(params, 1);
+    auto options = GetRpySceneOptions(script, params, 1);
     options.attribute = attribute;
     auto names = RpyParser::GetNames(name.ToString());
     auto mainName = names[0];

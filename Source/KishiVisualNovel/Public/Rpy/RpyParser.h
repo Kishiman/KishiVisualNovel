@@ -218,7 +218,7 @@ struct RpyParser
 		}
 		return options;
 	}
-	static FRpySceneOptions GetRpySceneOptions(TArray<FString> params, int offset = 0)
+	static FRpySceneOptions GetRpySceneOptions(URpyScript *script, TArray<FString> params, int offset = 0)
 	{
 		FRpySceneOptions options;
 		if ((params.Num() + offset) < 6)
@@ -233,8 +233,23 @@ struct RpyParser
 		FString zorder = params[5 + offset];
 		if (!with.IsEmpty())
 		{
-			options.with = stringToERPYTransitionTD[with].Key;
-			options.direction = stringToERPYTransitionTD[with].Value;
+			if (stringToERPYTransitionTD.Contains(with))
+			{
+				options.with = stringToERPYTransitionTD[with].Key;
+				options.direction = stringToERPYTransitionTD[with].Value;
+			}
+			else
+			{
+				auto withName = FName(with);
+				if (!script->transitions.Contains(withName))
+					script->AddDefaultImage(withName, with);
+				auto transition = script->transitions.Find(withName);
+				if (transition)
+				{
+					options.with = transition->type;
+					options.transition = *transition;
+				}
+			}
 			options.transitionTime = !transitionTime.IsEmpty() ? GetFloat(transitionTime) : 1.0;
 		}
 		if (!layer.IsEmpty())
@@ -317,8 +332,6 @@ std::string reg_transition_enum_nc = "dissolve|fade|ease|wipeleft|wiperight|wipe
 // 2
 std::string reg_position = "(?:(" + reg_position_enum_nc + ")|" + RpyParser::reg_vector + ")";
 
-std::string RpyParser::reg_rpy_scene_options = "(?:(?:\\s*with\\s*(" + reg_transition_enum_nc + ")\\s*(" + reg_float_nc + ")?)?(?:\\s*at\\s*" + reg_position + ")?(?:\\s*onlayer\\s*(" + reg_layer_nc + "))?(?:\\s*zorder\\s*(" + reg_integer_nc + "))?)";
-
 /*
 (?:\"(?:[^\"\\\\]|\\\\.)+\")
 (?:'(?:[^'\\\\]|\\\\.)+')
@@ -370,3 +383,5 @@ matches a string that is enclosed in square brackets, where the string may be em
 		[ "file.txt", "dir/file2.txt" ]
 */
 std::string RpyParser::reg_array_path = "\\[(|(?:\"[/\\w\\.-]+\"(?:, \"[/\\w\\.-]+\")*?))\\]";
+
+std::string RpyParser::reg_rpy_scene_options = "(?:(?:\\s*with\\s*" + RpyParser::reg_var_name + "\\s*(" + reg_float_nc + ")?)?(?:\\s*at\\s*" + reg_position + ")?(?:\\s*onlayer\\s*(" + reg_layer_nc + "))?(?:\\s*zorder\\s*(" + reg_integer_nc + "))?)";

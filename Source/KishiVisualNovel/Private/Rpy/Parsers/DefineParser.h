@@ -9,16 +9,16 @@
 //$ variable_name = "Hello, world!"
 struct DefineStringParser : public RpyParser
 {
-  DefineStringParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_string + reg_comment, "DefineStringParser") {};
-  virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
-  {
-    bool isDefault = params[0] == "default";
-    FName varName = FName(*params[1]);
-    FString value = GetString(params[2]);
-    if (isDefault)
-      script->compileData.strings.Add(varName, value);
-    return new AssignInstruction<FString>(script, rpyLine, varName, value);
-  };
+	DefineStringParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_string + reg_comment, "DefineStringParser") {};
+	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
+	{
+		bool isDefault = params[0] == "default";
+		FName varName = FName(*params[1]);
+		FString value = GetString(params[2]);
+		if (isDefault)
+			script->compileData.strings.Add(varName, value);
+		return new AssignInstruction<FString>(script, rpyLine, varName, value);
+	};
 };
 
 //$ variable_name = True
@@ -63,7 +63,7 @@ define music = "music/ok"
 */
 struct DefineMediaParser : public RpyParser
 {
-	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music|sound|voice) " + reg_multi_name + " = " + reg_path + reg_comment, "DefineMediaParser") {};
+	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music|sound|voice|transition) " + reg_multi_name + " = " + reg_path + reg_comment, "DefineMediaParser") {};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FString mediaPath = params[0];
@@ -78,10 +78,17 @@ struct DefineMediaParser : public RpyParser
 					return nullptr;
 			return new RpyInstruction(script, rpyLine);
 		}
-		if (media == FName("image"))
+		else if (media == FName("image"))
 		{
 			if (!script->images.Contains(name))
 				if (!script->AddDefaultImage(name, path))
+					return nullptr;
+			return new RpyInstruction(script, rpyLine);
+		}
+		else if (media == FName("transition"))
+		{
+			if (!script->transitions.Contains(name))
+				if (!script->AddDefaultTransition(name, path))
 					return nullptr;
 			return new RpyInstruction(script, rpyLine);
 		}

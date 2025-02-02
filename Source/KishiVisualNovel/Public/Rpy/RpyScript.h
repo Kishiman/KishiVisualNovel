@@ -62,6 +62,7 @@ enum class ERPYTransitionType : uint8
 	SHAKE,
 	WIPE,
 	ZOOM,
+	LEVEL_SEQUENCE,
 };
 
 UENUM(BlueprintType)
@@ -142,6 +143,19 @@ struct FRpyMovie
 };
 
 USTRUCT(BlueprintType)
+struct FRpyTransition
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ERPYTransitionType type = ERPYTransitionType::NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ULevelSequence *levelSequence = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString path;
+};
+USTRUCT(BlueprintType)
 struct FRpySceneOptions
 {
 	GENERATED_USTRUCT_BODY()
@@ -151,6 +165,8 @@ struct FRpySceneOptions
 	FString attribute;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ERPYTransitionType with = ERPYTransitionType::NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyTransition transition;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ERPYTransitionDirection direction = ERPYTransitionDirection::NONE;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -215,6 +231,8 @@ public:
 	TMap<FName, FRpyImage> images;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyAudio> audios;
+	UPROPERTY(EditAnywhere)
+	TMap<FName, FRpyTransition> transitions;
 
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyCharacter> characters;
@@ -237,6 +255,7 @@ public:
 	virtual void PostLoad() override;
 	virtual void PostInitProperties() override;
 	virtual void Serialize(FStructuredArchiveRecord Record) override;
+	bool AddDefaultTransition(FName name, FString path);
 	bool AddDefaultImage(FName name, FString path);
 	bool AddDefaultAudio(FName name, FString path);
 

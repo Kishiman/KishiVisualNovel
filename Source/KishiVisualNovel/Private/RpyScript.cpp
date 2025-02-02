@@ -23,6 +23,48 @@ FRpyImage FRpyImage::MakeLayeredImage(FName name, FString path)
   return rpyLayeredImage;
 }
 
+bool URpyScript::AddDefaultTransition(FName name, FString path)
+{
+  TArray<FString> searchPaths;
+  FString foundPath;
+  ULevelSequence *levelSequence = nullptr;
+  FString searchParam = path.Replace(TEXT(" "), TEXT("_"));
+  searchPaths.Add("/Game/" + searchParam);
+  searchPaths.Add("/Game/Transitions/" + searchParam);
+  searchPaths.Add("/KishiVisualNovel/" + searchParam);
+  searchPaths.Add("/KishiVisualNovel/Transitions/" + searchParam);
+
+  for (auto &searchPath : searchPaths)
+  {
+    if (FPackageName::DoesPackageExist(searchPath))
+    {
+      levelSequence = Cast<ULevelSequence>(StaticLoadObject(ULevelSequence::StaticClass(), NULL, *searchPath));
+      if (levelSequence)
+      {
+        foundPath = searchPath;
+        break;
+      }
+    }
+  }
+  if (foundPath == "")
+  {
+    UE_LOG(LogTemp, Error, TEXT("Could Not Found Default Transition : %s"), (*searchParam));
+    return false;
+  }
+  if (levelSequence)
+  {
+    FRpyTransition rpyTransition;
+    rpyTransition.type = ERPYTransitionType::LEVEL_SEQUENCE;
+    rpyTransition.name = name;
+    rpyTransition.levelSequence = levelSequence;
+    rpyTransition.path = foundPath;
+    this->transitions.Add(rpyTransition.name, rpyTransition);
+    return true;
+  }
+  UE_LOG(LogTemp, Error, TEXT("Unvalid Default Transition : %s"), (*searchParam));
+  return false;
+}
+
 bool URpyScript::AddDefaultImage(FName name, FString path)
 {
   auto nameSegments = RpyParser::GetNames(name.ToString());
@@ -132,6 +174,7 @@ bool URpyScript::AddDefaultAudio(FName name, FString path)
   this->audios.Add(name, rpyAudio);
   return true;
 }
+
 void URpyScript::LoadRpyData()
 {
   FString basePath, right;

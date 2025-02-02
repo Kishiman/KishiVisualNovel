@@ -14,7 +14,7 @@ struct HideParser : public RpyParser
   {
 
     FName tag = RpyParser::GetNames(*params[0])[0];
-    auto options = GetRpySceneOptions(params, 1);
+    auto options = GetRpySceneOptions(script, params, 1);
     for (auto &pair : script->images)
     {
       if (pair.Value.tag == tag)
