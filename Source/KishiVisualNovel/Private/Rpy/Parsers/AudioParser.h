@@ -8,10 +8,10 @@
 #include "Rpy/RpyInstructions.h"
 
 // play music "waves.opus" volume 0.25 fadeout 1.0 fadein 1.0
-// play music track_1 volume 0.25 fadeout 1.0 fadein 1.0
+// play music track volume 0.25 fadeout 1.0 fadein 1.0
 struct AudioParser : public RpyParser
 {
-  AudioParser() : RpyParser(9, "^(play|queue) " + reg_name + " (?:" + reg_name + "|" + reg_path + ")(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?" + reg_comment, "AudioParser") {};
+  AudioParser() : RpyParser(9, "^(play|queue) " + reg_name + " (?:" + reg_name + "|" + reg_path + ")(?: volume " + reg_ufloatUnit + ")?(?: fadeout " + reg_ufloat + ")?(?: fadein " + reg_ufloat + ")?(?: (loop|noloop))?(?: (if_changed))?" + reg_comment_nc, "AudioParser") {};
   virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
   {
     auto cmd = params[0];

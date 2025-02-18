@@ -9,7 +9,7 @@
 //"call start"
 struct CallParser : public RpyParser
 {
-  CallParser() : RpyParser(1, "^call (\\w+)" + reg_comment, "CallParser") {};
+  CallParser() : RpyParser(1, "^call (\\w+)" + reg_comment_nc, "CallParser") {};
   virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
   {
     FName name = FName(*params[0]);

@@ -10,7 +10,7 @@
 // voice "waves.opus"
 struct VoiceParser : public RpyParser
 {
-  VoiceParser() : RpyParser(1, "^voice " + reg_path + reg_comment, "VoiceParser") {};
+  VoiceParser() : RpyParser(1, "^voice " + reg_path + reg_comment_nc, "VoiceParser") {};
   virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
   {
     FName channel = FName("voice");

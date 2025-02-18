@@ -10,7 +10,7 @@
 // jump loop
 struct JumpParser : public RpyParser
 {
-	JumpParser() : RpyParser(1, "^jump (\\w+)" + reg_comment, "JumpParser") {};
+	JumpParser() : RpyParser(1, "^jump (\\w+)" + reg_comment_nc, "JumpParser") {};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		return new JumpInstruction(script, rpyLine, FName(*params[0]));

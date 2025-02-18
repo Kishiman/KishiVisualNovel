@@ -8,7 +8,7 @@
 
 struct CharacterSayParser : public RpyParser
 {
-  CharacterSayParser() : RpyParser(5, "^" + reg_var_name + "(?: " + reg_multi_name + ")?(?: @ " + reg_multi_name + ")? " + reg_string + reg_rpy_options + reg_comment, "CharacterSayParser") {};
+  CharacterSayParser() : RpyParser(5, "^" + reg_var_name + "(?: " + reg_multi_name + ")?(?: @ " + reg_multi_name + ")? " + reg_string + reg_rpy_options + reg_comment_nc, "CharacterSayParser") {};
   virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
   {
     FName name = FName(*params[0]);

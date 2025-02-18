@@ -10,7 +10,7 @@
 // label start:
 struct LabelParser : public RpyParser
 {
-	LabelParser() : RpyParser(1, "^label " + reg_name + ":" + reg_comment, "LabelParser") {};
+	LabelParser() : RpyParser(1, "^label " + reg_name + ":" + reg_comment_nc, "LabelParser") {};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		RpyInstruction *label = new LabelInstruction(script, rpyLine);

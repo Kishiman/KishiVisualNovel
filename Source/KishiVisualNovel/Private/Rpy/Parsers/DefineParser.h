@@ -9,7 +9,7 @@
 //$ variable_name = "Hello, world!"
 struct DefineStringParser : public RpyParser
 {
-	DefineStringParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_string + reg_comment, "DefineStringParser") {};
+	DefineStringParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_string + reg_comment_nc, "DefineStringParser") {};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		bool isDefault = params[0] == "default";
@@ -24,7 +24,7 @@ struct DefineStringParser : public RpyParser
 //$ variable_name = True
 struct DefineBoolParser : public RpyParser
 {
-	DefineBoolParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_bool + reg_comment, "DefineBoolParser") {};
+	DefineBoolParser() : RpyParser(3, "^(\\$|default) " + reg_var_name + " = " + reg_bool + reg_comment_nc, "DefineBoolParser") {};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		bool isDefault = params[0] == "default";
@@ -39,7 +39,7 @@ struct DefineBoolParser : public RpyParser
 //"$ e = Character('Eileen')"
 struct DefineCharacterParser : public RpyParser
 {
-	DefineCharacterParser() : RpyParser(3, "^(?:define|\\$) " + reg_var_name + " = Character\\(" + reg_string_simple + reg_args_map + "?\\)" + reg_comment, "DefineCharacterParser") {};
+	DefineCharacterParser() : RpyParser(3, "^(?:define|\\$) " + reg_var_name + " = Character\\(" + reg_string_simple + reg_args_map + "?\\)" + reg_comment_nc, "DefineCharacterParser") {};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FName varName = FName(*params[0]);
@@ -63,7 +63,7 @@ define music = "music/ok"
 */
 struct DefineMediaParser : public RpyParser
 {
-	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music|sound|voice|transition) " + reg_multi_name + " = " + reg_path + reg_comment, "DefineMediaParser") {};
+	DefineMediaParser() : RpyParser(3, "^(?:define )?(audio|image|music|sound|voice|transition) " + reg_multi_name + " = " + reg_path + reg_comment_nc, "DefineMediaParser") {};
 	virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
 	{
 		FString mediaPath = params[0];

@@ -9,9 +9,9 @@
 
 struct SceneParser : public RpyParser
 {
-  SceneParser() : RpyParser(7, "^scene " + reg_multi_name + reg_rpy_scene_options + reg_comment, "SceneParser")
+  SceneParser() : RpyParser(7, "^scene " + reg_multi_name + reg_rpy_scene_options_6 + reg_comment_nc, "SceneParser")
   {
-    UE_LOG(LogTemp, Warning, TEXT("reg_rpy_scene_options:%s"), *FString(RpyParser::reg_rpy_scene_options.c_str()));
+    UE_LOG(LogTemp, Warning, TEXT("reg_rpy_scene_options_6:%s"), *FString(RpyParser::reg_rpy_scene_options_6.c_str()));
   };
   virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
   {

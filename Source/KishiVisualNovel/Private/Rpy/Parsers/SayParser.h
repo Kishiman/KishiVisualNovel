@@ -9,7 +9,7 @@
 //"\"Sylvie\" \"Hi there! how was class?\""
 struct SayParser : public RpyParser
 {
-  SayParser() : RpyParser(3, "^(?:" + reg_string_simple + " )?" + reg_string + "(?: with (\\w+))?" + reg_comment, "SayParser") {};
+  SayParser() : RpyParser(3, "^(?:" + reg_string_simple + " )?" + reg_string + "(?: with (\\w+))?" + reg_comment_nc, "SayParser") {};
   virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
   {
     FName name = FName(*GetString(params[0]));

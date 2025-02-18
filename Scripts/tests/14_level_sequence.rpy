@@ -10,9 +10,6 @@ label start:
     show Augustina dress smile with fade
     # displaying dress and neutral
     aug "I like this dress."
-    
-    hide Augustina with fade
-    aug "I like this dress."
 
     show Augustina happy with fade
     # auto-defined in the auto group
@@ -25,6 +22,6 @@ label start:
     # scene intro onlayer student2
     scene _ with intro onlayer student3
 
-    show Augustina uniform happy with dissolve
+    show Augustina uniform happy with fade
     # uniform replaces dress, neutral replaces happy
     aug "Is this uniform !"

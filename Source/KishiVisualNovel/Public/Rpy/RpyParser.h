@@ -84,12 +84,12 @@ struct RpyParser
 	static std::string reg_string;
 	static std::string reg_string_simple;
 	// rpy
-	static std::string reg_comment;
+	static std::string reg_comment_nc;
 	static std::string reg_keyword;
 	static std::string reg_var_name;
 	static std::string reg_args_map;
 	static std::string reg_rpy_options;
-	static std::string reg_rpy_scene_options;
+	static std::string reg_rpy_scene_options_6;
 
 	static std::string reg_name;
 	static std::string reg_multi_name;
@@ -330,7 +330,7 @@ std::string reg_position_enum_nc = "left|right|center|top|bottom";
 std::string reg_transition_enum_nc = "dissolve|fade|ease|wipeleft|wiperight|wipeup|wipedown|easeinleft|easeinright|easeintop|easeinbottom|easeoutleft|easeoutright|easeouttop|easeoutbottom|moveinleft|moveinright|moveintop|moveinbottom|moveoutleft|moveoutright|moveouttop|moveoutbottom|zoom|blur";
 
 // 2
-std::string reg_position = "(?:(" + reg_position_enum_nc + ")|" + RpyParser::reg_vector + ")";
+std::string reg_position_2 = "(?:(" + reg_position_enum_nc + ")|" + RpyParser::reg_vector + ")";
 
 /*
 (?:\"(?:[^\"\\\\]|\\\\.)+\")
@@ -346,7 +346,7 @@ std::string RpyParser::reg_string_simple = "((?:'[^']*')|(?:\"[^\"]*\")|(?:`[^`]
 
 std::string RpyParser::reg_string = "((?:\"(?:[^\"\\\\]|\\\\.)+\")|(?:'(?:[^'\\\\]|\\\\.)+')|(?:`(?:[^`\\\\]|\\\\.)+`))";
 
-std::string RpyParser::reg_comment = "(?:\\s*#.*)?$";
+std::string RpyParser::reg_comment_nc = "(?:\\s*#.*)?$";
 
 std::string RpyParser::reg_keyword = "(at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while)";
 std::string RpyParser::reg_var_name = "((?:(?!(?:at|call|elif|else|expression|hide|if|image|init|jump|label|menu|onlayer|pass|play|python|queue|return|scene|set|show|with|while))\\w+))";
@@ -384,4 +384,4 @@ matches a string that is enclosed in square brackets, where the string may be em
 */
 std::string RpyParser::reg_array_path = "\\[(|(?:\"[/\\w\\.-]+\"(?:, \"[/\\w\\.-]+\")*?))\\]";
 
-std::string RpyParser::reg_rpy_scene_options = "(?:(?:\\s*with\\s*" + RpyParser::reg_var_name + "\\s*(" + reg_float_nc + ")?)?(?:\\s*at\\s*" + reg_position + ")?(?:\\s*onlayer\\s*(" + reg_layer_nc + "))?(?:\\s*zorder\\s*(" + reg_integer_nc + "))?)";
+std::string RpyParser::reg_rpy_scene_options_6 = "(?:(?:\\s*with\\s*" + RpyParser::reg_var_name + "\\s*(" + reg_float_nc + ")?)?(?:\\s*at\\s*" + reg_position_2 + ")?(?:\\s*onlayer\\s*(" + reg_layer_nc + "))?(?:\\s*zorder\\s*(" + reg_integer_nc + "))?)";

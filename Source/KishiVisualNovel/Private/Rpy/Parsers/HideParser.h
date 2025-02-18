@@ -9,7 +9,7 @@
 // hide sylvie
 struct HideParser : public RpyParser
 {
-  HideParser() : RpyParser(7, "^hide " + reg_multi_name + reg_rpy_scene_options + reg_comment, "HideParser") {};
+  HideParser() : RpyParser(7, "^hide " + reg_multi_name + reg_rpy_scene_options_6 + reg_comment_nc, "HideParser") {};
   virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
   {
 

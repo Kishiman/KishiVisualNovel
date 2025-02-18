@@ -9,7 +9,7 @@
 // if True:
 struct IfBoolParser : public RpyParser
 {
-  IfBoolParser() : RpyParser(2, "^if (!)?(\\w+|True|False):" + reg_comment, "IfBoolParser") {};
+  IfBoolParser() : RpyParser(2, "^if (!)?(\\w+|True|False):" + reg_comment_nc, "IfBoolParser") {};
   virtual RpyInstruction *GetRpyInstruction(URpyScript *script, FRpyLine *rpyLine, TArray<FString> params)
   {
     bool reverse = params[0] == "!";
