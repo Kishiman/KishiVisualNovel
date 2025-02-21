@@ -19,6 +19,14 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   TScriptInterface<IRpyScriptInterpreter> GetInterpreter() const;
   virtual TScriptInterface<IRpyScriptInterpreter> GetInterpreter_Implementation() const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void OnInstructionComplete(EInstructionRunTimeType type);
+  virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType type) = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void OnDialogueViseme(FName name, FMouthViseme viseme);
+  virtual void OnDialogueViseme_Implementation(FName name, FMouthViseme viseme) = 0;
 };
 
 UCLASS()
@@ -26,10 +34,10 @@ class KISHIVISUALNOVEL_API URpyScriptInterpreterBaseManagerLibrary : public UBlu
 {
   GENERATED_BODY()
 public:
-  UFUNCTION(BlueprintPure)
+  UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"))
   static URpySession *GetSession(const TScriptInterface<IRpyScriptInterpreterBaseManager> &Target);
 
-  UFUNCTION(BlueprintPure)
+  UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"))
   static EInstructionRunTimeType GetRunTimeType(const TScriptInterface<IRpyScriptInterpreterBaseManager> &Target);
 
 protected:

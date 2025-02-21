@@ -1,6 +1,8 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Utils/StringUtils.h"
+
 #include "Rpy/RpyScript.h"
 
 #include "RpyScriptInterpreter.generated.h"
@@ -50,13 +52,24 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   void OnInstructionComplete(EInstructionRunTimeType type);
   virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType type) = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void OnDialogueViseme(FName name, FMouthViseme viseme);
+  virtual void OnDialogueViseme_Implementation(FName name, FMouthViseme viseme) = 0;
 };
 
-// UCLASS()
-// class KISHIVISUALNOVEL_API URpyScriptInterpreterLibrary : public UBlueprintFunctionLibrary
-// {
-//   GENERATED_BODY()
-// public:
-// protected:
-// private:
-// };
+UCLASS(MinimalAPI)
+class URpyScriptInterpreterImplementation : public UBlueprintFunctionLibrary
+{
+  GENERATED_BODY()
+public:
+  /*
+  Default Implementation
+  */
+
+  UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"), Category = "Default")
+  static void IOnInstructionComplete_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, EInstructionRunTimeType type);
+
+  UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"), Category = "Default")
+  static void IOnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, FMouthViseme viseme);
+};
