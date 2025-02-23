@@ -38,3 +38,18 @@ void ULayeredSpriteHandlerLibrary::SetLayersDisplayByAttribute(const TScriptInte
         ILayeredSpriteHandler::Execute_SetLayerDisplay(Target.GetObject(), name, false);
     }
 }
+
+FName ULayeredSpriteHandlerLibrary::GetDisplayedLayerInGroup(const TScriptInterface<ILayeredSpriteHandler> &Target, FName GroupName)
+{
+    ULayeredSprite *sprite = ILayeredSpriteHandler::Execute_GetSprite(Target.GetObject());
+    for (const auto &layer : sprite->layers)
+    {
+        if (layer.group == GroupName)
+        {
+            bool displayed = ILayeredSpriteHandler::Execute_GetLayerDisplay(Target.GetObject(), layer.name);
+            if (displayed)
+                return layer.name;
+        }
+    }
+    return FName();
+}

@@ -17,16 +17,16 @@ void URpyScriptInterpreterImplementation::IOnInstructionComplete_Default(const T
     IRpyScriptInterpreterBaseManager::Execute_OnInstructionComplete(showManager.GetObject(), type);
   }
 }
-void URpyScriptInterpreterImplementation::IOnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, FMouthViseme viseme)
+void URpyScriptInterpreterImplementation::IOnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, EMouthViseme viseme, float timeOffset)
 {
   TKishiScriptInterface<IRpyScriptInterpreterBaseManager> audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(Target.GetObject());
   if (audioManager)
   {
-    IRpyScriptInterpreterBaseManager::Execute_OnDialogueViseme(audioManager.GetObject(), name, viseme);
+    IRpyScriptInterpreterBaseManager::Execute_OnDialogueViseme(audioManager.GetObject(), name, viseme, timeOffset);
   }
   TKishiScriptInterface<IRpyScriptInterpreterBaseManager> showManager = IRpyScriptInterpreter::Execute_GetShowManager(Target.GetObject());
   if (showManager)
   {
-    IRpyScriptInterpreterBaseManager::Execute_OnDialogueViseme(showManager.GetObject(), name, viseme);
+    IRpyScriptInterpreterBaseManager::Execute_OnDialogueViseme(showManager.GetObject(), name, viseme, timeOffset);
   }
 }

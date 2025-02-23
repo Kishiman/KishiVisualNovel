@@ -42,6 +42,9 @@ public:
     UFUNCTION(BlueprintCallable)
     static void SetLayersDisplayByAttribute(const TScriptInterface<ILayeredSpriteHandler> &Target, FString Attribute, TArray<FName> &ShownNames, TArray<FName> &HidenNames);
 
+    UFUNCTION(BlueprintPure)
+    static FName GetDisplayedLayerInGroup(const TScriptInterface<ILayeredSpriteHandler> &Target, FName GroupName);
+
 protected:
 private:
 };

@@ -54,8 +54,8 @@ public:
   virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType type) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  void OnDialogueViseme(FName name, FMouthViseme viseme);
-  virtual void OnDialogueViseme_Implementation(FName name, FMouthViseme viseme) = 0;
+  void OnDialogueViseme(FName name, EMouthViseme viseme, float timeOffset);
+  virtual void OnDialogueViseme_Implementation(FName name, EMouthViseme viseme, float timeOffset) = 0;
 };
 
 UCLASS(MinimalAPI)
@@ -71,5 +71,5 @@ public:
   static void IOnInstructionComplete_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, EInstructionRunTimeType type);
 
   UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"), Category = "Default")
-  static void IOnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, FMouthViseme viseme);
+  static void IOnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, EMouthViseme viseme, float timeOffset);
 };

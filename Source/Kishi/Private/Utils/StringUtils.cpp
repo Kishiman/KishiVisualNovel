@@ -1,8 +1,11 @@
 #include "Utils/StringUtils.h"
 #include <regex>
 
+/**
+ * @param Pred: item - target
+ */
 template <typename T, typename Predicate>
-int32 BinarySearch(const TArray<T> &Array, Predicate Pred)
+int32 BinarySearchLeft(const TArray<T> &Array, Predicate Pred)
 {
   int32 Left = 0, Right = Array.Num() - 1;
   int32 BestIndex = -1; // Default to not found
@@ -23,6 +26,35 @@ int32 BinarySearch(const TArray<T> &Array, Predicate Pred)
     }
     else // Target is smaller, move left
     {
+      Right = Mid - 1;
+    }
+  }
+
+  return BestIndex;
+}
+
+template <typename T, typename Predicate>
+int32 BinarySearchRight(const TArray<T> &Array, Predicate Pred)
+{
+  int32 Left = 0, Right = Array.Num() - 1;
+  int32 BestIndex = -1; // Default to not found
+
+  while (Left <= Right)
+  {
+    int32 Mid = (Left + Right) / 2;
+    int32 Comparison = Pred(Array[Mid]); // Get difference
+
+    if (Comparison == 0) // Exact match
+    {
+      return Mid;
+    }
+    else if (Comparison < 0) // Target is greater, move right
+    {
+      Left = Mid + 1;
+    }
+    else // Target is smaller, move left
+    {
+      BestIndex = Mid;
       Right = Mid - 1;
     }
   }
@@ -256,18 +288,24 @@ FMouthViseme UStringUtils::getVisemeBetween(const FTaggedString &Target, int32 s
   FMouthViseme lastViseme;
   bool found = false;
 
-  for (const FMouthViseme &viseme : Target.visemes)
+  int32 FoundIndex = BinarySearchLeft(Target.visemes, [endIndex](const FMouthViseme &Viseme)
+                                      {
+                                        return Viseme.taggedIndex - (endIndex - 1); // Negative if item is before SearchTarget
+                                      });
+  // no viseme on the left
+  if (FoundIndex < 0)
   {
-    if (viseme.taggedIndex >= startIndex && viseme.taggedIndex < endIndex)
-    {
-      lastViseme = viseme;
-      found = true;
-    }
-    else if (viseme.taggedIndex >= endIndex)
-      break;
+    return FMouthViseme{};
   }
+  auto &viseme = Target.visemes[FoundIndex];
 
-  return found ? lastViseme : FMouthViseme{}; // Return default if not found
+  // viseme on the left in range
+  if (viseme.taggedIndex >= startIndex)
+  {
+    return viseme;
+  }
+  // viseme on the left out of range
+  return FMouthViseme{}; // Return default if not found
 }
 
 FString UStringUtils::FlattenTaggedString(const FString &TaggedString)

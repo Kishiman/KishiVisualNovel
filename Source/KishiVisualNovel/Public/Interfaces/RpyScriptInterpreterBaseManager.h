@@ -25,8 +25,8 @@ public:
   virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType type) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  void OnDialogueViseme(FName name, FMouthViseme viseme);
-  virtual void OnDialogueViseme_Implementation(FName name, FMouthViseme viseme) = 0;
+  void OnDialogueViseme(FName name, EMouthViseme viseme, float timeOffset);
+  virtual void OnDialogueViseme_Implementation(FName name, EMouthViseme viseme, float timeOffset) = 0;
 };
 
 UCLASS()

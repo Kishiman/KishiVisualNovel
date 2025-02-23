@@ -6,6 +6,7 @@
 #include "KishiDataAsset.h"
 #include "Layerable.h"
 #include "PaperSprite.h"
+#include "Utils/StringUtils.h"
 
 #include "LayeredSprite.generated.h"
 
@@ -34,6 +35,12 @@ class KISHIVISUALNOVEL_API ULayeredSprite : public UKishiDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FSpriteLayer> layers;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName visemeGroupName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<EMouthViseme, UPaperSprite *> visemeMap;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
 	bool FindOnlyLayerByName(FName LayerName, FSpriteLayer &FoundLayer) const;
