@@ -91,6 +91,7 @@ struct RpyParser
 	static std::string reg_rpy_options;
 	static std::string reg_rpy_scene_options_6;
 
+	static std::string reg_name_nc;
 	static std::string reg_name;
 	static std::string reg_multi_name;
 	static std::string reg_path;
@@ -258,10 +259,20 @@ struct RpyParser
 		}
 		if (!positionEnum.IsEmpty())
 		{
-			options.position = stringToFVector[positionEnum];
+			if (stringToFVector.Find(positionEnum))
+			{
+				options.positionType = EPositionType::VECTOR;
+				options.position = stringToFVector[positionEnum];
+			}
+			else
+			{
+				options.positionType = EPositionType::NAME;
+				options.positionName = FName(positionEnum);
+			}
 		}
 		else if (!positionVector.IsEmpty())
 		{
+			options.positionType = EPositionType::VECTOR;
 			auto position = GetVector(positionVector);
 			options.position.Set(position.X, position.Y, position.Z);
 		}
@@ -329,9 +340,6 @@ std::string reg_position_enum_nc = "left|right|center|top|bottom";
 // | 'blur'
 std::string reg_transition_enum_nc = "dissolve|fade|ease|wipeleft|wiperight|wipeup|wipedown|easeinleft|easeinright|easeintop|easeinbottom|easeoutleft|easeoutright|easeouttop|easeoutbottom|moveinleft|moveinright|moveintop|moveinbottom|moveoutleft|moveoutright|moveouttop|moveoutbottom|zoom|blur";
 
-// 2
-std::string reg_position_2 = "(?:(" + reg_position_enum_nc + ")|" + RpyParser::reg_vector + ")";
-
 /*
 (?:\"(?:[^\"\\\\]|\\\\.)+\")
 (?:'(?:[^'\\\\]|\\\\.)+')
@@ -358,7 +366,10 @@ matches any valid identifier that starts with a letter or underscore, followed b
 		ClassName
 		_private_member
 */
-std::string RpyParser::reg_name = "([a-zA-Z_]\\w*)";
+std::string RpyParser::reg_name_nc = "[a-zA-Z_]\\w*";
+std::string RpyParser::reg_name = "(" + reg_name_nc + ")";
+
+std::string reg_position_2 = "(?:" + RpyParser::reg_name + "|" + RpyParser::reg_vector + ")";
 
 /*
 ((?:(?!(?:at |with ))\w+)(?:\s+(?:(?!(?:at |with ))\w+))*)

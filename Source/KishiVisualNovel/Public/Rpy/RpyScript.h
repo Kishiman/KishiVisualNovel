@@ -51,6 +51,14 @@ TMap<FString, ELayerType> const stringToELayer = {
 };
 
 UENUM(BlueprintType)
+enum class EPositionType : uint8
+{
+	NONE,
+	VECTOR,
+	NAME,
+};
+
+UENUM(BlueprintType)
 enum class ERPYTransitionType : uint8
 {
 	NONE,
@@ -169,6 +177,10 @@ struct FRpySceneOptions
 	FRpyTransition transition;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ERPYTransitionDirection direction = ERPYTransitionDirection::NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EPositionType positionType = EPositionType::NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName positionName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector position = FVector(0);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
