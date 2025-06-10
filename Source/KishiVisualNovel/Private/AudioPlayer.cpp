@@ -27,13 +27,6 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 
 			if (audioComponent)
 			{
-				// This line keeps returning error
-				/*
-				Unhandled Exception: EXCEPTION_ACCESS_VIOLATION reading address 0x0000000000000648
-
-				UE4Editor_KishiVisualNovel!UAudioPlayer::PlayAudio() [D:\Projects\Unreal\JailBrain\Plugins\KishiVisualNovel\Source\KishiVisualNovel\Private\AudioPlayer.cpp:30]
-				UE4Editor_KishiVisualNovel!UAudioPlayer::execPlayAudio() [D:\Projects\Unreal\JailBrain\Plugins\KishiVisualNovel\Intermediate\Build\Win64\UE4Editor\Inc\KishiVisualNovel\AudioPlayer.gen.cpp:73]
-				*/
 				audioComponent->FadeOut(fadeOut, 0);
 			}
 		}

@@ -42,6 +42,7 @@ public:
 
 protected:
 	// Map of audio components for each audio channel
+	UPROPERTY()
 	TMap<FName, UAudioComponent *> AudioComponents;
 
 	struct FAudioInfo
