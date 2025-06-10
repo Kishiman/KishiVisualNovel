@@ -76,6 +76,7 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   UPaperSprite *sprite = nullptr;
   ULayeredSprite *layeredImage = nullptr;
   ULevelSequence *levelSequence = nullptr;
+  UVideoMediaSprite *videoMediaSprite = nullptr;
   FString searchParam = path.Replace(TEXT(" "), TEXT("_"));
   auto layeredImageSearch = mainPath.ToString();
   searchPaths.Add("/Game/" + layeredImageSearch);
@@ -95,7 +96,8 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
       sprite = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *searchPath));
       layeredImage = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *searchPath));
       levelSequence = Cast<ULevelSequence>(StaticLoadObject(ULevelSequence::StaticClass(), NULL, *searchPath));
-      if (sprite || layeredImage || levelSequence)
+      videoMediaSprite = Cast<UVideoMediaSprite>(StaticLoadObject(UVideoMediaSprite::StaticClass(), NULL, *searchPath));
+      if (sprite || layeredImage || levelSequence || videoMediaSprite)
       {
         foundPath = searchPath;
         break;
@@ -107,9 +109,9 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
     UE_LOG(LogTemp, Error, TEXT("Could Not Found Default Image : %s"), (*searchParam));
     return false;
   }
+  FRpyImage rpyImage;
   if (sprite)
   {
-    FRpyImage rpyImage;
     rpyImage.type = ERpyImageType::ESPRITE;
     rpyImage.name = name;
     rpyImage.sprite = sprite;
@@ -120,24 +122,32 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   }
   else if (layeredImage)
   {
-    FRpyImage rpyLayeredImage;
-    rpyLayeredImage.type = ERpyImageType::ELAYERED_SPRITE;
-    rpyLayeredImage.name = mainName;
-    rpyLayeredImage.tag = mainName;
-    rpyLayeredImage.layeredSprite = layeredImage;
-    rpyLayeredImage.path = foundPath;
-    this->images.Add(rpyLayeredImage.name, rpyLayeredImage);
+    rpyImage.type = ERpyImageType::ELAYERED_SPRITE;
+    rpyImage.name = mainName;
+    rpyImage.tag = mainName;
+    rpyImage.layeredSprite = layeredImage;
+    rpyImage.path = foundPath;
+    this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
   else if (levelSequence)
   {
-    FRpyImage rpyLayeredImage;
-    rpyLayeredImage.type = ERpyImageType::ELEVEL_SEQUENCE;
-    rpyLayeredImage.name = mainName;
-    rpyLayeredImage.tag = mainName;
-    rpyLayeredImage.levelSequence = levelSequence;
-    rpyLayeredImage.path = foundPath;
-    this->images.Add(rpyLayeredImage.name, rpyLayeredImage);
+    rpyImage.type = ERpyImageType::ELEVEL_SEQUENCE;
+    rpyImage.name = mainName;
+    rpyImage.tag = mainName;
+    rpyImage.levelSequence = levelSequence;
+    rpyImage.path = foundPath;
+    this->images.Add(rpyImage.name, rpyImage);
+    return true;
+  }
+  else if (videoMediaSprite)
+  {
+    rpyImage.type = ERpyImageType::EVIDEO_MEDIA_SPRITE;
+    rpyImage.name = mainName;
+    rpyImage.tag = mainName;
+    rpyImage.videoMediaSprite = videoMediaSprite;
+    rpyImage.path = foundPath;
+    this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
   UE_LOG(LogTemp, Error, TEXT("Unvalid Default Image : %s"), (*searchParam));
@@ -205,10 +215,17 @@ void URpyScript::LoadRpyData()
       case ERpyImageType::ELEVEL_SEQUENCE:
         rpyImage.levelSequence = Cast<ULevelSequence>(StaticLoadObject(ULevelSequence::StaticClass(), NULL, *path));
         break;
+      case ERpyImageType::EVIDEO_MEDIA_SPRITE:
+        rpyImage.videoMediaSprite = Cast<UVideoMediaSprite>(StaticLoadObject(UVideoMediaSprite::StaticClass(), NULL, *path));
+        if (!rpyImage.videoMediaSprite)
+        {
+          UE_LOG(LogTemp, Error, TEXT("FRpyImage not found at path : %s"), (*path));
+        }
+        break;
       default:
         break;
       }
-      if (!rpyImage.sprite && !rpyImage.layeredSprite && !rpyImage.levelSequence)
+      if (!rpyImage.sprite && !rpyImage.layeredSprite && !rpyImage.levelSequence && !rpyImage.videoMediaSprite)
       {
         UE_LOG(LogTemp, Error, TEXT("RpyImage not found at path : %s"), (*path));
       }
