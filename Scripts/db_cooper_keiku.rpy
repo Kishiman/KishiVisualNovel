@@ -108,7 +108,7 @@ label start:
     if romance:
         scene romance_end with dissolve
         narrator "You exchange a brief, understanding glance with the flight attendant, a silent agreement forged in the chaos."
-        narrator "She passes you note, and heads back to the cockpit."
+        narrator "She passes you a note, and walks away."
     else:
         narrator "You nod, your expression serious."
     narrator "The flight attendant returns to the cockpit, her face pale but determined."
