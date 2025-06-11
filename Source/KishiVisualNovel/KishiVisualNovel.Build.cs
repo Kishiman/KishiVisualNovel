@@ -35,11 +35,14 @@ public class KishiVisualNovel : ModuleRules
         "UMG",
         "Paper2D",
         "MediaAssets",
-        "FunctionalTesting",
         "LevelSequence",
 				// ... add other public dependencies that you statically link with here ...
 			}
       );
+    if (Target.bBuildEditor)
+    {
+      PrivateDependencyModuleNames.Add("FunctionalTesting");
+    }
 
 
     PrivateDependencyModuleNames.AddRange(
