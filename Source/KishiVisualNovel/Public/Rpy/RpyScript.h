@@ -235,6 +235,67 @@ struct FRpyLine
 	FString line;
 };
 
+USTRUCT(BlueprintType)
+struct FRpySceneState
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyImage rpyImage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpySceneOptions options;
+};
+
+USTRUCT(BlueprintType)
+struct FRpyShowState
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyImage rpyImage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpySceneOptions options;
+};
+
+USTRUCT(BlueprintType)
+struct FRpyStatementState
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString statement;
+};
+
+USTRUCT(BlueprintType)
+struct FRpyChoiceState
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FString> choices;
+};
+
+USTRUCT(BlueprintType)
+struct FRpyAudioState
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName channel;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyAudio rpyAudio;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyAudioOptions options;
+};
+
+USTRUCT(BlueprintType)
+struct FRpyInstructionSerialization
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY()
+	TSoftObjectPtr<URpyScript> script;
+	UPROPERTY()
+	int index;
+};
+
 UCLASS()
 class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
 {
@@ -279,6 +340,9 @@ public:
 	bool Parse();
 	bool Compile();
 	void LoadRpyData();
+
+	static FRpyInstructionSerialization SerializeInstruction(RpyInstruction *instruction);
+	static RpyInstruction *DeserializeInstruction(const FRpyInstructionSerialization &data);
 
 #if WITH_EDITORONLY_DATA
 	bool IsAssetUnderProjectContent();

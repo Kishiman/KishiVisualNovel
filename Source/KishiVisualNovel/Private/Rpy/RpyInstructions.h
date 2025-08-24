@@ -75,11 +75,11 @@ struct AssignInstruction : public RpyInstruction
     return true;
   };
 };
-void AssignInstruction<bool>::SetValue(URpySession *session) { session->RuntimeData.bools.Add(varName, value); }
-void AssignInstruction<FName>::SetValue(URpySession *session) { session->RuntimeData.names.Add(varName, value); }
-void AssignInstruction<FString>::SetValue(URpySession *session) { session->RuntimeData.strings.Add(varName, value); }
-void AssignInstruction<int>::SetValue(URpySession *session) { session->RuntimeData.ints.Add(varName, value); }
-void AssignInstruction<float>::SetValue(URpySession *session) { session->RuntimeData.floats.Add(varName, value); }
+void AssignInstruction<bool>::SetValue(URpySession *session) { session->runtimeData.bools.Add(varName, value); }
+void AssignInstruction<FName>::SetValue(URpySession *session) { session->runtimeData.names.Add(varName, value); }
+void AssignInstruction<FString>::SetValue(URpySession *session) { session->runtimeData.strings.Add(varName, value); }
+void AssignInstruction<int>::SetValue(URpySession *session) { session->runtimeData.ints.Add(varName, value); }
+void AssignInstruction<float>::SetValue(URpySession *session) { session->runtimeData.floats.Add(varName, value); }
 
 struct SceneInstruction : public RpyInstruction
 {
@@ -216,12 +216,12 @@ public:
 
   virtual bool Execute(URpySession *session)
   {
-    if (!session->RuntimeData.bools.Contains(this->varName))
+    if (!session->runtimeData.bools.Contains(this->varName))
     {
       UE_LOG(LogTemp, Fatal, TEXT("bool variable name %s does not exist in Runtime data"), *this->varName.ToString());
       return false;
     }
-    this->condition = session->RuntimeData.bools[this->varName];
+    this->condition = session->runtimeData.bools[this->varName];
     this->condition = this->condition ^ this->reverse;
     return true;
   };

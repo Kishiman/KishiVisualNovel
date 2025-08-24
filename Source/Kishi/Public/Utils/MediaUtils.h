@@ -19,6 +19,10 @@ public:
     static void ClearMediaPlayerAndTexture(UMediaPlayer *MediaPlayer, UMediaTexture *MediaTexture);
     UFUNCTION(BlueprintCallable)
     static void PlaySourceMedia(UMediaPlayer *MediaPlayer, UMediaTexture *MediaTexture, UFileMediaSource *MediaSource);
+    UFUNCTION(BlueprintCallable)
+    static TArray<uint8> TakeScreenshot(UWorld *World, FName TagToHide);
+    UFUNCTION(BlueprintCallable)
+    static UTexture2D *CreateTextureFromPNG(const TArray<uint8> &PNGData);
 
 protected:
 private:

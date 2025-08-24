@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Structs/DynamicObject.h"
+#include "Rpy/RpyScript.h"
 
 #include "RpySession.generated.h"
 
@@ -12,6 +13,29 @@ class IRpyScriptInterpreter;
 class RpyInstruction;
 /**
  */
+
+USTRUCT(BlueprintType)
+struct FRpyState
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyInstructionSerialization currentInstruction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FRpyInstructionSerialization> instructionsCallStack;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FDynamicObject runtimeData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpySceneState sceneState;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FRpyShowState> showStates;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyStatementState statementState;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FRpyAudioState> audioStates;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyChoiceState choiceState;
+};
 
 UCLASS(BlueprintType)
 class KISHIVISUALNOVEL_API URpySession : public UObject
@@ -23,7 +47,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn = "true"))
 	TArray<URpyScript *> scripts;
 	UPROPERTY(BlueprintReadWrite)
-	FDynamicObject RuntimeData;
+	FDynamicObject runtimeData;
 
 	RpyInstruction *current = nullptr;
 	TArray<RpyInstruction *> callStack;
@@ -46,9 +70,14 @@ public:
 	bool Run();
 	UFUNCTION(BlueprintPure)
 	EInstructionRunTimeType GetRunTimeType() const;
-
+	
 	UFUNCTION(BlueprintCallable)
 	bool OnChoice(int index);
+	
+	UFUNCTION(BlueprintCallable)
+	FRpyState SaveState();
+	UFUNCTION(BlueprintCallable)
+	void LoadState(const FRpyState &State);
 
 private:
 };

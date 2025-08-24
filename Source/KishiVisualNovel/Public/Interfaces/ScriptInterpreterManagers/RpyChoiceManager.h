@@ -25,6 +25,14 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   void Choose(int idx);
   virtual void Choose_Implementation(int idx) = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  FRpyChoiceState GetCurrentChoiceState();
+  virtual FRpyChoiceState GetCurrentChoiceState_Implementation() const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void ClearAll();
+  virtual void ClearAll_Implementation() = 0;
 };
 
 // UCLASS()

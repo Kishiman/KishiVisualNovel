@@ -19,6 +19,10 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool Scene(FRpyImage rpyImage, FRpySceneOptions options);
   virtual bool Scene_Implementation(FRpyImage rpyImage, FRpySceneOptions options) = 0;
+  
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  FRpySceneState GetCurrentSceneState();
+  virtual FRpySceneState GetCurrentSceneState_Implementation() const = 0;
 };
 
 // UCLASS()

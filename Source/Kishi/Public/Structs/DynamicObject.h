@@ -101,4 +101,47 @@ public:
             if (!To.names.Contains(pair.Key))
                 To.names.Add(pair);
     }
+
+    void setValue(const FName &name, bool value)
+    {
+        if (bools.Contains(name))
+            bools[name] = value;
+        else
+            bools.Add(name, value);
+    }
+    void setValue(const FName &name, FName value)
+    {
+        if (names.Contains(name))
+            names[name] = value;
+        else
+            names.Add(name, value);
+    }
+    void setValue(const FName &name, FString value)
+    {
+        if (strings.Contains(name))
+            strings[name] = value;
+        else
+            strings.Add(name, value);
+    }
+    void setValue(const FName &name, int value)
+    {
+        if (ints.Contains(name))
+            ints[name] = value;
+        else
+            ints.Add(name, value);
+    }
+    void setValue(const FName &name, float value)
+    {
+        if (floats.Contains(name))
+            floats[name] = value;
+        else
+            floats.Add(name, value);
+    }
+    void setValue(const FName &name, FVector value)
+    {
+        if (vectors.Contains(name))
+            vectors[name] = value;
+        else
+            vectors.Add(name, value);
+    }
 };

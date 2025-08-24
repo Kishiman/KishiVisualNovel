@@ -459,6 +459,30 @@ bool URpyScript::Compile()
   return true;
 }
 
+FRpyInstructionSerialization URpyScript::SerializeInstruction(RpyInstruction *instruction)
+{
+  FRpyInstructionSerialization result;
+  result.script = instruction->script;
+  result.index = instruction->script->instructions.IndexOfByKey(instruction);
+  return result;
+}
+RpyInstruction *URpyScript::DeserializeInstruction(const FRpyInstructionSerialization &data)
+{
+  if (!data.script.IsValid())
+  {
+    // Load the script synchronously
+    data.script.LoadSynchronous();
+  }
+
+  URpyScript *Script = data.script.Get();
+  if (!Script)
+    return nullptr;
+
+  return Script->instructions.IsValidIndex(data.index)
+             ? Script->instructions[data.index]
+             : nullptr;
+}
+
 #if WITH_EDITORONLY_DATA
 
 bool URpyScript::IsAssetUnderProjectContent()
