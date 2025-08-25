@@ -1,5 +1,4 @@
 #include "Libraries/Tree/NameMapTree.h"
-#include "Macros/Interface.h"
 
 //IArrayTree overrides
 TScriptInterface<IArrayTree> INameMapTree::GetChild_Implementation(uint8 index) const

@@ -95,6 +95,7 @@ bool URpySession::OnChoice(int index)
 		return false;
 	}
 	menu->selected = menu->choices[index];
+	this->choiceState.choices.Empty();
 	return RunNext();
 }
 
@@ -109,18 +110,11 @@ FRpyState URpySession::SaveState()
 		result.instructionsCallStack.Add(URpyScript::SerializeInstruction(instruction));
 	}
 	result.runtimeData = this->runtimeData;
-
-	auto sceneManager = IRpyScriptInterpreter::Execute_GetSceneManager(interpreter.GetObject());
-	auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(interpreter.GetObject());
-	auto statementManager = IRpyScriptInterpreter::Execute_GetStatementManager(interpreter.GetObject());
-	auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(interpreter.GetObject());
-	auto choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(interpreter.GetObject());
-
-	result.sceneState = IRpySceneManager::Execute_GetCurrentSceneState(sceneManager.GetObject());
-	result.showStates = IRpyShowManager::Execute_GetCurrentShowStates(showManager.GetObject());
-	result.statementState = IRpyStatementManager::Execute_GetCurrentStatementState(statementManager.GetObject());
-	result.audioStates = IRpyAudioManager::Execute_GetCurrentAudioStates(audioManager.GetObject());
-	result.choiceState = IRpyChoiceManager::Execute_GetCurrentChoiceState(choiceManager.GetObject());
+	// result.sceneState = this->sceneState;
+	// result.showStates = this->showStates;
+	// result.statementState = this->statementState;
+	// result.audioStates = this->audioStates;
+	// result.choiceState = this->choiceState;
 
 	return result;
 }
@@ -145,24 +139,20 @@ void URpySession::LoadState(const FRpyState &State)
 	auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(interpreter.GetObject());
 	auto choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(interpreter.GetObject());
 
-	auto sceneState=State.sceneState;
-	IRpySceneManager::Execute_Scene(sceneManager.GetObject(), sceneState.rpyImage, sceneState.options);
-	auto showStates=State.showStates;
-	for (size_t i = 0; i < showStates.Num(); i++)
-	{
-		IRpyShowManager::Execute_Show(showManager.GetObject(), showStates[i].rpyImage, showStates[i].options);
-	}
-	auto statementState=State.statementState;
-	IRpyStatementManager::Execute_Say(statementManager.GetObject(), statementState.name, statementState.statement);
-	auto audioStates=State.audioStates;
-	for (size_t i = 0; i < audioStates.Num(); i++)
-	{
-		IRpyAudioManager::Execute_PlayAudio(audioManager.GetObject(), audioStates[i].channel, audioStates[i].rpyAudio, audioStates[i].options);
-	}
-	auto choiceState=State.choiceState;
-	if(choiceState.choices.Num()>0)
-	{
-		IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), choiceState.choices);
-	}
-
+	// IRpySceneManager::Execute_Scene(sceneManager.GetObject(), State.sceneState.rpyImage, State.sceneState.options);
+	// IRpyShowManager::Execute_ClearAll(showManager.GetObject());
+	// for (size_t i = 0; i < State.showStates.Num(); i++)
+	// {
+	// 	IRpyShowManager::Execute_Show(showManager.GetObject(), State.showStates[i].rpyImage, State.showStates[i].options);
+	// }
+	// IRpyStatementManager::Execute_Say(statementManager.GetObject(), State.statementState.name, State.statementState.statement);
+	// IRpyAudioManager::Execute_ClearAll(audioManager.GetObject());
+	// for (size_t i = 0; i < State.audioStates.Num(); i++)
+	// {
+	// 	IRpyAudioManager::Execute_PlayAudio(audioManager.GetObject(), State.audioStates[i].channel, State.audioStates[i].rpyAudio, State.audioStates[i].options);
+	// }
+	// if (State.choiceState.choices.Num() > 0)
+	// {
+	// 	IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), State.choiceState.choices);
+	// }
 }

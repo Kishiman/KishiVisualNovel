@@ -250,6 +250,8 @@ struct FRpyShowState
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRpyImage rpyImage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRpySceneOptions options;
@@ -263,6 +265,9 @@ struct FRpyStatementState
 	FName name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString statement;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName with;
+
 };
 
 USTRUCT(BlueprintType)

@@ -1,6 +1,5 @@
 #include "Libraries/Graph/BaseGraph.h"
 #include "Templates/KishiScriptInterface.h"
-#include "Macros/Interface.h"
 #include "Algo/Reverse.h"
 
 uint8 IBaseGraph::GetNodesSize_Implementation() const{

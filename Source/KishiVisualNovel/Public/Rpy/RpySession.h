@@ -79,5 +79,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadState(const FRpyState &State);
 
-private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpySceneState sceneState;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FRpyShowState> showStates;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyStatementState statementState;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FRpyAudioState> audioStates;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRpyChoiceState choiceState;
+
 };
