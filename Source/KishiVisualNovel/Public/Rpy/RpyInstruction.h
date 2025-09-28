@@ -28,6 +28,7 @@ constexpr bool operator!(RpyInstructionType value)
 {
     return static_cast<bool>(static_cast<uint8>(value));
 }
+
 class RpyInstruction
 {
 public:

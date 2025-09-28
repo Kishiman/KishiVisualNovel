@@ -1,7 +1,6 @@
 #include "Theories/TreeNode.h"
 // #include "Templates/KishiScriptInterface.h"
-// #include "Macros/Interface.h"
-#include "Algo/Reverse.h"
+// #include "Algo/Reverse.h"
 
 template <typename T>
 bool THTreeNode<T>::IsLeaf() const

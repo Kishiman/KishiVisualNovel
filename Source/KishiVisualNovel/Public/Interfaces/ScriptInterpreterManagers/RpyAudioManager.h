@@ -31,6 +31,15 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool PlayAudio(FName channel, FRpyAudio audio, FRpyAudioOptions options);
   virtual bool PlayAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  TArray<FRpyAudioState> GetCurrentAudioStates();
+  virtual TArray<FRpyAudioState> GetCurrentAudioStates_Implementation() const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void ClearAll();
+  virtual void ClearAll_Implementation() = 0;
+
 };
 
 // UCLASS()

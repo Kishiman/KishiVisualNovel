@@ -19,13 +19,17 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool Say(FName name, const FString &statement);
   virtual bool Say_Implementation(FName name, const FString &statement) = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  FRpyStatementState GetCurrentStatementState();
+  virtual FRpyStatementState GetCurrentStatementState_Implementation() const = 0;
 };
 
-UCLASS()
-class KISHIVISUALNOVEL_API URpyStatementManagerLibrary : public UBlueprintFunctionLibrary
-{
-  GENERATED_BODY()
-public:
-protected:
-private:
-};
+// UCLASS()
+// class KISHIVISUALNOVEL_API URpyStatementManagerLibrary : public UBlueprintFunctionLibrary
+// {
+//   GENERATED_BODY()
+// public:
+// protected:
+// private:
+// };

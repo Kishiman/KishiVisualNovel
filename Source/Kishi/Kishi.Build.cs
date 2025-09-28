@@ -30,8 +30,14 @@ public class Kishi : ModuleRules
                 "Core",
                 "Paper2D",
                 "MediaAssets",
+                "CoreUObject",
+                "Engine",
+                "InputCore",
+                "Slate",
+                "SlateCore",   // Needed for FSlateApplication
+                "UMG"          // Needed if you are dealing with UMG widgets
 				// ... add other public dependencies that you statically link with here ...
-			}
+            }
             );
 
 
@@ -40,9 +46,10 @@ public class Kishi : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
-				"UMG",
+                "UMG",
+                "SlateCore",   // Needed for FSlateApplication
 				// ... add private dependencies that you statically link with here ...	
-			}
+            }
             );
 
 

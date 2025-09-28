@@ -1,6 +1,5 @@
 #include "Libraries/Graph/DiGraph.h"
 #include "Templates/KishiScriptInterface.h"
-#include "Macros/Interface.h"
 #include "Algo/Reverse.h"
 
 /*

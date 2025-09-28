@@ -23,6 +23,14 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool Hide(FName tag, FRpySceneOptions options);
   virtual bool Hide_Implementation(FName tag, FRpySceneOptions options) = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  TArray<FRpyShowState> GetCurrentShowStates();
+  virtual TArray<FRpyShowState> GetCurrentShowStates_Implementation() const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void ClearAll();
+  virtual void ClearAll_Implementation() = 0;
 };
 
 // UCLASS()

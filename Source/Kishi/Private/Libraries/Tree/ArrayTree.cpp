@@ -1,5 +1,4 @@
 #include "Libraries/Tree/ArrayTree.h"
-#include "Macros/Interface.h"
 
 TArray<TScriptInterface<IBaseTree>> IArrayTree::GetDirectChildren_Implementation() const
 {
