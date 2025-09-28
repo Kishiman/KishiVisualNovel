@@ -25,6 +25,9 @@ struct ShowParser : public RpyParser
     auto names = RpyParser::GetNames(name.ToString());
     auto mainName = names[0];
     auto image = script->images.Find(name);
+    image = script->images.Find(mainName);
+    if (image)
+      return new ShowInstruction(script, rpyLine, mainName, options);
     if (!(image))
     {
       if (!script->AddDefaultImage(name, params[0]))
@@ -33,9 +36,6 @@ struct ShowParser : public RpyParser
     image = script->images.Find(name);
     if (image)
       return new ShowInstruction(script, rpyLine, name, options);
-    image = script->images.Find(mainName);
-    if (image)
-      return new ShowInstruction(script, rpyLine, mainName, options);
     return nullptr;
   };
 };

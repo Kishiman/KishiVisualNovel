@@ -3,6 +3,7 @@ define aug = Character('Augustina', color="#c8ffc8")
 # Images
 # image intro = "trial_intro"
 transition intro = "trial_intro"
+image Augustina = "Augustina2/Augustina2"
 
 label start:
     # scene intro
@@ -20,6 +21,6 @@ label start:
     # scene intro onlayer student2
     scene _ with intro onlayer student3
 
-    show Augustina uniform with fade
-    # uniform replaces dress, neutral replaces happy
-    aug "Is this <blue>uniform</>! ... SO COOL RIGHT? ... why are you <red>blushing</>?"
+    show Augustina jeans with fade
+    # jeans replaces dress, neutral replaces happy
+    aug "Is this <blue>jeans</>! ... SO COOL RIGHT? ... why are you <red>blushing</>?"

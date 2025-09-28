@@ -55,5 +55,5 @@ public:
 	void FindLayersByGroup(FName GroupName, TArray<FSpriteLayer> &groupLayers) const;
 
 	UFUNCTION(BlueprintCallable, Category = "LayeredSprite")
-	static FName GetNameFromAssetName(FString AssetName);
+	static void GetNameFromAssetName(FString AssetName, FName &OutLayerName, FName &OutGroupName);
 };

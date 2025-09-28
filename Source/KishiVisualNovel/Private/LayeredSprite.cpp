@@ -1,6 +1,6 @@
 #include "LayeredSprite.h"
 
-FName ULayeredSprite::GetNameFromAssetName(FString AssetName)
+void ULayeredSprite::GetNameFromAssetName(FString AssetName, FName &OutLayerName, FName &OutGroupName)
 {
 	TArray<FString> strings;
 	static const TCHAR *delimiters[] =
@@ -8,11 +8,36 @@ FName ULayeredSprite::GetNameFromAssetName(FString AssetName)
 					TEXT("_"),
 			};
 	AssetName.TrimStartAndEnd().ParseIntoArray(strings, delimiters, 1, true);
+	if (strings.Num() < 2)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LayeredSprite: AssetName '%s' is not valid for parsing"), *AssetName);
+		OutGroupName = EName::NAME_None;
+		OutLayerName = EName::NAME_None;
+		return;
+	}
+	// remove prefix at start
 	strings.RemoveAt(0);
+	// remove Sprite at the end if exists
 	strings.RemoveAt(strings.Num() - 1);
-	FString separator = TEXT(" ");
-	FString joinedString = FString::Join(strings, *separator);
-	return FName(joinedString);
+	switch (strings.Num())
+	{
+	case 0:
+		OutGroupName = FName("Default");
+		OutLayerName = FName("Default");
+		break;
+	case 1:
+		OutGroupName = FName(*strings[0]);
+		OutLayerName = FName("Default");
+		break;
+	default:
+		OutGroupName = FName(*strings[0]);
+		strings.RemoveAt(0);
+		FString separator = TEXT(" ");
+		FString joinedString = FString::Join(strings, *separator);
+		OutLayerName = FName(joinedString);
+		break;
+	}
+	return;
 }
 bool ULayeredSprite::FindOnlyLayerByName(FName LayerName, FSpriteLayer &FoundLayer) const
 {
