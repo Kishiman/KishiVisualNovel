@@ -15,23 +15,33 @@ class KISHIVISUALNOVEL_API UBaseRpySaveGame
     GENERATED_BODY()
 
 public:
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    bool isQuickSave = false;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    bool isEmpty = false;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    int32 SlotIndex;
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    FName SlotName;
     // Screenshot
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
     TArray<uint8> ScreenshotData;
 
     // Level name
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
     FString LevelName;
 
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
     FDateTime SaveDate;
 
     // rpy state
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
     FRpyState RpyState;
 
     // actor states
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
     TMap<FName, URpySavableActorState *> ActorStates;
 
     // ---- IRpySaveGame interface implementation ----

@@ -37,7 +37,7 @@ public:
 
     // ---- Configurable Save System ----
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Save")
-    int32 MaxSaveSlots = 12;
+    int32 MaxSaveSlots = 6;
 
     // ---- Save/Load API ----
 
@@ -76,6 +76,11 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Save|VN")
     void ApplyOptions();
+
+    // Events for Async Loading
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSaveGameComplete);
+    UPROPERTY(BlueprintAssignable, Category = "Save|VN")
+    FOnSaveGameComplete OnSaveGameComplete;
 
 protected:
     virtual void Init() override;

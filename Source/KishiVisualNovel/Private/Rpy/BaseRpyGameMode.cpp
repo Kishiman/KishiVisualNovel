@@ -11,8 +11,6 @@ UBaseRpySaveGame *ABaseRpyGameMode::CreateSaveGame()
     if (!SaveGame)
         return nullptr;
 
-    SaveGame->SaveDate = FDateTime::UtcNow();
-
     // store level name
     SaveGame->SetLevelName_Implementation(UGameplayStatics::GetCurrentLevelName(this));
 

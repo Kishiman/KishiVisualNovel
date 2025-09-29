@@ -17,8 +17,8 @@ bool UBaseRpyGameInstance::Save(int32 SlotIndex, int32 UserIndex)
     auto RpyGameMode = Cast<ABaseRpyGameMode>(GameMode);
     if (!RpyGameMode)
         return false;
-    auto GameSave = RpyGameMode->CreateSaveGame();
-    return this->SaveSlot(GameSave, SlotIndex, UserIndex);
+    auto SaveGame = RpyGameMode->CreateSaveGame();
+    return this->SaveSlot(SaveGame, SlotIndex, UserIndex);
 }
 void UBaseRpyGameInstance::Load(int32 SlotIndex, int32 UserIndex)
 {
@@ -28,10 +28,10 @@ void UBaseRpyGameInstance::Load(int32 SlotIndex, int32 UserIndex)
     auto RpyGameMode = Cast<ABaseRpyGameMode>(GameMode);
     if (!RpyGameMode)
         return;
-    auto GameSave = this->LoadSlot(SlotIndex, UserIndex);
-    if (!GameSave)
+    auto SaveGame = this->LoadSlot(SlotIndex, UserIndex);
+    if (!SaveGame)
         return;
-    RpyGameMode->RestoreSaveGame(GameSave);
+    RpyGameMode->RestoreSaveGame(SaveGame);
     return;
 }
 
@@ -43,8 +43,8 @@ bool UBaseRpyGameInstance::QuickSave(int32 UserIndex)
     auto RpyGameMode = Cast<ABaseRpyGameMode>(GameMode);
     if (!RpyGameMode)
         return false;
-    auto GameSave = RpyGameMode->CreateSaveGame();
-    return this->QuickSaveSlot(GameSave, UserIndex);
+    auto SaveGame = RpyGameMode->CreateSaveGame();
+    return this->QuickSaveSlot(SaveGame, UserIndex);
 }
 void UBaseRpyGameInstance::QuickLoad(int32 UserIndex)
 {
@@ -54,10 +54,10 @@ void UBaseRpyGameInstance::QuickLoad(int32 UserIndex)
     auto RpyGameMode = Cast<ABaseRpyGameMode>(GameMode);
     if (!RpyGameMode)
         return;
-    auto GameSave = this->QuickLoadSlot(UserIndex);
-    if (!GameSave)
+    auto SaveGame = this->QuickLoadSlot(UserIndex);
+    if (!SaveGame)
         return;
-    RpyGameMode->RestoreSaveGame(GameSave);
+    RpyGameMode->RestoreSaveGame(SaveGame);
 }
 
 FString UBaseRpyGameInstance::GetSlotName(int32 SlotIndex) const
@@ -80,16 +80,23 @@ bool UBaseRpyGameInstance::SaveSlot(UBaseRpySaveGame *SaveGame, int32 SlotIndex,
     UE_LOG(LogTemp, Warning, TEXT("Saving to slot %d"), SlotIndex);
     if (!SaveGame)
         return false;
+    SaveGame->SlotIndex = SlotIndex;
+    SaveGame->SlotName = FName(*GetSlotName(SlotIndex));
+    SaveGame->isQuickSave = false;
+    SaveGame->SaveDate = FDateTime::Now();
+    // Save SaveGame Screenshot to a texture
     auto Future = UMediaUtils::TakeScreenshotAsync(GetWorld(), "HideTag");
-    auto SlotName = GetSlotName(SlotIndex);
+    auto SlotName = SaveGame->SlotName.ToString();
     // Async wait (e.g. in another task)
-    Async(EAsyncExecution::Thread, [Future = MoveTemp(Future), SaveGame, SlotName, SlotIndex, UserIndex]() mutable
+    Async(EAsyncExecution::Thread, [this, Future = MoveTemp(Future), SaveGame, SlotName, SlotIndex, UserIndex]() mutable
           {
         auto PNGData = Future.Get(); // blocks until screenshot ready
         SaveGame->SetScreenshot_Implementation(PNGData);
         UGameplayStatics::SaveGameToSlot(SaveGame, SlotName, UserIndex);
         FString Path = FPaths::ProjectSavedDir() + "Screenshots/SaveSlot_" + FString::FromInt(SlotIndex) + ".png";
         FFileHelper::SaveArrayToFile(PNGData, *Path);
+        this->OnSaveGameComplete.Broadcast();
+
         return; });
     return true;
 }
@@ -111,17 +118,22 @@ bool UBaseRpyGameInstance::QuickSaveSlot(UBaseRpySaveGame *SaveGame, int32 UserI
     UE_LOG(LogTemp, Warning, TEXT("Saving to quick save slot"));
     if (!SaveGame)
         return false;
+    SaveGame->isQuickSave = true;
+    SaveGame->SlotIndex = -1;
+    SaveGame->SlotName = FName(*GetQuickSaveSlotName());
+    SaveGame->SaveDate = FDateTime::Now();
     // Save SaveGame Screenshot to a texture
     auto Future = UMediaUtils::TakeScreenshotAsync(GetWorld(), "HideTag");
     // Async wait (e.g. in another task)
-    auto SlotName = GetQuickSaveSlotName();
-    Async(EAsyncExecution::Thread, [Future = MoveTemp(Future), SaveGame, SlotName, UserIndex]() mutable
+    auto SlotName = SaveGame->SlotName.ToString();
+    Async(EAsyncExecution::Thread, [this, Future = MoveTemp(Future), SaveGame, SlotName, UserIndex]() mutable
           {
         auto PNGData = Future.Get(); // blocks until screenshot ready
         SaveGame->SetScreenshot_Implementation(PNGData);
         UGameplayStatics::SaveGameToSlot(SaveGame, SlotName, UserIndex);
         FString Path = FPaths::ProjectSavedDir() + "Screenshots/QuickSaveSlot.png";
         FFileHelper::SaveArrayToFile(PNGData, *Path);
+        this->OnSaveGameComplete.Broadcast();
         return; });
     return true;
 }
@@ -145,6 +157,9 @@ TArray<UBaseRpySaveGame *> UBaseRpyGameInstance::ListSaveSlots(int32 UserIndex)
         {
             // Create an empty placeholder (not saved to disk yet)
             SaveGame = NewObject<UBaseRpySaveGame>();
+            SaveGame->isEmpty = true;
+            SaveGame->SlotIndex = i;
+            SaveGame->SlotName = FName(*GetSlotName(i));
             SaveGame->LevelName = TEXT(""); // mark empty
         }
 
