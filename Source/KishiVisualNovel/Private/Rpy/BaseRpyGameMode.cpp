@@ -1,6 +1,6 @@
 #include "Rpy/BaseRpyGameMode.h"
 
-#include "Interfaces/RpySavableActor.h"
+#include "Interfaces/RpyStatefulActor.h"
 #include "Rpy/BaseRpyGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utils/MediaUtils.h"
@@ -11,20 +11,23 @@ UBaseRpySaveGame *ABaseRpyGameMode::CreateSaveGame()
     if (!SaveGame)
         return nullptr;
 
-    SaveGame->SaveDate = FDateTime::UtcNow();
-
     // store level name
     SaveGame->SetLevelName_Implementation(UGameplayStatics::GetCurrentLevelName(this));
 
     TArray<AActor *> AllActors;
-    UGameplayStatics::GetAllActorsWithInterface(GetWorld(), URpySavableActor::StaticClass(), AllActors);
+    UGameplayStatics::GetAllActorsWithInterface(GetWorld(), URpyStatefulActor::StaticClass(), AllActors);
 
     for (AActor *Actor : AllActors)
     {
-        auto State = IRpySavableActor::Execute_SaveToState(Actor);
+        auto ActorState = IRpyStatefulActor::Execute_SaveToState(Actor, SaveGame);
+        URpyStatefulActorState *State = Cast<URpyStatefulActorState>(ActorState);
         if (!State)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Actor %s returned null state"), *Actor->GetName());
             continue;
-        SaveGame->SetSavableActorState_Implementation(Actor, State);
+        }
+        State->PrintDebug();
+        SaveGame->SetStatefulActorState_Implementation(Actor, State);
     }
 
     // TODO: store your VN state here
@@ -44,25 +47,23 @@ void ABaseRpyGameMode::RestoreSaveGame(UBaseRpySaveGame *SaveGame)
         return;
 
     TArray<AActor *> AllActors;
-    UGameplayStatics::GetAllActorsWithInterface(GetWorld(), URpySavableActor::StaticClass(), AllActors);
+    UGameplayStatics::GetAllActorsWithInterface(GetWorld(), URpyStatefulActor::StaticClass(), AllActors);
 
     for (AActor *Actor : AllActors)
     {
-        auto State = SaveGame->GetSavableActorState_Implementation(Actor);
+        auto State = SaveGame->GetStatefulActorState_Implementation(Actor);
         if (!State)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("SaveGame returned null state for Actor %s"), *Actor->GetName());
             continue;
-        IRpySavableActor::Execute_LoadFromState(Actor, State);
+        }
+        State->PrintDebug();
+        IRpyStatefulActor::Execute_LoadFromState(Actor, State);
     }
-    if (!SaveGame->RpyState.currentInstruction.script.IsValid())
-    {
-        UE_LOG(LogTemp, Warning, TEXT("No valid script in save data"));
-        return;
-    }
-    UE_LOG(LogTemp, Warning, TEXT("Restoring script %s"), *SaveGame->RpyState.currentInstruction.script.GetAssetName());
-
-    // load the script and jump to the stored position
-    // CurrentScriptPtr = SaveGame->GetScript_Implementation();
-    // CurrentLineIndex = SaveGame->GetScriptInstructionIndex_Implementation();
-    // CurrentDynamicState = SaveGame->GetRuntimeData_Implementation();
-    // ...apply whatever else is needed to bring the scene back
+    // if (!SaveGame->RpyState.currentInstruction.script.IsValid())
+    // {
+    //     UE_LOG(LogTemp, Warning, TEXT("No valid script in save data"));
+    //     return;
+    // }
+    // UE_LOG(LogTemp, Warning, TEXT("Restoring script %s"), *SaveGame->RpyState.currentInstruction.script.GetAssetName());
 }

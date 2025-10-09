@@ -236,7 +236,7 @@ struct FRpyLine
 };
 
 USTRUCT(BlueprintType)
-struct FRpySceneState
+struct FRpySceneManagerState
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -246,7 +246,7 @@ struct FRpySceneState
 };
 
 USTRUCT(BlueprintType)
-struct FRpyShowState
+struct FRpyShowImageState
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -258,7 +258,15 @@ struct FRpyShowState
 };
 
 USTRUCT(BlueprintType)
-struct FRpyStatementState
+struct FRpyShowManagerState
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FRpyShowImageState> imageStates;
+};
+
+USTRUCT(BlueprintType)
+struct FRpyStatementManagerState
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -267,11 +275,10 @@ struct FRpyStatementState
 	FString statement;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName with;
-
 };
 
 USTRUCT(BlueprintType)
-struct FRpyChoiceState
+struct FRpyChoiceManagerState
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -279,7 +286,7 @@ struct FRpyChoiceState
 };
 
 USTRUCT(BlueprintType)
-struct FRpyAudioState
+struct FRpyAudioPlayState
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -288,6 +295,13 @@ struct FRpyAudioState
 	FRpyAudio rpyAudio;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRpyAudioOptions options;
+};
+USTRUCT(BlueprintType)
+struct FRpyAudioManagerState
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FRpyAudioPlayState> audioStates;
 };
 
 USTRUCT(BlueprintType)

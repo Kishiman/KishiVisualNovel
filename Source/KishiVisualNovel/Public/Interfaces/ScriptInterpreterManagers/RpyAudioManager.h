@@ -16,6 +16,16 @@ class KISHIVISUALNOVEL_API IRpyAudioManager : public IRpyScriptInterpreterBaseMa
 {
   GENERATED_BODY()
 public:
+  // get state
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  FRpyAudioManagerState GetAudioManagerState() const;
+  virtual FRpyAudioManagerState GetAudioManagerState_Implementation() const = 0;
+
+  // set state
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void SetAudioManagerState(const FRpyAudioManagerState &State);
+  virtual void SetAudioManagerState_Implementation(const FRpyAudioManagerState &State) = 0;
+
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool PauseAudio(float timeout);
   virtual bool PauseAudio_Implementation(float timeout) = 0;
@@ -33,13 +43,12 @@ public:
   virtual bool PlayAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  TArray<FRpyAudioState> GetCurrentAudioStates();
-  virtual TArray<FRpyAudioState> GetCurrentAudioStates_Implementation() const = 0;
+  TArray<FRpyAudioManagerState> GetCurrentAudioStates();
+  virtual TArray<FRpyAudioManagerState> GetCurrentAudioStates_Implementation() const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   void ClearAll();
   virtual void ClearAll_Implementation() = 0;
-
 };
 
 // UCLASS()

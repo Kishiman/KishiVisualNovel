@@ -3,31 +3,104 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 
-#include "Interfaces/RpySaveGame.h"     // your interface header
-#include "Interfaces/RpySavableActor.h" // your interface header
+#include "Interfaces/RpySaveGame.h" // your interface header
+#include "Interfaces/RpyStateful.h"
+#include "Rpy/RpyScript.h"
+#include "Rpy/RpySession.h"
 
 #include "RpyMainActor.generated.h"
 
 UCLASS(BlueprintType)
-class KISHIVISUALNOVEL_API URpyMainActorState : public URpySavableActorState
+class KISHIVISUALNOVEL_API URpyMainActorState : public URpyStatefulActorState
 {
     GENERATED_BODY()
 public:
+    void PostInitProperties() override
+    {
+        Super::PostInitProperties();
+
+        StateName = "RpyMainActorState";
+    }
+    virtual void PrintDebug() const override
+    {
+        Super::PrintDebug();
+        if (rpySessionState)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("RpySessionState:"));
+            rpySessionState->PrintDebug();
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("RpySessionState: nullptr"));
+        }
+    }
+    virtual void Serialize(FArchive &Ar) override
+    {
+        Super::Serialize(Ar);
+
+        if (Ar.IsSaving())
+        {
+            bool bHasSession = (rpySessionState != nullptr);
+            Ar << bHasSession;
+
+            if (bHasSession)
+            {
+                // Serialize the class and its data manually
+                FString SessionClassPath = rpySessionState->GetClass()->GetPathName();
+                Ar << SessionClassPath;
+
+                TArray<uint8> Bytes;
+                FMemoryWriter MemoryWriter(Bytes, true);
+                FObjectAndNameAsStringProxyArchive ProxyAr(MemoryWriter, true);
+                ProxyAr.ArIsSaveGame = Ar.ArIsSaveGame;
+                rpySessionState->Serialize(ProxyAr);
+                Ar << Bytes;
+            }
+        }
+        else if (Ar.IsLoading())
+        {
+            bool bHasSession = false;
+            Ar << bHasSession;
+
+            if (bHasSession)
+            {
+                FString SessionClassPath;
+                Ar << SessionClassPath;
+                UClass *SessionClass = LoadObject<UClass>(nullptr, *SessionClassPath);
+
+                rpySessionState = NewObject<URpySessionState>(this, SessionClass);
+
+                TArray<uint8> Bytes;
+                Ar << Bytes;
+
+                FMemoryReader MemoryReader(Bytes, true);
+                FObjectAndNameAsStringProxyArchive ProxyAr(MemoryReader, true);
+                ProxyAr.ArIsSaveGame = Ar.ArIsSaveGame;
+
+                rpySessionState->Serialize(ProxyAr);
+            }
+        }
+    }
     // rpy state
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FRpyState RpyState;
+    UPROPERTY(SaveGame, EditAnywhere, BlueprintReadWrite)
+    URpySessionState *rpySessionState;
 };
 UINTERFACE(Blueprintable)
-class KISHIVISUALNOVEL_API URpyMainActor : public URpySavableActor
+class KISHIVISUALNOVEL_API URpyMainActor : public URpyStatefulActor
 {
     GENERATED_BODY()
 };
 
-class KISHIVISUALNOVEL_API IRpyMainActor : public IRpySavableActor
+class KISHIVISUALNOVEL_API IRpyMainActor : public IRpyStatefulActor
 {
     GENERATED_BODY()
 
 public:
+    // get State Class
+    virtual TSubclassOf<URpyState> GetStateClass_Implementation() override
+    {
+        return URpyMainActorState::StaticClass();
+    }
     // Check if VN is currently active
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
     bool IsActive() const;

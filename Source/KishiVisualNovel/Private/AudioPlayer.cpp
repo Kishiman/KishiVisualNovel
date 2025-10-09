@@ -171,5 +171,4 @@ void UAudioPlayer::StopAudio(FName channel, float fadeOut)
 			return;
 		}
 	}
-	UE_LOG(LogTemp, Error, TEXT("Failed UAudioPlayer::StopAudio %s"), *channel.ToString());
 }

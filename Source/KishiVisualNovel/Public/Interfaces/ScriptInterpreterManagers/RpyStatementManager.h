@@ -16,13 +16,23 @@ class KISHIVISUALNOVEL_API IRpyStatementManager : public IRpyScriptInterpreterBa
 {
   GENERATED_BODY()
 public:
+  // get state
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  FRpyStatementManagerState GetStatementManagerState() const;
+  virtual FRpyStatementManagerState GetStatementManagerState_Implementation() const = 0;
+
+  // set state
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void SetStatementManagerState(const FRpyStatementManagerState &State);
+  virtual void SetStatementManagerState_Implementation(const FRpyStatementManagerState &State) = 0;
+
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool Say(FName name, const FString &statement);
   virtual bool Say_Implementation(FName name, const FString &statement) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  FRpyStatementState GetCurrentStatementState();
-  virtual FRpyStatementState GetCurrentStatementState_Implementation() const = 0;
+  FRpyStatementManagerState GetCurrentStatementState();
+  virtual FRpyStatementManagerState GetCurrentStatementState_Implementation() const = 0;
 };
 
 // UCLASS()

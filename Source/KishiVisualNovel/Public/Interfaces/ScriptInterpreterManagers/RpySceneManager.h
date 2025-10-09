@@ -16,13 +16,23 @@ class KISHIVISUALNOVEL_API IRpySceneManager : public IRpyScriptInterpreterBaseMa
 {
   GENERATED_BODY()
 public:
+  // get state
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  FRpySceneManagerState GetSceneManagerState() const;
+  virtual FRpySceneManagerState GetSceneManagerState_Implementation() const = 0;
+
+  // set state
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void SetSceneManagerState(const FRpySceneManagerState &State);
+  virtual void SetSceneManagerState_Implementation(const FRpySceneManagerState &State) = 0;
+
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool Scene(FRpyImage rpyImage, FRpySceneOptions options);
   virtual bool Scene_Implementation(FRpyImage rpyImage, FRpySceneOptions options) = 0;
-  
+
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  FRpySceneState GetCurrentSceneState();
-  virtual FRpySceneState GetCurrentSceneState_Implementation() const = 0;
+  FRpySceneManagerState GetCurrentSceneState();
+  virtual FRpySceneManagerState GetCurrentSceneState_Implementation() const = 0;
 };
 
 // UCLASS()

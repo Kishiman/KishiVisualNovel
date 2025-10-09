@@ -23,6 +23,39 @@ class KISHIVISUALNOVEL_API IRpyScriptInterpreter
 {
   GENERATED_BODY()
 public:
+  // menus
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  bool getSaveMenuVisible() const;
+  virtual bool getSaveMenuVisible_Implementation() const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void setSaveMenuVisible(bool bVisible) const;
+  virtual void setSaveMenuVisible_Implementation(bool bVisible) const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  bool getLoadMenuVisible() const;
+  virtual bool getLoadMenuVisible_Implementation() const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void setLoadMenuVisible(bool bVisible) const;
+  virtual void setLoadMenuVisible_Implementation(bool bVisible) const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  bool getConfigMenuVisible() const;
+  virtual bool getConfigMenuVisible_Implementation() const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void setConfigMenuVisible(bool bVisible) const;
+  virtual void setConfigMenuVisible_Implementation(bool bVisible) const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  bool getBackLogMenuVisible() const;
+  virtual bool getBackLogMenuVisible_Implementation() const = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void setBackLogMenuVisible(bool bVisible) const;
+  virtual void setBackLogMenuVisible_Implementation(bool bVisible) const = 0;
+
   // instructions
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)

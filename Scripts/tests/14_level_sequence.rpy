@@ -12,15 +12,19 @@ label start:
     # displaying dress and neutral
     aug "...................... I like this <red>dress</>."
 
+    show Augustina dress tongue sweat
     # auto-defined in the auto group
     aug "But what I like even more..."
 
+    show Augustina dress unsure blush oneup
     # auto-defined in the auto group
     aug "Wait for it..."
 
     # scene intro onlayer student2
     scene _ with intro onlayer student3
 
-    show Augustina jeans with fade
+    show Augustina jeans surprise with fade
     # jeans replaces dress, neutral replaces happy
-    aug "Is this <blue>jeans</>! ... SO COOL RIGHT? ... why are you <red>blushing</>?"
+    aug "Is this <blue>jeans</>! ... SO COOL RIGHT? ... don't <red>laugh</>!"
+    show Augustina jeans drool bigblush cry
+    aug "don't <red>laugh</>!... please..."

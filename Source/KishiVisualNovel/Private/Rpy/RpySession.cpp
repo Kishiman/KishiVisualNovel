@@ -99,31 +99,43 @@ bool URpySession::OnChoice(int index)
 	return RunNext();
 }
 
-FRpyState URpySession::SaveState()
+URpyState *URpySession::SaveToState_Implementation(UObject *Outer)
 {
-	FRpyState result;
+	URpySessionState *result = Outer ? NewObject<URpySessionState>(Outer)
+																	 : NewObject<URpySessionState>();
 	// Save the current state of the session
-	result.currentInstruction = URpyScript::SerializeInstruction(this->current);
-	result.instructionsCallStack.Reserve(this->callStack.Num());
+	result->currentInstruction = URpyScript::SerializeInstruction(this->current);
+	result->instructionsCallStack.Reserve(this->callStack.Num());
 	for (auto instruction : this->callStack)
 	{
-		result.instructionsCallStack.Add(URpyScript::SerializeInstruction(instruction));
+		result->instructionsCallStack.Add(URpyScript::SerializeInstruction(instruction));
 	}
-	result.runtimeData = this->runtimeData;
-	// result.sceneState = this->sceneState;
-	// result.showStates = this->showStates;
-	// result.statementState = this->statementState;
-	// result.audioStates = this->audioStates;
-	// result.choiceState = this->choiceState;
+	result->scripts.Reserve(this->scripts.Num());
+	for (auto script : this->scripts)
+	{
+		result->scripts.Add(TSoftObjectPtr<URpyScript>(script));
+	}
+	result->runtimeData = this->runtimeData;
+	result->sceneState = this->sceneState;
+	result->showState = this->showState;
+	result->statementState = this->statementState;
+	result->audioState = this->audioState;
+	result->choiceState = this->choiceState;
 
 	return result;
 }
-void URpySession::LoadState(const FRpyState &State)
+void URpySession::LoadFromState_Implementation(const URpyState *State)
 {
+	auto sessionState = Cast<URpySessionState>(State);
+	if (!sessionState)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadFromState_Implementation: State is not URpySessionState"));
+		return;
+	}
 	// Load the saved state into the session
-	URpyScript::DeserializeInstruction(State.currentInstruction);
+	this->current = URpyScript::DeserializeInstruction(sessionState->currentInstruction);
 	this->callStack.Empty();
-	for (const auto &instruction : State.instructionsCallStack)
+	for (const auto &instruction : sessionState->instructionsCallStack)
 	{
 		RpyInstruction *deserialized = URpyScript::DeserializeInstruction(instruction);
 		if (deserialized)
@@ -131,7 +143,30 @@ void URpySession::LoadState(const FRpyState &State)
 			this->callStack.Add(deserialized);
 		}
 	}
-	this->runtimeData = State.runtimeData;
+	this->scripts.Empty();
+	// load scripts
+	for (const auto &scriptPtr : sessionState->scripts)
+	{
+		if (scriptPtr.IsValid())
+		{
+			if (!this->scripts.Contains(scriptPtr.Get()))
+				this->scripts.Add(scriptPtr.Get());
+		}
+		else
+		{
+			auto loadedScript = Cast<URpyScript>(scriptPtr.LoadSynchronous());
+			if (loadedScript)
+			{
+				if (!this->scripts.Contains(loadedScript))
+					this->scripts.Add(loadedScript);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("LoadFromState_Implementation: Failed to load script %s"), *scriptPtr.ToString());
+			}
+		}
+	}
+	this->runtimeData = sessionState->runtimeData;
 
 	auto sceneManager = IRpyScriptInterpreter::Execute_GetSceneManager(interpreter.GetObject());
 	auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(interpreter.GetObject());
@@ -139,20 +174,20 @@ void URpySession::LoadState(const FRpyState &State)
 	auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(interpreter.GetObject());
 	auto choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(interpreter.GetObject());
 
-	// IRpySceneManager::Execute_Scene(sceneManager.GetObject(), State.sceneState.rpyImage, State.sceneState.options);
-	// IRpyShowManager::Execute_ClearAll(showManager.GetObject());
-	// for (size_t i = 0; i < State.showStates.Num(); i++)
-	// {
-	// 	IRpyShowManager::Execute_Show(showManager.GetObject(), State.showStates[i].rpyImage, State.showStates[i].options);
-	// }
-	// IRpyStatementManager::Execute_Say(statementManager.GetObject(), State.statementState.name, State.statementState.statement);
-	// IRpyAudioManager::Execute_ClearAll(audioManager.GetObject());
-	// for (size_t i = 0; i < State.audioStates.Num(); i++)
-	// {
-	// 	IRpyAudioManager::Execute_PlayAudio(audioManager.GetObject(), State.audioStates[i].channel, State.audioStates[i].rpyAudio, State.audioStates[i].options);
-	// }
-	// if (State.choiceState.choices.Num() > 0)
-	// {
-	// 	IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), State.choiceState.choices);
-	// }
+	IRpySceneManager::Execute_Scene(sceneManager.GetObject(), sessionState->sceneState.rpyImage, sessionState->sceneState.options);
+	IRpyShowManager::Execute_ClearAll(showManager.GetObject());
+	for (size_t i = 0; i < sessionState->showState.imageStates.Num(); i++)
+	{
+		IRpyShowManager::Execute_Show(showManager.GetObject(), sessionState->showState.imageStates[i].rpyImage, sessionState->showState.imageStates[i].options);
+	}
+	IRpyStatementManager::Execute_Say(statementManager.GetObject(), sessionState->statementState.name, sessionState->statementState.statement);
+	IRpyAudioManager::Execute_ClearAll(audioManager.GetObject());
+	for (size_t i = 0; i < sessionState->audioState.audioStates.Num(); i++)
+	{
+		IRpyAudioManager::Execute_PlayAudio(audioManager.GetObject(), sessionState->audioState.audioStates[i].channel, sessionState->audioState.audioStates[i].rpyAudio, sessionState->audioState.audioStates[i].options);
+	}
+	if (sessionState->choiceState.choices.Num() > 0)
+	{
+		IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), sessionState->choiceState.choices);
+	}
 }

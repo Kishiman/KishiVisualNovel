@@ -6,6 +6,7 @@
 
 #include "Structs/DynamicObject.h"
 #include "Rpy/RpyScript.h"
+#include "Interfaces/RpyStateful.h"
 
 #include "RpySession.generated.h"
 
@@ -14,31 +15,51 @@ class RpyInstruction;
 /**
  */
 
-USTRUCT(BlueprintType)
-struct FRpyState
+UCLASS(BlueprintType)
+class KISHIVISUALNOVEL_API URpySessionState : public URpyState
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRpyInstructionSerialization currentInstruction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FRpyInstructionSerialization> instructionsCallStack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSoftObjectPtr<URpyScript>> scripts;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FDynamicObject runtimeData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRpySceneState sceneState;
+	FRpySceneManagerState sceneState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FRpyShowState> showStates;
+	FRpyShowManagerState showState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRpyStatementState statementState;
+	FRpyStatementManagerState statementState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FRpyAudioState> audioStates;
+	FRpyAudioManagerState audioState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRpyChoiceState choiceState;
+	FRpyChoiceManagerState choiceState;
+	void PostInitProperties() override
+	{
+		Super::PostInitProperties();
+
+		StateName = "RpySessionState";
+	}
+	virtual void PrintDebug() const override
+	{
+		Super::PrintDebug();
+
+		UE_LOG(LogTemp, Warning, TEXT("Current Instruction: %d"), currentInstruction.index);
+		UE_LOG(LogTemp, Warning, TEXT("Call Stack:"));
+		for (const auto &instruction : instructionsCallStack)
+		{
+			UE_LOG(LogTemp, Warning, TEXT(" - %d"), instruction.index);
+		}
+	}
 };
 
 UCLASS(BlueprintType)
-class KISHIVISUALNOVEL_API URpySession : public UObject
+class KISHIVISUALNOVEL_API URpySession : public UObject, public IRpyStateful
 {
 	GENERATED_BODY()
 public:
@@ -53,6 +74,16 @@ public:
 	TArray<RpyInstruction *> callStack;
 
 	virtual void PostInitProperties() override;
+	// get State Class
+	virtual TSubclassOf<URpyState> GetStateClass_Implementation() override
+	{
+		return URpySessionState::StaticClass();
+	}
+
+	// Save state to State
+	virtual URpyState *SaveToState_Implementation(UObject *Outer) override;
+	// Load state from State
+	virtual void LoadFromState_Implementation(const URpyState *State) override;
 
 	UFUNCTION(BlueprintCallable)
 	void AddScript(URpyScript *script);
@@ -70,24 +101,18 @@ public:
 	bool Run();
 	UFUNCTION(BlueprintPure)
 	EInstructionRunTimeType GetRunTimeType() const;
-	
+
 	UFUNCTION(BlueprintCallable)
 	bool OnChoice(int index);
-	
-	UFUNCTION(BlueprintCallable)
-	FRpyState SaveState();
-	UFUNCTION(BlueprintCallable)
-	void LoadState(const FRpyState &State);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRpySceneState sceneState;
+	FRpySceneManagerState sceneState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FRpyShowState> showStates;
+	FRpyShowManagerState showState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRpyStatementState statementState;
+	FRpyStatementManagerState statementState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FRpyAudioState> audioStates;
+	FRpyAudioManagerState audioState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRpyChoiceState choiceState;
-
+	FRpyChoiceManagerState choiceState;
 };

@@ -2,7 +2,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
-#include "Interfaces/RpySavableActor.h"
+#include "Interfaces/RpyStatefulActor.h"
 #include "Rpy/RpySession.h"
 
 #include "RpySaveGame.generated.h"
@@ -34,20 +34,12 @@ public:
   virtual void SetLevelName_Implementation(const FString &LevelName) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  FRpyState GetRpyState() const;
-  virtual FRpyState GetRpyState_Implementation() const = 0;
+  URpyStatefulActorState *GetStatefulActorState(const AActor *Actor) const;
+  virtual URpyStatefulActorState *GetStatefulActorState_Implementation(const AActor *Actor) const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  void SetRpyState(const FRpyState &State);
-  virtual void SetRpyState_Implementation(const FRpyState &State) = 0;
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  URpySavableActorState *GetSavableActorState(const AActor *Actor) const;
-  virtual URpySavableActorState *GetSavableActorState_Implementation(const AActor *Actor) const = 0;
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  void SetSavableActorState(const AActor *Actor, const URpySavableActorState *State);
-  virtual void SetSavableActorState_Implementation(const AActor *Actor, const URpySavableActorState *State) = 0;
+  void SetStatefulActorState(const AActor *Actor, const URpyStatefulActorState *State);
+  virtual void SetStatefulActorState_Implementation(const AActor *Actor, const URpyStatefulActorState *State) = 0;
 };
 
 UCLASS()

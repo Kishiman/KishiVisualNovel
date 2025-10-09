@@ -118,7 +118,8 @@ struct ShowInstruction : public RpyInstruction
     if (!rpyImage)
       return false;
 
-    auto existing = session->showStates.FindByPredicate([&](const FRpyShowState &state) { return state.name == name; });
+    auto existing = session->showState.imageStates.FindByPredicate([&](const FRpyShowImageState &state)
+                                                                   { return state.name == name; });
     if (existing)
     {
       existing->rpyImage = *rpyImage;
@@ -126,7 +127,7 @@ struct ShowInstruction : public RpyInstruction
     }
     else
     {
-      session->showStates.Add(FRpyShowState{name,*rpyImage, options});
+      session->showState.imageStates.Add(FRpyShowImageState{name, *rpyImage, options});
     }
 
     auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(session->interpreter.GetObject());
@@ -145,10 +146,11 @@ struct HideInstruction : public RpyInstruction
   virtual bool Execute(URpySession *session)
   {
 
-    auto existing = ArrayLib::FindIndexByPredicate(session->showStates, [&](const FRpyShowState &state) { return state.name == tag; });
-    if(existing != INDEX_NONE)
+    auto existing = ArrayLib::FindIndexByPredicate(session->showState.imageStates, [&](const FRpyShowImageState &state)
+                                                   { return state.name == tag; });
+    if (existing != INDEX_NONE)
     {
-      session->showStates.RemoveAt(existing);
+      session->showState.imageStates.RemoveAt(existing);
     }
     auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(session->interpreter.GetObject());
 
@@ -189,7 +191,8 @@ struct PlayInstruction : public RpyInstruction
     if (!rpyAudio.audio)
       return false;
 
-    auto existing = session->audioStates.FindByPredicate([&](const FRpyAudioState &state) { return state.channel == channel; });
+    auto existing = session->audioState.audioStates.FindByPredicate([&](const FRpyAudioPlayState &state)
+                                                                    { return state.channel == channel; });
     if (existing)
     {
       existing->rpyAudio = rpyAudio;
@@ -197,7 +200,7 @@ struct PlayInstruction : public RpyInstruction
     }
     else
     {
-      session->audioStates.Add(FRpyAudioState{channel, rpyAudio, options});
+      session->audioState.audioStates.Add(FRpyAudioPlayState{channel, rpyAudio, options});
     }
     auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
 
@@ -213,7 +216,7 @@ struct PauseAudioInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::PAUSE; }
   virtual bool Execute(URpySession *session)
   {
-    session->audioStates.Empty();
+    session->audioState.audioStates.Empty();
     auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
 
     return IRpyAudioManager::Execute_PauseAudio(audioManager.GetObject(), this->timeout);
@@ -379,10 +382,11 @@ struct StopInstruction : public RpyInstruction
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::STOP; }
   virtual bool Execute(URpySession *session)
   {
-    auto existing = ArrayLib::FindIndexByPredicate(session->audioStates, [&](const FRpyAudioState &state) { return state.channel == channel; });
-    if(existing != INDEX_NONE)
+    auto existing = ArrayLib::FindIndexByPredicate(session->audioState.audioStates, [&](const FRpyAudioPlayState &state)
+                                                   { return state.channel == channel; });
+    if (existing != INDEX_NONE)
     {
-      session->audioStates.RemoveAt(existing);
+      session->audioState.audioStates.RemoveAt(existing);
     }
     auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
 
@@ -401,7 +405,7 @@ struct QueueInstruction : public RpyInstruction
     auto rpyAudio = script->audios[name];
     if (!rpyAudio.audio)
       return false;
-    //TODO handle state
+    // TODO handle state
     auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
 
     return IRpyAudioManager::Execute_QueueAudio(audioManager.GetObject(), channel, rpyAudio, options);

@@ -16,6 +16,16 @@ class KISHIVISUALNOVEL_API IRpyShowManager : public IRpyScriptInterpreterBaseMan
 {
   GENERATED_BODY()
 public:
+  // get state
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  FRpyShowManagerState GetShowManagerState() const;
+  virtual FRpyShowManagerState GetShowManagerState_Implementation() const = 0;
+
+  // set state
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void SetShowManagerState(const FRpyShowManagerState &State);
+  virtual void SetShowManagerState_Implementation(const FRpyShowManagerState &State) = 0;
+
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool Show(FRpyImage rpyImage, FRpySceneOptions options);
   virtual bool Show_Implementation(FRpyImage rpyImage, FRpySceneOptions options) = 0;
@@ -25,8 +35,8 @@ public:
   virtual bool Hide_Implementation(FName tag, FRpySceneOptions options) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  TArray<FRpyShowState> GetCurrentShowStates();
-  virtual TArray<FRpyShowState> GetCurrentShowStates_Implementation() const = 0;
+  TArray<FRpyShowManagerState> GetCurrentShowStates();
+  virtual TArray<FRpyShowManagerState> GetCurrentShowStates_Implementation() const = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   void ClearAll();

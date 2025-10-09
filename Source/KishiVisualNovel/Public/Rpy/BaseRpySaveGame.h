@@ -15,24 +15,30 @@ class KISHIVISUALNOVEL_API UBaseRpySaveGame
     GENERATED_BODY()
 
 public:
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    bool isQuickSave = false;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    bool isEmpty = false;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    int32 SlotIndex;
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    FName SlotName;
     // Screenshot
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
     TArray<uint8> ScreenshotData;
 
     // Level name
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
     FString LevelName;
 
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
+    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
     FDateTime SaveDate;
 
-    // rpy state
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
-    FRpyState RpyState;
-
-    // actor states
-    UPROPERTY(VisibleAnywhere, Category = "Save Data")
-    TMap<FName, URpySavableActorState *> ActorStates;
+    // actor states serialized data
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
+    TMap<FName, FRpySerializedState> ActorStates;
 
     // ---- IRpySaveGame interface implementation ----
 
@@ -41,21 +47,22 @@ public:
 
     virtual FString GetLevelName_Implementation() const override { return LevelName; }
     virtual void SetLevelName_Implementation(const FString &InLevelName) override { LevelName = InLevelName; }
-
-    virtual FRpyState GetRpyState_Implementation() const override { return RpyState; }
-    virtual void SetRpyState_Implementation(const FRpyState &InRpyState) override { RpyState = InRpyState; }
-
-    virtual URpySavableActorState *GetSavableActorState_Implementation(const AActor *Actor) const override
+    virtual URpyStatefulActorState *GetStatefulActorState_Implementation(const AActor *Actor) const override
     {
         if (!Actor)
             return nullptr;
-        auto FoundState = ActorStates.Find(Actor->GetFName());
-        return FoundState ? *FoundState : nullptr;
+        const FRpySerializedState *Found = ActorStates.Find(Actor->GetFName());
+        if (!Found)
+            return nullptr;
+
+        return Cast<URpyStatefulActorState>(URpyState::DeserializeStateObject(*Found, const_cast<UBaseRpySaveGame *>(this)));
     }
-    virtual void SetSavableActorState_Implementation(const AActor *Actor, const URpySavableActorState *State) override
+    virtual void SetStatefulActorState_Implementation(const AActor *Actor, const URpyStatefulActorState *State) override
     {
         if (!Actor || !State)
             return;
-        ActorStates.Add(Actor->GetFName(), DuplicateObject<URpySavableActorState>(State, this));
+        FRpySerializedState Serialized;
+        URpyState::SerializeStateObject(const_cast<URpyStatefulActorState *>(State), Serialized);
+        ActorStates.Add(Actor->GetFName(), Serialized);
     }
 };
