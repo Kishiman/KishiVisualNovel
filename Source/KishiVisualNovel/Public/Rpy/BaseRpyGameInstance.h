@@ -83,10 +83,17 @@ public:
     FOnSaveGameComplete OnSaveGameComplete;
 
 protected:
+    UPROPERTY()
+    UBaseRpySaveGame *PendingSaveToRestore = nullptr;
+
     virtual void Init() override;
     virtual void Shutdown() override;
+    void OnPostLoadMap(UWorld *LoadedWorld);
 
     void InitSaveSlots(int32 UserIndex = 0);
+
+    UFUNCTION(BlueprintCallable, Category = "Save|VN")
+    void LoadSaveGame(UBaseRpySaveGame *SaveGame);
 
 private:
     FString GetSlotName(int32 SlotIndex) const;

@@ -9,6 +9,62 @@
 #include "Misc/Paths.h"
 #include "GameFramework/GameUserSettings.h"
 
+void UBaseRpyGameInstance::Init()
+{
+    Super::Init();
+    InitSaveSlots(); // Ensure all save slots are initialized
+    ApplyOptions();
+    FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UBaseRpyGameInstance::OnPostLoadMap);
+}
+
+void UBaseRpyGameInstance::OnPostLoadMap(UWorld *LoadedWorld)
+{
+    if (!PendingSaveToRestore)
+        return;
+
+    UE_LOG(LogTemp, Display, TEXT("Restoring save in newly loaded map..."));
+
+    ABaseRpyGameMode *RpyGameMode = Cast<ABaseRpyGameMode>(LoadedWorld->GetAuthGameMode());
+    if (RpyGameMode)
+    {
+        RpyGameMode->RestoreSaveGame(PendingSaveToRestore);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("UBaseRpyGameInstance::OnPostLoadMap: GameMode not found"));
+    }
+
+    PendingSaveToRestore = nullptr;
+}
+
+void UBaseRpyGameInstance::Shutdown()
+{
+    FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
+    Super::Shutdown();
+}
+void UBaseRpyGameInstance::ApplyOptions()
+{
+    // TODO: Apply the options to the game settings
+}
+
+void UBaseRpyGameInstance::LoadSaveGame(UBaseRpySaveGame *SaveGame)
+{
+    // Store save temporarily
+    PendingSaveToRestore = SaveGame;
+
+    FString TargetLevel = SaveGame->LevelName;
+    if (TargetLevel.IsEmpty())
+        TargetLevel = TEXT("DefaultLevelName");
+
+    // Reload even if same level
+    UWorld *World = GetWorld();
+    FString CurrentLevel = World ? World->GetMapName() : TEXT("");
+
+    // Always reload, even if same name
+    FName LevelToOpen = FName(*TargetLevel);
+    UGameplayStatics::OpenLevel(this, LevelToOpen);
+}
+
 bool UBaseRpyGameInstance::Save(int32 SlotIndex, int32 UserIndex)
 {
     auto GameMode = GetWorld() ? GetWorld()->GetAuthGameMode() : nullptr;
@@ -20,19 +76,13 @@ bool UBaseRpyGameInstance::Save(int32 SlotIndex, int32 UserIndex)
     auto SaveGame = RpyGameMode->CreateSaveGame();
     return this->SaveSlot(SaveGame, SlotIndex, UserIndex);
 }
+
 void UBaseRpyGameInstance::Load(int32 SlotIndex, int32 UserIndex)
 {
-    auto GameMode = GetWorld() ? GetWorld()->GetAuthGameMode() : nullptr;
-    if (!GameMode)
-        return;
-    auto RpyGameMode = Cast<ABaseRpyGameMode>(GameMode);
-    if (!RpyGameMode)
-        return;
-    auto SaveGame = this->LoadSlot(SlotIndex, UserIndex);
+    auto SaveGame = LoadSlot(SlotIndex, UserIndex);
     if (!SaveGame)
         return;
-    RpyGameMode->RestoreSaveGame(SaveGame);
-    return;
+    this->LoadSaveGame(SaveGame);
 }
 
 bool UBaseRpyGameInstance::QuickSave(int32 UserIndex)
@@ -48,16 +98,10 @@ bool UBaseRpyGameInstance::QuickSave(int32 UserIndex)
 }
 void UBaseRpyGameInstance::QuickLoad(int32 UserIndex)
 {
-    auto GameMode = GetWorld() ? GetWorld()->GetAuthGameMode() : nullptr;
-    if (!GameMode)
-        return;
-    auto RpyGameMode = Cast<ABaseRpyGameMode>(GameMode);
-    if (!RpyGameMode)
-        return;
     auto SaveGame = this->QuickLoadSlot(UserIndex);
     if (!SaveGame)
         return;
-    RpyGameMode->RestoreSaveGame(SaveGame);
+    this->LoadSaveGame(SaveGame);
 }
 
 FString UBaseRpyGameInstance::GetSlotName(int32 SlotIndex) const
@@ -167,23 +211,6 @@ TArray<UBaseRpySaveGame *> UBaseRpyGameInstance::ListSaveSlots(int32 UserIndex)
     }
 
     return Slots;
-}
-
-void UBaseRpyGameInstance::ApplyOptions()
-{
-    // TODO: Apply the options to the game settings
-}
-
-void UBaseRpyGameInstance::Init()
-{
-    Super::Init();
-    InitSaveSlots(); // Ensure all save slots are initialized
-    ApplyOptions();
-}
-
-void UBaseRpyGameInstance::Shutdown()
-{
-    Super::Shutdown();
 }
 
 void UBaseRpyGameInstance::InitSaveSlots(int32 UserIndex)

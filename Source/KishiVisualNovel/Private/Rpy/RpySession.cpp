@@ -167,6 +167,12 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 		}
 	}
 	this->runtimeData = sessionState->runtimeData;
+	this->sceneState = sessionState->sceneState;
+	this->sceneState = sessionState->sceneState;
+	this->showState = sessionState->showState;
+	this->statementState = sessionState->statementState;
+	this->audioState = sessionState->audioState;
+	this->choiceState = sessionState->choiceState;
 
 	auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(interpreter.GetObject());
 	auto choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(interpreter.GetObject());
