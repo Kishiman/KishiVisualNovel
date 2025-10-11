@@ -45,10 +45,6 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   TArray<FRpyAudioManagerState> GetCurrentAudioStates();
   virtual TArray<FRpyAudioManagerState> GetCurrentAudioStates_Implementation() const = 0;
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  void ClearAll();
-  virtual void ClearAll_Implementation() = 0;
 };
 
 // UCLASS()

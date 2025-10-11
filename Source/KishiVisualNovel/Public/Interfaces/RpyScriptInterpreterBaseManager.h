@@ -27,6 +27,10 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   void OnDialogueViseme(FName name, EMouthViseme viseme, float timeOffset);
   virtual void OnDialogueViseme_Implementation(FName name, EMouthViseme viseme, float timeOffset) = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void Reset();
+  virtual void Reset_Implementation() = 0;
 };
 
 UCLASS()

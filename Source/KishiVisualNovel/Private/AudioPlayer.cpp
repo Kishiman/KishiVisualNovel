@@ -21,9 +21,9 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PlayAudio %s"), *channel.ToString());
 		// Create an audio component if it doesn't exist
-		if (AudioComponents.Contains(channel))
+		if (audioComponents.Contains(channel))
 		{
-			UAudioComponent *audioComponent = AudioComponents[channel];
+			UAudioComponent *audioComponent = audioComponents[channel];
 
 			if (audioComponent)
 			{
@@ -38,7 +38,7 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 		}
 		newComponent->SetUISound(true);
 		newComponent->SoundClassOverride = audioChannels[channel];
-		AudioComponents.Add(channel, newComponent);
+		audioComponents.Add(channel, newComponent);
 
 		UAudioComponent *audioComponent = newComponent;
 
@@ -49,7 +49,7 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 		}
 
 		// Clear the audio queue
-		AudioQueue.FindOrAdd(channel).Empty();
+		audioQueues.FindOrAdd(channel).Empty();
 
 		// if (!audio->load())
 		// {
@@ -87,10 +87,10 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 void UAudioPlayer::PauseAudio(FName channel, float fadeOut)
 {
 	// Check if the audio component exists and is playing
-	if (AudioComponents.Contains(channel) && AudioComponents[channel]->IsPlaying())
+	if (audioComponents.Contains(channel) && audioComponents[channel]->IsPlaying())
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PauseAudio %s"), *channel.ToString());
-		UAudioComponent *audioComponent = AudioComponents[channel];
+		UAudioComponent *audioComponent = audioComponents[channel];
 
 		// Fade out and pause the audio
 		audioComponent->FadeOut(fadeOut, 0);
@@ -105,10 +105,10 @@ void UAudioPlayer::PauseAudio(FName channel, float fadeOut)
 void UAudioPlayer::ResumeAudio(FName channel, float fadeIn)
 {
 	// Check if the audio component exists and is paused
-	if (AudioComponents.Contains(channel) && AudioComponents[channel]->GetPlayState() == EAudioComponentPlayState::Paused)
+	if (audioComponents.Contains(channel) && audioComponents[channel]->GetPlayState() == EAudioComponentPlayState::Paused)
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::ResumeAudio %s"), *channel.ToString());
-		UAudioComponent *audioComponent = AudioComponents[channel];
+		UAudioComponent *audioComponent = audioComponents[channel];
 
 		// Fade in and resume the audio
 		audioComponent->FadeIn(fadeIn);
@@ -144,7 +144,7 @@ void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, fl
 		audioInfo.FadeOut = fadeOut;
 		audioInfo.loop = loop;
 
-		AudioQueue.FindOrAdd(channel).Add(audioInfo);
+		audioQueues.FindOrAdd(channel).Add(audioInfo);
 	}
 	catch (const std::exception &e)
 	{
@@ -155,20 +155,97 @@ void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, fl
 void UAudioPlayer::StopAudio(FName channel, float fadeOut)
 {
 	// Check if the audio component exists and is playing or paused
-	if (AudioComponents.Contains(channel))
+	if (audioComponents.Contains(channel))
 	{
-		auto PlayState = AudioComponents[channel]->GetPlayState();
+		auto PlayState = audioComponents[channel]->GetPlayState();
 		if (PlayState != EAudioComponentPlayState::Stopped)
 		{
 			UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::StopAudio %s"), *channel.ToString());
-			UAudioComponent *audioComponent = AudioComponents[channel];
+			UAudioComponent *audioComponent = audioComponents[channel];
 
 			// Fade out and stop the audio
 			audioComponent->FadeOut(fadeOut, 0);
 
 			// Clear the audio queue
-			AudioQueue.FindOrAdd(channel).Empty();
+			audioQueues.FindOrAdd(channel).Empty();
 			return;
 		}
 	}
+}
+
+UAudioPlayer *UAudioPlayer::singletonInstance = nullptr;
+
+void UAudioPlayer::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	// Only bind once
+	if (!FWorldDelegates::OnWorldCleanup.IsBoundToObject(this))
+	{
+		FWorldDelegates::OnWorldCleanup.AddUObject(this, &UAudioPlayer::OnWorldCleanup);
+	}
+}
+void UAudioPlayer::OnWorldCleanup(UWorld *World, bool bSessionEnded, bool bCleanupResources)
+{
+	if (this->audioWorld != World)
+		return;
+	this->ShutdownAudioPlayer();
+}
+
+void UAudioPlayer::ShutdownAudioPlayer()
+{
+
+	UE_LOG(LogTemp, Log, TEXT("UAudioPlayer: Shutting down instance."));
+
+	// Step 1. Stop and fade out all active audio components
+	for (auto &Pair : this->audioComponents)
+	{
+		if (UAudioComponent *AudioComp = Pair.Value)
+		{
+			if (AudioComp->IsPlaying())
+			{
+				// Smoothly fade out before stopping (optional)
+				const float FadeOutDuration = 0.5f;
+				AudioComp->FadeOut(FadeOutDuration, 0.0f);
+
+				// Mark for destruction after fade out
+				AudioComp->bAutoDestroy = true;
+			}
+		}
+	}
+
+	// Optionally clear all channels and audio components
+	this->audioQueues.Empty();
+	this->audioChannels.Empty();
+	this->audioComponents.Empty();
+
+	// Remove from root so GC can reclaim it
+	if (this->IsRooted())
+	{
+		this->RemoveFromRoot();
+		this->ConditionalBeginDestroy();
+	}
+	// Force destruction (safe only if not referenced elsewhere)
+	if (this == singletonInstance)
+	{
+		singletonInstance = nullptr;
+	}
+}
+
+UAudioPlayer *UAudioPlayer::GetSingletonInstance(UObject *Outer, bool bRooted)
+{
+	if (!singletonInstance)
+	{
+		singletonInstance = NewObject<UAudioPlayer>(Outer);
+		singletonInstance->audioWorld = Outer->GetWorld();
+	}
+	if (bRooted && !singletonInstance->IsRooted())
+	{
+		singletonInstance->AddToRoot();
+	}
+	else if (!bRooted && singletonInstance->IsRooted())
+	{
+		singletonInstance->RemoveFromRoot();
+	}
+	return singletonInstance;
 }

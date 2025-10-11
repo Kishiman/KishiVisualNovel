@@ -37,10 +37,6 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   TArray<FRpyShowManagerState> GetCurrentShowStates();
   virtual TArray<FRpyShowManagerState> GetCurrentShowStates_Implementation() const = 0;
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-  void ClearAll();
-  virtual void ClearAll_Implementation() = 0;
 };
 
 // UCLASS()

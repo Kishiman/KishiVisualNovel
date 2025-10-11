@@ -168,26 +168,36 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 	}
 	this->runtimeData = sessionState->runtimeData;
 
+	auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(interpreter.GetObject());
+	auto choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(interpreter.GetObject());
 	auto sceneManager = IRpyScriptInterpreter::Execute_GetSceneManager(interpreter.GetObject());
 	auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(interpreter.GetObject());
 	auto statementManager = IRpyScriptInterpreter::Execute_GetStatementManager(interpreter.GetObject());
-	auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(interpreter.GetObject());
-	auto choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(interpreter.GetObject());
 
-	IRpySceneManager::Execute_Scene(sceneManager.GetObject(), sessionState->sceneState.rpyImage, sessionState->sceneState.options);
-	IRpyShowManager::Execute_ClearAll(showManager.GetObject());
-	for (size_t i = 0; i < sessionState->showState.imageStates.Num(); i++)
-	{
-		IRpyShowManager::Execute_Show(showManager.GetObject(), sessionState->showState.imageStates[i].rpyImage, sessionState->showState.imageStates[i].options);
-	}
-	IRpyStatementManager::Execute_Say(statementManager.GetObject(), sessionState->statementState.name, sessionState->statementState.statement);
-	IRpyAudioManager::Execute_ClearAll(audioManager.GetObject());
+	IRpyAudioManager::Execute_Reset(audioManager.GetObject());
+	IRpyChoiceManager::Execute_Reset(choiceManager.GetObject());
+	IRpySceneManager::Execute_Reset(sceneManager.GetObject());
+	IRpyShowManager::Execute_Reset(showManager.GetObject());
+	IRpyStatementManager::Execute_Reset(statementManager.GetObject());
+
 	for (size_t i = 0; i < sessionState->audioState.audioStates.Num(); i++)
 	{
 		IRpyAudioManager::Execute_PlayAudio(audioManager.GetObject(), sessionState->audioState.audioStates[i].channel, sessionState->audioState.audioStates[i].rpyAudio, sessionState->audioState.audioStates[i].options);
 	}
+
 	if (sessionState->choiceState.choices.Num() > 0)
 	{
 		IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), sessionState->choiceState.choices);
 	}
+
+	IRpySceneManager::Execute_Scene(sceneManager.GetObject(), sessionState->sceneState.rpyImage, sessionState->sceneState.options);
+
+	for (size_t i = 0; i < sessionState->showState.imageStates.Num(); i++)
+	{
+		IRpyShowManager::Execute_Show(showManager.GetObject(), sessionState->showState.imageStates[i].rpyImage, sessionState->showState.imageStates[i].options);
+	}
+
+	IRpyStatementManager::Execute_Say(statementManager.GetObject(), sessionState->statementState.name, sessionState->statementState.statement);
+
+	return;
 }

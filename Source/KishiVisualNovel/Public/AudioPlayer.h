@@ -20,6 +20,17 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	TMap<FName, USoundClass *> audioChannels;
 
+	virtual void PostInitProperties() override;
+
+	void OnWorldCleanup(UWorld *World, bool bSessionEnded, bool bCleanupResources);
+
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+	void ShutdownAudioPlayer();
+
+	// get the singleton instance of the audio player
+	UFUNCTION(BlueprintCallable)
+	static UAudioPlayer *GetSingletonInstance(UObject *Outer, bool bRooted = false);
+
 	// play audio in an audio channel
 	UFUNCTION(BlueprintCallable)
 	void PlayAudio(FName channel, USoundWave *audio, float fadeIn = 0, float fadeOut = 0, bool loop = false);
@@ -43,8 +54,11 @@ public:
 protected:
 	// Map of audio components for each audio channel
 	UPROPERTY()
-	TMap<FName, UAudioComponent *> AudioComponents;
+	UWorld *audioWorld;
+	UPROPERTY()
+	TMap<FName, UAudioComponent *> audioComponents;
 
+	static UAudioPlayer *singletonInstance;
 	struct FAudioInfo
 	{
 		USoundWave *Audio;
@@ -53,5 +67,5 @@ protected:
 		bool loop;
 	};
 	// Map of queue with fadeIn and fade out for each audio channel
-	TMap<FName, TArray<FAudioInfo>> AudioQueue;
+	TMap<FName, TArray<FAudioInfo>> audioQueues;
 };
