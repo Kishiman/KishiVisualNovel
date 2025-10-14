@@ -35,6 +35,9 @@ public:
     UPROPERTY(Transient)
     UBaseRpySaveGame *PendingSaveData;
 
+    UPROPERTY(BlueprintReadOnly, Category = "Save")
+    bool bIsLoadingFromSave = false;
+
     // ---- Configurable Save System ----
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Save")
     int32 MaxSaveSlots = 6;
@@ -77,6 +80,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Save|VN")
     void ApplyOptions();
 
+    UFUNCTION(BlueprintCallable)
+    static UBaseRpyGameInstance *GetBaseRpyGameInstance(UObject *WorldContextObject);
+
     // Events for Async Loading
     DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSaveGameComplete);
     UPROPERTY(BlueprintAssignable, Category = "Save|VN")
@@ -93,7 +99,13 @@ protected:
     void InitSaveSlots(int32 UserIndex = 0);
 
     UFUNCTION(BlueprintCallable, Category = "Save|VN")
+    UBaseRpySaveGame *SaveSaveGame();
+
+    UFUNCTION(BlueprintCallable, Category = "Save|VN")
     void LoadSaveGame(UBaseRpySaveGame *SaveGame);
+
+    UFUNCTION(BlueprintCallable, Category = "Save|VN")
+    bool SaveGameToSlot(UBaseRpySaveGame *SaveGame, const FString &SlotName, int32 UserIndex);
 
 private:
     FString GetSlotName(int32 SlotIndex) const;
