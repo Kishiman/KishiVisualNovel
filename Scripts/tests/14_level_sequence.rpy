@@ -3,7 +3,7 @@ define aug = Character('Augustina', color="#c8ffc8")
 # Images
 # image intro = "trial_intro"
 transition intro = "trial_intro"
-image Augustina = "Augustina2/Augustina2"
+image Augustina = "Augustina"
 
 label start:
     # scene intro
@@ -16,9 +16,13 @@ label start:
     # auto-defined in the auto group
     aug "But what I like even more..."
 
-    show Augustina dress unsure blush oneup
+    show Augustina dress unsure blush half up
     # auto-defined in the auto group
-    aug "Wait for it..."
+    aug "Augustina dress unsure blush half up"
+
+    show Augustina dress unsure blush half oneup
+    # auto-defined in the auto group
+    aug "Augustina dress unsure blush half oneup"
 
     # scene intro onlayer student2
     scene _ with intro onlayer student3
