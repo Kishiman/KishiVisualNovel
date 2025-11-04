@@ -65,7 +65,7 @@ class KISHIVISUALNOVEL_API URpyStatefulActorLibrary : public UBlueprintFunctionL
 {
     GENERATED_BODY()
 public:
-    UFUNCTION(BlueprintCallable, Category = "Rpy")
+    UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"), Category = "Rpy")
     static void BaseSaveToState(const TScriptInterface<IRpyStatefulActor> &Target, URpyStatefulActorState *State)
     {
         State->ActorName = Target.GetObject()->GetFName();
@@ -73,7 +73,7 @@ public:
         State->Rotation = Cast<AActor>(Target.GetObject())->GetActorRotation();
         State->Scale = Cast<AActor>(Target.GetObject())->GetActorScale3D();
     }
-    UFUNCTION(BlueprintCallable, Category = "Rpy")
+    UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"), Category = "Rpy")
     static void BaseLoadFromState(const TScriptInterface<IRpyStatefulActor> &Target, URpyStatefulActorState *State)
     {
         // Target.GetObject()->SetFName(State->ActorName);

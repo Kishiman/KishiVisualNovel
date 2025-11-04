@@ -1,49 +1,59 @@
 #include "Utils/ActorUtils.h"
-
-#include "GameFramework/Actor.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "EngineUtils.h" // For TActorIterator
 
-AActor *UActorUtils::FindActorByName(UWorld *World, FName ActorName)
+AActor *UActorUtils::FindActorByName(const UObject *WorldContextObject, FName ActorName)
 {
-
-  if (!World)
+  if (!WorldContextObject)
     return nullptr;
 
-  FString name = ActorName.ToString();
+  UWorld *World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
+  for (TActorIterator<AActor> It(World); It; ++It)
+  {
+    if (It->GetFName() == ActorName)
+    {
+      return *It;
+    }
+  }
+  return nullptr;
+}
 
+TArray<AActor *> UActorUtils::GetAllActorsWithInterfaceAndTag(const UObject *WorldContextObject, TSubclassOf<UInterface> Interface, FName Tag)
+{
+  TArray<AActor *> Result;
+  if (!WorldContextObject || !*Interface)
+    return Result;
+
+  UWorld *World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
   for (TActorIterator<AActor> It(World); It; ++It)
   {
     AActor *Actor = *It;
-    if (Actor && Actor->GetName() == name)
+    if (Actor->GetClass()->ImplementsInterface(Interface))
     {
-      return Actor;
+      if (Tag.IsNone() || Actor->ActorHasTag(Tag))
+      {
+        Result.Add(Actor);
+      }
     }
   }
-  return nullptr; // Actor not found
+  return Result;
 }
 
-void UActorUtils::GetAllActorsWithInterfaceAndTag(UWorld *World, TSubclassOf<UInterface> Interface, const FName Tag, TArray<AActor *> &OutActors)
+AActor *UActorUtils::FindActorWithInterfaceAndTag(const UObject *WorldContextObject, TSubclassOf<UInterface> Interface, FName Tag)
 {
-  // Clear the output array
-  OutActors.Empty();
-
-  if (!World || !Interface)
+  UWorld *World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
+  for (TActorIterator<AActor> It(World); It; ++It)
   {
-    return;
-  }
-
-  // Get all actors in the world
-  TArray<AActor *> AllActors;
-  UGameplayStatics::GetAllActorsWithInterface(World, Interface, AllActors);
-
-  // Filter actors by interface and tag
-  for (AActor *Actor : AllActors)
-  {
-    if (Actor && Actor->ActorHasTag(Tag))
+    AActor *Actor = *It;
+    if (Actor->GetClass()->ImplementsInterface(Interface))
     {
-      OutActors.Add(Actor);
+      if (Tag.IsNone() || Actor->ActorHasTag(Tag))
+      {
+        return Actor;
+      }
     }
   }
+  return nullptr;
 }

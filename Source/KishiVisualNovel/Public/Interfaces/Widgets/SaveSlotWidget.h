@@ -19,11 +19,11 @@ class KISHIVISUALNOVEL_API ISaveSlotWidget
 public:
 };
 
-UCLASS()
-class KISHIVISUALNOVEL_API USaveSlotWidgetLibrary : public UBlueprintFunctionLibrary
-{
-  GENERATED_BODY()
-public:
-protected:
-private:
-};
+// UCLASS()
+// class KISHIVISUALNOVEL_API USaveSlotWidgetLibrary : public UBlueprintFunctionLibrary
+// {
+//   GENERATED_BODY()
+// public:
+// protected:
+// private:
+// };

@@ -27,8 +27,8 @@ label start:
     # scene intro onlayer student2
     scene _ with intro onlayer student3
 
-    show Augustina jeans surprise with fade
+    show Augustina jeans surprise with fade 5.0
     # jeans replaces dress, neutral replaces happy
-    aug "Is this <blue>jeans</>! ... SO COOL RIGHT? ... don't <red>laugh</>!"
+    aug "Is this <blue>jeans! ... <red>SO COOL RIGHT?</> ... don't laugh</>!"
     show Augustina jeans drool bigblush cry
     aug "don't <red>laugh</>!... please..."

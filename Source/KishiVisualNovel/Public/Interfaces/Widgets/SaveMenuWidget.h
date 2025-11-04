@@ -20,11 +20,11 @@ class KISHIVISUALNOVEL_API ISaveMenuWidget
 public:
 };
 
-UCLASS()
-class KISHIVISUALNOVEL_API USaveMenuWidgetLibrary : public UBlueprintFunctionLibrary
-{
-  GENERATED_BODY()
-public:
-protected:
-private:
-};
+// UCLASS()
+// class KISHIVISUALNOVEL_API USaveMenuWidgetLibrary : public UBlueprintFunctionLibrary
+// {
+//   GENERATED_BODY()
+// public:
+// protected:
+// private:
+// };

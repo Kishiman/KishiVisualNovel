@@ -38,9 +38,9 @@ public:
     static bool HasLayer(const TScriptInterface<ILayerable> &Target, const FString &Layer);
     UFUNCTION(BlueprintPure)
     static TSet<FName> GetSelectiveLayerOptions(const TScriptInterface<ILayerable> &Target, const FString &Path);
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"))
     static void SetSelectiveLayer(TScriptInterface<ILayerable> &Target, const FString &Layer);
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"))
     static void SetSelectiveLayerOption(TScriptInterface<ILayerable> &Target, const FString &Path, FName Option);
 
 protected:

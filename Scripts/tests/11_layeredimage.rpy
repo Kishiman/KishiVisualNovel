@@ -1,5 +1,7 @@
 define aug = Character('Augustina', color="#c8ffc8")
 
+image Augustina = "Augustina"
+
 label start:
     show Augustina dress smile with fade
     # displaying dress and neutral
@@ -16,6 +18,6 @@ label start:
     # auto-defined in the auto group
     aug "Wait for it..."
 
-    show Augustina uniform happy with dissolve
-    # uniform replaces dress, neutral replaces happy
-    aug "Is this uniform !"
+    show Augustina jeans happy with dissolve
+    # jeans replaces dress, neutral replaces happy
+    aug "Is this jeans !"

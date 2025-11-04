@@ -44,10 +44,8 @@ public:
   /*
   DefaultImplementation
   */
-  // UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|RpyCameraAnchor")
-  // static FName IGetAnchorLayer_Default(const TScriptInterface<IRpyCameraAnchor> &Target);
 
-  UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"), Category = "Default|RpyCameraAnchor")
+  UFUNCTION(BlueprintPure, Category = "Default|RpyCameraAnchor")
   static TScriptInterface<IRpyCameraAnchor> FindAnchorByLayerName(UWorld *World, FName Layer);
 
 protected:

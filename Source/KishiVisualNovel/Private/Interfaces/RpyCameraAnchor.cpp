@@ -3,9 +3,8 @@
 
 TScriptInterface<IRpyCameraAnchor> URpyCameraAnchorLibrary::FindAnchorByLayerName(UWorld *World, FName Layer)
 {
-    TArray<AActor *> AllActors;
+    TArray<AActor *> AllActors = UActorUtils::GetAllActorsWithInterfaceAndTag(World, URpyCameraAnchor::StaticClass(), Layer);
 
-    UActorUtils::GetAllActorsWithInterfaceAndTag(World, URpyCameraAnchor::StaticClass(), Layer, AllActors);
     if (AllActors.Num() > 0)
     {
         return AllActors[0];

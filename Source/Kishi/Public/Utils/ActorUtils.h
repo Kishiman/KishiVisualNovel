@@ -8,13 +8,17 @@ UCLASS()
 class KISHI_API UActorUtils : public UBlueprintFunctionLibrary
 {
   GENERATED_BODY()
+
 public:
-  UFUNCTION(BlueprintPure)
-  static AActor *FindActorByName(UWorld *World, FName ActorName);
+  /** Finds an actor by name (exact match). Returns nullptr if not found. */
+  UFUNCTION(BlueprintPure, Category = "ActorUtils", meta = (WorldContext = "WorldContextObject"))
+  static AActor *FindActorByName(const UObject *WorldContextObject, FName ActorName);
 
-  UFUNCTION(BlueprintPure)
-  static void GetAllActorsWithInterfaceAndTag(UWorld *World, TSubclassOf<UInterface> Interface, const FName Tag, TArray<AActor *> &OutActors);
+  /** Gets all actors implementing an interface and optionally having a tag. */
+  UFUNCTION(BlueprintCallable, Category = "ActorUtils", meta = (WorldContext = "WorldContextObject"))
+  static TArray<AActor *> GetAllActorsWithInterfaceAndTag(const UObject *WorldContextObject, TSubclassOf<UInterface> Interface, FName Tag = NAME_None);
 
-protected:
-private:
+  /** Gets first actor implementing an interface (optionally filtered by tag). */
+  UFUNCTION(BlueprintPure, Category = "ActorUtils", meta = (WorldContext = "WorldContextObject"))
+  static AActor *FindActorWithInterfaceAndTag(const UObject *WorldContextObject, TSubclassOf<UInterface> Interface, FName Tag = NAME_None);
 };
