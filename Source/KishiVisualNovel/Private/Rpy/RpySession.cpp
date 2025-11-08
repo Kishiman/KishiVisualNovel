@@ -52,14 +52,13 @@ bool URpySession::StartLabel(FName label)
 bool URpySession::RunNext()
 {
 	if (!this->current)
-		return false;
+		// will call OnScriptComplete and return false;
+		return Run();
 	this->current = this->current->GetNext(this);
 	return Run();
 };
 bool URpySession::Run()
 {
-	if (!this->current)
-		return false;
 	while (this->current)
 	{
 
@@ -74,8 +73,14 @@ bool URpySession::Run()
 		catch (const std::exception &e)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
+			IRpyScriptInterpreter::Execute_OnScriptComplete(this->interpreter.GetObject());
 			return false;
 		}
+	}
+	if (!this->current)
+	{
+		IRpyScriptInterpreter::Execute_OnScriptComplete(this->interpreter.GetObject());
+		return false;
 	}
 	return true;
 };

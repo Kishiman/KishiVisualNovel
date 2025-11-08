@@ -29,6 +29,10 @@ public:
   virtual void OnDialogueViseme_Implementation(FName name, EMouthViseme viseme, float timeOffset) = 0;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void OnScriptComplete();
+  virtual void OnScriptComplete_Implementation() = 0;
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   void Reset();
   virtual void Reset_Implementation() = 0;
 };

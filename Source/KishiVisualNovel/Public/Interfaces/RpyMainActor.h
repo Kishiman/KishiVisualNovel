@@ -85,6 +85,24 @@ public:
     UPROPERTY(SaveGame, EditAnywhere, BlueprintReadWrite)
     URpySessionState *rpySessionState;
 };
+
+UINTERFACE(Blueprintable)
+class KISHIVISUALNOVEL_API URpyCloseVNEventListener : public URpyStatefulActor
+{
+    GENERATED_BODY()
+};
+
+class KISHIVISUALNOVEL_API IRpyCloseVNEventListener : public IRpyStatefulActor
+{
+    GENERATED_BODY()
+
+public:
+    // Event callback
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+    void OnCloseVNEvent();
+    virtual void OnCloseVNEvent_Implementation() = 0;
+};
+
 UINTERFACE(Blueprintable)
 class KISHIVISUALNOVEL_API URpyMainActor : public URpyStatefulActor
 {
@@ -119,4 +137,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
     void CloseVN();
     virtual void CloseVN_Implementation() = 0;
+
+    // Add event listener
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+    void AddOnCloseVNEventListener(const TScriptInterface<IRpyCloseVNEventListener> &Listener);
+    virtual void AddOnCloseVNEventListener_Implementation(const TScriptInterface<IRpyCloseVNEventListener> &Listener) = 0;
 };

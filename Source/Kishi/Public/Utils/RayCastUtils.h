@@ -1,12 +1,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "RaycastUtils.generated.h"
 
 /**
  * Utility library for line and sphere traces to detect interactable actors.
- * Works with any actor implementing a custom interface (e.g., IInteractableInterface).
+ * Works with any actor implementing a custom interface (e.g., IInterfaceClass).
  */
 UCLASS()
 class KISHI_API URaycastUtils : public UBlueprintFunctionLibrary
@@ -16,11 +17,23 @@ class KISHI_API URaycastUtils : public UBlueprintFunctionLibrary
 public:
   /** Simple line trace from the camera or any start location, returning first interactable actor hit. */
   UFUNCTION(BlueprintCallable, Category = "Raycast|Interaction")
-  static AActor *RaycastForInteractable(
+  static AActor *RaycastForInterface(
       UObject *WorldContextObject,
       FVector Start,
       FVector End,
-      TSubclassOf<UInterface> InteractableInterface,
+      TSubclassOf<UInterface> InterfaceClass,
+      FHitResult &OutHit,
+      ECollisionChannel TraceChannel = ECC_Visibility,
+      bool bDrawDebug = false,
+      float DebugDuration = 2.0f);
+
+  /** Simple line trace from the camera or any start location, returning first actor hit with a component. */
+  UFUNCTION(BlueprintCallable, Category = "Raycast|Interaction")
+  static UActorComponent *RaycastForComponent(
+      UObject *WorldContextObject,
+      FVector Start,
+      FVector End,
+      TSubclassOf<UActorComponent> ComponentClass,
       FHitResult &OutHit,
       ECollisionChannel TraceChannel = ECC_Visibility,
       bool bDrawDebug = false,
@@ -28,12 +41,24 @@ public:
 
   /** Sphere trace for interactable actors within a radius (useful for area-based interaction). */
   UFUNCTION(BlueprintCallable, Category = "Raycast|Interaction")
-  static TArray<AActor *> SphereTraceForInteractables(
+  static TArray<AActor *> SphereTraceForInterfaces(
       UObject *WorldContextObject,
       FVector Start,
       FVector End,
       float Radius,
-      TSubclassOf<UInterface> InteractableInterface,
+      TSubclassOf<UInterface> InterfaceClass,
+      TArray<FHitResult> &OutHits,
+      ECollisionChannel TraceChannel = ECC_Visibility,
+      bool bDrawDebug = false,
+      float DebugDuration = 2.0f);
+
+  UFUNCTION(BlueprintCallable, Category = "Raycast|Interaction")
+  static TArray<UActorComponent *> SphereTraceForComponents(
+      UObject *WorldContextObject,
+      FVector Start,
+      FVector End,
+      float Radius,
+      TSubclassOf<UActorComponent> ComponentClass,
       TArray<FHitResult> &OutHits,
       ECollisionChannel TraceChannel = ECC_Visibility,
       bool bDrawDebug = false,
@@ -44,20 +69,38 @@ public:
   static void GetPlayerViewTrace(UObject *WorldContextObject, float TraceDistance, FVector &OutStart, FVector &OutEnd);
 
   UFUNCTION(BlueprintPure, Category = "Raycast|Helpers")
-  static AActor *RaycastForInteractableFromPlayer(UObject *WorldContextObject,
-                                                  float TraceDistance,
-                                                  TSubclassOf<UInterface> InteractableInterface,
-                                                  FHitResult &OutHit,
-                                                  ECollisionChannel TraceChannel = ECC_Visibility,
-                                                  bool bDrawDebug = false,
-                                                  float DebugDuration = 2.0f);
+  static AActor *RaycastForInterfaceFromPlayer(UObject *WorldContextObject,
+                                               float TraceDistance,
+                                               TSubclassOf<UInterface> InterfaceClass,
+                                               FHitResult &OutHit,
+                                               ECollisionChannel TraceChannel = ECC_Visibility,
+                                               bool bDrawDebug = false,
+                                               float DebugDuration = 2.0f);
 
   UFUNCTION(BlueprintPure, Category = "Raycast|Helpers")
-  static TArray<AActor *> SphereTraceForInteractablesForInteractableFromPlayer(UObject *WorldContextObject,
-                                                                               float Radius,
-                                                                               TSubclassOf<UInterface> InteractableInterface,
-                                                                               TArray<FHitResult> &OutHits,
-                                                                               ECollisionChannel TraceChannel = ECC_Visibility,
-                                                                               bool bDrawDebug = false,
-                                                                               float DebugDuration = 2.0f);
+  static UActorComponent *RaycastForComponentFromPlayer(UObject *WorldContextObject,
+                                                        float TraceDistance,
+                                                        TSubclassOf<UActorComponent> ComponentClass,
+                                                        FHitResult &OutHit,
+                                                        ECollisionChannel TraceChannel = ECC_Visibility,
+                                                        bool bDrawDebug = false,
+                                                        float DebugDuration = 2.0f);
+
+  UFUNCTION(BlueprintPure, Category = "Raycast|Helpers")
+  static TArray<AActor *> SphereTraceForInterfacesFromPlayer(UObject *WorldContextObject,
+                                                             float Radius,
+                                                             TSubclassOf<UInterface> InterfaceClass,
+                                                             TArray<FHitResult> &OutHits,
+                                                             ECollisionChannel TraceChannel = ECC_Visibility,
+                                                             bool bDrawDebug = false,
+                                                             float DebugDuration = 2.0f);
+
+  UFUNCTION(BlueprintPure, Category = "Raycast|Helpers")
+  static TArray<UActorComponent *> SphereTraceForComponentsFromPlayer(UObject *WorldContextObject,
+                                                                      float Radius,
+                                                                      TSubclassOf<UActorComponent> ComponentClass,
+                                                                      TArray<FHitResult> &OutHits,
+                                                                      ECollisionChannel TraceChannel = ECC_Visibility,
+                                                                      bool bDrawDebug = false,
+                                                                      float DebugDuration = 2.0f);
 };
