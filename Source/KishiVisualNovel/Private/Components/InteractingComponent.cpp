@@ -34,13 +34,16 @@ void UInteractingComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
   Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-  if (bIsInteracting)
-    return;
   ScanInteractableActors();
 }
 
 void UInteractingComponent::ScanInteractableActors()
 {
+  if (InteractionFlags.Num() <= interactablePerFlag.Num())
+  {
+    // skip scan if all flags are occupied
+    return;
+  }
   FHitResult focusHit;
   auto focusedInteractable = (UInteractableComponent *)URaycastUtils::RaycastForComponentFromPlayer(
       this,
@@ -56,7 +59,10 @@ void UInteractingComponent::ScanInteractableActors()
     UE_LOG(LogTemp, Warning, TEXT("Focused Interactable: %s"), *focusedInteractable->GetName());
   }
 
-  if (focusedInteractable && focusedInteractable->State == EInteractableState::Interactable)
+  if (focusedInteractable &&
+      focusedInteractable->State == EInteractableState::Interactable &&
+      InteractionFlags.Contains(focusedInteractable->InteractionFlag) &&
+      !interactablePerFlag.Contains(focusedInteractable->InteractionFlag))
   {
     SetFocusedInteractable(focusedInteractable);
   }
@@ -121,20 +127,21 @@ void UInteractingComponent::ScanInteractableActors()
 }
 UInteractableComponent *UInteractingComponent::CallInteractOnInteractable(FName ActionName)
 {
-  if (this->FocusedInteractable && !this->bIsInteracting)
+  if (this->FocusedInteractable)
   {
-    this->bIsInteracting = true;
+    this->interactablePerFlag.Add(this->FocusedInteractable->InteractionFlag, this->FocusedInteractable);
     this->FocusedInteractable->Interact(ActionName, this);
-    this->OnInteractionStart.Broadcast(ActionName, GetOwner(), this->FocusedInteractable->GetOwner());
+    this->OnInteractionStart.Broadcast(ActionName, this, this->FocusedInteractable);
     this->FocusedInteractable->OnInteractionEnd.AddDynamic(this, &UInteractingComponent::HandleInteractionEnded);
     return this->FocusedInteractable;
   }
   return nullptr;
 }
-void UInteractingComponent::HandleInteractionEnded()
+void UInteractingComponent::HandleInteractionEnded(UInteractingComponent *interactingComponent, UInteractableComponent *interactedComponent)
 {
-  this->bIsInteracting = false;
-  this->OnInteractionEnd.Broadcast();
+  this->interactablePerFlag.Remove(this->FocusedInteractable->InteractionFlag);
+  this->FocusedInteractable->OnInteractionEnd.RemoveDynamic(this, &UInteractingComponent::HandleInteractionEnded);
+  this->OnInteractionEnd.Broadcast(interactingComponent, interactedComponent);
 }
 void UInteractingComponent::CallEndInteractionOnInteractable() const
 {

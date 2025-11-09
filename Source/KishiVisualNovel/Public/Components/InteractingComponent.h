@@ -2,13 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "Components/ActorComponent.h"
+#include "Components/SceneComponent.h"
 
 #include "Components/InteractableComponent.h"
 #include "InteractingComponent.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), BlueprintType, Blueprintable)
-class KISHIVISUALNOVEL_API UInteractingComponent : public UActorComponent
+class KISHIVISUALNOVEL_API UInteractingComponent : public USceneComponent
 {
   GENERATED_BODY()
 
@@ -36,6 +36,12 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
   float NearbyRadius = 150.f;
 
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+  TSet<FName> InteractionFlags = {FName("Default")};
+
+  UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+  TMap<FName, UInteractableComponent *> interactablePerFlag;
+
   // Call manually if needed
   UFUNCTION(BlueprintCallable, Category = "Interaction")
   void ScanInteractableActors();
@@ -44,7 +50,7 @@ public:
   UInteractableComponent *CallInteractOnInteractable(FName ActionName);
 
   UFUNCTION(BlueprintCallable, Category = "Interaction")
-  void HandleInteractionEnded();
+  void HandleInteractionEnded(UInteractingComponent *interactingComponent, UInteractableComponent *interactedComponent);
 
   UFUNCTION(BlueprintCallable, Category = "Interaction")
   void CallEndInteractionOnInteractable() const;

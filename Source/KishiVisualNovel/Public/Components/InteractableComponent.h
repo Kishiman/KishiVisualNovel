@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "Components/ActorComponent.h"
+#include "Components/SceneComponent.h"
 #include "InteractableComponent.generated.h"
 
 class UInteractingComponent;
@@ -32,11 +32,11 @@ struct FInteractableActorAction
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFocusChanged, bool, bFocused);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNearbyChanged, bool, bNearby);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInteractionStart, FName, ActionName, AActor *, InstigatingActor, AActor *, InstigatedActor);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionEnd);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInteractionStart, FName, ActionName, UInteractingComponent *, InstigatingComponent, UInteractableComponent *, InstigatedComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInteractionEnd, UInteractingComponent *, InstigatingComponent, UInteractableComponent *, InstigatedComponent);
 
 UCLASS(ClassGroup = (Interaction), meta = (BlueprintSpawnableComponent), BlueprintType)
-class KISHIVISUALNOVEL_API UInteractableComponent : public UActorComponent
+class KISHIVISUALNOVEL_API UInteractableComponent : public USceneComponent
 {
   GENERATED_BODY()
 
@@ -64,18 +64,23 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
   TArray<FInteractableActorAction> Actions;
 
+  UPROPERTY(EditAnywhere, Category = "Interaction")
+  FName InteractionFlag = FName("Default");
+
   UPROPERTY(BlueprintReadOnly, Category = "Interaction")
   bool bIsFocused = false;
 
   UPROPERTY(BlueprintReadOnly, Category = "Interaction")
   bool bIsNearby = false;
 
-public:
-  UFUNCTION(BlueprintCallable, Category = "Interaction")
-  void SetState(EInteractableState NewState);
+  UPROPERTY(BlueprintReadOnly, Category = "Interaction")
+  UInteractingComponent *CurrentInteractingComponent = nullptr;
+
+  UFUNCTION(BlueprintPure, Category = "Interaction")
+  AActor *GetInteractingActor() const;
 
   UFUNCTION(BlueprintCallable, Category = "Interaction")
-  void Interact(FName ActionName, UInteractingComponent *interactingComponent);
+  virtual void Interact(FName ActionName, UInteractingComponent *InteractingComponent);
 
   UFUNCTION(BlueprintCallable, Category = "Interaction")
   void SetIsFocused(bool bFocused);
@@ -87,5 +92,7 @@ public:
   TArray<FInteractableActorAction> GetAvailableActions() const { return Actions; }
 
   UFUNCTION(BlueprintCallable, Category = "Interaction")
-  void EndInteraction() const;
+  virtual void EndInteraction();
+
+protected:
 };

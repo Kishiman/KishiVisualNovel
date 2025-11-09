@@ -7,9 +7,9 @@ UInteractableComponent::UInteractableComponent()
   PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UInteractableComponent::SetState(EInteractableState NewState)
+AActor *UInteractableComponent::GetInteractingActor() const
 {
-  State = NewState;
+  return CurrentInteractingComponent ? CurrentInteractingComponent->GetOwner() : nullptr;
 }
 
 void UInteractableComponent::SetIsFocused(bool bFocused)
@@ -24,18 +24,19 @@ void UInteractableComponent::SetIsNearby(bool bNearby)
   OnNearbyChanged.Broadcast(bNearby);
 }
 
-void UInteractableComponent::EndInteraction() const
+void UInteractableComponent::EndInteraction()
 {
-  OnInteractionEnd.Broadcast();
+  auto interactingComponent = this->CurrentInteractingComponent;
+  this->CurrentInteractingComponent = nullptr;
+  OnInteractionEnd.Broadcast(interactingComponent, this);
 }
 
-void UInteractableComponent::Interact(FName ActionName, UInteractingComponent *interactingComponent)
+void UInteractableComponent::Interact(FName ActionName, UInteractingComponent *InteractingComponent)
 {
-  if (State != EInteractableState::Interactable || ActionName == NAME_None || !interactingComponent)
+  if (State != EInteractableState::Interactable || ActionName == NAME_None || !InteractingComponent)
     return;
-
-  AActor *InstigatingActor = interactingComponent->GetOwner();
+  this->CurrentInteractingComponent = InteractingComponent;
 
   State = EInteractableState::Interacting;
-  OnInteractionStart.Broadcast(ActionName, InstigatingActor, GetOwner());
+  OnInteractionStart.Broadcast(ActionName, InteractingComponent, this);
 }
