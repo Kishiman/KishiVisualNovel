@@ -21,4 +21,7 @@ public:
   /** Gets first actor implementing an interface (optionally filtered by tag). */
   UFUNCTION(BlueprintPure, Category = "ActorUtils", meta = (WorldContext = "WorldContextObject"))
   static AActor *FindActorWithInterfaceAndTag(const UObject *WorldContextObject, TSubclassOf<UInterface> Interface, FName Tag = NAME_None);
+
+  UFUNCTION(BlueprintPure, Category = "ActorUtils", meta = (WorldContext = "WorldContextObject"))
+  static UActorComponent *FindComponentByName(AActor *Actor, FName Name);
 };

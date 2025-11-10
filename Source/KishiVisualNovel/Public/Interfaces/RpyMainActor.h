@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 
-#include "Interfaces/RpySaveGame.h" // your interface header
+#include "Interfaces/RpySaveGame.h"
 #include "Interfaces/RpyStateful.h"
 #include "Rpy/RpyScript.h"
 #include "Rpy/RpySession.h"

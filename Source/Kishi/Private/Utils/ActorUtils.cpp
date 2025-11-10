@@ -57,3 +57,19 @@ AActor *UActorUtils::FindActorWithInterfaceAndTag(const UObject *WorldContextObj
   }
   return nullptr;
 }
+
+UActorComponent *UActorUtils::FindComponentByName(AActor *Actor, FName Name)
+{
+  if (!Actor)
+    return nullptr;
+
+  TArray<UActorComponent *> Components = Actor->GetComponents().Array();
+  for (UActorComponent *Comp : Components)
+  {
+    if (Comp && Comp->GetFName() == Name)
+    {
+      return Comp;
+    }
+  }
+  return nullptr;
+}

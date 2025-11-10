@@ -58,11 +58,16 @@ public:
 	}
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnScriptComplete);
+
 UCLASS(BlueprintType)
 class KISHIVISUALNOVEL_API URpySession : public UObject, public IRpyStateful
 {
 	GENERATED_BODY()
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnScriptComplete OnScriptComplete;
+
 	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
 	TScriptInterface<IRpyScriptInterpreter> interpreter;
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn = "true"))

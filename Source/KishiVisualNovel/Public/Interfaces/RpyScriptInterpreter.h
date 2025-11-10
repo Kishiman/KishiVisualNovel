@@ -23,6 +23,12 @@ class KISHIVISUALNOVEL_API IRpyScriptInterpreter
 {
   GENERATED_BODY()
 public:
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void StartUp();
+  virtual void StartUp_Implementation() = 0;
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void Shutdown();
+  virtual void Shutdown_Implementation() = 0;
   // menus
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   bool getSaveMenuVisible() const;

@@ -112,13 +112,13 @@ void UBaseRpyGameInstance::LoadSaveGame(UBaseRpySaveGame *SaveGame)
 
 bool UBaseRpyGameInstance::Save(int32 SlotIndex, int32 UserIndex)
 {
-    auto SaveGame = SaveSaveGame();
+    auto SaveGame = this->SaveSaveGame();
     return this->SaveSlot(SaveGame, SlotIndex, UserIndex);
 }
 
 void UBaseRpyGameInstance::Load(int32 SlotIndex, int32 UserIndex)
 {
-    auto SaveGame = LoadSlot(SlotIndex, UserIndex);
+    auto SaveGame = this->LoadSlot(SlotIndex, UserIndex);
     if (!SaveGame)
         return;
     this->LoadSaveGame(SaveGame);
@@ -126,7 +126,7 @@ void UBaseRpyGameInstance::Load(int32 SlotIndex, int32 UserIndex)
 
 bool UBaseRpyGameInstance::QuickSave(int32 UserIndex)
 {
-    auto SaveGame = SaveSaveGame();
+    auto SaveGame = this->SaveSaveGame();
     return this->QuickSaveSlot(SaveGame, UserIndex);
 }
 void UBaseRpyGameInstance::QuickLoad(int32 UserIndex)

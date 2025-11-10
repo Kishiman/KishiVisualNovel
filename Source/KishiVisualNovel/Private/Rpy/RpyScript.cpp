@@ -462,6 +462,12 @@ bool URpyScript::Compile()
 FRpyInstructionSerialization URpyScript::SerializeInstruction(RpyInstruction *instruction)
 {
   FRpyInstructionSerialization result;
+  if (!instruction)
+  {
+    result.script = nullptr;
+    result.index = -1;
+    return result;
+  }
   result.script = instruction->script;
   result.index = instruction->script->instructions.IndexOfByKey(instruction);
   return result;

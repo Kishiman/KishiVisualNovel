@@ -74,12 +74,14 @@ bool URpySession::Run()
 		{
 			UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
 			IRpyScriptInterpreter::Execute_OnScriptComplete(this->interpreter.GetObject());
+			OnScriptComplete.Broadcast();
 			return false;
 		}
 	}
 	if (!this->current)
 	{
 		IRpyScriptInterpreter::Execute_OnScriptComplete(this->interpreter.GetObject());
+		OnScriptComplete.Broadcast();
 		return false;
 	}
 	return true;
@@ -107,7 +109,7 @@ bool URpySession::OnChoice(int index)
 URpyState *URpySession::SaveToState_Implementation(UObject *Outer)
 {
 	URpySessionState *result = Outer ? NewObject<URpySessionState>(Outer)
-																	 : NewObject<URpySessionState>();
+																	 : NewObject<URpySessionState>(this);
 	// Save the current state of the session
 	result->currentInstruction = URpyScript::SerializeInstruction(this->current);
 	result->instructionsCallStack.Reserve(this->callStack.Num());
@@ -138,7 +140,14 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 		return;
 	}
 	// Load the saved state into the session
-	this->current = URpyScript::DeserializeInstruction(sessionState->currentInstruction);
+	if (sessionState->currentInstruction.script.IsValid() && sessionState->currentInstruction.index != -1)
+	{
+		this->current = URpyScript::DeserializeInstruction(sessionState->currentInstruction);
+	}
+	else
+	{
+		this->current = nullptr;
+	}
 	this->callStack.Empty();
 	for (const auto &instruction : sessionState->instructionsCallStack)
 	{
