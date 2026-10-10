@@ -334,6 +334,17 @@ namespace
     return ERPYTransitionType::NONE;
   }
 
+  FString DecodeXmlText(FString Text)
+  {
+    Text.ReplaceInline(TEXT("&lt;"), TEXT("<"), ESearchCase::CaseSensitive);
+    Text.ReplaceInline(TEXT("&gt;"), TEXT(">"), ESearchCase::CaseSensitive);
+    Text.ReplaceInline(TEXT("&quot;"), TEXT("\""), ESearchCase::CaseSensitive);
+    Text.ReplaceInline(TEXT("&apos;"), TEXT("'"), ESearchCase::CaseSensitive);
+    // Decode ampersands last to avoid decoding an entity that was escaped as text.
+    Text.ReplaceInline(TEXT("&amp;"), TEXT("&"), ESearchCase::CaseSensitive);
+    return Text;
+  }
+
   FString DescribeXmlInstruction(const FXmlNode* Node)
   {
     FString Description = Node->GetTag();
@@ -341,7 +352,8 @@ namespace
     {
       Description += FString::Printf(TEXT(" %s=\"%s\""), *Attribute.GetTag(), *Attribute.GetValue());
     }
-    const FString Content = Node->GetContent().TrimStartAndEnd();
+    FString Content = DecodeXmlText(Node->GetContent());
+    Content.TrimStartAndEndInline();
     if (!Content.IsEmpty()) Description += TEXT("  ") + Content;
     return Description;
   }
@@ -455,7 +467,7 @@ namespace
       Prop.Value = Attr.GetValue();
     }
     if (Type == TEXT("say") && HasXmlAttribute(Node, TEXT("character"))) Props.SetString(FName(TEXT("speaker")), Node->GetAttribute(TEXT("character")));
-    if (Type == TEXT("say")) Props.SetString(FName(TEXT("text")), Node->GetContent());
+    if (Type == TEXT("say")) Props.SetString(FName(TEXT("text")), DecodeXmlText(Node->GetContent()));
   }
 
   void MergeProps(const FXmlNode* Node, FRpyInstructionProps& Props)
@@ -506,7 +518,8 @@ namespace
       ReadProps(Node, Props);
       Speaker = RequiredValue(Node, TEXT("speaker"));
       if (Speaker.IsEmpty()) Props.GetString(FName(TEXT("speaker")), Speaker);
-      Result = new SayInstruction(Script, Line, FName(*Speaker), Node->GetContent());
+      FString Statement = DecodeXmlText(Node->GetContent());
+      Result = new SayInstruction(Script, Line, FName(*Speaker), MoveTemp(Statement));
       Result->Props = Props;
     }
     else if (Type == TEXT("scene") || Type == TEXT("show") || Type == TEXT("hide"))
