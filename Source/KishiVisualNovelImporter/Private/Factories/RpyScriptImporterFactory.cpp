@@ -1,12 +1,12 @@
 #include "Factories/RpyScriptImporterFactory.h"
-#include <iostream>
+#include <exception>
 
 URpyScriptImporterFactory::URpyScriptImporterFactory(const FObjectInitializer &ObjectInitializer)
-		: Super(ObjectInitializer, URpyScript::StaticClass(), "rpy", "Renpy Script Files", false, true, true), FKishiDataAssetReimportHandler(this){};
+		: Super(ObjectInitializer, URpyScript::StaticClass(), "xml", "Visual Novel XML Scripts", false, true, true), FKishiDataAssetReimportHandler(this){};
 
 FText URpyScriptImporterFactory::GetToolTip() const
 {
-	return NSLOCTEXT("KishiVisualNovel", "URpyScriptImporterFactoryDescription", "Rpy File imported from 'rpy' Renpy Script Files");
+	return NSLOCTEXT("KishiVisualNovel", "URpyScriptImporterFactoryDescription", "Versioned XML visual novel script");
 };
 
 bool URpyScriptImporterFactory::FactoryUpdateString(UClass *InClass, UObject *Object, FString &content)
@@ -14,21 +14,9 @@ bool URpyScriptImporterFactory::FactoryUpdateString(UClass *InClass, UObject *Ob
 	try
 	{
 		URpyScript *rpyScript = (URpyScript *)(Object);
-		bool allGood = true;
-		allGood = rpyScript->ImportRpyLines(content, TabSize);
-		if (!allGood)
-			return false;
-		UE_LOG(LogTemp, Display, TEXT("URpyScript.ImportRpyLines"));
-		allGood = rpyScript->Parse();
-		if (!allGood)
-			return false;
-		UE_LOG(LogTemp, Display, TEXT("URpyScript.Parse"));
-		allGood = rpyScript->Compile();
-		if (!allGood)
-			return false;
-		UE_LOG(LogTemp, Display, TEXT("URpyScript.Compile"));
-		rpyScript->LoadRpyData();
-		UE_LOG(LogTemp, Display, TEXT("URpyScript.LoadRpyData"));
+		bool allGood = rpyScript->ImportXml(content);
+		if (!allGood) return false;
+		UE_LOG(LogTemp, Display, TEXT("URpyScript.ImportXml"));
 		return true;
 	}
 	catch (const std::exception &e)

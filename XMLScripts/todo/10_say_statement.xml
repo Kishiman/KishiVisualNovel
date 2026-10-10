@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <say>This is narration.</say>
+  <say character="Eileen">This is dialogue, with an explicit character name.</say>
+  <say character="e">This is dialogue, using a character object instead.</say>
+  <say with="vpunch">Bam!!</say>
+  <character name="e" displayName="Eileen" color="eileen" />
+  <label name="start">
+    <show asset="eileen" attributes="mad" />
+    <say character="e">I'm a little upset at you.</say>
+    <say character="e">But it's just a passing thing.</say>
+  </label>
+  <character name="e" displayName="Eileen" />
+  <label name="start">
+    <show asset="eileen" />
+    <say character="e">I'm a little upset at you.</say>
+    <say character="e">That's funny.</say>
+    <say character="e">I'm not sure what to think now.</say>
+    <say character="e">Really! That changes everything.</say>
+    <say character="e">My anger is temporarily suspended...</say>
+    <say character="e">HOWEVER !</say>
+  </label>
+  <say>
+This is the first line of narration. It's longer than the other two
+lines, so it has to wrap.
+
+This is the second line of narration.
+
+This is the third line of narration.
+</say>
+  <say character="e">
+This is the first line of dialogue. It's longer than the other two
+lines, so it has to wrap.
+
+This is the second line of dialogue.
+
+This is the third line of dialogue.
+</say>
+</visualNovel>

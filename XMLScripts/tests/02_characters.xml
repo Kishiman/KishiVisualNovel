@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <character name="s" displayName="Sylvie" color="#c8ffc8" />
+  <character name="m" displayName="Me" color="#c8c8ff" />
+  <label name="start">
+    <say character="s">Hi there! How was class?</say>
+    <say character="m">Good...</say>
+    <say>I can't bring myself to admit that it all went in one ear and out the other.</say>
+    <say character="s">Are you going home now? Wanna walk back with me?</say>
+    <say character="m">Sure!</say>
+  </label>
+</visualNovel>

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <character name="aug" displayName="Augustina" color="#c8ffc8" />
+  <asset kind="transition" name="intro" path="trial_intro" />
+  <label name="start">
+    <scene asset="_" transition="intro" />
+    <show asset="Augustina" attributes="dress smile" transition="fade" />
+    <say character="aug">What?!{w=0.3} No,{w=0.1} that's not what I meant—{w=0.3} I promise!</say>
+    <say character="aug">What?! No, that's not what I meant— I promise!</say>
+  </label>
+</visualNovel>

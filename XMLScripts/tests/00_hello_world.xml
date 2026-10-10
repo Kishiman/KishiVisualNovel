@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <label name="start">
+    <say>Hello World!</say>
+  </label>
+</visualNovel>

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <character name="aug" displayName="Augustina" color="#c8ffc8" />
+  <label name="start">
+    <show asset="Augustina" />
+    <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
+    <say character="aug">I like this dress.</say>
+    <show asset="Augustina" attributes="happy" />
+    <voice asset="cicifyre/BrightFemale/01-okay" />
+    <say character="aug">But what I like even more...</say>
+    <show asset="Augustina" attributes="uniform happy" transition="dissolve" duration="2" />
+    <voice asset="cicifyre/BrightFemale/01-laughter" />
+    <say character="aug">Is this uniform !</say>
+  </label>
+</visualNovel>

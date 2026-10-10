@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <character name="aug" displayName="Augustina" color="#c8ffc8" />
+  <label name="start">
+    <show asset="Augustina" />
+    <say character="aug">Augustina</say>
+    <show asset="Augustina" attributes="happy" />
+    <say character="aug">Augustina happy</say>
+    <show asset="Augustina" attributes="uniform happy oneup" />
+    <say character="aug">Augustina uniform happy oneup</say>
+    <show asset="Augustina" attributes="dress wink evil" />
+    <say character="aug">Augustina dress wink evil</say>
+  </label>
+</visualNovel>

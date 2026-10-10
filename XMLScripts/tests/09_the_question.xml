@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <character name="s" displayName="Sylvie" color="#c8ffc8" />
+  <character name="m" displayName="Me" color="#c8c8ff" />
+  <set name="book" value="false" />
+  <label name="start">
+    <play channel="music" asset="&quot;illurock&quot;" />
+    <scene asset="bg" attributes="lecturehall" transition="fade" position="(1.0,2.0,3.2)" layer="master" duration="1.0" />
+    <say>It's only when I hear the sounds of shuffling feet and supplies being put away that I realize that the lecture's over.</say>
+    <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
+    <say>Professor Eileen's lectures are usually interesting, but today I just couldn't concentrate on it.</say>
+    <say>I've had a lot of other thoughts on my mind...thoughts that culminate in a question.</say>
+    <say>It's a question that I've been meaning to ask a certain someone.</say>
+    <scene asset="bg" attributes="uni" transition="fade" />
+    <say>When we come out of the university, I spot her right away.</say>
+    <stop channel="music" legacyChannelTarget="fadeout" />
+    <show asset="sylvie" attributes="green normal" transition="dissolve" />
+    <say>I've known Sylvie since we were kids. She's got a big heart and she's always been a good friend to me.</say>
+    <say>But recently... I've felt that I want something more.</say>
+    <say>More than just talking, more than just walking home together when our classes end.</say>
+    <play channel="music" asset="&quot;illurock&quot;" />
+    <hide tag="sylvie" />
+    <say>As soon as she catches my eye, I decide...</say>
+    <menu>
+      <choice text="To ask her right away.">
+        <jump label="rightaway" />
+      </choice>
+      <choice text="To ask her later.">
+        <jump label="later" />
+      </choice>
+    </menu>
+  </label>
+  <label name="rightaway">
+    <show asset="sylvie" attributes="green smile" />
+    <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
+    <say character="s">Hi there! How was class?</say>
+    <say character="m">Good...</say>
+    <say>I can't bring myself to admit that it all went in one ear and out the other.</say>
+    <say character="m">Are you going home now? Wanna walk back with me?</say>
+    <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
+    <say character="s">Sure!</say>
+    <scene asset="bg" attributes="meadow" transition="fade" />
+    <hide tag="sylvie" />
+    <say>After a short while, we reach the meadows just outside the neighborhood where we both live.</say>
+    <say>It's a scenic view I've grown used to. Autumn is especially beautiful here.</say>
+    <say>When we were children, we played in these meadows a lot, so they're full of memories.</say>
+    <say character="m">Hey... Umm...</say>
+    <show asset="sylvie" attributes="green smile" transition="dissolve" />
+    <say>She turns to me and smiles. She looks so welcoming that I feel my nervousness melt away.</say>
+    <say>I'll ask her...!</say>
+    <hide tag="sylvie" />
+    <say character="m">Ummm... Will you...</say>
+    <say character="m">Will you be my artist for a visual novel?</say>
+    <show asset="sylvie" attributes="green surprised" />
+    <say>Silence.</say>
+    <say>She looks so shocked that I begin to fear the worst. But then...</say>
+    <show asset="sylvie" attributes="green smile" />
+    <voice asset="cicifyre/BrightFemale/01-laughter" />
+    <say character="s">Sure, but what's a "visual novel?"</say>
+    <menu>
+      <choice text="It's a videogame.">
+        <jump label="game" />
+      </choice>
+      <choice text="It's an interactive book.">
+        <jump label="book" />
+      </choice>
+    </menu>
+  </label>
+  <label name="game">
+    <set name="game" value="true" />
+    <hide tag="sylvie" />
+    <say character="m">It's a kind of videogame you can play on your computer or a console.</say>
+    <say character="m">Visual novels tell a story with pictures and music.</say>
+    <say character="m">Sometimes, you also get to make choices that affect the outcome of the story.</say>
+    <show asset="sylvie" attributes="green surprised" />
+    <voice asset="cicifyre/BrightFemale/01-okay" />
+    <say character="s">So it's like those choose-your-adventure books?</say>
+    <hide tag="sylvie" />
+    <say character="m">Exactly! I've got lots of different ideas that I think would work.</say>
+    <say character="m">And I thought maybe you could help me...since I know how you like to draw.</say>
+    <say character="m">It'd be hard for me to make a visual novel alone.</say>
+    <show asset="sylvie" attributes="green normal" />
+    <voice asset="cicifyre/BrightFemale/01-see_ya_later" />
+    <say character="s">Well, sure! I can try. I just hope I don't disappoint you.</say>
+    <say character="m">You know you could never disappoint me, Sylvie.</say>
+    <jump label="marry" />
+  </label>
+  <label name="book">
+    <set name="book" value="true" />
+    <say character="m">It's like an interactive book that you can read on a computer or a console.</say>
+    <show asset="sylvie" attributes="green surprised" />
+    <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
+    <say character="s">Interactive?</say>
+    <say character="m">You can make choices that lead to different events and endings in the story.</say>
+    <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
+    <say character="s">So where does the "visual" part come in?</say>
+    <say character="m">Visual novels have pictures and even music, sound effects, and sometimes voice acting to go along with the text.</say>
+    <show asset="sylvie" attributes="green smile" />
+    <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
+    <say character="s">I see! That certainly sounds like fun. I actually used to make webcomics way back when, so I've got lots of story ideas.</say>
+    <say character="m">That's great! So...would you be interested in working with me as an artist?</say>
+    <voice asset="cicifyre/BrightFemale/01-okay" />
+    <say character="s">I'd love to!</say>
+    <jump label="marry" />
+  </label>
+  <label name="marry">
+    <hide tag="sylvie" />
+    <scene asset="black" transition="dissolve" />
+    <say>And so, we become a visual novel creating duo.</say>
+    <scene asset="bg" attributes="club" transition="dissolve" />
+    <say>Over the years, we make lots of games and have a lot of fun making them.</say>
+    <if condition="book">
+      <voice asset="cicifyre/BrightFemale/01-laughter" />
+      <say>Our first game is based on one of Sylvie's ideas, but afterwards I get to come up with stories of my own, too.</say>
+    </if>
+    <say>We take turns coming up with stories and characters and support each other to make some great games!</say>
+    <say>And one day...</say>
+    <show asset="sylvie" attributes="blue normal" transition="dissolve" />
+    <say character="s">Hey...</say>
+    <say character="m">Yes?</say>
+    <show asset="sylvie" attributes="blue giggle" />
+    <say character="s">Will you marry me?</say>
+    <say character="m">What? Where did this come from?</say>
+    <show asset="sylvie" attributes="blue surprised" />
+    <say character="s">Come on, how long have we been dating?</say>
+    <say character="m">A while...</say>
+    <show asset="sylvie" attributes="blue smile" />
+    <say character="s">These last few years we've been making visual novels together, spending time together, helping each other...</say>
+    <say character="s">I've gotten to know you and care about you better than anyone else. And I think the same goes for you, right?</say>
+    <say character="m">Sylvie...</say>
+    <show asset="sylvie" attributes="blue giggle" />
+    <say character="s">But I know you're the indecisive type. If I held back, who knows when you'd propose?</say>
+    <show asset="sylvie" attributes="blue normal" />
+    <say character="s">So will you marry me?</say>
+    <say character="m">Of course I will! I've actually been meaning to propose, honest!</say>
+    <say character="s">I know, I know.</say>
+    <say character="m">I guess... I was too worried about timing. I wanted to ask the right question at the right time.</say>
+    <show asset="sylvie" attributes="blue giggle" />
+    <say character="s">You worry too much. If only this were a visual novel and I could pick an option to give you more courage!</say>
+    <scene asset="black" transition="dissolve" />
+    <say>We get married shortly after that.</say>
+    <say>Our visual novel duo lives on even after we're married...and I try my best to be more decisive.</say>
+    <say>Together, we live happily ever after even now.</say>
+    <say>{b}Good Ending{/b}.</say>
+    <return />
+  </label>
+  <label name="later">
+    <say>I can't get up the nerve to ask right now. With a gulp, I decide to ask her later.</say>
+    <scene asset="black" transition="dissolve" />
+    <say>But I'm an indecisive person.</say>
+    <say>I couldn't ask her that day and I end up never being able to ask her.</say>
+    <say>I guess I'll never know the answer to my question now...</say>
+    <say>{b}Bad Ending{/b}.</say>
+    <return />
+  </label>
+</visualNovel>

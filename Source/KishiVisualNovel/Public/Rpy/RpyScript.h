@@ -312,7 +312,9 @@ struct FRpyInstructionSerialization
 	UPROPERTY()
 	TSoftObjectPtr<URpyScript> script;
 	UPROPERTY()
-	int index;
+	int index = -1;
+	UPROPERTY()
+	FName instructionId;
 };
 
 UCLASS()
@@ -323,6 +325,8 @@ public:
 	URpyScript();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FRpyLine> rpyLines;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Visual Novel|Script")
+	FString scriptXml;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyImage> images;
 	UPROPERTY(EditAnywhere)
@@ -342,6 +346,7 @@ public:
 	// TArray<RpyInstruction *> callStack;
 
 	TMap<FName, RpyInstruction *> labels;
+	TMap<FName, RpyInstruction *> instructionsById;
 
 	UFUNCTION(BlueprintPure)
 	TArray<FName> GetLabels() const;
@@ -355,7 +360,7 @@ public:
 	bool AddDefaultImage(FName name, FString path);
 	bool AddDefaultAudio(FName name, FString path);
 
-	bool ImportRpyLines(FString text, uint8 TabSize);
+	bool ImportXml(FString text);
 	bool Parse();
 	bool Compile();
 	void LoadRpyData();

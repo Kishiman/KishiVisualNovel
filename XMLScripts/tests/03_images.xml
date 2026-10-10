@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <character name="s" displayName="Sylvie" color="#c8ffc8" />
+  <character name="m" displayName="Me" color="#c8c8ff" />
+  <asset kind="image" name="flight_attendant" path="DBCooper/airplane_attendent_LS" />
+  <label name="start">
+    <scene asset="bg" attributes="meadow" />
+    <say>scene bg meadow</say>
+    <show asset="flight_attendant" transition="fade" position="left" />
+    <say>show flight_attendant with fade at left</say>
+    <hide tag="flight_attendant" />
+    <show asset="sylvie" attributes="green normal" transition="fade" position="right" />
+    <say>hide flight_attendant 
+ show sylvie green smile with fade at right 
+pause 2.0</say>
+    <pause duration="2.0" />
+    <show asset="sylvie" attributes="green giggle" transition="fade" position="left" />
+    <say>show sylvie green giggle with fade at left</say>
+    <hide tag="sylvie" transition="fade" duration="0.5" />
+    <say>hide sylvie with fade 0.5</say>
+    <show asset="sylvie" attributes="green normal" transition="easeinright" position="right" />
+    <say>show sylvie green smile with easeinright at right</say>
+    <show asset="sylvie" attributes="green giggle" transition="easeinleft" position="left" />
+    <say>show sylvie green giggle with easeinleft at left</say>
+    <hide tag="sylvie" transition="easeinbottom" duration="0.5" />
+    <say>hide sylvie with easeinbottom 0.5</say>
+    <show asset="sylvie" attributes="green normal" transition="moveinright" position="right" />
+    <say>show sylvie green smile with moveinright at right</say>
+    <show asset="sylvie" attributes="green giggle" transition="moveinleft" position="left" />
+    <say>show sylvie green giggle with moveinleft at left</say>
+    <hide tag="sylvie" transition="moveinbottom" duration="0.5" />
+    <say>hide sylvie with moveinbottom 0.5</say>
+    <show asset="sylvie" attributes="green normal" transition="dissolve" position="right" />
+    <say>show sylvie green smile with dissolve at right</say>
+    <show asset="sylvie" attributes="green giggle" transition="dissolve" position="left" />
+    <say>show sylvie green giggle with dissolve at left</say>
+    <hide tag="sylvie" transition="dissolve" duration="0.5" />
+    <say>hide sylvie with dissolve 0.5</say>
+    <show asset="sylvie" attributes="green normal" transition="zoom" position="right" />
+    <say>show sylvie green smile with zoom at right</say>
+    <show asset="sylvie" attributes="green giggle" transition="zoom" position="left" />
+    <say>show sylvie green giggle with zoom at left</say>
+    <hide tag="sylvie" transition="zoom" duration="0.5" />
+    <say>hide sylvie with zoom 0.5</say>
+  </label>
+</visualNovel>

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <character name="aug" displayName="Augustina" color="#c8ffc8" />
+  <asset kind="image" name="Augustina" path="Augustina" />
+  <label name="start">
+    <show asset="Augustina" attributes="dress smile" transition="fade" />
+    <say character="aug">I like this dress.</say>
+    <hide tag="Augustina" transition="fade" />
+    <say character="aug">I like this dress.</say>
+    <show asset="Augustina" attributes="happy" transition="fade" />
+    <say character="aug">But what I like even more...</say>
+    <show asset="Augustina" attributes="happy" />
+    <say character="aug">Wait for it...</say>
+    <show asset="Augustina" attributes="jeans happy" transition="dissolve" />
+    <say character="aug">Is this jeans !</say>
+  </label>
+</visualNovel>

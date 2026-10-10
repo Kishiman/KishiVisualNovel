@@ -4,6 +4,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Libraries/Tree/ArrayTree.h"
 #include "Rpy/RpyScript.h"
+#include "Rpy/RpyInstructionProps.h"
 
 class IRpyScriptInterpreter;
 class URpySession;
@@ -67,7 +68,24 @@ public:
     URpyScript *script = nullptr;
     FRpyLine *rpyLine = nullptr;
 
+    /** Stable identifier from XML, used by save games and diagnostics. */
+    FName InstructionId;
+
+    /** All command-specific optional values live here. */
+    FRpyInstructionProps Props;
+
     RpyInstruction *parent = nullptr;
     TArray<RpyInstruction *> children;
     RpyInstruction *next = nullptr;
+};
+
+using FRpyInstructionFactory = TFunction<RpyInstruction*(URpyScript*, FRpyLine*, const TMap<FName, FRpyInstructionProp>&, const FRpyInstructionProps&)>;
+
+/** C++ extension point for game-specific XML command types. */
+class KISHIVISUALNOVEL_API FRpyInstructionRegistry
+{
+public:
+    static void Register(FName Type, FRpyInstructionFactory Factory);
+    static bool IsRegistered(FName Type);
+    static RpyInstruction* Create(FName Type, URpyScript* Script, FRpyLine* SourceLine, const TMap<FName, FRpyInstructionProp>& Required, const FRpyInstructionProps& Props);
 };

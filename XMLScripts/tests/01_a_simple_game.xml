@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <label name="start">
+    <say character="Sylvie">Hi there! How was class?</say>
+    <say character="Me">Good...</say>
+    <say>I can't bring myself to admit that it all went in one ear and out the other.</say>
+    <say character="Me">Are you going home now? Wanna walk back with me?</say>
+    <say character="Sylvie">Sure!</say>
+    <say character="Sylvie">Did you ever hear Lincon's famous saying, "The problem with Internet quotations is that many of them are not genuine."</say>
+  </label>
+</visualNovel>
