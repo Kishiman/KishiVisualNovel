@@ -267,7 +267,7 @@ void URpyScript::LoadRpyData()
 void URpyScript::PostLoad()
 {
   Super::PostLoad();
-  UE_LOG(LogTemp, Warning, TEXT("PostLoad, rpyLines:%d"), rpyLines.Num());
+  UE_LOG(LogTemp, Warning, TEXT("PostLoad, instruction count:%d"), instructions.Num());
   Parse();
   Compile();
   LoadRpyData();
@@ -276,7 +276,7 @@ void URpyScript::PostLoad()
 void URpyScript::PostInitProperties()
 {
   Super::PostInitProperties();
-  UE_LOG(LogTemp, Warning, TEXT("PostInitProperties, rpyLines:%d"), rpyLines.Num());
+  UE_LOG(LogTemp, Warning, TEXT("PostInitProperties, instruction count:%d"), instructions.Num());
   Parse();
   Compile();
   LoadRpyData();
@@ -289,7 +289,7 @@ void URpyScript::Serialize(FStructuredArchiveRecord Record)
 
 URpyScript::URpyScript() : UKishiDataAsset()
 {
-  UE_LOG(LogTemp, Warning, TEXT("URpyScript(), rpyLines:%d"), rpyLines.Num());
+  UE_LOG(LogTemp, Warning, TEXT("URpyScript(), instruction count:%d"), instructions.Num());
   Parse();
   Compile();
   LoadRpyData();
@@ -305,7 +305,6 @@ int URpyScript::GetInstructionsLength() const { return instructions.Num(); };
 bool URpyScript::ImportXml(FString text)
 {
   scriptXml = MoveTemp(text);
-  rpyLines.Empty();
   const bool bParsed = Parse();
   if (!bParsed || !Compile()) return false;
   LoadRpyData();
@@ -335,12 +334,24 @@ namespace
     return ERPYTransitionType::NONE;
   }
 
+  FString DescribeXmlInstruction(const FXmlNode* Node)
+  {
+    FString Description = Node->GetTag();
+    for (const FXmlAttribute& Attribute : Node->GetAttributes())
+    {
+      Description += FString::Printf(TEXT(" %s=\"%s\""), *Attribute.GetTag(), *Attribute.GetValue());
+    }
+    const FString Content = Node->GetContent().TrimStartAndEnd();
+    if (!Content.IsEmpty()) Description += TEXT("  ") + Content;
+    return Description;
+  }
+
   struct RpyUnsupportedInstruction : public RpyInstruction
   {
     RpyUnsupportedInstruction(URpyScript* Script, FRpyLine* Line) : RpyInstruction(Script, Line) {}
     virtual bool Execute(URpySession*) override
     {
-      UE_LOG(LogTemp, Error, TEXT("Unsupported migrated instruction at line %d: %s"), rpyLine ? rpyLine->lineNumber : 0, rpyLine ? *rpyLine->line : TEXT(""));
+      UE_LOG(LogTemp, Error, TEXT("Unsupported migrated instruction at line %d: %s"), rpyLine.lineNumber, *rpyLine.line);
       return false;
     }
   };
@@ -683,8 +694,6 @@ bool URpyScript::Parse()
       return false;
     }
     const int32 InstructionCount = CountXmlInstructions(Root);
-    rpyLines.Empty();
-    rpyLines.Reserve(InstructionCount);
     instructions.Reserve(InstructionCount);
     TFunction<bool(const FXmlNode*, uint8)> ReadInstructionChildren;
     ReadInstructionChildren = [&](const FXmlNode* Parent, uint8 Depth) -> bool
@@ -698,12 +707,12 @@ bool URpyScript::Parse()
           bSuccess = false;
           continue;
         }
-        FRpyLine& Line = rpyLines.AddDefaulted_GetRef();
+        FRpyLine Line;
         Line.tabs = Depth;
         FRpyInstructionProps SourceProps;
         ReadProps(Node, SourceProps);
         Line.lineNumber = instructions.Num() + 1;
-        Line.line = Node->GetTag();
+        Line.line = DescribeXmlInstruction(Node);
         FRpyInstructionProps DiagnosticProps;
         ReadProps(Node, DiagnosticProps);
         DiagnosticProps.GetString(FName(TEXT("legacySource")), Line.line);
@@ -738,10 +747,10 @@ bool URpyScript::Compile()
     auto num = stack.Num();
     RpyInstruction *last = num > 0 ? stack[num - 1] : nullptr;
     current = instructions[idx];
-    int currentTabs = current->rpyLine->tabs;
+    int currentTabs = current->rpyLine.tabs;
     if (last)
     {
-      int lastTabs = last->rpyLine->tabs;
+      int lastTabs = last->rpyLine.tabs;
       if (currentTabs == lastTabs + 1)
       {
         current->parent = last;
@@ -759,7 +768,7 @@ bool URpyScript::Compile()
       }
       else
       {
-        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->lineNumber);
+        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine.lineNumber);
         return false;
       }
     }
@@ -769,7 +778,7 @@ bool URpyScript::Compile()
     }
     else
     {
-      UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine->lineNumber);
+      UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine.lineNumber);
       return false;
     }
     if (current->parent)
@@ -782,7 +791,7 @@ bool URpyScript::Compile()
   {
     if (!instruction->Compile())
     {
-      UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), instruction->rpyLine->lineNumber, (*instruction->rpyLine->line));
+      UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), instruction->rpyLine.lineNumber, (*instruction->rpyLine.line));
       return false;
     }
   }

@@ -323,8 +323,6 @@ class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
 	GENERATED_BODY()
 public:
 	URpyScript();
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FRpyLine> rpyLines;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Visual Novel|Script")
 	FString scriptXml;
 	UPROPERTY(EditAnywhere)
@@ -337,7 +335,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyCharacter> characters;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Visual Novel|Script")
 	FDynamicObject compileData;
 
 	// RpyInstruction *current = nullptr;

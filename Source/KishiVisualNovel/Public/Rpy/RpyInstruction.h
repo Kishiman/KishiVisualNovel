@@ -33,7 +33,7 @@ constexpr bool operator!(RpyInstructionType value)
 class RpyInstruction
 {
 public:
-    RpyInstruction(URpyScript *script, FRpyLine *rpyLine) : script(script), rpyLine(rpyLine) {};
+    RpyInstruction(URpyScript *script, FRpyLine *rpyLine) : script(script), rpyLine(rpyLine ? *rpyLine : FRpyLine()) {};
     virtual ~RpyInstruction() = default;
     virtual EInstructionRunTimeType RunTimeType() const
     {
@@ -66,7 +66,8 @@ public:
     };
     //
     URpyScript *script = nullptr;
-    FRpyLine *rpyLine = nullptr;
+    /** Source/debug metadata owned by this runtime instruction. */
+    FRpyLine rpyLine;
 
     /** Stable identifier from XML, used by save games and diagnostics. */
     FName InstructionId;

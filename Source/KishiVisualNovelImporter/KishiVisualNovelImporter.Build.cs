@@ -20,7 +20,11 @@ public class KishiVisualNovelImporter : ModuleRules
 				"UnrealEd",
 				"AssetTools",
 				"ContentBrowser",
+				"InputCore",
+				"PropertyEditor",
         "EditorStyle",
+				"Slate",
+				"SlateCore",
 				"ToolMenus",
 				"KishiVisualNovel",
 			});

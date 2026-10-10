@@ -512,7 +512,7 @@ bool IfInstruction::Compile()
   RpyInstruction *current = this;
   while (current->next)
   {
-    if (current->next->isOfType(RpyInstructionType::Else) && current->next->rpyLine->tabs == this->rpyLine->tabs)
+    if (current->next->isOfType(RpyInstructionType::Else) && current->next->rpyLine.tabs == this->rpyLine.tabs)
     {
       current = current->next;
     }

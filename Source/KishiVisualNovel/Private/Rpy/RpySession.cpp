@@ -59,7 +59,7 @@ bool URpySession::Run()
 	while (this->current)
 	{
 
-		UE_LOG(LogTemp, Display, TEXT("Executing rpy:%s"), (*this->current->rpyLine->line));
+		UE_LOG(LogTemp, Display, TEXT("Executing instruction: %s"), (*this->current->rpyLine.line));
 		try
 		{
 			bool autoNext = this->current->Execute(this);
