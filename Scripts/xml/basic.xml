@@ -18,12 +18,12 @@
     <say>This is some text.</say>
     <say>This is more text.</say>
     <say>This is text on a new line.
-This is more text on the same line.</say>
+      This is more text on the same line.</say>
   </label>
   <say character="image">background.png</say>
-  <show asset="character" attributes="&quot;character.png&quot;" />
-  <play channel="music" asset="&quot;music.mp3&quot;" />
-  <play channel="sound" asset="&quot;sound.wav&quot;" />
+  <show asset="character" attributes="character.png" />
+  <play channel="music" asset="music.mp3" />
+  <play channel="sound" asset="sound.wav" />
   <raw source="with dissolve:">
     <say>This text will dissolve in and out.</say>
   </raw>

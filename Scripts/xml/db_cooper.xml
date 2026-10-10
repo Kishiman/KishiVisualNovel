@@ -16,12 +16,16 @@
     <play channel="music" asset="tense_music" loop="true" />
     <scene asset="bg_airport" transition="fade" />
     <play channel="sound" asset="footsteps" loop="true" />
-    <say character="cooper">It's November 24, 1971. Northwest Orient Flight 305. The ticket cost $20.</say>
-    <say character="narrator">You step through the crowded airport, holding a briefcase in one hand and a ticket to Seattle in the other.</say>
+    <say character="cooper">It's November 24, 1971. Northwest Orient Flight 305. The ticket cost
+      $20.</say>
+    <say character="narrator">You step through the crowded airport, holding a briefcase in one hand
+      and a ticket to Seattle in the other.</say>
     <stop channel="sound" />
     <scene asset="bg_airplane" transition="fade" />
-    <say character="narrator">You board the Boeing 727. The hum of the engines vibrates beneath your feet as you make your way to seat 18C.</say>
-    <say character="narrator">You sit down, adjusting your tie and lighting a cigarette. You glance around the cabin, watching passengers find their seats.</say>
+    <say character="narrator">You board the Boeing 727. The hum of the engines vibrates beneath your
+      feet as you make your way to seat 18C.</say>
+    <say character="narrator">You sit down, adjusting your tie and lighting a cigarette. You glance
+      around the cabin, watching passengers find their seats.</say>
     <menu>
       <choice text="Observe the passengers">
         <jump label="observe_passengers" />
@@ -32,13 +36,16 @@
     </menu>
   </label>
   <label name="observe_passengers">
-    <say character="narrator">You watch the other passengers boarding. Businessmen, families, and a few lone travelers.</say>
+    <say character="narrator">You watch the other passengers boarding. Businessmen, families, and a
+      few lone travelers.</say>
     <say character="narrator">They have no idea what's about to happen.</say>
     <jump label="review_plan" />
   </label>
   <label name="review_plan">
-    <say character="narrator">The plan is simple. Once the plane is airborne, you'll pass a note to the flight attendant.</say>
-    <say character="narrator">Inside your briefcase is the key, a bomb. Or at least, what looks like one.</say>
+    <say character="narrator">The plan is simple. Once the plane is airborne, you'll pass a note to
+      the flight attendant.</say>
+    <say character="narrator">Inside your briefcase is the key, a bomb. Or at least, what looks like
+      one.</say>
     <menu>
       <choice text="Check the briefcase">
         <jump label="check_briefcase" />
@@ -50,14 +57,16 @@
   </label>
   <label name="check_briefcase">
     <scene asset="bg_briefcase" transition="dissolve" />
-    <say character="narrator">You quietly open the briefcase under your seat. Inside, wires, red sticks, and a battery are neatly arranged.</say>
+    <say character="narrator">You quietly open the briefcase under your seat. Inside, wires, red
+      sticks, and a battery are neatly arranged.</say>
     <say character="narrator">It looks convincing enough to fool anyone.</say>
     <say character="cooper">Perfect.</say>
     <jump label="wait_takeoff" />
   </label>
   <label name="wait_takeoff">
     <scene asset="bg_airplane" transition="fade" />
-    <say character="narrator">The plane takes off, lifting into the cloudy skies. You feel the weight of what's about to happen.</say>
+    <say character="narrator">The plane takes off, lifting into the cloudy skies. You feel the
+      weight of what's about to happen.</say>
     <say character="narrator">It's time.</say>
     <menu>
       <choice text="Call the flight attendant">
@@ -87,11 +96,13 @@
     <say character="narrator">Suddenly, you realize you've waited too long.</say>
     <say character="narrator">The flight attendant passes by, but you say nothing.</say>
     <say character="narrator">The opportunity slips through your fingers.</say>
-    <say character="narrator">Game Over - Bad Ending 1: You missed your chance to initiate the hijacking.</say>
+    <say character="narrator">Game Over - Bad Ending 1: You missed your chance to initiate the
+      hijacking.</say>
     <return />
   </label>
   <label name="let_walk_away">
-    <say character="narrator">She glances at the note but doesn't open it immediately. You watch as she walks toward the front of the plane.</say>
+    <say character="narrator">She glances at the note but doesn't open it immediately. You watch as
+      she walks toward the front of the plane.</say>
     <say character="narrator">Now, you wait.</say>
     <jump label="alert_cockpit" />
   </label>
@@ -101,7 +112,8 @@
     <say character="cooper">Miss, you might want to read that now.</say>
     <say character="narrator">Her smile falters as she opens the note. Her eyes widen in shock.</say>
     <show asset="note" transition="fade" />
-    <say character="narrator">{i}I have a bomb in my briefcase. I want $200,000 in cash, four parachutes, and a fuel truck ready in Seattle. No funny business, or I'll do it.{/i}</say>
+    <say character="narrator">{i}I have a bomb in my briefcase. I want $200,000 in cash, four
+      parachutes, and a fuel truck ready in Seattle. No funny business, or I'll do it.{/i}</say>
     <hide tag="note" transition="fade" />
     <show asset="flight_attendant" />
     <say character="flight_attendant">(Whispers) Oh my god…</say>
@@ -111,8 +123,10 @@
   </label>
   <label name="alert_cockpit">
     <scene asset="bg_airplane" transition="fade" />
-    <say character="narrator">You watch her disappear into the cockpit to speak with the pilots. The tension in the cabin increases, but outwardly, nothing seems amiss.</say>
-    <say character="narrator">You glance down at the briefcase by your side. It's all going according to plan.</say>
+    <say character="narrator">You watch her disappear into the cockpit to speak with the pilots. The
+      tension in the cabin increases, but outwardly, nothing seems amiss.</say>
+    <say character="narrator">You glance down at the briefcase by your side. It's all going
+      according to plan.</say>
     <say character="narrator">Now, you wait for the negotiations to begin.</say>
     <menu>
       <choice text="Light a cigarette">
@@ -124,19 +138,24 @@
     </menu>
   </label>
   <label name="light_cigarette">
-    <say character="narrator">You light another cigarette, watching the smoke curl up toward the ceiling.</say>
+    <say character="narrator">You light another cigarette, watching the smoke curl up toward the
+      ceiling.</say>
     <say character="narrator">You savor the moment, everything is still under your control.</say>
     <jump label="review_demands" />
   </label>
   <label name="review_demands">
-    <say character="narrator">Your demands are simple: $200,000 in cash, four parachutes, and a fuel truck in Seattle.</say>
+    <say character="narrator">Your demands are simple: $200,000 in cash, four parachutes, and a fuel
+      truck in Seattle.</say>
     <say character="narrator">If they comply, you'll release the passengers and take off again.</say>
-    <say character="narrator">The money is the key, small bills, unmarked. It will give you a head start.</say>
+    <say character="narrator">The money is the key, small bills, unmarked. It will give you a head
+      start.</say>
     <jump label="next_phase" />
   </label>
   <label name="next_phase">
-    <say character="narrator">Time drags on as you wait for the cockpit to respond. The hum of the engines continues, but the tension in the air is palpable.</say>
-    <say character="narrator">It's only a matter of time before the pilots contact air traffic control to begin negotiations.</say>
+    <say character="narrator">Time drags on as you wait for the cockpit to respond. The hum of the
+      engines continues, but the tension in the air is palpable.</say>
+    <say character="narrator">It's only a matter of time before the pilots contact air traffic
+      control to begin negotiations.</say>
     <say character="narrator">Everything depends on the next few moments.</say>
     <return />
   </label>
