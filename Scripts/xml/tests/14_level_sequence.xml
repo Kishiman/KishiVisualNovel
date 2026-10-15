@@ -6,7 +6,7 @@
   <label name="start">
     <scene asset="_" transition="intro" />
     <show asset="Augustina" attributes="dress smile" transition="fade" />
-    <say character="aug">...................... I like this &lt;red&gt;dress&lt;/&gt;.</say>
+    <say character="aug">...................... I like this <red>dress</red>.</say>
     <show asset="Augustina" attributes="dress tongue sweat" />
     <say character="aug">But what I like even more...</say>
     <show asset="Augustina" attributes="dress unsure blush half up" />
@@ -15,8 +15,8 @@
     <say character="aug">Augustina dress unsure blush half oneup</say>
     <scene asset="_" transition="intro" layer="student3" />
     <show asset="Augustina" attributes="jeans surprise" transition="fade" duration="5.0" />
-    <say character="aug">Is this &lt;blue&gt;jeans! ... &lt;red&gt;SO COOL RIGHT?&lt;/&gt; ... don't laugh&lt;/&gt;!</say>
+    <say character="aug">Is this <blue>jeans! ... <red>SO COOL RIGHT?</red> ... don't laugh</blue>!</say>
     <show asset="Augustina" attributes="jeans drool bigblush cry" />
-    <say character="aug">don't &lt;red&gt;laugh&lt;/&gt;!... please...</say>
+    <say character="aug">don't <red>laugh</red>!... please...</say>
   </label>
 </visualNovel>

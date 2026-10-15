@@ -8,14 +8,14 @@
 
 void FVisualNovelModule::StartupModule()
 {
-  FString TaggedString = TEXT("Hi <green>hello<red>world</>!</>");
+  FString TaggedString = TEXT("Hi <green>hello<red>world</red>!</green>");
   FString FlattenedString = UStringUtils::FlattenTaggedString(TaggedString);
 
   UE_LOG(LogTemp, Warning, TEXT("Start Test"));
   UE_LOG(LogTemp, Log, TEXT("Input: %s"), *TaggedString);
   UE_LOG(LogTemp, Log, TEXT("Output: %s"), *FlattenedString);
   FTaggedString taggedString;
-  UStringUtils::StringToTaggedString(FlattenedString, taggedString);
+  UStringUtils::StringToTaggedString(TaggedString, taggedString);
   UE_LOG(LogTemp, Log, TEXT("Length: %d"), taggedString.Length);
 
   for (int32 idx = 1; idx < taggedString.Length; ++idx)

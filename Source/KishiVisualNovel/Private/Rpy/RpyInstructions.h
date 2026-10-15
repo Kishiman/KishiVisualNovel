@@ -10,11 +10,25 @@
 #include "Interfaces/ScriptInterpreterManagers/RpyShowManager.h"
 #include "Interfaces/ScriptInterpreterManagers/RpyStatementManager.h"
 #include "Rpy/RpySession.h"
+#include "Utils/StringUtils.h"
 
 struct IfInstruction;
 struct ElseInstruction;
 struct MenuInstruction;
 struct ChoiceInstruction;
+
+static FRpyImage* ResolveImageForCompile(URpyScript* Script, FName Name, const FRpySceneOptions& Options)
+{
+  if (!Script || Name == FName(TEXT("_"))) return nullptr;
+  FName AssetKey = Name;
+  if (!Options.attribute.IsEmpty()) AssetKey = FName(*(Name.ToString() + TEXT(" ") + Options.attribute));
+  if (FRpyImage* Image = Script->images.Find(Name)) return Image;
+  if (AssetKey != Name)
+  {
+    if (FRpyImage* Image = Script->images.Find(AssetKey)) return Image;
+  }
+  return Script->FindOrAddDefaultImage(Name, Options.attribute);
+}
 
 static FRpyInstructionProps PropsFromSceneOptions(const FRpySceneOptions& Options)
 {
@@ -27,7 +41,7 @@ static FRpyInstructionProps PropsFromSceneOptions(const FRpySceneOptions& Option
   Props.SetString(FName(TEXT("layer")), Options.layer.ToString());
   Props.SetString(FName(TEXT("positionName")), Options.positionName.ToString());
   Props.SetString(FName(TEXT("attributes")), Options.attribute);
-  Props.SetString(FName(TEXT("position")), FString::Printf(TEXT("%f,%f,%f"), Options.position.X, Options.position.Y, Options.position.Z));
+  Props.SetVector(FName(TEXT("position")), Options.position);
   Props.SetFloat(FName(TEXT("duration")), Options.transitionTime);
   Props.SetInteger(FName(TEXT("zOrder")), Options.zorder);
   return Props;
@@ -46,7 +60,7 @@ static FRpySceneOptions SceneOptionsFromProps(const FRpyInstructionProps& Props)
   if (Props.GetString(FName(TEXT("layer")), Value)) Options.layer = FName(*Value);
   if (Props.GetString(FName(TEXT("positionName")), Value)) Options.positionName = FName(*Value);
   Props.GetString(FName(TEXT("attributes")), Options.attribute);
-  if (Props.GetString(FName(TEXT("position")), Value))
+  if (!Props.GetVector(FName(TEXT("position")), Options.position) && Props.GetString(FName(TEXT("position")), Value))
   {
     Value.ReplaceInline(TEXT("("), TEXT(""));
     Value.ReplaceInline(TEXT(")"), TEXT(""));
@@ -57,6 +71,10 @@ static FRpySceneOptions SceneOptionsFromProps(const FRpyInstructionProps& Props)
     if (Parts.Num() > 2) Options.position.Z = FCString::Atof(*Parts[2]);
   }
   Props.GetFloat(FName(TEXT("duration")), Options.transitionTime);
+  if (Options.with != ERPYTransitionType::NONE && Options.transitionTime <= 0.0f)
+  {
+    Options.transitionTime = 1.0f;
+  }
   Props.GetInteger(FName(TEXT("zOrder")), Options.zorder);
   return Options;
 }
@@ -163,6 +181,10 @@ struct SceneInstruction : public RpyInstruction
 
   SceneInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name) { Props = PropsFromSceneOptions(options); };
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SCENE; }
+  virtual bool Compile() override
+  {
+    return name == FName(TEXT("_")) || ResolveImageForCompile(script, name, SceneOptionsFromProps(Props)) != nullptr;
+  }
   virtual bool Execute(URpySession *session)
   {
     const FRpySceneOptions options = SceneOptionsFromProps(Props);
@@ -171,11 +193,8 @@ struct SceneInstruction : public RpyInstruction
     {
       FName AssetKey = name;
       if (!options.attribute.IsEmpty()) AssetKey = FName(*(name.ToString() + TEXT(" ") + options.attribute));
-      auto _rpyImage = script->images.Find(AssetKey);
-      if (!_rpyImage)
-      {
-        _rpyImage = script->images.Find(name);
-      }
+      auto _rpyImage = script->images.Find(name);
+      if (!_rpyImage && AssetKey != name) _rpyImage = script->images.Find(AssetKey);
       if (!_rpyImage)
         return false;
       rpyImage = *_rpyImage;
@@ -192,16 +211,17 @@ struct ShowInstruction : public RpyInstruction
 
   ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name) { Props = PropsFromSceneOptions(options); };
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
+  virtual bool Compile() override
+  {
+    return ResolveImageForCompile(script, name, SceneOptionsFromProps(Props)) != nullptr;
+  }
   virtual bool Execute(URpySession *session)
   {
     const FRpySceneOptions options = SceneOptionsFromProps(Props);
     FName AssetKey = name;
     if (!options.attribute.IsEmpty()) AssetKey = FName(*(name.ToString() + TEXT(" ") + options.attribute));
-    auto rpyImage = script->images.Find(AssetKey);
-    if (!rpyImage)
-    {
-      rpyImage = script->images.Find(name);
-    }
+    auto rpyImage = script->images.Find(name);
+    if (!rpyImage && AssetKey != name) rpyImage = script->images.Find(AssetKey);
     if (!rpyImage)
       return false;
 
@@ -255,6 +275,12 @@ struct SayInstruction : public RpyInstruction
   virtual bool Execute(URpySession *session)
   {
     auto statementManager = IRpyScriptInterpreter::Execute_GetStatementManager(session->interpreter.GetObject());
+	FString RenderedStatement = this->statement;
+	FTaggedString TaggedStatement;
+	if (UStringUtils::StringToTaggedString(this->statement, TaggedStatement))
+	{
+		RenderedStatement = UStringUtils::GetTaggedString(TaggedStatement);
+	}
 
     FName DisplayName = this->name;
     if (const FRpyCharacter* Character = script->characters.Find(this->name))
@@ -262,11 +288,11 @@ struct SayInstruction : public RpyInstruction
       DisplayName = Character->name;
     }
     session->statementState.name = DisplayName;
-    session->statementState.statement = this->statement;
+    session->statementState.statement = RenderedStatement;
     FString With;
     if (Props.GetString(FName(TEXT("with")), With)) session->statementState.with = FName(*With);
 
-    return IRpyStatementManager::Execute_Say(statementManager.GetObject(), DisplayName, this->statement);
+    return IRpyStatementManager::Execute_Say(statementManager.GetObject(), DisplayName, RenderedStatement);
   };
 };
 struct PlayInstruction : public RpyInstruction

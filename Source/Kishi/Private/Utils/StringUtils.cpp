@@ -64,47 +64,54 @@ int32 BinarySearchRight(const TArray<T> &Array, Predicate Pred)
 
 bool UStringUtils::StringToTaggedString(const FString &SourceString, FTaggedString &Target)
 {
-  Target.SourceString = FlattenTaggedString(SourceString);
-  int32 StartPos = 0;
-  while (StartPos >= 0 && StartPos < Target.SourceString.Len())
+	Target.Tags.Empty();
+	Target.visemes.Empty();
+	Target.PlainString.Empty();
+	Target.SourceString.Empty();
+	Target.Length = 0;
+	TArray<int32> OpenTags;
+	for (int32 Position = 0; Position < SourceString.Len();)
   {
-    // Find the next opening tag
-    int32 OpenPos = Target.SourceString.Find("<", ESearchCase::IgnoreCase, ESearchDir::FromStart, StartPos);
-    if (OpenPos < 0)
-    {
-      break; // No more tags found
-    }
+		if (SourceString[Position] != TEXT('<'))
+		{
+			Target.PlainString.AppendChar(SourceString[Position++]);
+			continue;
+		}
 
-    // Find the closing tag
-    int32 ClosePos = Target.SourceString.Find(">", ESearchCase::IgnoreCase, ESearchDir::FromStart, OpenPos);
-    if (ClosePos < 0)
-    {
-      break; // Invalid tag, ignore it
-    }
+		const int32 Close = SourceString.Find(TEXT(">"), ESearchCase::CaseSensitive, ESearchDir::FromStart, Position + 1);
+		if (Close == INDEX_NONE)
+		{
+			Target.PlainString.AppendChar(SourceString[Position++]);
+			continue;
+		}
+		const bool bShorthandClose = SourceString.Mid(Position, 3) == TEXT("</>");
+		const bool bClosing = bShorthandClose || (Position + 1 < SourceString.Len() && SourceString[Position + 1] == TEXT('/'));
+		const int32 NameStart = Position + (bClosing ? 2 : 1);
+		const FString TagName = bShorthandClose && OpenTags.Num() > 0 ? Target.Tags[OpenTags.Last()].tagName : SourceString.Mid(NameStart, Close - NameStart);
+		if ((!bShorthandClose && TagName.IsEmpty()) || TagName.Contains(TEXT(" ")) || TagName.Contains(TEXT("/")) || TagName.Contains(TEXT("<")))
+		{
+			Target.PlainString.AppendChar(SourceString[Position++]);
+			continue;
+		}
 
-    // Extract the tag name and position information
-    FString TagName = Target.SourceString.Mid(OpenPos + 1, ClosePos - OpenPos - 1);
-    if (Target.SourceString[OpenPos + 1] == '/' && Target.SourceString[OpenPos + 2] == '>')
-    {
-      auto &lastTag = Target.Tags.Last();
-      lastTag.end = ClosePos + 1;
-    }
-    else
-    {
-      Target.Tags.Add(Tag{TagName, OpenPos, ClosePos + 1, 0, 0});
-    }
-    StartPos = ClosePos + 1;
+		if (bClosing)
+		{
+			if (OpenTags.Num() == 0 || Target.Tags[OpenTags.Last()].tagName != TagName) return false;
+			Tag& OpenTag = Target.Tags[OpenTags.Pop()];
+			OpenTag.end = Close + 1;
+			OpenTag.taggedEnd = Target.PlainString.Len();
+		}
+		else
+		{
+			Tag NewTag{TagName, Position, 0, Target.PlainString.Len(), 0};
+			OpenTags.Add(Target.Tags.Add(NewTag));
+		}
+		Position = Close + 1;
   }
-  int32 skippedCharLen = 0;
+	if (OpenTags.Num() > 0) return false;
+	Target.SourceString = FlattenTaggedString(SourceString);
 
-  for (auto &tag : Target.Tags)
-  {
-    tag.taggedStart = tag.start - skippedCharLen;
-    skippedCharLen += tag.tagName.Len() + 5;
-    tag.taggedEnd = tag.end - skippedCharLen;
-  }
-
-  std::string InputStr = TCHAR_TO_UTF8(*Target.SourceString);
+	std::string InputStr = TCHAR_TO_UTF8(*Target.PlainString);
   std::regex RegexPatterns[] = {
       std::regex("([aA][hH]|[iI][yY])"),                // A, I
       std::regex("([eE])"),                             // E
@@ -139,7 +146,8 @@ bool UStringUtils::StringToTaggedString(const FString &SourceString, FTaggedStri
     {
       FMouthViseme Viseme;
       Viseme.type = VisemeTypes[i];
-      Viseme.index = it->position();
+			Viseme.index = it->position();
+			Viseme.taggedIndex = Viseme.index;
 
       Target.visemes.Add(Viseme);
     }
@@ -148,54 +156,7 @@ bool UStringUtils::StringToTaggedString(const FString &SourceString, FTaggedStri
   Target.visemes.Sort([](const FMouthViseme &A, const FMouthViseme &B)
                       { return A.index < B.index; });
 
-  TArray<FMouthViseme> FilteredVisemes;
-  int32 AdjustedIndex = 0;
-  int32 RawIndex = 0;
-
-  // Process each viseme
-  for (FMouthViseme &Viseme : Target.visemes)
-  {
-    // Check if the viseme is inside a tag
-    bool bIsInsideTag = false;
-    int indexOffset = 0;
-    for (const Tag &T : Target.Tags)
-    {
-      if (Viseme.index < T.start)
-      {
-        // this viseme is before the newt tag, stop search
-        break;
-      }
-      if (Viseme.index >= T.start && Viseme.index <= T.start + T.tagName.Len())
-      {
-        // this viseme is inside the tag brackets
-        bIsInsideTag = true;
-        break;
-      }
-      // offset by"<TagName>"
-      indexOffset += T.tagName.Len() + 2;
-      if (Viseme.index <= T.end)
-      {
-        // this viseme is between the tag
-        break;
-      }
-      // offset </>
-      indexOffset += 2;
-    }
-    if (bIsInsideTag)
-    {
-      continue; // filter out this viseme
-    }
-
-    // Adjust indices to account for skipped tag characters
-    Viseme.taggedIndex = Viseme.index - indexOffset;
-
-    FilteredVisemes.Add(Viseme);
-  }
-
-  // Store the filtered visemes back in the tagged string
-  Target.visemes = FilteredVisemes;
-
-  Target.Length = Target.SourceString.Len() - skippedCharLen;
+	Target.Length = Target.PlainString.Len();
   return true;
 }
 
@@ -239,47 +200,32 @@ int32 UStringUtils::Length(const FTaggedString &Target)
 
 FString UStringUtils::SubString(const FTaggedString &Target, int32 StartIndex, int32 Length = -1)
 {
-  int32 EndIndex = Length > -1 ? StartIndex + Length : Target.Length;
-  int32 StartPos = StartIndex;
-  int32 EndPos = -1;
-  FString prefix = "";
-  FString sufix = "";
-  for (auto tag : Target.Tags)
-  {
-    if (StartIndex < tag.taggedStart)
-    {
-      StartPos = StartIndex + (tag.start - tag.taggedStart);
-      break;
-    }
-    else if (StartIndex < tag.taggedEnd)
-    {
-      StartPos = StartIndex + (tag.start - tag.taggedStart);
-      StartPos += tag.tagName.Len() + 2;
-      prefix = FString::Printf(TEXT("<%s>"), *tag.tagName);
-      break;
-    }
-  }
-  for (auto tag : Target.Tags)
-  {
-    if (EndIndex < tag.taggedStart)
-    {
-      EndPos = EndIndex + (tag.start - tag.taggedStart);
-      break;
-    }
-    else if (EndIndex < tag.taggedEnd)
-    {
-      EndPos = EndIndex + (tag.start - tag.taggedStart);
-      EndPos += tag.tagName.Len() + 2;
-      sufix = FString::Printf(TEXT("</>"), *tag.tagName);
-      break;
-    }
-  }
-  if (EndPos < 0)
-  {
-    EndPos = EndIndex + (Target.SourceString.Len() - Target.Length);
-  }
+	const int32 Start = FMath::Clamp(StartIndex, 0, Target.Length);
+	const int32 End = Length < 0 ? Target.Length : FMath::Clamp(Start + Length, Start, Target.Length);
+	if (Start >= End) return FString();
 
-  return prefix + Target.SourceString.Mid(StartPos, EndPos - StartPos) + sufix;
+	FString Result;
+	FString CurrentStyle;
+	for (int32 CharIndex = Start; CharIndex < End; ++CharIndex)
+	{
+		FString NewStyle;
+		for (const Tag& Current : Target.Tags)
+		{
+			if (Current.taggedStart <= CharIndex && Current.taggedEnd > CharIndex)
+			{
+				NewStyle = Current.tagName;
+			}
+		}
+		if (NewStyle != CurrentStyle)
+		{
+			if (!CurrentStyle.IsEmpty()) Result += TEXT("</>");
+			if (!NewStyle.IsEmpty()) Result += FString::Printf(TEXT("<%s>"), *NewStyle);
+			CurrentStyle = NewStyle;
+		}
+		Result.AppendChar(Target.PlainString[CharIndex]);
+	}
+	if (!CurrentStyle.IsEmpty()) Result += TEXT("</>");
+	return Result;
 }
 
 FMouthViseme UStringUtils::getVisemeBetween(const FTaggedString &Target, int32 startIndex, int32 endIndex)
@@ -310,48 +256,53 @@ FMouthViseme UStringUtils::getVisemeBetween(const FTaggedString &Target, int32 s
 
 FString UStringUtils::FlattenTaggedString(const FString &TaggedString)
 {
-  FString ResultString;
-  TArray<FString> OpenTags;
+	FString Result;
+	TArray<FString> OpenTags;
+	for (int32 Position = 0; Position < TaggedString.Len();)
+	{
+		if (TaggedString[Position] != TEXT('<'))
+		{
+			Result.AppendChar(TaggedString[Position++]);
+			continue;
+		}
+		const int32 Close = TaggedString.Find(TEXT(">"), ESearchCase::CaseSensitive, ESearchDir::FromStart, Position + 1);
+		if (Close == INDEX_NONE) { Result.AppendChar(TaggedString[Position++]); continue; }
+		const bool bShorthandClose = TaggedString.Mid(Position, 3) == TEXT("</>");
+		const bool bClosing = bShorthandClose || (Position + 1 < TaggedString.Len() && TaggedString[Position + 1] == TEXT('/'));
+		const int32 NameStart = Position + (bClosing ? 2 : 1);
+		const FString TagName = bShorthandClose && OpenTags.Num() > 0 ? OpenTags.Last() : TaggedString.Mid(NameStart, Close - NameStart);
+		if ((!bShorthandClose && TagName.IsEmpty()) || TagName.Contains(TEXT(" ")) || TagName.Contains(TEXT("/")) || TagName.Contains(TEXT("<")))
+		{
+			Result.AppendChar(TaggedString[Position++]);
+			continue;
+		}
 
-  for (int32 i = 0; i < TaggedString.Len(); i++)
-  {
-    if (TaggedString[i] == '<')
-    {
-      // Check for closing tag
-      if (i + 2 < TaggedString.Len() && TaggedString[i + 1] == '/' && TaggedString[i + 2] == '>')
-      {
-        ResultString += FString::Printf(TEXT("</>"));
-        OpenTags.Pop();
-        if (OpenTags.Num() > 0)
-          ResultString += FString::Printf(TEXT("<%s>"), *(OpenTags.Last()));
-        i = i + 2;
-      }
-      // Check for opening tag
-      else
-      {
-        FString OpenTagName;
-        int32 OpenTagIndex = TaggedString.Find(">", ESearchCase::IgnoreCase, ESearchDir::FromStart, i + 1);
-        if (OpenTagIndex != -1)
-        {
-          if (OpenTags.Num() > 0)
-            ResultString += FString::Printf(TEXT("</>"));
-          OpenTagName = TaggedString.Mid(i + 1, OpenTagIndex - i - 1);
-          OpenTags.Add(OpenTagName);
-          ResultString += FString::Printf(TEXT("<%s>"), *OpenTagName);
-          i = OpenTagIndex;
-        }
-      }
-    }
-    else
-    {
-      ResultString.AppendChar(TaggedString[i]);
-    }
-  }
-  // Close any remaining open tags
-  for (int32 i = OpenTags.Num() - 1; i >= 0; i--)
-  {
-    ResultString += FString::Printf(TEXT("</>"), *OpenTags[i]);
-  }
-
-  return ResultString;
+		if (bClosing)
+		{
+			if (OpenTags.Num() == 0 || OpenTags.Last() != TagName)
+			{
+				// Keep malformed markup literal; StringToTaggedString reports it as invalid.
+				Result += TaggedString.Mid(Position, Close - Position + 1);
+			}
+			else
+			{
+				Result += TEXT("</>");
+				OpenTags.Pop();
+				if (OpenTags.Num() > 0) Result += FString::Printf(TEXT("<%s>"), *OpenTags.Last());
+			}
+		}
+		else
+		{
+			if (OpenTags.Num() > 0) Result += TEXT("</>");
+			Result += FString::Printf(TEXT("<%s>"), *TagName);
+			OpenTags.Add(TagName);
+		}
+		Position = Close + 1;
+	}
+	while (OpenTags.Num() > 0)
+	{
+		Result += TEXT("</>");
+		OpenTags.Pop();
+	}
+	return Result;
 }

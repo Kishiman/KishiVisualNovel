@@ -2,7 +2,7 @@
 #include "Rpy/RpyInstruction.h"
 #include "Interfaces/RpyScriptInterpreter.h"
 #include "Misc/FileHelper.h"
-#include "XmlFile.h"
+#include "Rpy/VisualNovelXmlParser.h"
 #include "Rpy/RpyInstructions.h"
 
 FRpyImage FRpyImage::MakeLayeredImage(FName name, FString path)
@@ -147,6 +147,31 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   UE_LOG(LogTemp, Error, TEXT("Unvalid Default Image : %s"), (*searchParam));
   return false;
 }
+
+FRpyImage* URpyScript::FindOrAddDefaultImage(FName name, FString attributes)
+{
+  FName AssetKey = name;
+  if (!attributes.IsEmpty())
+  {
+    AssetKey = FName(*(name.ToString() + TEXT(" ") + attributes));
+  }
+
+  if (FRpyImage* Image = images.Find(name)) return Image;
+  if (AssetKey != name)
+  {
+    if (FRpyImage* Image = images.Find(AssetKey)) return Image;
+  }
+
+  // Attributes describe the displayed state of layered images; they are not
+  // part of the image asset path.
+  FString AssetPath = name.ToString();
+  AssetPath.ReplaceInline(TEXT(" "), TEXT("_"));
+  if (!AddDefaultImage(name, AssetPath)) return nullptr;
+
+  if (FRpyImage* Image = images.Find(name)) return Image;
+  return AssetKey != name ? images.Find(AssetKey) : nullptr;
+}
+
 bool URpyScript::AddDefaultAudio(FName name, FString path)
 {
   TArray<FString> searchPaths;
@@ -313,16 +338,14 @@ bool URpyScript::ImportXml(FString text)
 
 namespace
 {
-  bool HasXmlAttribute(const FXmlNode* Node, const TCHAR* Name)
+  bool HasXmlAttribute(const FVisualNovelXmlNode* Node, const TCHAR* Name)
   {
-    if (!Node) return false;
-    for (const FXmlAttribute& Attribute : Node->GetAttributes())
-      if (Attribute.GetTag() == Name) return true;
-    return false;
+    return Node && Node->HasAttribute(Name);
   }
 
-  ERPYTransitionType ParseTransitionType(const FString& Name)
+  ERPYTransitionType ParseTransitionType(const FString& Name, ERPYTransitionDirection& OutDirection)
   {
+    OutDirection = ERPYTransitionDirection::NONE;
     if (Name.Equals(TEXT("blur"), ESearchCase::IgnoreCase)) return ERPYTransitionType::BLUR;
     if (Name.Equals(TEXT("dissolve"), ESearchCase::IgnoreCase)) return ERPYTransitionType::DISSOLVE;
     if (Name.Equals(TEXT("ease"), ESearchCase::IgnoreCase)) return ERPYTransitionType::EASE;
@@ -331,28 +354,58 @@ namespace
     if (Name.Equals(TEXT("shake"), ESearchCase::IgnoreCase)) return ERPYTransitionType::SHAKE;
     if (Name.Equals(TEXT("wipe"), ESearchCase::IgnoreCase)) return ERPYTransitionType::WIPE;
     if (Name.Equals(TEXT("zoomin"), ESearchCase::IgnoreCase) || Name.Equals(TEXT("zoom"), ESearchCase::IgnoreCase)) return ERPYTransitionType::ZOOM;
+
+    const bool bEase = Name.StartsWith(TEXT("easein"), ESearchCase::IgnoreCase);
+    const bool bMove = Name.StartsWith(TEXT("movein"), ESearchCase::IgnoreCase);
+    if (bEase || bMove)
+    {
+      const FString DirectionName = Name.RightChop(6);
+      if (DirectionName.Equals(TEXT("left"), ESearchCase::IgnoreCase)) OutDirection = ERPYTransitionDirection::LEFT;
+      else if (DirectionName.Equals(TEXT("right"), ESearchCase::IgnoreCase)) OutDirection = ERPYTransitionDirection::RIGHT;
+      else if (DirectionName.Equals(TEXT("top"), ESearchCase::IgnoreCase) || DirectionName.Equals(TEXT("up"), ESearchCase::IgnoreCase)) OutDirection = ERPYTransitionDirection::UP;
+      else if (DirectionName.Equals(TEXT("bottom"), ESearchCase::IgnoreCase) || DirectionName.Equals(TEXT("down"), ESearchCase::IgnoreCase)) OutDirection = ERPYTransitionDirection::DOWN;
+      if (OutDirection != ERPYTransitionDirection::NONE) return bEase ? ERPYTransitionType::EASE : ERPYTransitionType::MOVE;
+    }
     return ERPYTransitionType::NONE;
   }
 
-  FString DecodeXmlText(FString Text)
+  bool ParseNamedPosition(const FString& Name, FVector& OutPosition)
   {
-    Text.ReplaceInline(TEXT("&lt;"), TEXT("<"), ESearchCase::CaseSensitive);
-    Text.ReplaceInline(TEXT("&gt;"), TEXT(">"), ESearchCase::CaseSensitive);
-    Text.ReplaceInline(TEXT("&quot;"), TEXT("\""), ESearchCase::CaseSensitive);
-    Text.ReplaceInline(TEXT("&apos;"), TEXT("'"), ESearchCase::CaseSensitive);
-    // Decode ampersands last to avoid decoding an entity that was escaped as text.
-    Text.ReplaceInline(TEXT("&amp;"), TEXT("&"), ESearchCase::CaseSensitive);
-    return Text;
+    OutPosition = FVector::ZeroVector;
+    if (Name.Equals(TEXT("left"), ESearchCase::IgnoreCase)) OutPosition.X = -0.4f;
+    else if (Name.Equals(TEXT("right"), ESearchCase::IgnoreCase)) OutPosition.X = 0.4f;
+    else if (Name.Equals(TEXT("center"), ESearchCase::IgnoreCase) || Name.Equals(TEXT("truecenter"), ESearchCase::IgnoreCase)) return true;
+    else return false;
+    return true;
   }
 
-  FString DescribeXmlInstruction(const FXmlNode* Node)
+  bool ParsePositionValue(const FString& Value, FVector& OutPosition)
+  {
+    if (Value.StartsWith(TEXT("(")))
+    {
+      FString CoordinatesText = Value;
+      CoordinatesText.RemoveFromStart(TEXT("("));
+      CoordinatesText.RemoveFromEnd(TEXT(")"));
+      TArray<FString> Coordinates;
+      CoordinatesText.ParseIntoArray(Coordinates, TEXT(","), true);
+      if (Coordinates.Num() < 2 || Coordinates.Num() > 3) return false;
+      OutPosition = FVector::ZeroVector;
+      OutPosition.X = FCString::Atof(*Coordinates[0]);
+      OutPosition.Y = FCString::Atof(*Coordinates[1]);
+      if (Coordinates.Num() > 2) OutPosition.Z = FCString::Atof(*Coordinates[2]);
+      return true;
+    }
+    return ParseNamedPosition(Value, OutPosition);
+  }
+
+  FString DescribeXmlInstruction(const FVisualNovelXmlNode* Node)
   {
     FString Description = Node->GetTag();
-    for (const FXmlAttribute& Attribute : Node->GetAttributes())
+    for (const FVisualNovelXmlAttribute& Attribute : Node->Attributes)
     {
-      Description += FString::Printf(TEXT(" %s=\"%s\""), *Attribute.GetTag(), *Attribute.GetValue());
+      Description += FString::Printf(TEXT(" %s=\"%s\""), *Attribute.Name, *Attribute.Value);
     }
-    FString Content = DecodeXmlText(Node->GetContent());
+    FString Content = Node->GetTag() == TEXT("say") ? Node->GetRichTextContent() : Node->GetTextContent();
     Content.TrimStartAndEndInline();
     if (!Content.IsEmpty()) Description += TEXT("  ") + Content;
     return Description;
@@ -368,12 +421,12 @@ namespace
     }
   };
 
-  FString RequiredValue(const FXmlNode* Node, const TCHAR* FieldName)
+  FString RequiredValue(const FVisualNovelXmlNode* Node, const TCHAR* FieldName)
   {
     return Node ? Node->GetAttribute(FieldName) : FString();
   }
 
-  bool HasRequiredField(const FXmlNode* Node, const TCHAR* FieldName)
+  bool HasRequiredField(const FVisualNovelXmlNode* Node, const TCHAR* FieldName)
   {
     if (!Node) return false;
     if (FCString::Strcmp(FieldName, TEXT("text")) == 0 && Node->GetTag() == TEXT("say")) return true;
@@ -381,7 +434,7 @@ namespace
     return HasXmlAttribute(Node, FieldName);
   }
 
-  FString RequiredFieldType(const FXmlNode* Node, const TCHAR* FieldName)
+  FString RequiredFieldType(const FVisualNovelXmlNode* Node, const TCHAR* FieldName)
   {
     if (!Node) return FString();
     const FString Value = RequiredValue(Node, FieldName);
@@ -392,7 +445,7 @@ namespace
     return FString();
   }
 
-  bool ValidateXmlInstruction(const FXmlNode* Node)
+  bool ValidateXmlInstruction(const FVisualNovelXmlNode* Node)
   {
     const FString Type = Node->GetTag();
     TArray<FString> Required;
@@ -438,7 +491,7 @@ namespace
     return true;
   }
 
-  void ReadProps(const FXmlNode* Node, FRpyInstructionProps& Props)
+  void ReadProps(const FVisualNovelXmlNode* Node, FRpyInstructionProps& Props)
   {
     if (!Node) return;
     const FString Type = Node->GetTag();
@@ -458,19 +511,27 @@ namespace
     else if (Type == TEXT("raw")) Required.Add(TEXT("source"));
     else if (Type == TEXT("character")) { Required.Add(TEXT("name")); Required.Add(TEXT("displayName")); }
     else if (Type == TEXT("asset")) { Required.Add(TEXT("kind")); Required.Add(TEXT("name")); Required.Add(TEXT("path")); }
-    for (const FXmlAttribute& Attr : Node->GetAttributes())
+    for (const FVisualNovelXmlAttribute& Attr : Node->Attributes)
     {
-      if (Required.Contains(Attr.GetTag())) continue;
+      if (Required.Contains(Attr.Name)) continue;
+      if (Attr.Name == TEXT("position"))
+      {
+        FVector Position;
+        if (ParsePositionValue(Attr.Value, Position))
+        {
+          Props.SetVector(FName(TEXT("position")), Position);
+          continue;
+        }
+      }
       FRpyInstructionProp& Prop = Props.Values.AddDefaulted_GetRef();
-      Prop.Name = FName(*Attr.GetTag());
-      Prop.Type = (Attr.GetValue() == TEXT("true") || Attr.GetValue() == TEXT("false")) ? TEXT("bool") : (Attr.GetValue().IsNumeric() ? (Attr.GetValue().Contains(TEXT(".")) ? TEXT("float") : TEXT("integer")) : TEXT("string"));
-      Prop.Value = Attr.GetValue();
+      Prop.Name = FName(*Attr.Name);
+      Prop.Type = (Attr.Value == TEXT("true") || Attr.Value == TEXT("false")) ? TEXT("bool") : (Attr.Value.IsNumeric() ? (Attr.Value.Contains(TEXT(".")) ? TEXT("float") : TEXT("integer")) : TEXT("string"));
+      Prop.Value = Attr.Value;
     }
     if (Type == TEXT("say") && HasXmlAttribute(Node, TEXT("character"))) Props.SetString(FName(TEXT("speaker")), Node->GetAttribute(TEXT("character")));
-    if (Type == TEXT("say")) Props.SetString(FName(TEXT("text")), DecodeXmlText(Node->GetContent()));
   }
 
-  void MergeProps(const FXmlNode* Node, FRpyInstructionProps& Props)
+  void MergeProps(const FVisualNovelXmlNode* Node, FRpyInstructionProps& Props)
   {
     FRpyInstructionProps Source;
     ReadProps(Node, Source);
@@ -483,12 +544,13 @@ namespace
     }
   }
 
-  int32 CountXmlInstructions(const FXmlNode* Parent)
+  int32 CountXmlInstructions(const FVisualNovelXmlNode* Parent)
   {
     int32 Count = 0;
     if (!Parent) return Count;
-    for (const FXmlNode* Child : Parent->GetChildrenNodes())
+    for (const TUniquePtr<FVisualNovelXmlNode>& ChildPtr : Parent->Children)
     {
+      const FVisualNovelXmlNode* Child = ChildPtr.Get();
       if (Child)
       {
         ++Count;
@@ -498,7 +560,7 @@ namespace
     return Count;
   }
 
-  RpyInstruction* MakeXmlInstruction(URpyScript* Script, const FXmlNode* Node, FRpyLine* Line)
+  RpyInstruction* MakeXmlInstruction(URpyScript* Script, const FVisualNovelXmlNode* Node, FRpyLine* Line)
   {
     FString Type = Node->GetTag();
     if (Type == TEXT("character")) Type = TEXT("defineCharacter");
@@ -518,7 +580,7 @@ namespace
       ReadProps(Node, Props);
       Speaker = RequiredValue(Node, TEXT("speaker"));
       if (Speaker.IsEmpty()) Props.GetString(FName(TEXT("speaker")), Speaker);
-      FString Statement = DecodeXmlText(Node->GetContent());
+      FString Statement = Node->GetRichTextContent();
       Result = new SayInstruction(Script, Line, FName(*Speaker), MoveTemp(Statement));
       Result->Props = Props;
     }
@@ -528,14 +590,16 @@ namespace
       FRpyInstructionProps Props;
       ReadProps(Node, Props);
       Props.GetString(FName(TEXT("attributes")), Options.attribute);
-      if (Type == TEXT("scene")) Result = new SceneInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("asset"))), Options);
-      else if (Type == TEXT("show")) Result = new ShowInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("asset"))), Options);
-      else Result = new HideInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("tag"))), Options);
       FString TransitionName;
       if (Props.GetString(FName(TEXT("transition")), TransitionName))
       {
-        const ERPYTransitionType Transition = ParseTransitionType(TransitionName);
-        if (Transition != ERPYTransitionType::NONE) { Options.with = Transition; }
+        ERPYTransitionDirection Direction;
+        const ERPYTransitionType Transition = ParseTransitionType(TransitionName, Direction);
+        if (Transition != ERPYTransitionType::NONE)
+        {
+          Options.with = Transition;
+          Options.direction = Direction;
+        }
         else
         {
           const FName TransitionKey(*TransitionName);
@@ -552,7 +616,11 @@ namespace
       FString Layer;
       if (Props.GetString(FName(TEXT("layer")), Layer)) Options.layer = FName(*Layer);
       FString Position;
-      if (Props.GetString(FName(TEXT("position")), Position))
+      if (Props.GetVector(FName(TEXT("position")), Options.position))
+      {
+        Options.positionType = EPositionType::VECTOR;
+      }
+      else if (Props.GetString(FName(TEXT("position")), Position))
       {
         if (Position.StartsWith(TEXT("(")))
         {
@@ -563,9 +631,12 @@ namespace
           if (Coordinates.Num() > 1) Options.position.Y = FCString::Atof(*Coordinates[1]);
           if (Coordinates.Num() > 2) Options.position.Z = FCString::Atof(*Coordinates[2]);
         }
+        else if (ParseNamedPosition(Position, Options.position)) { Options.positionType = EPositionType::VECTOR; }
         else { Options.positionType = EPositionType::NAME; Options.positionName = FName(*Position); }
       }
-      Result->Props = PropsFromSceneOptions(Options);
+      if (Type == TEXT("scene")) Result = new SceneInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("asset"))), Options);
+      else if (Type == TEXT("show")) Result = new ShowInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("asset"))), Options);
+      else Result = new HideInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("tag"))), Options);
     }
     else if (Type == TEXT("pause")) Result = new PauseInstruction(Script, Line, FCString::Atof(*RequiredValue(Node, TEXT("duration"))));
     else if (Type == TEXT("menu")) Result = new MenuInstruction(Script, Line);
@@ -661,12 +732,12 @@ namespace
     if (!Result && FRpyInstructionRegistry::IsRegistered(FName(*Type)))
     {
       TMap<FName, FRpyInstructionProp> RequiredFields;
-      for (const FXmlAttribute& Attr : Node->GetAttributes())
+      for (const FVisualNovelXmlAttribute& Attr : Node->Attributes)
       {
         FRpyInstructionProp Value;
-        Value.Name = FName(*Attr.GetTag());
+        Value.Name = FName(*Attr.Name);
         Value.Type = TEXT("string");
-        Value.Value = Attr.GetValue();
+        Value.Value = Attr.Value;
         RequiredFields.Add(Value.Name, Value);
       }
       FRpyInstructionProps CustomProps;
@@ -694,26 +765,28 @@ bool URpyScript::Parse()
   instructionsById.Empty();
   if (!scriptXml.IsEmpty())
   {
-    FXmlFile XmlFile;
-    if (!XmlFile.LoadFile(scriptXml, EConstructMethod::ConstructFromBuffer))
+    FVisualNovelXmlParser XmlParser;
+    TUniquePtr<FVisualNovelXmlNode> Root;
+    FString XmlError;
+    if (!XmlParser.Parse(scriptXml, Root, XmlError))
     {
-      UE_LOG(LogTemp, Error, TEXT("Invalid visual novel XML: %s"), *XmlFile.GetLastError());
+      UE_LOG(LogTemp, Error, TEXT("Invalid visual novel XML: %s"), *XmlError);
       return false;
     }
-    const FXmlNode* Root = XmlFile.GetRootNode();
     if (!Root || Root->GetTag() != TEXT("visualNovel") || Root->GetAttribute(TEXT("version")) != TEXT("1"))
     {
       UE_LOG(LogTemp, Error, TEXT("Expected <visualNovel version=\"1\"> root"));
       return false;
     }
-    const int32 InstructionCount = CountXmlInstructions(Root);
+    const int32 InstructionCount = CountXmlInstructions(Root.Get());
     instructions.Reserve(InstructionCount);
-    TFunction<bool(const FXmlNode*, uint8)> ReadInstructionChildren;
-    ReadInstructionChildren = [&](const FXmlNode* Parent, uint8 Depth) -> bool
+    TFunction<bool(const FVisualNovelXmlNode*, uint8)> ReadInstructionChildren;
+    ReadInstructionChildren = [&](const FVisualNovelXmlNode* Parent, uint8 Depth) -> bool
     {
       bool bSuccess = true;
-      for (const FXmlNode* Node : Parent->GetChildrenNodes())
+      for (const TUniquePtr<FVisualNovelXmlNode>& NodePtr : Parent->Children)
       {
+        const FVisualNovelXmlNode* Node = NodePtr.Get();
         if (!Node) continue;
         if (!ValidateXmlInstruction(Node))
         {
@@ -738,11 +811,11 @@ bool URpyScript::Parse()
         }
         instructions.Add(Instruction);
         instructionsById.Add(Instruction->InstructionId, Instruction);
-        if (!ReadInstructionChildren(Node, Depth + 1)) bSuccess = false;
+        if (Node->GetTag() != TEXT("say") && !ReadInstructionChildren(Node, Depth + 1)) bSuccess = false;
       }
       return bSuccess;
     };
-    return ReadInstructionChildren(Root, 0);
+    return ReadInstructionChildren(Root.Get(), 0);
   }
   return false;
 };

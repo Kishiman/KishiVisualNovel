@@ -50,6 +50,8 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
   FString SourceString;
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  FString PlainString;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
   TArray<FMouthViseme> visemes;
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
   int32 Length;

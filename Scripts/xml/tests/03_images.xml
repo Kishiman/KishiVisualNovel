@@ -4,15 +4,15 @@
   <character name="m" displayName="Me" color="#c8c8ff" />
   <asset kind="image" name="flight_attendant" path="DBCooper/airplane_attendent_LS" />
   <label name="start">
-    <scene asset="bg" attributes="meadow" />
+    <scene asset="bg_meadow" />
     <say>scene bg meadow</say>
     <show asset="flight_attendant" transition="fade" position="left" />
     <say>show flight_attendant with fade at left</say>
     <hide tag="flight_attendant" />
     <show asset="sylvie" attributes="green normal" transition="fade" position="right" />
-    <say>hide flight_attendant 
- show sylvie green smile with fade at right 
-pause 2.0</say>
+    <say>hide flight_attendant
+      show sylvie green smile with fade at right
+      pause 2.0</say>
     <pause duration="2.0" />
     <show asset="sylvie" attributes="green giggle" transition="fade" position="left" />
     <say>show sylvie green giggle with fade at left</say>

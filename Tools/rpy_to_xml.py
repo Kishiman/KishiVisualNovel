@@ -19,6 +19,72 @@ def decode_string(value: str) -> str:
     return value.replace(r"\n", "\n").replace(r'\"', '"').replace(r"\'", "'")
 
 
+def normalize_richtext_closers(value: str) -> str:
+    """Convert Ren'Py's shorthand close tag into paired, well-formed XML tags."""
+    result: list[str] = []
+    stack: list[str] = []
+    index = 0
+    while index < len(value):
+        if value[index] != "<":
+            result.append(value[index]); index += 1; continue
+        end = value.find(">", index + 1)
+        if end < 0:
+            result.append(value[index]); index += 1; continue
+        token = value[index + 1:end]
+        if token == "/" and stack:
+            result.append(f"</{stack.pop()}>")
+            index = end + 1
+            continue
+        if token.startswith("/") and token[1:] in stack:
+            name = token[1:]
+            while stack:
+                top = stack.pop()
+                result.append(f"</{top}>")
+                if top == name: break
+            index = end + 1
+            continue
+        if token and all(ch.isalnum() or ch in "_.-" for ch in token):
+            result.append(f"<{token}>")
+            stack.append(token)
+            index = end + 1
+            continue
+        result.append(value[index:end + 1]); index = end + 1
+    while stack:
+        result.append(f"</{stack.pop()}>")
+    return "".join(result)
+
+
+def append_mixed_text(parent: ET.Element, text: str) -> None:
+    if len(parent):
+        parent[-1].tail = (parent[-1].tail or "") + text
+    else:
+        parent.text = (parent.text or "") + text
+
+
+def append_richtext_xml(parent: ET.Element, value: str) -> None:
+    """Emit a rich-text string as ordered XML text and style elements."""
+    stack = [parent]
+    index = 0
+    while index < len(value):
+        if value[index] != "<":
+            next_tag = value.find("<", index)
+            if next_tag < 0: next_tag = len(value)
+            append_mixed_text(stack[-1], value[index:next_tag])
+            index = next_tag
+            continue
+        end = value.find(">", index + 1)
+        if end < 0:
+            append_mixed_text(stack[-1], value[index:]); break
+        token = value[index + 1:end]
+        if token.startswith("/") and len(stack) > 1 and stack[-1].tag == token[1:]:
+            stack.pop()
+        elif token and all(ch.isalnum() or ch in "_.-" for ch in token):
+            stack.append(ET.SubElement(stack[-1], token))
+        else:
+            append_mixed_text(stack[-1], value[index:end + 1])
+        index = end + 1
+
+
 def infer(line: str) -> tuple[str, dict[str, tuple[str, str]], dict[str, tuple[str, str]]]:
     """Return command, required values, optional props. Unrecognized source stays lossless."""
     text = line.strip()
@@ -213,7 +279,7 @@ def convert(path: Path, base: Path, output_root: Path) -> None:
         text_value = None
         aliases = {"image": "asset", "assetKind": "kind"}
         for name, (_, value) in required.items():
-            if command == "say" and name == "text": text_value = value
+            if command == "say" and name == "text": text_value = normalize_richtext_closers(value)
             elif command == "defineAsset" and name == "asset": attrs["path"] = value
             else: attrs[aliases.get(name, name)] = value
         for name, (_, value) in props.items():
@@ -224,7 +290,7 @@ def convert(path: Path, base: Path, output_root: Path) -> None:
         if command == "set" and "expression" in required:
             attrs["expression"] = required["expression"][1]
         node = ET.SubElement(stack[-1][1], tag, attrs)
-        if text_value is not None: node.text = text_value
+        if text_value is not None: append_richtext_xml(node, text_value)
         if source.endswith(":") or command in ("menu", "label", "if", "else", "choice"):
             stack.append((indent, node))
 

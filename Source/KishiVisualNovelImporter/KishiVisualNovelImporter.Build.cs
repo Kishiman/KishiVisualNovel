@@ -13,7 +13,6 @@ public class KishiVisualNovelImporter : ModuleRules
 				"Core",
 				"CoreUObject",
 				"Json",
-				"XmlParser",
 				//"Slate",
 				//"SlateCore",
 				"Engine",

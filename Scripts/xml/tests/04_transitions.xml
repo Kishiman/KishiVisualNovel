@@ -2,7 +2,7 @@
 <visualNovel version="1">
   <character name="m" displayName="Me" color="#c8c8ff" />
   <label name="start">
-    <scene asset="bg" attributes="meadow" transition="fade" />
+    <scene asset="bg_meadow" transition="fade" />
     <say>After a short while, we reach the meadows just outside the neighborhood where we both live.</say>
     <say>It's a scenic view I've grown used to. Autumn is especially beautiful here.</say>
     <say>When we were children, we played in these meadows a lot, so they're full of memories.</say>
@@ -14,15 +14,15 @@
     <say character="m">Will you be my artist for a visual novel?</say>
   </label>
   <label name="test1">
-    <scene asset="bg" attributes="meadow" />
+    <scene asset="bg_meadow" />
     <show asset="sylvie" attributes="green smile" transition="dissolve" />
   </label>
   <label name="test2">
-    <scene asset="bg" attributes="meadow" transition="dissolve" />
+    <scene asset="bg_meadow" transition="dissolve" />
     <show asset="sylvie" attributes="green smile" transition="dissolve" />
   </label>
   <label name="test3">
-    <scene asset="bg" attributes="meadow" />
+    <scene asset="bg_meadow" />
     <show asset="sylvie" attributes="green smile" transition="dissolve" />
   </label>
   <label name="test3">

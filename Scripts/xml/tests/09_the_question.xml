@@ -5,7 +5,7 @@
   <set name="book" value="false" />
   <label name="start">
     <play channel="music" asset="illurock" />
-    <scene asset="bg" attributes="lecturehall" transition="fade" position="(1.0,2.0,3.2)"
+    <scene asset="bg_lecturehall" transition="fade" position="(1.0,2.0,3.2)"
       layer="master" duration="1.0" />
     <say>It's only when I hear the sounds of shuffling feet and supplies being put away that I
       realize that the lecture's over.</say>
@@ -14,7 +14,7 @@
       on it.</say>
     <say>I've had a lot of other thoughts on my mind...thoughts that culminate in a question.</say>
     <say>It's a question that I've been meaning to ask a certain someone.</say>
-    <scene asset="bg" attributes="uni" transition="fade" />
+    <scene asset="bg_uni" transition="fade" />
     <say>When we come out of the university, I spot her right away.</say>
     <stop channel="music" legacyChannelTarget="fadeout" />
     <show asset="sylvie" attributes="green normal" transition="dissolve" />
@@ -43,7 +43,7 @@
     <say character="m">Are you going home now? Wanna walk back with me?</say>
     <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
     <say character="s">Sure!</say>
-    <scene asset="bg" attributes="meadow" transition="fade" />
+    <scene asset="bg_meadow" transition="fade" />
     <hide tag="sylvie" />
     <say>After a short while, we reach the meadows just outside the neighborhood where we both live.</say>
     <say>It's a scenic view I've grown used to. Autumn is especially beautiful here.</say>
@@ -113,7 +113,7 @@
     <hide tag="sylvie" />
     <scene asset="black" transition="dissolve" />
     <say>And so, we become a visual novel creating duo.</say>
-    <scene asset="bg" attributes="club" transition="dissolve" />
+    <scene asset="bg_club" transition="dissolve" />
     <say>Over the years, we make lots of games and have a lot of fun making them.</say>
     <if condition="book">
       <voice asset="cicifyre/BrightFemale/01-laughter" />

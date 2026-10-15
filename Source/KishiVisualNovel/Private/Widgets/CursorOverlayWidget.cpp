@@ -39,7 +39,7 @@ void UCursorOverlayWidget::NativeTick(const FGeometry &MyGeometry, float InDelta
 
   // Set widget location
   // Requires Screen Space mode
-  UE_LOG(LogTemp, Display, TEXT("Setting cursor overlay position from: %s to: %s"), *ScreenPosition.ToString(), *FinalPos.ToString());
+  // UE_LOG(LogTemp, Display, TEXT("Setting cursor overlay position from: %s to: %s"), *ScreenPosition.ToString(), *FinalPos.ToString());
   // ignore DPI scaling for now
   SetPositionInViewport(FinalPos, true);
   // Optional: If the cursor graphic should rotate or animate, do it here

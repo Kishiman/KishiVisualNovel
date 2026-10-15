@@ -185,7 +185,7 @@ struct FRpySceneOptions
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector position = FVector(0);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float transitionTime = 0;
+	float transitionTime = 1.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int zorder = 0;
 };
@@ -356,6 +356,7 @@ public:
 	virtual void Serialize(FStructuredArchiveRecord Record) override;
 	bool AddDefaultTransition(FName name, FString path);
 	bool AddDefaultImage(FName name, FString path);
+	FRpyImage* FindOrAddDefaultImage(FName name, FString attributes);
 	bool AddDefaultAudio(FName name, FString path);
 
 	bool ImportXml(FString text);

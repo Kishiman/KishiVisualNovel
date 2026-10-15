@@ -19,7 +19,7 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 	}
 	try
 	{
-		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PlayAudio %s"), *channel.ToString());
+		// UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PlayAudio %s"), *channel.ToString());
 		// Create an audio component if it doesn't exist
 		if (audioComponents.Contains(channel))
 		{

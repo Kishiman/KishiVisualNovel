@@ -25,3 +25,11 @@ Required command data is explicit in attributes or element text. Supported comma
 Any additional command attributes are optional props and are stored in each instruction's `FRpyInstructionProps`. The props API provides typed getters and setters plus cloning. The XML importer infers booleans and numeric values; other attributes are strings. Registered C++ commands can extend the instruction vocabulary.
 
 The runtime imports `.xml` scripts. `Tools/rpy_to_xml.py` is a migration utility for the supported subset of legacy `.rpy`; constructs it cannot translate are retained as `<raw source="..." />` for review.
+
+Dialogue can contain nested XML style elements. Use matching XML tag names for the closing tags:
+
+```xml
+<say character="aug">I like this <red>dress</red>, and these <blue>jeans with <red>red stitching</red></blue>.</say>
+```
+
+The importer preserves the order of text and nested style elements. At runtime, the statement adapter converts the XML tags to Unreal Rich Text Block markup, which uses shorthand closing markers. Do not use the shorthand `</>` in XML; it is not well-formed XML.
