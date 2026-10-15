@@ -4,7 +4,7 @@
   <character name="m" displayName="Me" color="#c8c8ff" />
   <set name="book" value="false" />
   <label name="start">
-    <play channel="music" asset="illurock" />
+    <play channel="music" asset="illurock" loop="true" />
     <scene asset="bg_lecturehall" transition="fade" position="(1.0,2.0,3.2)"
       layer="master" duration="1.0" />
     <say>It's only when I hear the sounds of shuffling feet and supplies being put away that I
@@ -22,7 +22,7 @@
       friend to me.</say>
     <say>But recently... I've felt that I want something more.</say>
     <say>More than just talking, more than just walking home together when our classes end.</say>
-    <play channel="music" asset="illurock" />
+    <play channel="music" asset="illurock" loop="true" />
     <hide tag="sylvie" />
     <say>As soon as she catches my eye, I decide...</say>
     <menu>

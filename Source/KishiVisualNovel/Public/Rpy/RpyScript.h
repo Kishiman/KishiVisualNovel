@@ -86,14 +86,6 @@ enum class ERPYTransitionDirection : uint8
 
 DECLARE_DYNAMIC_DELEGATE(FInstructionCompleteDelegate);
 
-UENUM(BlueprintType)
-enum struct ESchrodBool : uint8
-{
-	ETrue UMETA(DisplayName = "True"),
-	EFalse UMETA(DisplayName = "False"),
-	ENone UMETA(DisplayName = "None"),
-};
-
 USTRUCT(BlueprintType)
 struct FRpyCharacter
 {
@@ -118,9 +110,9 @@ struct FRpyAudioOptions
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float volume = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ESchrodBool loop = ESchrodBool::ENone;
+	bool loop = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ESchrodBool tight = ESchrodBool::ENone;
+	bool tight = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool synchroStart = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -356,7 +348,7 @@ public:
 	virtual void Serialize(FStructuredArchiveRecord Record) override;
 	bool AddDefaultTransition(FName name, FString path);
 	bool AddDefaultImage(FName name, FString path);
-	FRpyImage* FindOrAddDefaultImage(FName name, FString attributes);
+	FRpyImage *FindOrAddDefaultImage(FName name, FString attributes);
 	bool AddDefaultAudio(FName name, FString path);
 
 	bool ImportXml(FString text);
