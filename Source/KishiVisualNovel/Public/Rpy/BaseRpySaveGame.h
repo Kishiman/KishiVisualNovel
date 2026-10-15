@@ -3,9 +3,25 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "Interfaces/RpySaveGame.h" // your interface header
+#include "Interfaces/RpyStateful.h"
 #include "Rpy/RpyScript.h"
 
 #include "BaseRpySaveGame.generated.h"
+
+USTRUCT(BlueprintType)
+struct FRpySavedComponentState
+{
+    GENERATED_BODY()
+
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
+    FName ActorName;
+
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
+    FName ComponentName;
+
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
+    FRpySerializedState State;
+};
 
 UCLASS()
 class KISHIVISUALNOVEL_API UBaseRpySaveGame
@@ -15,30 +31,33 @@ class KISHIVISUALNOVEL_API UBaseRpySaveGame
     GENERATED_BODY()
 
 public:
-    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
     bool isQuickSave = false;
 
-    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
     bool isEmpty = false;
 
-    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
     int32 SlotIndex;
-    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
     FName SlotName;
     // Screenshot
-    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
     TArray<uint8> ScreenshotData;
 
     // Level name
-    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
     FString LevelName;
 
-    UPROPERTY(BlueprintReadOnly, Category = "Save Data")
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
     FDateTime SaveDate;
 
     // actor states serialized data
     UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
     TMap<FName, FRpySerializedState> ActorStates;
+
+    UPROPERTY(SaveGame, BlueprintReadOnly, Category = "Save Data")
+    TArray<FRpySavedComponentState> StatefulComponents;
 
     // ---- IRpySaveGame interface implementation ----
 

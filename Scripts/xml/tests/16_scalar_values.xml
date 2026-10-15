@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- Default values exercise XML scalar inference in compiled script data. -->
+  <set name="zero_integer" value="0" scope="default" />
+  <set name="negative_integer" value="-42" scope="default" />
+  <set name="zero_float" value="0.0" scope="default" />
+  <set name="negative_float" value="-2.5" scope="default" />
+  <set name="exponent_float" value="1e3" scope="default" />
+  <set name="enabled" value="true" scope="default" />
+  <set name="caption" value="hello" scope="default" />
+  <label name="start">
+    <say>Import this script and inspect compile data: zero_integer and negative_integer should be integers; zero_float, negative_float, and exponent_float should be floats.</say>
+    <say>The enabled value should be boolean, and caption should remain a string.</say>
+  </label>
+</visualNovel>

@@ -1,0 +1,5 @@
+<visualNovel version="1">
+  <label name="start">
+    <camera target="hero" duration="1" speed="fast" />
+  </label>
+</visualNovel>

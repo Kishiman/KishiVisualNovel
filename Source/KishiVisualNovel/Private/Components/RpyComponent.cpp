@@ -31,11 +31,23 @@ void URpyComponent::LoadFromState_Implementation(const URpyState *State)
 
   if (ComponentState->rpySessionState)
   {
+    if (!CurrentInterpreter && InterpreterClass)
+    {
+      CurrentInterpreter = TScriptInterface<IRpyScriptInterpreter>(NewObject<URpyScriptInterpreter>(this, InterpreterClass));
+    }
+    if (!CurrentInterpreter)
+    {
+      UE_LOG(LogTemp, Error, TEXT("URpyComponent::LoadFromState: Cannot restore a VN session without a valid InterpreterClass"));
+      return;
+    }
     if (!CurrentSession)
     {
       CurrentSession = NewObject<URpySession>(this);
     }
+    CurrentSession->interpreter = CurrentInterpreter;
+    IRpyScriptInterpreter::Execute_StartUp(CurrentInterpreter.GetObject());
     CurrentSession->LoadFromState_Implementation(ComponentState->rpySessionState);
+		CurrentSession->OnScriptComplete.AddUniqueDynamic(this, &URpyComponent::CloseScript);
   }
 }
 

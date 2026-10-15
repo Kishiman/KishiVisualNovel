@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
+#include "Widgets/SBoxPanel.h"
 #include "Widgets/Views/STreeView.h"
 #include "Rpy/RpyScript.h"
 
@@ -26,10 +27,13 @@ public:
 private:
 	TSharedRef<ITableRow> GenerateRow(TSharedPtr<FRpyInstructionTreeItem> Item, const TSharedRef<STableViewBase>& OwnerTable) const;
 	void GetItemChildren(TSharedPtr<FRpyInstructionTreeItem> Item, TArray<TSharedPtr<FRpyInstructionTreeItem>>& OutChildren) const;
+	void OnSelectionChanged(TSharedPtr<FRpyInstructionTreeItem> Item, ESelectInfo::Type SelectionType);
+	void RefreshInstructionDetails(RpyInstruction* Instruction);
 	TSharedPtr<FRpyInstructionTreeItem> MakeTreeItem(RpyInstruction* Instruction) const;
 
 	TWeakObjectPtr<URpyScript> Script;
 	TArray<TSharedPtr<FRpyInstructionTreeItem>> RootItems;
 	TSharedPtr<STreeView<TSharedPtr<FRpyInstructionTreeItem>>> TreeView;
 	TSharedPtr<IDetailsView> DetailsView;
+	TSharedPtr<SVerticalBox> SelectedInstructionDetails;
 };

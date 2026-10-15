@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <label name="start">
+    <set name="checkpoint" value="before_save" />
+    <say>Save the game while this line is displayed.</say>
+    <set name="checkpoint" value="after_save" />
+    <say>Now load the saved game. This line should be restored and the checkpoint should return to before_save.</say>
+    <set name="checkpoint" value="finished" />
+    <say>Continuing past the restored line reaches this final checkpoint.</say>
+    <return />
+  </label>
+</visualNovel>

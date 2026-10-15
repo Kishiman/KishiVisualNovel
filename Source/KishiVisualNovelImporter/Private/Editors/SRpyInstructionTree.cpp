@@ -4,6 +4,7 @@
 #include "PropertyEditorModule.h"
 #include "Rpy/RpyInstruction.h"
 #include "Widgets/Layout/SSplitter.h"
+#include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/Views/STreeView.h"
 #include "Widgets/Views/STableRow.h"
 #include "Widgets/Text/STextBlock.h"
@@ -45,6 +46,7 @@ void SRpyInstructionTree::Construct(const FArguments& InArgs)
 				.TreeItemsSource(&RootItems)
 				.OnGenerateRow(this, &SRpyInstructionTree::GenerateRow)
 				.OnGetChildren(this, &SRpyInstructionTree::GetItemChildren)
+				.OnSelectionChanged(this, &SRpyInstructionTree::OnSelectionChanged)
 				.SelectionMode(ESelectionMode::Single)
 				.HeaderRow
 				(
@@ -57,7 +59,30 @@ void SRpyInstructionTree::Construct(const FArguments& InArgs)
 		+ SSplitter::Slot()
 		.Value(0.4f)
 		[
-			DetailsView.ToSharedRef()
+			SNew(SSplitter)
+			.Orientation(Orient_Vertical)
+			+ SSplitter::Slot()
+			.Value(0.65f)
+			[
+				DetailsView.ToSharedRef()
+			]
+			+ SSplitter::Slot()
+			.Value(0.35f)
+			[
+				SNew(SBorder)
+				.Padding(6.0f)
+				[
+					SNew(SScrollBox)
+					+ SScrollBox::Slot()
+					[
+						SAssignNew(SelectedInstructionDetails, SVerticalBox)
+						+ SVerticalBox::Slot().AutoHeight().Padding(2.0f)
+						[
+							SNew(STextBlock).Text(FText::FromString(TEXT("Select an instruction to inspect its props.")))
+						]
+					]
+				]
+			]
 		]
 	];
 }
@@ -75,6 +100,50 @@ TSharedRef<ITableRow> SRpyInstructionTree::GenerateRow(TSharedPtr<FRpyInstructio
 void SRpyInstructionTree::GetItemChildren(TSharedPtr<FRpyInstructionTreeItem> Item, TArray<TSharedPtr<FRpyInstructionTreeItem>>& OutChildren) const
 {
 	if (Item.IsValid()) OutChildren = Item->Children;
+}
+
+void SRpyInstructionTree::OnSelectionChanged(TSharedPtr<FRpyInstructionTreeItem> Item, ESelectInfo::Type)
+{
+	RefreshInstructionDetails(Item.IsValid() ? Item->Instruction : nullptr);
+}
+
+void SRpyInstructionTree::RefreshInstructionDetails(RpyInstruction* Instruction)
+{
+	if (!SelectedInstructionDetails.IsValid()) return;
+	SelectedInstructionDetails->ClearChildren();
+	if (!Instruction)
+	{
+		SelectedInstructionDetails->AddSlot().AutoHeight().Padding(2.0f)
+		[
+			SNew(STextBlock).Text(FText::FromString(TEXT("Select an instruction to inspect its props.")))
+		];
+		return;
+	}
+
+	SelectedInstructionDetails->AddSlot().AutoHeight().Padding(2.0f)
+	[
+		SNew(STextBlock).Text(FText::FromString(Instruction->rpyLine.line))
+	];
+	if (Instruction->InstructionId.IsNone()) return;
+	SelectedInstructionDetails->AddSlot().AutoHeight().Padding(2.0f)
+	[
+		SNew(STextBlock).Text(FText::FromString(FString::Printf(TEXT("ID: %s"), *Instruction->InstructionId.ToString())))
+	];
+	if (Instruction->Props.Values.Num() == 0)
+	{
+		SelectedInstructionDetails->AddSlot().AutoHeight().Padding(2.0f)
+		[
+			SNew(STextBlock).Text(FText::FromString(TEXT("No optional props")))
+		];
+		return;
+	}
+	for (const FRpyInstructionProp& Prop : Instruction->Props.Values)
+	{
+		SelectedInstructionDetails->AddSlot().AutoHeight().Padding(2.0f)
+		[
+			SNew(STextBlock).Text(FText::FromString(FString::Printf(TEXT("%s (%s): %s"), *Prop.Name.ToString(), *Prop.Type, *Prop.Value)))
+		];
+	}
 }
 
 TSharedPtr<FRpyInstructionTreeItem> SRpyInstructionTree::MakeTreeItem(RpyInstruction* Instruction) const

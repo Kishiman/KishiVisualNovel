@@ -38,7 +38,7 @@ bool FRpyInstructionProps::GetBool(FName Name, bool& OutValue) const
 bool FRpyInstructionProps::GetFloat(FName Name, float& OutValue) const
 {
 	const FRpyInstructionProp* Prop = Find(Name);
-	if (!Prop || Prop->Type != TEXT("float")) return false;
+	if (!Prop || (Prop->Type != TEXT("float") && Prop->Type != TEXT("integer"))) return false;
 	OutValue = FCString::Atof(*Prop->Value);
 	return true;
 }

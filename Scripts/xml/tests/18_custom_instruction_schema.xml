@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- Requires a registered custom "camera" instruction with the schema described in validation/README.md. -->
+  <label name="start">
+    <camera target="hero" duration="1" enabled="true" offset="1,2,3" />
+    <say>Custom required fields and typed optional props were accepted.</say>
+  </label>
+</visualNovel>

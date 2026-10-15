@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <label name="start">
+    <say>Literal &lt;red&gt; markup stays plain text. Real styles use elements: <red>red <blue>nested blue</blue> red again</red>.</say>
+    <say>The literal closing text &lt;/red&gt; also stays visible, and ampersands &amp; quotes &quot; remain readable.</say>
+  </label>
+</visualNovel>

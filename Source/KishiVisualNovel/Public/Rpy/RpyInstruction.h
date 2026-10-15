@@ -82,11 +82,20 @@ public:
 
 using FRpyInstructionFactory = TFunction<RpyInstruction*(URpyScript*, FRpyLine*, const TMap<FName, FRpyInstructionProp>&, const FRpyInstructionProps&)>;
 
+struct FRpyInstructionSchema
+{
+	/** Required attribute names and their scalar XML types. */
+	TMap<FName, FString> RequiredFields;
+	/** Optional attributes exposed through FRpyInstructionProps and their scalar XML types. */
+	TMap<FName, FString> OptionalProps;
+};
+
 /** C++ extension point for game-specific XML command types. */
 class KISHIVISUALNOVEL_API FRpyInstructionRegistry
 {
 public:
-    static void Register(FName Type, FRpyInstructionFactory Factory);
+	static void Register(FName Type, const FRpyInstructionSchema& Schema, FRpyInstructionFactory Factory);
     static bool IsRegistered(FName Type);
+	static const FRpyInstructionSchema* FindSchema(FName Type);
     static RpyInstruction* Create(FName Type, URpyScript* Script, FRpyLine* SourceLine, const TMap<FName, FRpyInstructionProp>& Required, const FRpyInstructionProps& Props);
 };

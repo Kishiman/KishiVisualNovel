@@ -33,3 +33,20 @@ Dialogue can contain nested XML style elements. Use matching XML tag names for t
 ```
 
 The importer preserves the order of text and nested style elements. At runtime, the statement adapter converts the XML tags to Unreal Rich Text Block markup, which uses shorthand closing markers. Do not use the shorthand `</>` in XML; it is not well-formed XML.
+
+To display angle-bracket text literally, escape it using XML entities. The importer keeps that distinction from actual child style elements, and Unreal Rich Text decodes the escaped characters for display:
+
+```xml
+<say character="narrator">Type &lt;red&gt; to show the literal text &lt;red&gt;.</say>
+```
+
+Custom C++ instructions register a field schema with their factory. Required attribute values are passed in the required-field map; optional attributes are passed as typed `FRpyInstructionProps`. Supported schema types are `string`, `bool`, `integer`, `float`, `name`, `asset`, and three-component `vector`. Attributes absent from both maps are rejected.
+
+```cpp
+FRpyInstructionSchema Schema;
+Schema.RequiredFields.Add(FName(TEXT("target")), TEXT("name"));
+Schema.OptionalProps.Add(FName(TEXT("duration")), TEXT("float"));
+FRpyInstructionRegistry::Register(FName(TEXT("camera")), Schema, CreateCameraInstruction);
+```
+
+`URpyComponent` session state is captured by the base save game mode for stateful components and restored after the destination map loads. The component must have a valid `InterpreterClass` configured so its interpreter can be recreated during restoration.

@@ -1,5 +1,26 @@
 #include "Rpy/VisualNovelXmlParser.h"
 
+namespace
+{
+	FString EscapeRichTextLiteral(const FString& Text)
+	{
+		FString Result;
+		Result.Reserve(Text.Len());
+		for (TCHAR Character : Text)
+		{
+			switch (Character)
+			{
+			case TEXT('&'): Result += TEXT("&amp;"); break;
+			case TEXT('<'): Result += TEXT("&lt;"); break;
+			case TEXT('>'): Result += TEXT("&gt;"); break;
+			case TEXT('"'): Result += TEXT("&quot;"); break;
+			default: Result.AppendChar(Character); break;
+			}
+		}
+		return Result;
+	}
+}
+
 FString FVisualNovelXmlNode::GetAttribute(const TCHAR* Name) const
 {
 	for (const FVisualNovelXmlAttribute& Attribute : Attributes)
@@ -29,7 +50,7 @@ FString FVisualNovelXmlNode::GetRichTextContent() const
 	{
 		if (!Part.Child)
 		{
-			Result += Part.Text;
+			Result += EscapeRichTextLiteral(Part.Text);
 			continue;
 		}
 		Result += FString::Printf(TEXT("<%s>"), *Part.Child->Tag);

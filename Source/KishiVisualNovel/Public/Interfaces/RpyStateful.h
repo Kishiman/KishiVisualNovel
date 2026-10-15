@@ -13,11 +13,11 @@ struct FRpySerializedState
   GENERATED_BODY()
 
   // Which class this state represents
-  UPROPERTY(BlueprintReadWrite, EditAnywhere)
+  UPROPERTY(SaveGame, BlueprintReadWrite, EditAnywhere)
   TSubclassOf<URpyState> StateClass;
 
   // Raw serialized data of that UObject
-  UPROPERTY()
+  UPROPERTY(SaveGame)
   TArray<uint8> SerializedData;
 };
 

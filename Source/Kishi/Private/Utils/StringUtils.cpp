@@ -1,6 +1,35 @@
 #include "Utils/StringUtils.h"
 #include <regex>
 
+namespace
+{
+	void AppendRichTextLiteralCharacter(FString& Output, TCHAR Character)
+	{
+		switch (Character)
+		{
+		case TEXT('&'): Output += TEXT("&amp;"); break;
+		case TEXT('<'): Output += TEXT("&lt;"); break;
+		case TEXT('>'): Output += TEXT("&gt;"); break;
+		default: Output.AppendChar(Character); break;
+		}
+	}
+
+	bool TryReadRichTextEscape(const FString& Source, int32 Start, TCHAR& OutCharacter, int32& OutEnd)
+	{
+		if (Start >= Source.Len() || Source[Start] != TEXT('&')) return false;
+		const int32 Semicolon = Source.Find(TEXT(";"), ESearchCase::CaseSensitive, ESearchDir::FromStart, Start + 1);
+		if (Semicolon == INDEX_NONE) return false;
+		const FString Entity = Source.Mid(Start + 1, Semicolon - Start - 1);
+		if (Entity == TEXT("lt")) OutCharacter = TEXT('<');
+		else if (Entity == TEXT("gt")) OutCharacter = TEXT('>');
+		else if (Entity == TEXT("amp")) OutCharacter = TEXT('&');
+		else if (Entity == TEXT("quot")) OutCharacter = TEXT('"');
+		else return false;
+		OutEnd = Semicolon + 1;
+		return true;
+	}
+}
+
 /**
  * @param Pred: item - target
  */
@@ -72,6 +101,14 @@ bool UStringUtils::StringToTaggedString(const FString &SourceString, FTaggedStri
 	TArray<int32> OpenTags;
 	for (int32 Position = 0; Position < SourceString.Len();)
   {
+		TCHAR EscapedCharacter = 0;
+		int32 EscapeEnd = Position;
+		if (TryReadRichTextEscape(SourceString, Position, EscapedCharacter, EscapeEnd))
+		{
+			Target.PlainString.AppendChar(EscapedCharacter);
+			Position = EscapeEnd;
+			continue;
+		}
 		if (SourceString[Position] != TEXT('<'))
 		{
 			Target.PlainString.AppendChar(SourceString[Position++]);
@@ -222,7 +259,7 @@ FString UStringUtils::SubString(const FTaggedString &Target, int32 StartIndex, i
 			if (!NewStyle.IsEmpty()) Result += FString::Printf(TEXT("<%s>"), *NewStyle);
 			CurrentStyle = NewStyle;
 		}
-		Result.AppendChar(Target.PlainString[CharIndex]);
+		AppendRichTextLiteralCharacter(Result, Target.PlainString[CharIndex]);
 	}
 	if (!CurrentStyle.IsEmpty()) Result += TEXT("</>");
 	return Result;

@@ -213,7 +213,8 @@ void URpyScript::LoadRpyData()
 {
   FString basePath, right;
   FText err;
-  this->AssetImportData->GetPathName().Split("/", &basePath, &right, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+  if (this->AssetImportData)
+    this->AssetImportData->GetPathName().Split("/", &basePath, &right, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
   TArray<FName> keys;
   // load images
   images.GetKeys(keys);
@@ -334,16 +335,127 @@ int URpyScript::GetInstructionsLength() const { return instructions.Num(); };
 
 bool URpyScript::ImportXml(FString text)
 {
-  scriptXml = MoveTemp(text);
-  const bool bParsed = Parse();
-  if (!bParsed || !Compile())
-    return false;
-  LoadRpyData();
-  return true;
+	URpyScript* StagingScript = NewObject<URpyScript>(this, NAME_None, RF_Transient);
+	if (!StagingScript)
+		return false;
+
+	StagingScript->images = images;
+	StagingScript->audios = audios;
+	StagingScript->transitions = transitions;
+	StagingScript->characters = characters;
+	StagingScript->compileData = FDynamicObject();
+	StagingScript->xmlGeneratedImageKeys = xmlGeneratedImageKeys;
+	StagingScript->xmlGeneratedAudioKeys = xmlGeneratedAudioKeys;
+	StagingScript->xmlGeneratedTransitionKeys = xmlGeneratedTransitionKeys;
+	StagingScript->xmlGeneratedCharacterKeys = xmlGeneratedCharacterKeys;
+
+	for (FName Key : StagingScript->xmlGeneratedImageKeys) StagingScript->images.Remove(Key);
+	for (FName Key : StagingScript->xmlGeneratedAudioKeys) StagingScript->audios.Remove(Key);
+	for (FName Key : StagingScript->xmlGeneratedTransitionKeys) StagingScript->transitions.Remove(Key);
+	for (FName Key : StagingScript->xmlGeneratedCharacterKeys) StagingScript->characters.Remove(Key);
+	StagingScript->xmlGeneratedImageKeys.Empty();
+	StagingScript->xmlGeneratedAudioKeys.Empty();
+	StagingScript->xmlGeneratedTransitionKeys.Empty();
+	StagingScript->xmlGeneratedCharacterKeys.Empty();
+
+	TSet<FName> ExistingImageKeys;
+	TSet<FName> ExistingAudioKeys;
+	TSet<FName> ExistingTransitionKeys;
+	StagingScript->images.GetKeys(StagingScript->xmlGeneratedImageKeys);
+	for (FName Key : StagingScript->xmlGeneratedImageKeys) ExistingImageKeys.Add(Key);
+	StagingScript->audios.GetKeys(StagingScript->xmlGeneratedAudioKeys);
+	for (FName Key : StagingScript->xmlGeneratedAudioKeys) ExistingAudioKeys.Add(Key);
+	StagingScript->transitions.GetKeys(StagingScript->xmlGeneratedTransitionKeys);
+	for (FName Key : StagingScript->xmlGeneratedTransitionKeys) ExistingTransitionKeys.Add(Key);
+	StagingScript->xmlGeneratedImageKeys.Empty();
+	StagingScript->xmlGeneratedAudioKeys.Empty();
+	StagingScript->xmlGeneratedTransitionKeys.Empty();
+
+	StagingScript->scriptXml = text;
+	if (!StagingScript->Parse() || !StagingScript->Compile())
+	{
+		UE_LOG(LogTemp, Error, TEXT("XML import failed; preserving the previously imported script state."));
+		for (RpyInstruction* Instruction : StagingScript->instructions) delete Instruction;
+		StagingScript->instructions.Empty();
+		return false;
+	}
+	StagingScript->LoadRpyData();
+
+	TArray<FName> FinalKeys;
+	StagingScript->images.GetKeys(FinalKeys);
+	for (FName Key : FinalKeys) if (!ExistingImageKeys.Contains(Key)) StagingScript->xmlGeneratedImageKeys.AddUnique(Key);
+	FinalKeys.Empty();
+	StagingScript->audios.GetKeys(FinalKeys);
+	for (FName Key : FinalKeys) if (!ExistingAudioKeys.Contains(Key)) StagingScript->xmlGeneratedAudioKeys.AddUnique(Key);
+	FinalKeys.Empty();
+	StagingScript->transitions.GetKeys(FinalKeys);
+	for (FName Key : FinalKeys) if (!ExistingTransitionKeys.Contains(Key)) StagingScript->xmlGeneratedTransitionKeys.AddUnique(Key);
+
+	for (RpyInstruction* Instruction : instructions) delete Instruction;
+
+	scriptXml = MoveTemp(StagingScript->scriptXml);
+	images = MoveTemp(StagingScript->images);
+	audios = MoveTemp(StagingScript->audios);
+	transitions = MoveTemp(StagingScript->transitions);
+	characters = MoveTemp(StagingScript->characters);
+	compileData = MoveTemp(StagingScript->compileData);
+	instructions = MoveTemp(StagingScript->instructions);
+	labels = MoveTemp(StagingScript->labels);
+	instructionsById = MoveTemp(StagingScript->instructionsById);
+	init = nullptr;
+	xmlGeneratedImageKeys = MoveTemp(StagingScript->xmlGeneratedImageKeys);
+	xmlGeneratedAudioKeys = MoveTemp(StagingScript->xmlGeneratedAudioKeys);
+	xmlGeneratedTransitionKeys = MoveTemp(StagingScript->xmlGeneratedTransitionKeys);
+	xmlGeneratedCharacterKeys = MoveTemp(StagingScript->xmlGeneratedCharacterKeys);
+	for (RpyInstruction* Instruction : instructions)
+		if (Instruction) Instruction->script = this;
+	return true;
 }
 
 namespace
 {
+  FString InferXmlScalarType(const FString &Value)
+  {
+    if (Value == TEXT("true") || Value == TEXT("false"))
+      return TEXT("bool");
+
+    int32 Index = 0;
+    if (Value.Len() > 0 && (Value[0] == TEXT('+') || Value[0] == TEXT('-')))
+      ++Index;
+    bool bHasDigits = false;
+    while (Index < Value.Len() && FChar::IsDigit(Value[Index]))
+    {
+      bHasDigits = true;
+      ++Index;
+    }
+    bool bIsFloat = false;
+    if (Index < Value.Len() && Value[Index] == TEXT('.'))
+    {
+      bIsFloat = true;
+      ++Index;
+      while (Index < Value.Len() && FChar::IsDigit(Value[Index]))
+      {
+        bHasDigits = true;
+        ++Index;
+      }
+    }
+    if (Index < Value.Len() && (Value[Index] == TEXT('e') || Value[Index] == TEXT('E')))
+    {
+      bIsFloat = true;
+      ++Index;
+      if (Index < Value.Len() && (Value[Index] == TEXT('+') || Value[Index] == TEXT('-')))
+        ++Index;
+      const int32 ExponentStart = Index;
+      while (Index < Value.Len() && FChar::IsDigit(Value[Index]))
+        ++Index;
+      if (Index == ExponentStart)
+        return TEXT("string");
+    }
+    if (!bHasDigits || Index != Value.Len())
+      return TEXT("string");
+    return bIsFloat ? TEXT("float") : TEXT("integer");
+  }
+
   bool HasXmlAttribute(const FVisualNovelXmlNode *Node, const TCHAR *Name)
   {
     return Node && Node->HasAttribute(Name);
@@ -468,15 +580,81 @@ namespace
     if (!Node)
       return FString();
     const FString Value = RequiredValue(Node, FieldName);
-    if (Value == TEXT("true") || Value == TEXT("false"))
-      return TEXT("bool");
-    if (FCString::Atoi(*Value) != 0 && Value.IsNumeric())
-      return TEXT("integer");
-    if (Value.IsNumeric() && Value.Contains(TEXT(".")))
-      return TEXT("float");
     if (HasRequiredField(Node, TEXT("value")))
-      return TEXT("string");
+      return InferXmlScalarType(Value);
     return FString();
+  }
+
+  bool IsXmlScalarType(const FString& Value, const FString& ExpectedType)
+  {
+    if (ExpectedType == TEXT("string")) return true;
+    if (ExpectedType == TEXT("bool")) return Value == TEXT("true") || Value == TEXT("false");
+    if (ExpectedType == TEXT("integer")) return InferXmlScalarType(Value) == TEXT("integer");
+    if (ExpectedType == TEXT("float")) return InferXmlScalarType(Value) == TEXT("float") || InferXmlScalarType(Value) == TEXT("integer");
+    if (ExpectedType == TEXT("name") || ExpectedType == TEXT("asset")) return !Value.IsEmpty();
+    if (ExpectedType == TEXT("vector"))
+    {
+      TArray<FString> Components;
+      Value.ParseIntoArray(Components, TEXT(","), true);
+      if (Components.Num() != 3) return false;
+      for (FString& Component : Components)
+      {
+        Component.TrimStartAndEndInline();
+        if (InferXmlScalarType(Component) == TEXT("string")) return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  void ReadCustomProps(const FVisualNovelXmlNode* Node, const FRpyInstructionSchema& Schema, FRpyInstructionProps& Props)
+  {
+    for (const TPair<FName, FString>& Definition : Schema.OptionalProps)
+    {
+      const FString FieldName = Definition.Key.ToString();
+      if (!Node->HasAttribute(*FieldName)) continue;
+      FRpyInstructionProp& Prop = Props.Values.AddDefaulted_GetRef();
+      Prop.Name = Definition.Key;
+      Prop.Type = Definition.Value;
+      Prop.Value = Node->GetAttribute(*FieldName);
+    }
+  }
+
+  bool ValidateCustomInstruction(const FVisualNovelXmlNode* Node, const FRpyInstructionSchema& Schema)
+  {
+    for (const TPair<FName, FString>& Definition : Schema.RequiredFields)
+    {
+      const FString FieldName = Definition.Key.ToString();
+      if (!Node->HasAttribute(*FieldName))
+      {
+        UE_LOG(LogTemp, Error, TEXT("Custom instruction '%s' is missing required field '%s'"), *Node->Tag, *FieldName);
+        return false;
+      }
+      if (!IsXmlScalarType(Node->GetAttribute(*FieldName), Definition.Value))
+      {
+        UE_LOG(LogTemp, Error, TEXT("Custom instruction '%s' field '%s' is not a valid %s"), *Node->Tag, *FieldName, *Definition.Value);
+        return false;
+      }
+    }
+    for (const TPair<FName, FString>& Definition : Schema.OptionalProps)
+    {
+      const FString FieldName = Definition.Key.ToString();
+      if (Node->HasAttribute(*FieldName) && !IsXmlScalarType(Node->GetAttribute(*FieldName), Definition.Value))
+      {
+        UE_LOG(LogTemp, Error, TEXT("Custom instruction '%s' prop '%s' is not a valid %s"), *Node->Tag, *FieldName, *Definition.Value);
+        return false;
+      }
+    }
+    for (const FVisualNovelXmlAttribute& Attribute : Node->Attributes)
+    {
+      const FName AttributeName(*Attribute.Name);
+      if (!Schema.RequiredFields.Contains(AttributeName) && !Schema.OptionalProps.Contains(AttributeName))
+      {
+        UE_LOG(LogTemp, Error, TEXT("Custom instruction '%s' has undeclared field or prop '%s'"), *Node->Tag, *Attribute.Name);
+        return false;
+      }
+    }
+    return true;
   }
 
   bool ValidateXmlInstruction(const FVisualNovelXmlNode *Node)
@@ -521,8 +699,12 @@ namespace
       Required = {TEXT("condition")};
     else if (Type == TEXT("raw"))
       Required = {TEXT("source")};
-    else if (Type != TEXT("menu") && Type != TEXT("else") && Type != TEXT("return") && Type != TEXT("init") &&
-             !FRpyInstructionRegistry::IsRegistered(FName(*Type)))
+    else if (FRpyInstructionRegistry::IsRegistered(FName(*Type)))
+    {
+      const FRpyInstructionSchema* Schema = FRpyInstructionRegistry::FindSchema(FName(*Type));
+      return Schema && ValidateCustomInstruction(Node, *Schema);
+    }
+    else if (Type != TEXT("menu") && Type != TEXT("else") && Type != TEXT("return") && Type != TEXT("init"))
     {
       UE_LOG(LogTemp, Error, TEXT("Unknown XML instruction type '%s'"), *Type);
       return false;
@@ -604,7 +786,7 @@ namespace
       }
       FRpyInstructionProp &Prop = Props.Values.AddDefaulted_GetRef();
       Prop.Name = FName(*Attr.Name);
-      Prop.Type = (Attr.Value == TEXT("true") || Attr.Value == TEXT("false")) ? TEXT("bool") : (Attr.Value.IsNumeric() ? (Attr.Value.Contains(TEXT(".")) ? TEXT("float") : TEXT("integer")) : TEXT("string"));
+      Prop.Type = InferXmlScalarType(Attr.Value);
       Prop.Value = Attr.Value;
     }
     if (Type == TEXT("say") && HasXmlAttribute(Node, TEXT("character")))
@@ -845,6 +1027,7 @@ namespace
         Character.color = FColor::FromHex(CharacterValue);
       Result = new RpyInstruction(Script, Line);
       Script->characters.Add(Character.image, Character);
+      Script->xmlGeneratedCharacterKeys.AddUnique(Character.image);
       Result->Props.SetString(FName(TEXT("displayName")), RequiredValue(Node, TEXT("displayName")));
     }
     else if (Type == TEXT("defineAsset"))
@@ -856,11 +1039,20 @@ namespace
       const FName AssetName(*RequiredValue(Node, TEXT("name")));
       const FString AssetPath = RequiredValue(Node, TEXT("path"));
       if (Kind == TEXT("image"))
+      {
         Script->AddDefaultImage(AssetName, AssetPath);
+        Script->xmlGeneratedImageKeys.AddUnique(AssetName);
+      }
       else if (Kind == TEXT("sound") || Kind == TEXT("music") || Kind == TEXT("audio"))
+      {
         Script->AddDefaultAudio(AssetName, AssetPath);
+        Script->xmlGeneratedAudioKeys.AddUnique(AssetName);
+      }
       else if (Kind == TEXT("transition"))
+      {
         Script->AddDefaultTransition(AssetName, AssetPath);
+        Script->xmlGeneratedTransitionKeys.AddUnique(AssetName);
+      }
       Result = new RpyInstruction(Script, Line);
       Result->Props = Props;
     }
@@ -870,23 +1062,28 @@ namespace
     if (!Result && FRpyInstructionRegistry::IsRegistered(FName(*Type)))
     {
       TMap<FName, FRpyInstructionProp> RequiredFields;
-      for (const FVisualNovelXmlAttribute &Attr : Node->Attributes)
+      const FRpyInstructionSchema* Schema = FRpyInstructionRegistry::FindSchema(FName(*Type));
+      if (!Schema)
+        return nullptr;
+      for (const TPair<FName, FString>& Definition : Schema->RequiredFields)
       {
+        const FString FieldName = Definition.Key.ToString();
         FRpyInstructionProp Value;
-        Value.Name = FName(*Attr.Name);
-        Value.Type = TEXT("string");
-        Value.Value = Attr.Value;
+        Value.Name = Definition.Key;
+        Value.Type = Definition.Value;
+        Value.Value = Node->GetAttribute(*FieldName);
         RequiredFields.Add(Value.Name, Value);
       }
       FRpyInstructionProps CustomProps;
-      ReadProps(Node, CustomProps);
+      ReadCustomProps(Node, *Schema, CustomProps);
       Result = FRpyInstructionRegistry::Create(FName(*Type), Script, Line, RequiredFields, CustomProps);
     }
 
     if (Result)
     {
       Result->InstructionId = FName(*FString::Printf(TEXT("Instruction_%d"), Script->instructions.Num()));
-      MergeProps(Node, Result->Props);
+      if (!FRpyInstructionRegistry::IsRegistered(FName(*Type)))
+        MergeProps(Node, Result->Props);
     }
     return Result;
   }

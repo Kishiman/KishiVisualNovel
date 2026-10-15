@@ -2,18 +2,27 @@
 
 namespace
 {
-	TMap<FName, FRpyInstructionFactory>& InstructionFactories()
+	struct FRegisteredInstruction
 	{
-		static TMap<FName, FRpyInstructionFactory> Factories;
+		FRpyInstructionSchema Schema;
+		FRpyInstructionFactory Factory;
+	};
+
+	TMap<FName, FRegisteredInstruction>& InstructionFactories()
+	{
+		static TMap<FName, FRegisteredInstruction> Factories;
 		return Factories;
 	}
 }
 
-void FRpyInstructionRegistry::Register(FName Type, FRpyInstructionFactory Factory)
+void FRpyInstructionRegistry::Register(FName Type, const FRpyInstructionSchema& Schema, FRpyInstructionFactory Factory)
 {
 	if (!Type.IsNone() && Factory)
 	{
-		InstructionFactories().Add(Type, MoveTemp(Factory));
+		FRegisteredInstruction Registered;
+		Registered.Schema = Schema;
+		Registered.Factory = MoveTemp(Factory);
+		InstructionFactories().Add(Type, MoveTemp(Registered));
 	}
 }
 
@@ -22,11 +31,17 @@ bool FRpyInstructionRegistry::IsRegistered(FName Type)
 	return InstructionFactories().Contains(Type);
 }
 
+const FRpyInstructionSchema* FRpyInstructionRegistry::FindSchema(FName Type)
+{
+	const FRegisteredInstruction* Registered = InstructionFactories().Find(Type);
+	return Registered ? &Registered->Schema : nullptr;
+}
+
 RpyInstruction* FRpyInstructionRegistry::Create(FName Type, URpyScript* Script, FRpyLine* SourceLine, const TMap<FName, FRpyInstructionProp>& Required, const FRpyInstructionProps& Props)
 {
-	if (FRpyInstructionFactory* Factory = InstructionFactories().Find(Type))
+	if (FRegisteredInstruction* Registered = InstructionFactories().Find(Type))
 	{
-		return (*Factory)(Script, SourceLine, Required, Props);
+		return Registered->Factory(Script, SourceLine, Required, Props);
 	}
 	return nullptr;
 }
