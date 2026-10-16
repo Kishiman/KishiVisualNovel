@@ -1,10 +1,17 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "LabelInstruction.generated.h"
 
-struct LabelInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class ULabelInstruction : public URpyInstruction
 {
-  LabelInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine) {};
+  GENERATED_BODY()
+
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
+  FName name;
+  virtual FString ToString() const override { return FormatInstruction(TEXT("label"), FString::Printf(TEXT("name=\"%s\""), *name.ToString())); }
   virtual bool Compile()
   {
     this->next = nullptr;

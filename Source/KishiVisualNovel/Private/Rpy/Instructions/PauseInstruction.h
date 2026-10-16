@@ -1,13 +1,20 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "PauseInstruction.generated.h"
 
-struct PauseInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UPauseInstruction : public URpyInstruction
 {
+  GENERATED_BODY()
+
+public:
   FTimerHandle TimerHandle;
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
   float timeInSec = 0;
+  virtual FString ToString() const override { return FormatInstruction(TEXT("pause"), FString::Printf(TEXT("duration=\"%g\""), timeInSec)); }
+  UPROPERTY(Transient)
   bool running = false;
-  PauseInstruction(URpyScript *script, FRpyLine *rpyLine, float timeInSec) : RpyInstruction(script, rpyLine), timeInSec(timeInSec) {};
   virtual bool Execute(URpySession *session)
   {
     running = true;
@@ -23,12 +30,12 @@ struct PauseInstruction : public RpyInstruction
     }
     return false;
   };
-  virtual RpyInstruction *GetNext(URpySession *session) override
+  virtual URpyInstruction *GetNext(URpySession *session) override
   {
     if (running == true)
     {
       session->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
     }
-    return RpyInstruction::GetNext(session);
+    return URpyInstruction::GetNext(session);
   }
 };

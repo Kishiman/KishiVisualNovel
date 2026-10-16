@@ -1,12 +1,17 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "ShowInstruction.generated.h"
 
-struct ShowInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UShowInstruction : public URpyInstruction
 {
-  FName name;
+  GENERATED_BODY()
 
-  ShowInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FRpySceneOptions options) : RpyInstruction(script, rpyLine), name(name) { Props = PropsFromSceneOptions(options); };
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
+  FName name;
+  virtual FString ToString() const override { return FormatInstruction(TEXT("show"), FString::Printf(TEXT("asset=\"%s\""), *name.ToString())); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SHOW; }
   virtual bool Compile() override
   {

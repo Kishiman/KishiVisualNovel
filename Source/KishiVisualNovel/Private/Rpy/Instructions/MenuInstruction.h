@@ -2,12 +2,19 @@
 
 #include "RpyInstructionHelpers.h"
 #include "ChoiceInstruction.h"
+#include "MenuInstruction.generated.h"
 
-struct MenuInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UMenuInstruction : public URpyInstruction
 {
-  TArray<ChoiceInstruction *> choices;
-  ChoiceInstruction *selected = nullptr;
-  MenuInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine) {};
+  GENERATED_BODY()
+
+public:
+  virtual FString ToString() const override { return FormatInstruction(TEXT("menu")); }
+  UPROPERTY(Transient, VisibleAnywhere, Category = "Instruction")
+  TArray<UChoiceInstruction *> choices;
+  UPROPERTY(Transient, VisibleAnywhere, Category = "Instruction")
+  UChoiceInstruction *selected = nullptr;
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::MENU; }
   virtual RpyInstructionType Type() const
   {
@@ -18,7 +25,7 @@ struct MenuInstruction : public RpyInstruction
     for (auto &child : children)
     {
       if (child->isOfType(RpyInstructionType::Choice))
-        choices.Add((ChoiceInstruction *)child);
+        choices.Add((UChoiceInstruction *)child);
     }
     return true;
   }
@@ -36,9 +43,24 @@ struct MenuInstruction : public RpyInstruction
     IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), statements);
     return false;
   }
-  virtual RpyInstruction *GetNext(URpySession *session) override
+  virtual URpyInstruction *GetNext(URpySession *session) override
   {
 
     return selected;
+  }
+  virtual TArray<URpyInstruction *> GetPossibleNextInstructions() const override
+  {
+    TArray<URpyInstruction *> Result;
+    for (UChoiceInstruction *Choice : choices)
+      if (Choice) Result.Add(Choice);
+    return Result;
+  }
+  virtual bool IsControlFlowBoundary() const override { return true; }
+  virtual TArray<FString> GetPossibleNextInstructionLabels() const override
+  {
+    TArray<FString> Result;
+    for (const UChoiceInstruction *Choice : choices)
+      if (Choice) Result.Add(Choice->statement);
+    return Result;
   }
 };

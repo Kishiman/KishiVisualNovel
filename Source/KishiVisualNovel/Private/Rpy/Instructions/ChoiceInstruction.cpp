@@ -1,22 +1,22 @@
 #include "ChoiceInstruction.h"
 #include "MenuInstruction.h"
 
-bool ChoiceInstruction::Compile()
+bool UChoiceInstruction::Compile()
 {
   if (!parent->isOfType(RpyInstructionType::Menu))
   {
-    UE_LOG(LogTemp, Error, TEXT("ChoiceInstruction not directly under MenuInstruction"));
+    UE_LOG(LogTemp, Error, TEXT("UChoiceInstruction not directly under UMenuInstruction"));
     return false;
   }
-  MenuInstruction *menu = (MenuInstruction *)(this->parent);
+  UMenuInstruction *menu = (UMenuInstruction *)(this->parent);
   if (children.Num() == 0)
   {
-    UE_LOG(LogTemp, Error, TEXT("ChoiceInstruction has no children"));
+    UE_LOG(LogTemp, Error, TEXT("UChoiceInstruction has no children"));
     return false;
   }
   if (menu->choices.Num() == 0)
   {
-    UE_LOG(LogTemp, Error, TEXT("MenuInstruction has no choices"));
+    UE_LOG(LogTemp, Error, TEXT("UMenuInstruction has no choices"));
     return false;
   }
   children.Last()->next = menu->choices.Last()->next;

@@ -2,20 +2,28 @@
 
 #include "RpyInstructionHelpers.h"
 #include "IfInstruction.h"
+#include "IfBoolInstruction.generated.h"
 
-class IfBoolInstruction : public IfInstruction
+UCLASS(BlueprintType)
+class UIfBoolInstruction : public UIfInstruction
 {
+  GENERATED_BODY()
+
 public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
   FName varName;
-
-  IfBoolInstruction(URpyScript *script, FRpyLine *rpyLine, FName varName, bool reverse) : IfInstruction(script, rpyLine), varName(varName) { Props.SetBool(FName(TEXT("reverse")), reverse); };
-
+  virtual FString ToString() const override
+  {
+    bool bReverse = false;
+    Props.GetBool(FName(TEXT("reverse")), bReverse);
+    return FormatInstruction(TEXT("if"), FString::Printf(TEXT("condition=\"%s%s\""), bReverse ? TEXT("!") : TEXT(""), *varName.ToString()));
+  }
   virtual bool Compile() override
   {
     if (varName != FName(TEXT("True")) && varName != FName(TEXT("False")) && !script->compileData.bools.Contains(varName))
       script->compileData.setValue(varName, false);
 
-    return IfInstruction::Compile();
+    return UIfInstruction::Compile();
   }
 
   virtual bool Execute(URpySession *session)

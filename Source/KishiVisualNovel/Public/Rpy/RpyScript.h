@@ -13,7 +13,7 @@
 #include "RpyScript.generated.h"
 
 class IRpyScriptInterpreter;
-class RpyInstruction;
+class URpyInstruction;
 
 UCLASS()
 class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
@@ -46,13 +46,17 @@ public:
 	UPROPERTY()
 	TArray<FName> xmlGeneratedCharacterKeys;
 
-	// RpyInstruction *current = nullptr;
-	RpyInstruction *init = nullptr;
-	TArray<RpyInstruction *> instructions;
-	// TArray<RpyInstruction *> callStack;
+	// URpyInstruction *current = nullptr;
+	UPROPERTY(Transient)
+	URpyInstruction *init = nullptr;
+	UPROPERTY(Transient)
+	TArray<URpyInstruction *> instructions;
+	// TArray<URpyInstruction *> callStack;
 
-	TMap<FName, RpyInstruction *> labels;
-	TMap<FName, RpyInstruction *> instructionsById;
+	UPROPERTY(Transient)
+	TMap<FName, URpyInstruction *> labels;
+	UPROPERTY(Transient)
+	TMap<FName, URpyInstruction *> instructionsById;
 
 	UFUNCTION(BlueprintPure)
 	TArray<FName> GetLabels() const;
@@ -61,6 +65,7 @@ public:
 
 	virtual void PostLoad() override;
 	virtual void PostInitProperties() override;
+	virtual void BeginDestroy() override;
 	virtual void Serialize(FStructuredArchiveRecord Record) override;
 	bool AddDefaultTransition(FName name, FString path);
 	bool AddDefaultImage(FName name, FString path);
@@ -72,8 +77,8 @@ public:
 	bool Compile();
 	void LoadRpyData();
 
-	static FRpyInstructionSerialization SerializeInstruction(RpyInstruction *instruction);
-	static RpyInstruction *DeserializeInstruction(const FRpyInstructionSerialization &data);
+	static FRpyInstructionSerialization SerializeInstruction(URpyInstruction *instruction);
+	static URpyInstruction *DeserializeInstruction(const FRpyInstructionSerialization &data);
 
 #if WITH_EDITORONLY_DATA
 	bool IsAssetUnderProjectContent();

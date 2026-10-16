@@ -1,12 +1,17 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "HideInstruction.generated.h"
 
-struct HideInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UHideInstruction : public URpyInstruction
 {
-  FName tag;
+  GENERATED_BODY()
 
-  HideInstruction(URpyScript *script, FRpyLine *rpyLine, FName tag, FRpySceneOptions options) : RpyInstruction(script, rpyLine), tag(tag) { Props = PropsFromSceneOptions(options); };
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
+  FName tag;
+  virtual FString ToString() const override { return FormatInstruction(TEXT("hide"), FString::Printf(TEXT("tag=\"%s\""), *tag.ToString())); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::HIDE; }
   virtual bool Execute(URpySession *session)
   {

@@ -1,10 +1,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/Object.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Libraries/Tree/ArrayTree.h"
 #include "Rpy/RpyScript.h"
 #include "Rpy/RpyInstructionProps.h"
+
+#include "RpyInstruction.generated.h"
 
 class IRpyScriptInterpreter;
 class URpySession;
@@ -30,11 +33,17 @@ constexpr bool operator!(RpyInstructionType value)
     return static_cast<bool>(static_cast<uint8>(value));
 }
 
-class RpyInstruction
+UCLASS(BlueprintType)
+class KISHIVISUALNOVEL_API URpyInstruction : public UObject
 {
+    GENERATED_BODY()
+
 public:
-    RpyInstruction(URpyScript *script, FRpyLine *rpyLine) : script(script), rpyLine(rpyLine ? *rpyLine : FRpyLine()) {};
-    virtual ~RpyInstruction() = default;
+    void Initialize(URpyScript *InScript)
+    {
+        script = InScript;
+    }
+    virtual FString ToString() const;
     virtual EInstructionRunTimeType RunTimeType() const
     {
         return EInstructionRunTimeType::NONE;
@@ -56,31 +65,57 @@ public:
     {
         return true;
     };
-    virtual RpyInstruction *GetNext(URpySession *session)
+    virtual URpyInstruction *GetNext(URpySession *session)
     {
         return GetNextInTree();
     };
-    RpyInstruction *GetNextInTree()
+    /** Returns all statically possible successors for graphing and analysis. */
+    virtual TArray<URpyInstruction *> GetPossibleNextInstructions() const
+    {
+        TArray<URpyInstruction *> Result;
+        if (URpyInstruction *Next = GetNextInTree())
+            Result.Add(Next);
+        return Result;
+    }
+    virtual TArray<FString> GetPossibleNextInstructionLabels() const
+    {
+        TArray<FString> Result;
+        const TArray<URpyInstruction *> Successors = GetPossibleNextInstructions();
+        for (int32 Index = 0; Index < Successors.Num(); ++Index)
+            Result.Add(TEXT("next"));
+        return Result;
+    }
+    virtual bool IsCallInstruction() const { return false; }
+    virtual bool IsControlFlowBoundary() const { return false; }
+    URpyInstruction *GetNextInTree() const
     {
         return this->children.Num() > 0 ? children[0] : this->next;
     };
+    FString FormatInstruction(const FString& TypeName, const FString& RequiredFields = FString()) const;
     //
+    UPROPERTY(Transient, BlueprintReadOnly, Category = "Instruction")
     URpyScript *script = nullptr;
-    /** Source/debug metadata owned by this runtime instruction. */
-    FRpyLine rpyLine;
+    /** XML command name, used by generic instructions and diagnostics. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Instruction")
+    FName InstructionType;
 
     /** Stable identifier from XML, used by save games and diagnostics. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Instruction")
     FName InstructionId;
 
     /** All command-specific optional values live here. */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
     FRpyInstructionProps Props;
 
-    RpyInstruction *parent = nullptr;
-    TArray<RpyInstruction *> children;
-    RpyInstruction *next = nullptr;
+    UPROPERTY(Transient)
+    URpyInstruction *parent = nullptr;
+    UPROPERTY(Transient)
+    TArray<URpyInstruction *> children;
+    UPROPERTY(Transient)
+    URpyInstruction *next = nullptr;
 };
 
-using FRpyInstructionFactory = TFunction<RpyInstruction*(URpyScript*, FRpyLine*, const TMap<FName, FRpyInstructionProp>&, const FRpyInstructionProps&)>;
+using FRpyInstructionFactory = TFunction<URpyInstruction*(URpyScript*, const TMap<FName, FRpyInstructionProp>&, const FRpyInstructionProps&)>;
 
 struct FRpyInstructionSchema
 {
@@ -97,5 +132,5 @@ public:
 	static void Register(FName Type, const FRpyInstructionSchema& Schema, FRpyInstructionFactory Factory);
     static bool IsRegistered(FName Type);
 	static const FRpyInstructionSchema* FindSchema(FName Type);
-    static RpyInstruction* Create(FName Type, URpyScript* Script, FRpyLine* SourceLine, const TMap<FName, FRpyInstructionProp>& Required, const FRpyInstructionProps& Props);
+    static URpyInstruction* Create(FName Type, URpyScript* Script, const TMap<FName, FRpyInstructionProp>& Required, const FRpyInstructionProps& Props);
 };

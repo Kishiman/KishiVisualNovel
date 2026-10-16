@@ -20,3 +20,4 @@
 #include "Instructions/ReturnInstruction.h"
 #include "Instructions/StopInstruction.h"
 #include "Instructions/QueueInstruction.h"
+#include "Instructions/UnsupportedInstruction.h"

@@ -37,11 +37,25 @@ const FRpyInstructionSchema* FRpyInstructionRegistry::FindSchema(FName Type)
 	return Registered ? &Registered->Schema : nullptr;
 }
 
-RpyInstruction* FRpyInstructionRegistry::Create(FName Type, URpyScript* Script, FRpyLine* SourceLine, const TMap<FName, FRpyInstructionProp>& Required, const FRpyInstructionProps& Props)
+URpyInstruction* FRpyInstructionRegistry::Create(FName Type, URpyScript* Script, const TMap<FName, FRpyInstructionProp>& Required, const FRpyInstructionProps& Props)
 {
 	if (FRegisteredInstruction* Registered = InstructionFactories().Find(Type))
 	{
-		return Registered->Factory(Script, SourceLine, Required, Props);
+		return Registered->Factory(Script, Required, Props);
 	}
 	return nullptr;
+}
+
+FString URpyInstruction::FormatInstruction(const FString& TypeName, const FString& RequiredFields) const
+{
+	FString Result = TypeName;
+	if (!RequiredFields.IsEmpty()) Result += TEXT(" ") + RequiredFields;
+	for (const FRpyInstructionProp& Prop : Props.Values)
+		Result += FString::Printf(TEXT(" %s=\"%s\""), *Prop.Name.ToString(), *Prop.Value);
+	return Result;
+}
+
+FString URpyInstruction::ToString() const
+{
+	return FormatInstruction(InstructionType.IsNone() ? GetClass()->GetName() : InstructionType.ToString());
 }

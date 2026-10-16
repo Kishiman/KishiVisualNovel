@@ -11,10 +11,19 @@
 #include "Rpy/RpySession.h"
 #include "Utils/StringUtils.h"
 
-struct IfInstruction;
-struct ElseInstruction;
-struct MenuInstruction;
-struct ChoiceInstruction;
+class UIfInstruction;
+class UElseInstruction;
+class UMenuInstruction;
+class UChoiceInstruction;
+
+template <typename TInstruction>
+TInstruction *CreateRpyInstruction(URpyScript *Script)
+{
+  TInstruction *Instruction = NewObject<TInstruction>(GetTransientPackage(), NAME_None, RF_Transient);
+  if (Instruction)
+    Instruction->Initialize(Script);
+  return Instruction;
+}
 
 static FRpyImage *ResolveImageForCompile(URpyScript *Script, FName Name, const FRpySceneOptions &Options)
 {

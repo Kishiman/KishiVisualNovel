@@ -11,7 +11,7 @@
 #include "RpySession.generated.h"
 
 class IRpyScriptInterpreter;
-class RpyInstruction;
+class URpyInstruction;
 /**
  */
 
@@ -75,8 +75,10 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FDynamicObject runtimeData;
 
-	RpyInstruction *current = nullptr;
-	TArray<RpyInstruction *> callStack;
+	UPROPERTY(Transient)
+	URpyInstruction *current = nullptr;
+	UPROPERTY(Transient)
+	TArray<URpyInstruction *> callStack;
 
 	virtual void PostInitProperties() override;
 	// get State Class

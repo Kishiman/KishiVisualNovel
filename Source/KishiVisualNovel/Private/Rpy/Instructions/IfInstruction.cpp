@@ -1,12 +1,12 @@
 #include "IfInstruction.h"
 #include "ElseInstruction.h"
 
-bool IfInstruction::Compile()
+bool UIfInstruction::Compile()
 {
-  RpyInstruction *current = this;
+  URpyInstruction *current = this;
   while (current->next)
   {
-    if (current->next->isOfType(RpyInstructionType::Else) && current->next->rpyLine.tabs == this->rpyLine.tabs)
+    if (current->next->isOfType(RpyInstructionType::Else) && current->next->parent == this->parent)
     {
       current = current->next;
     }
@@ -16,13 +16,13 @@ bool IfInstruction::Compile()
   this->next = current->next;
   if (current != this)
   {
-    this->elseInstruction = (ElseInstruction *)(current);
+    this->elseInstruction = (UElseInstruction *)(current);
   }
   if (children.Num() > 0)
     children.Last()->next = this->next;
   return true;
 }
-RpyInstruction *IfInstruction::GetNext(URpySession *session)
+URpyInstruction *UIfInstruction::GetNext(URpySession *session)
 {
   if (this->condition)
     return this->children[0];
@@ -30,3 +30,14 @@ RpyInstruction *IfInstruction::GetNext(URpySession *session)
     return this->elseInstruction;
   return this->next;
 };
+
+TArray<URpyInstruction *> UIfInstruction::GetPossibleNextInstructions() const
+{
+  TArray<URpyInstruction *> Result;
+  if (children.Num() > 0 && children[0])
+    Result.Add(children[0]);
+  URpyInstruction *FalseBranch = elseInstruction ? static_cast<URpyInstruction *>(elseInstruction) : next;
+  if (FalseBranch)
+    Result.AddUnique(FalseBranch);
+  return Result;
+}

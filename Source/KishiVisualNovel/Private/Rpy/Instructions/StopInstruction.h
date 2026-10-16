@@ -1,11 +1,17 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "StopInstruction.generated.h"
 
-struct StopInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UStopInstruction : public URpyInstruction
 {
+  GENERATED_BODY()
+
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
   FName channel;
-  StopInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel) { Props = PropsFromAudioOptions(options); };
+  virtual FString ToString() const override { return FormatInstruction(TEXT("stop"), FString::Printf(TEXT("channel=\"%s\""), *channel.ToString())); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::STOP; }
   virtual bool Execute(URpySession *session)
   {

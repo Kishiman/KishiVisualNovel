@@ -1,11 +1,17 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "ChoiceInstruction.generated.h"
 
-struct ChoiceInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UChoiceInstruction : public URpyInstruction
 {
+  GENERATED_BODY()
+
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
   FString statement;
-  ChoiceInstruction(URpyScript *script, FRpyLine *rpyLine, FString statement) : RpyInstruction(script, rpyLine), statement(statement) {};
+  virtual FString ToString() const override { return FormatInstruction(TEXT("choice"), FString::Printf(TEXT("text=\"%s\""), *statement)); }
   virtual RpyInstructionType Type() const
   {
     return RpyInstructionType::Choice;

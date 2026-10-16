@@ -17,6 +17,7 @@ public class KishiVisualNovelImporter : ModuleRules
 				//"SlateCore",
 				"Engine",
 				"UnrealEd",
+				"GraphEditor",
 				"AssetTools",
 				"ContentBrowser",
 				"InputCore",

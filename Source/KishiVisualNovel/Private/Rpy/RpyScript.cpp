@@ -333,6 +333,15 @@ TArray<FName> URpyScript::GetLabels() const
 };
 int URpyScript::GetInstructionsLength() const { return instructions.Num(); };
 
+void URpyScript::BeginDestroy()
+{
+  instructions.Empty();
+  labels.Empty();
+  instructionsById.Empty();
+  init = nullptr;
+  Super::BeginDestroy();
+}
+
 bool URpyScript::ImportXml(FString text)
 {
 	URpyScript* StagingScript = NewObject<URpyScript>(this, NAME_None, RF_Transient);
@@ -375,7 +384,6 @@ bool URpyScript::ImportXml(FString text)
 	if (!StagingScript->Parse() || !StagingScript->Compile())
 	{
 		UE_LOG(LogTemp, Error, TEXT("XML import failed; preserving the previously imported script state."));
-		for (RpyInstruction* Instruction : StagingScript->instructions) delete Instruction;
 		StagingScript->instructions.Empty();
 		return false;
 	}
@@ -391,8 +399,6 @@ bool URpyScript::ImportXml(FString text)
 	StagingScript->transitions.GetKeys(FinalKeys);
 	for (FName Key : FinalKeys) if (!ExistingTransitionKeys.Contains(Key)) StagingScript->xmlGeneratedTransitionKeys.AddUnique(Key);
 
-	for (RpyInstruction* Instruction : instructions) delete Instruction;
-
 	scriptXml = MoveTemp(StagingScript->scriptXml);
 	images = MoveTemp(StagingScript->images);
 	audios = MoveTemp(StagingScript->audios);
@@ -407,7 +413,7 @@ bool URpyScript::ImportXml(FString text)
 	xmlGeneratedAudioKeys = MoveTemp(StagingScript->xmlGeneratedAudioKeys);
 	xmlGeneratedTransitionKeys = MoveTemp(StagingScript->xmlGeneratedTransitionKeys);
 	xmlGeneratedCharacterKeys = MoveTemp(StagingScript->xmlGeneratedCharacterKeys);
-	for (RpyInstruction* Instruction : instructions)
+	for (URpyInstruction* Instruction : instructions)
 		if (Instruction) Instruction->script = this;
 	return true;
 }
@@ -534,30 +540,6 @@ namespace
     }
     return ParseNamedPosition(Value, OutPosition);
   }
-
-  FString DescribeXmlInstruction(const FVisualNovelXmlNode *Node)
-  {
-    FString Description = Node->GetTag();
-    for (const FVisualNovelXmlAttribute &Attribute : Node->Attributes)
-    {
-      Description += FString::Printf(TEXT(" %s=\"%s\""), *Attribute.Name, *Attribute.Value);
-    }
-    FString Content = Node->GetTag() == TEXT("say") ? Node->GetRichTextContent() : Node->GetTextContent();
-    Content.TrimStartAndEndInline();
-    if (!Content.IsEmpty())
-      Description += TEXT("  ") + Content;
-    return Description;
-  }
-
-  struct RpyUnsupportedInstruction : public RpyInstruction
-  {
-    RpyUnsupportedInstruction(URpyScript *Script, FRpyLine *Line) : RpyInstruction(Script, Line) {}
-    virtual bool Execute(URpySession *) override
-    {
-      UE_LOG(LogTemp, Error, TEXT("Unsupported migrated instruction at line %d: %s"), rpyLine.lineNumber, *rpyLine.line);
-      return false;
-    }
-  };
 
   FString RequiredValue(const FVisualNovelXmlNode *Node, const TCHAR *FieldName)
   {
@@ -824,7 +806,7 @@ namespace
     return Count;
   }
 
-  RpyInstruction *MakeXmlInstruction(URpyScript *Script, const FVisualNovelXmlNode *Node, FRpyLine *Line)
+  URpyInstruction *MakeXmlInstruction(URpyScript *Script, const FVisualNovelXmlNode *Node)
   {
     FString Type = Node->GetTag();
     if (Type == TEXT("character"))
@@ -833,10 +815,12 @@ namespace
       Type = TEXT("defineAsset");
     const FString A = RequiredValue(Node, TEXT("name"));
     const FString B = RequiredValue(Node, TEXT("value"));
-    RpyInstruction *Result = nullptr;
+    URpyInstruction *Result = nullptr;
     if (Type == TEXT("label"))
     {
-      Result = new LabelInstruction(Script, Line);
+      ULabelInstruction *Label = CreateRpyInstruction<ULabelInstruction>(Script);
+      Label->name = FName(*A);
+      Result = Label;
       Script->labels.Add(FName(*A), Result);
     }
     else if (Type == TEXT("say"))
@@ -848,7 +832,10 @@ namespace
       if (Speaker.IsEmpty())
         Props.GetString(FName(TEXT("speaker")), Speaker);
       FString Statement = Node->GetRichTextContent();
-      Result = new SayInstruction(Script, Line, FName(*Speaker), MoveTemp(Statement));
+      USayInstruction *Say = CreateRpyInstruction<USayInstruction>(Script);
+      Say->name = FName(*Speaker);
+      Say->statement = MoveTemp(Statement);
+      Result = Say;
       Result->Props = Props;
     }
     else if (Type == TEXT("scene") || Type == TEXT("show") || Type == TEXT("hide"))
@@ -914,24 +901,55 @@ namespace
         }
       }
       if (Type == TEXT("scene"))
-        Result = new SceneInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("asset"))), Options);
+      {
+        USceneInstruction *Scene = CreateRpyInstruction<USceneInstruction>(Script);
+        Scene->name = FName(*RequiredValue(Node, TEXT("asset")));
+        Scene->Props = PropsFromSceneOptions(Options);
+        Result = Scene;
+      }
       else if (Type == TEXT("show"))
-        Result = new ShowInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("asset"))), Options);
+      {
+        UShowInstruction *Show = CreateRpyInstruction<UShowInstruction>(Script);
+        Show->name = FName(*RequiredValue(Node, TEXT("asset")));
+        Show->Props = PropsFromSceneOptions(Options);
+        Result = Show;
+      }
       else
-        Result = new HideInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("tag"))), Options);
+      {
+        UHideInstruction *Hide = CreateRpyInstruction<UHideInstruction>(Script);
+        Hide->tag = FName(*RequiredValue(Node, TEXT("tag")));
+        Hide->Props = PropsFromSceneOptions(Options);
+        Result = Hide;
+      }
     }
     else if (Type == TEXT("pause"))
-      Result = new PauseInstruction(Script, Line, FCString::Atof(*RequiredValue(Node, TEXT("duration"))));
+    {
+      UPauseInstruction *Pause = CreateRpyInstruction<UPauseInstruction>(Script);
+      Pause->timeInSec = FCString::Atof(*RequiredValue(Node, TEXT("duration")));
+      Result = Pause;
+    }
     else if (Type == TEXT("menu"))
-      Result = new MenuInstruction(Script, Line);
+      Result = CreateRpyInstruction<UMenuInstruction>(Script);
     else if (Type == TEXT("choice"))
-      Result = new ChoiceInstruction(Script, Line, RequiredValue(Node, TEXT("text")));
+    {
+      UChoiceInstruction *Choice = CreateRpyInstruction<UChoiceInstruction>(Script);
+      Choice->statement = RequiredValue(Node, TEXT("text"));
+      Result = Choice;
+    }
     else if (Type == TEXT("jump"))
-      Result = new JumpInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("label"))));
+    {
+      UJumpInstruction *Jump = CreateRpyInstruction<UJumpInstruction>(Script);
+      Jump->label = FName(*RequiredValue(Node, TEXT("label")));
+      Result = Jump;
+    }
     else if (Type == TEXT("call"))
-      Result = new CallInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("label"))));
+    {
+      UCallInstruction *Call = CreateRpyInstruction<UCallInstruction>(Script);
+      Call->label = FName(*RequiredValue(Node, TEXT("label")));
+      Result = Call;
+    }
     else if (Type == TEXT("return"))
-      Result = new ReturnInstruction(Script, Line);
+      Result = CreateRpyInstruction<UReturnInstruction>(Script);
     else if (Type == TEXT("play") || Type == TEXT("queue") || Type == TEXT("voice"))
     {
       const FString ChannelName = Type == TEXT("voice") ? TEXT("voice") : RequiredValue(Node, TEXT("channel"));
@@ -958,20 +976,40 @@ namespace
       if (!Script->audios.Contains(AssetName) && !Script->AddDefaultAudio(AssetName, AssetPath))
         return nullptr;
       if (Type == TEXT("queue"))
-        Result = new QueueInstruction(Script, Line, Channel, AssetName, AudioOptions);
+      {
+        UQueueInstruction *Queue = CreateRpyInstruction<UQueueInstruction>(Script);
+        Queue->channel = Channel;
+        Queue->name = AssetName;
+        Queue->Props = PropsFromAudioOptions(AudioOptions);
+        Result = Queue;
+      }
       else
-        Result = new PlayInstruction(Script, Line, Channel, AssetName, AudioOptions);
+      {
+        UPlayInstruction *Play = CreateRpyInstruction<UPlayInstruction>(Script);
+        Play->channel = Channel;
+        Play->name = AssetName;
+        Play->Props = PropsFromAudioOptions(AudioOptions);
+        Result = Play;
+      }
       Result->Props = Props;
     }
     else if (Type == TEXT("stop"))
-      Result = new StopInstruction(Script, Line, FName(*RequiredValue(Node, TEXT("channel"))), FRpyAudioOptions());
+    {
+      UStopInstruction *Stop = CreateRpyInstruction<UStopInstruction>(Script);
+      Stop->channel = FName(*RequiredValue(Node, TEXT("channel")));
+      Stop->Props = PropsFromAudioOptions(FRpyAudioOptions());
+      Result = Stop;
+    }
     else if (Type == TEXT("if"))
     {
       FString Condition = RequiredValue(Node, TEXT("condition"));
       const bool bReverse = Condition.StartsWith(TEXT("!"));
       if (bReverse)
         Condition.RightChopInline(1);
-      Result = new IfBoolInstruction(Script, Line, FName(*Condition), bReverse);
+      UIfBoolInstruction *If = CreateRpyInstruction<UIfBoolInstruction>(Script);
+      If->varName = FName(*Condition);
+      If->Props.SetBool(FName(TEXT("reverse")), bReverse);
+      Result = If;
     }
     else if (Type == TEXT("set"))
     {
@@ -979,18 +1017,39 @@ namespace
       const FString Value = B;
       const bool bHasExpression = HasRequiredField(Node, TEXT("expression"));
       if (bHasExpression)
-        Result = new RpyUnsupportedInstruction(Script, Line);
+        Result = CreateRpyInstruction<UUnsupportedInstruction>(Script);
       else if (RequiredFieldType(Node, TEXT("value")) == TEXT("bool"))
       {
-        const bool bValue = Value == TEXT("true");
-        Result = new AssignInstruction<bool>(Script, Line, Name, bValue);
+        UAssignInstruction *Set = CreateRpyInstruction<UAssignInstruction>(Script);
+        Set->varName = Name;
+        Set->value = Value;
+        Set->valueType = TEXT("bool");
+        Result = Set;
       }
       else if (RequiredFieldType(Node, TEXT("value")) == TEXT("integer"))
-        Result = new AssignInstruction<int>(Script, Line, Name, FCString::Atoi(*Value));
+      {
+        UAssignInstruction *Set = CreateRpyInstruction<UAssignInstruction>(Script);
+        Set->varName = Name;
+        Set->value = Value;
+        Set->valueType = TEXT("integer");
+        Result = Set;
+      }
       else if (RequiredFieldType(Node, TEXT("value")) == TEXT("float"))
-        Result = new AssignInstruction<float>(Script, Line, Name, FCString::Atof(*Value));
+      {
+        UAssignInstruction *Set = CreateRpyInstruction<UAssignInstruction>(Script);
+        Set->varName = Name;
+        Set->value = Value;
+        Set->valueType = TEXT("float");
+        Result = Set;
+      }
       else
-        Result = new AssignInstruction<FString>(Script, Line, Name, Value);
+      {
+        UAssignInstruction *Set = CreateRpyInstruction<UAssignInstruction>(Script);
+        Set->varName = Name;
+        Set->value = Value;
+        Set->valueType = TEXT("string");
+        Result = Set;
+      }
       FRpyInstructionProps ScopeProps;
       ReadProps(Node, ScopeProps);
       FString Scope;
@@ -1008,9 +1067,9 @@ namespace
       }
     }
     else if (Type == TEXT("else"))
-      Result = new ElseInstruction(Script, Line);
+      Result = CreateRpyInstruction<UElseInstruction>(Script);
     else if (Type == TEXT("init"))
-      Result = new RpyInstruction(Script, Line);
+      Result = CreateRpyInstruction<URpyInstruction>(Script);
     else if (Type == TEXT("defineCharacter"))
     {
       FRpyCharacter Character;
@@ -1025,7 +1084,7 @@ namespace
         Character.voice = FName(*CharacterValue);
       if (CharacterProps.GetString(FName(TEXT("color")), CharacterValue))
         Character.color = FColor::FromHex(CharacterValue);
-      Result = new RpyInstruction(Script, Line);
+      Result = CreateRpyInstruction<URpyInstruction>(Script);
       Script->characters.Add(Character.image, Character);
       Script->xmlGeneratedCharacterKeys.AddUnique(Character.image);
       Result->Props.SetString(FName(TEXT("displayName")), RequiredValue(Node, TEXT("displayName")));
@@ -1053,11 +1112,11 @@ namespace
         Script->AddDefaultTransition(AssetName, AssetPath);
         Script->xmlGeneratedTransitionKeys.AddUnique(AssetName);
       }
-      Result = new RpyInstruction(Script, Line);
+      Result = CreateRpyInstruction<URpyInstruction>(Script);
       Result->Props = Props;
     }
     else if (Type == TEXT("raw"))
-      Result = new RpyUnsupportedInstruction(Script, Line);
+      Result = CreateRpyInstruction<UUnsupportedInstruction>(Script);
 
     if (!Result && FRpyInstructionRegistry::IsRegistered(FName(*Type)))
     {
@@ -1076,11 +1135,12 @@ namespace
       }
       FRpyInstructionProps CustomProps;
       ReadCustomProps(Node, *Schema, CustomProps);
-      Result = FRpyInstructionRegistry::Create(FName(*Type), Script, Line, RequiredFields, CustomProps);
+      Result = FRpyInstructionRegistry::Create(FName(*Type), Script, RequiredFields, CustomProps);
     }
 
     if (Result)
     {
+      Result->InstructionType = FName(*Type);
       Result->InstructionId = FName(*FString::Printf(TEXT("Instruction_%d"), Script->instructions.Num()));
       if (!FRpyInstructionRegistry::IsRegistered(FName(*Type)))
         MergeProps(Node, Result->Props);
@@ -1091,10 +1151,6 @@ namespace
 
 bool URpyScript::Parse()
 {
-  for (auto instruction : instructions)
-  {
-    delete instruction;
-  }
   instructions.Empty();
   labels.Empty();
   instructionsById.Empty();
@@ -1115,8 +1171,8 @@ bool URpyScript::Parse()
     }
     const int32 InstructionCount = CountXmlInstructions(Root.Get());
     instructions.Reserve(InstructionCount);
-    TFunction<bool(const FVisualNovelXmlNode *, uint8)> ReadInstructionChildren;
-    ReadInstructionChildren = [&](const FVisualNovelXmlNode *Parent, uint8 Depth) -> bool
+    TFunction<bool(const FVisualNovelXmlNode *, URpyInstruction *)> ReadInstructionChildren;
+    ReadInstructionChildren = [&](const FVisualNovelXmlNode *Parent, URpyInstruction *ParentInstruction) -> bool
     {
       bool bSuccess = true;
       for (const TUniquePtr<FVisualNovelXmlNode> &NodePtr : Parent->Children)
@@ -1129,99 +1185,62 @@ bool URpyScript::Parse()
           bSuccess = false;
           continue;
         }
-        FRpyLine Line;
-        Line.tabs = Depth;
-        FRpyInstructionProps SourceProps;
-        ReadProps(Node, SourceProps);
-        Line.lineNumber = instructions.Num() + 1;
-        Line.line = DescribeXmlInstruction(Node);
-        FRpyInstructionProps DiagnosticProps;
-        ReadProps(Node, DiagnosticProps);
-        DiagnosticProps.GetString(FName(TEXT("legacySource")), Line.line);
-        RpyInstruction *Instruction = MakeXmlInstruction(this, Node, &Line);
+        URpyInstruction *Instruction = MakeXmlInstruction(this, Node);
         if (!Instruction)
         {
-          UE_LOG(LogTemp, Error, TEXT("Unsupported XML instruction '%s' at source line %d"), *Node->GetTag(), Line.lineNumber);
+          UE_LOG(LogTemp, Error, TEXT("Unsupported XML instruction '%s'"), *Node->GetTag());
           bSuccess = false;
           continue;
         }
+        Instruction->parent = ParentInstruction;
+        if (ParentInstruction)
+          ParentInstruction->children.Add(Instruction);
         instructions.Add(Instruction);
         instructionsById.Add(Instruction->InstructionId, Instruction);
-        if (Node->GetTag() != TEXT("say") && !ReadInstructionChildren(Node, Depth + 1))
+        if (Node->GetTag() != TEXT("say") && !ReadInstructionChildren(Node, Instruction))
           bSuccess = false;
       }
       return bSuccess;
     };
-    return ReadInstructionChildren(Root.Get(), 0);
+    return ReadInstructionChildren(Root.Get(), nullptr);
   }
   return false;
 };
 bool URpyScript::Compile()
 {
-  // TODO
-  for (int idx = 0; idx < instructions.Num() - 1; ++idx)
+  TArray<URpyInstruction *> RootInstructions;
+  for (URpyInstruction *Instruction : instructions)
+    if (Instruction && !Instruction->parent)
+      RootInstructions.Add(Instruction);
+
+  TFunction<void(const TArray<URpyInstruction *> &, URpyInstruction *)> LinkSequence;
+  LinkSequence = [&LinkSequence](const TArray<URpyInstruction *> &Sequence, URpyInstruction *Continuation)
   {
-    instructions[idx]->next = instructions[idx + 1];
-  }
-  TArray<RpyInstruction *> stack;
-  RpyInstruction *current;
-  for (int idx = 0; idx < instructions.Num(); ++idx)
-  {
-    auto num = stack.Num();
-    RpyInstruction *last = num > 0 ? stack[num - 1] : nullptr;
-    current = instructions[idx];
-    int currentTabs = current->rpyLine.tabs;
-    if (last)
+    URpyInstruction *Next = Continuation;
+    for (int32 Index = Sequence.Num() - 1; Index >= 0; --Index)
     {
-      int lastTabs = last->rpyLine.tabs;
-      if (currentTabs == lastTabs + 1)
-      {
-        current->parent = last;
-        stack.Add(current);
-      }
-      else if (currentTabs <= lastTabs)
-      {
-        int count = num - currentTabs;
-        while (count--)
-        {
-          stack.Pop()->next = current;
-        }
-        current->parent = currentTabs > 0 ? stack[currentTabs - 1] : nullptr;
-        stack.Add(current);
-      }
-      else
-      {
-        UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine.lineNumber);
-        return false;
-      }
+      URpyInstruction *Instruction = Sequence[Index];
+      if (!Instruction) continue;
+      Instruction->next = Next;
+      if (Instruction->children.Num() > 0)
+        LinkSequence(Instruction->children, Next);
+      Next = Instruction;
     }
-    else if (currentTabs == 0)
-    {
-      stack.Add(current);
-    }
-    else
-    {
-      UE_LOG(LogTemp, Error, TEXT("unvalid tabs transition at line :%d"), current->rpyLine.lineNumber);
-      return false;
-    }
-    if (current->parent)
-    {
-      current->parent->children.Add(current);
-    }
-  }
-  current = nullptr;
+  };
+  LinkSequence(RootInstructions, nullptr);
+
   for (auto instruction : instructions)
   {
     if (!instruction->Compile())
     {
-      UE_LOG(LogTemp, Error, TEXT("failed to compile line %d : %s"), instruction->rpyLine.lineNumber, (*instruction->rpyLine.line));
+      UE_LOG(LogTemp, Error, TEXT("failed to compile instruction: %s"), *instruction->ToString());
       return false;
     }
   }
   return true;
 }
 
-FRpyInstructionSerialization URpyScript::SerializeInstruction(RpyInstruction *instruction)
+FRpyInstructionSerialization URpyScript::SerializeInstruction(URpyInstruction *instruction)
 {
   FRpyInstructionSerialization result;
   if (!instruction)
@@ -1235,7 +1254,7 @@ FRpyInstructionSerialization URpyScript::SerializeInstruction(RpyInstruction *in
   result.instructionId = instruction->InstructionId;
   return result;
 }
-RpyInstruction *URpyScript::DeserializeInstruction(const FRpyInstructionSerialization &data)
+URpyInstruction *URpyScript::DeserializeInstruction(const FRpyInstructionSerialization &data)
 {
   if (!data.script.IsValid())
   {
@@ -1249,7 +1268,7 @@ RpyInstruction *URpyScript::DeserializeInstruction(const FRpyInstructionSerializ
 
   if (!data.instructionId.IsNone())
   {
-    if (RpyInstruction **ById = Script->instructionsById.Find(data.instructionId))
+    if (URpyInstruction **ById = Script->instructionsById.Find(data.instructionId))
       return *ById;
   }
 

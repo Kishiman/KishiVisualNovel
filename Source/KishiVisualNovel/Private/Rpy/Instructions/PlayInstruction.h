@@ -1,13 +1,19 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "PlayInstruction.generated.h"
 
-struct PlayInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UPlayInstruction : public URpyInstruction
 {
-  FName channel;
-  FName name;
+  GENERATED_BODY()
 
-  PlayInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name) { Props = PropsFromAudioOptions(options); };
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
+  FName channel;
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
+  FName name;
+  virtual FString ToString() const override { return FormatInstruction(TEXT("play"), FString::Printf(TEXT("channel=\"%s\" asset=\"%s\""), *channel.ToString(), *name.ToString())); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::PLAY; }
   virtual bool Execute(URpySession *session)
   {

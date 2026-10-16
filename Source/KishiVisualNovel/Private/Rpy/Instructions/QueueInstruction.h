@@ -1,12 +1,19 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "QueueInstruction.generated.h"
 
-struct QueueInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UQueueInstruction : public URpyInstruction
 {
+  GENERATED_BODY()
+
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
   FName channel;
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
   FName name;
-  QueueInstruction(URpyScript *script, FRpyLine *rpyLine, FName channel, FName name, FRpyAudioOptions options) : RpyInstruction(script, rpyLine), channel(channel), name(name) { Props = PropsFromAudioOptions(options); };
+  virtual FString ToString() const override { return FormatInstruction(TEXT("queue"), FString::Printf(TEXT("channel=\"%s\" asset=\"%s\""), *channel.ToString(), *name.ToString())); }
   virtual bool Execute(URpySession *session)
   {
     const FRpyAudioOptions options = AudioOptionsFromProps(Props);

@@ -1,10 +1,14 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "ElseInstruction.generated.h"
 
-struct ElseInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UElseInstruction : public URpyInstruction
 {
+  GENERATED_BODY()
+
 public:
-  ElseInstruction(URpyScript *script, FRpyLine *rpyLine) : RpyInstruction(script, rpyLine) {};
+  virtual FString ToString() const override { return FormatInstruction(TEXT("else")); }
   virtual RpyInstructionType Type() const { return RpyInstructionType::Else; }
 };

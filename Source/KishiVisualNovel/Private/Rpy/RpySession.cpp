@@ -59,7 +59,7 @@ bool URpySession::Run()
 	while (this->current)
 	{
 
-		UE_LOG(LogTemp, Display, TEXT("Executing instruction: %s"), (*this->current->rpyLine.line));
+		UE_LOG(LogTemp, Display, TEXT("Executing instruction: %s"), *this->current->ToString());
 		try
 		{
 			bool autoNext = this->current->Execute(this);
@@ -89,10 +89,10 @@ bool URpySession::OnChoice(int index)
 		return false;
 	if (!current->isOfType(RpyInstructionType::Menu))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Current is not MenuInstruction"));
+		UE_LOG(LogTemp, Error, TEXT("Current is not UMenuInstruction"));
 		return false;
 	}
-	MenuInstruction *menu = (MenuInstruction *)(this->current);
+	UMenuInstruction *menu = (UMenuInstruction *)(this->current);
 	if (index >= menu->choices.Num())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Choice is not in choices range"));
@@ -148,7 +148,7 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 	this->callStack.Empty();
 	for (const auto &instruction : sessionState->instructionsCallStack)
 	{
-		RpyInstruction *deserialized = URpyScript::DeserializeInstruction(instruction);
+		URpyInstruction *deserialized = URpyScript::DeserializeInstruction(instruction);
 		if (deserialized)
 		{
 			this->callStack.Add(deserialized);

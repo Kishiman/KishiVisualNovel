@@ -1,12 +1,17 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "PauseAudioInstruction.generated.h"
 
-struct PauseAudioInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class UPauseAudioInstruction : public URpyInstruction
 {
-  float timeout;
+  GENERATED_BODY()
 
-  PauseAudioInstruction(URpyScript *script, FRpyLine *rpyLine, float timeout) : RpyInstruction(script, rpyLine), timeout(timeout) {};
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
+  float timeout;
+  virtual FString ToString() const override { return FormatInstruction(TEXT("pauseAudio"), FString::Printf(TEXT("duration=\"%g\""), timeout)); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::PAUSE; }
   virtual bool Execute(URpySession *session)
   {

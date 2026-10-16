@@ -181,14 +181,3 @@ struct FRpyImage
 	static FRpyImage MakeLayeredImage(FName name, FString path);
 };
 
-USTRUCT(BlueprintType)
-struct FRpyLine
-{
-	GENERATED_USTRUCT_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
-	uint8 tabs = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
-	int lineNumber = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy")
-	FString line;
-};

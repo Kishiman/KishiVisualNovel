@@ -1,17 +1,19 @@
 #pragma once
 
 #include "RpyInstructionHelpers.h"
+#include "SayInstruction.generated.h"
 
-struct SayInstruction : public RpyInstruction
+UCLASS(BlueprintType)
+class USayInstruction : public URpyInstruction
 {
-  FName name;
-  FString statement;
+  GENERATED_BODY()
 
-  SayInstruction(URpyScript *script, FRpyLine *rpyLine, FName name, FString statement, FName with = "") : RpyInstruction(script, rpyLine), name(name), statement(statement)
-  {
-    if (!with.IsNone())
-      Props.SetString(FName(TEXT("with")), with.ToString());
-  };
+public:
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
+  FName name;
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
+  FString statement;
+  virtual FString ToString() const override { return FormatInstruction(TEXT("say"), FString::Printf(TEXT("character=\"%s\" %s"), *name.ToString(), *statement)); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SAY; }
   virtual bool Execute(URpySession *session)
   {
