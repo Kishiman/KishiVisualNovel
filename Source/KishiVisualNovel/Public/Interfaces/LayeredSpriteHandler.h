@@ -4,6 +4,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "LayeredSpriteHandler.generated.h"
 
+class ULayeredSprite;
+
 UINTERFACE(BlueprintType)
 class KISHIVISUALNOVEL_API ULayeredSpriteHandler : public UInterface
 {

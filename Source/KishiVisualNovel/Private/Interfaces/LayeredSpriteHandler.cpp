@@ -3,53 +3,80 @@
 
 void ULayeredSpriteHandlerLibrary::GetLayersToDisplayByAttribute(const TScriptInterface<ILayeredSpriteHandler> &Target, FString Attribute, TArray<FName> &NamesToShow, TArray<FName> &NamesToHide)
 {
-    ULayeredSprite *sprite = ILayeredSpriteHandler::Execute_GetSprite(Target.GetObject());
-    TArray<FName> Names;
-    TArray<FName> InvertNames;
-    sprite->FindNamesByAttribute(Attribute, Names, InvertNames);
-    for (const auto &layer : sprite->layers)
+	NamesToShow.Reset();
+	NamesToHide.Reset();
+	UObject* TargetObject = Target.GetObject();
+	if (!IsValid(TargetObject) || !TargetObject->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()))
+	{
+		return;
+	}
+
+	ULayeredSprite* Sprite = ILayeredSpriteHandler::Execute_GetSprite(TargetObject);
+	if (!IsValid(Sprite))
+	{
+		return;
+	}
+
+	TArray<FName> Names;
+	TArray<FName> InvertNames;
+	Sprite->FindNamesByAttribute(Attribute, Names, InvertNames);
+	for (const FSpriteLayer& Layer : Sprite->layers)
     {
-        bool displayed = ILayeredSpriteHandler::Execute_GetLayerDisplay(Target.GetObject(), layer.name);
-        if (Names.Contains(layer.name) && !displayed)
+		const bool bDisplayed = ILayeredSpriteHandler::Execute_GetLayerDisplay(TargetObject, Layer.name);
+		if (Names.Contains(Layer.name) && !bDisplayed)
         {
-            NamesToShow.Add(layer.name);
+			NamesToShow.Add(Layer.name);
         }
-        else if (InvertNames.Contains(layer.name) && displayed)
+		else if (InvertNames.Contains(Layer.name) && bDisplayed)
         {
-            NamesToHide.Add(layer.name);
+			NamesToHide.Add(Layer.name);
         }
     }
-    return;
 }
 
 void ULayeredSpriteHandlerLibrary::SetLayersDisplayByAttribute(const TScriptInterface<ILayeredSpriteHandler> &Target, FString Attribute, TArray<FName> &ShownNames, TArray<FName> &HidenNames)
 {
-    ULayeredSprite *sprite = ILayeredSpriteHandler::Execute_GetSprite(Target.GetObject());
-
     GetLayersToDisplayByAttribute(Target, Attribute, ShownNames, HidenNames);
+	UObject* TargetObject = Target.GetObject();
+	if (!IsValid(TargetObject) || !TargetObject->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()))
+	{
+		return;
+	}
 
-    for (auto &name : ShownNames)
+	for (const FName& Name : ShownNames)
     {
-        ILayeredSpriteHandler::Execute_SetLayerDisplay(Target.GetObject(), name, true);
+		ILayeredSpriteHandler::Execute_SetLayerDisplay(TargetObject, Name, true);
     }
 
-    for (auto &name : HidenNames)
+	for (const FName& Name : HidenNames)
     {
-        ILayeredSpriteHandler::Execute_SetLayerDisplay(Target.GetObject(), name, false);
+		ILayeredSpriteHandler::Execute_SetLayerDisplay(TargetObject, Name, false);
     }
 }
 
 FName ULayeredSpriteHandlerLibrary::GetDisplayedLayerInGroup(const TScriptInterface<ILayeredSpriteHandler> &Target, FName GroupName)
 {
-    ULayeredSprite *sprite = ILayeredSpriteHandler::Execute_GetSprite(Target.GetObject());
-    for (const auto &layer : sprite->layers)
+	UObject* TargetObject = Target.GetObject();
+	if (!IsValid(TargetObject) || !TargetObject->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()))
+	{
+		return NAME_None;
+	}
+
+	ULayeredSprite* Sprite = ILayeredSpriteHandler::Execute_GetSprite(TargetObject);
+	if (!IsValid(Sprite))
+	{
+		return NAME_None;
+	}
+
+	for (const FSpriteLayer& Layer : Sprite->layers)
     {
-        if (layer.group == GroupName)
+		if (Layer.group == GroupName)
         {
-            bool displayed = ILayeredSpriteHandler::Execute_GetLayerDisplay(Target.GetObject(), layer.name);
-            if (displayed)
-                return layer.name;
+			if (ILayeredSpriteHandler::Execute_GetLayerDisplay(TargetObject, Layer.name))
+			{
+				return Layer.name;
+			}
         }
     }
-    return FName();
+	return NAME_None;
 }

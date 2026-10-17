@@ -33,9 +33,13 @@ public class KishiVisualNovel : ModuleRules
         "Core",
         "Kishi",
         "UMG",
+        "Slate",
+        "SlateCore",
+        "InputCore",
         "Paper2D",
         "MediaAssets",
         "LevelSequence",
+        "MovieScene",
 				// ... add other public dependencies that you statically link with here ...
 			}
       );

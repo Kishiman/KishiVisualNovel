@@ -60,7 +60,7 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnScriptComplete);
 
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, Blueprintable)
 class KISHIVISUALNOVEL_API URpySession : public UObject, public IRpyStateful
 {
 	GENERATED_BODY()

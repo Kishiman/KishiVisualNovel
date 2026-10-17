@@ -23,7 +23,7 @@ struct FRpySavedComponentState
     FRpySerializedState State;
 };
 
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class KISHIVISUALNOVEL_API UBaseRpySaveGame
     : public USaveGame,
       public IRpySaveGame
