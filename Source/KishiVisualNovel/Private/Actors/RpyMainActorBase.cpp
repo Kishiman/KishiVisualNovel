@@ -6,7 +6,7 @@
 #include "Interfaces/RpyScriptInterpreter.h"
 #include "Interfaces/RpyStatefulActor.h"
 #include "Rpy/RpyScript.h"
-#include "Widgets/KishiVNPlayerWidget.h"
+#include "Widgets/KishiVNPlayerWidgetBase.h"
 
 ARpyMainActorBase::ARpyMainActorBase()
 {
@@ -19,12 +19,12 @@ bool ARpyMainActorBase::IsActive_Implementation() const
 	return IsValid(Session);
 }
 
-URpySession* ARpyMainActorBase::GetCurrentSession_Implementation() const
+URpySession *ARpyMainActorBase::GetCurrentSession_Implementation() const
 {
 	return Session;
 }
 
-void ARpyMainActorBase::StartRpyScript_Implementation(URpyScript* Script, FName const& Label)
+void ARpyMainActorBase::StartRpyScript_Implementation(URpyScript *Script, FName const &Label)
 {
 	if (!IsValid(Script) || !SessionClass)
 	{
@@ -50,7 +50,7 @@ void ARpyMainActorBase::StartRpyScript_Implementation(URpyScript* Script, FName 
 	}
 	if (VNPlayerClass)
 	{
-		APlayerController* PlayerController = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+		APlayerController *PlayerController = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
 		VNPlayer = CreateWidget<UUserWidget>(PlayerController, VNPlayerClass);
 		if (VNPlayer)
 		{
@@ -60,7 +60,7 @@ void ARpyMainActorBase::StartRpyScript_Implementation(URpyScript* Script, FName 
 				Interpreter.SetInterface(Cast<IRpyScriptInterpreter>(VNPlayer));
 				Session->interpreter = Interpreter;
 			}
-			if (UKishiVNPlayerWidget* NativePlayer = Cast<UKishiVNPlayerWidget>(VNPlayer))
+			if (UKishiVNPlayerWidgetBase *NativePlayer = Cast<UKishiVNPlayerWidgetBase>(VNPlayer))
 			{
 				NativePlayer->SetSession(Session);
 			}
@@ -90,7 +90,7 @@ void ARpyMainActorBase::CloseVN_Implementation()
 	VNPlayer = nullptr;
 	Session = nullptr;
 	ActiveScript = nullptr;
-	for (const TScriptInterface<IRpyCloseVNEventListener>& Listener : CloseListeners)
+	for (const TScriptInterface<IRpyCloseVNEventListener> &Listener : CloseListeners)
 	{
 		if (IsValid(Listener.GetObject()))
 		{
@@ -100,7 +100,7 @@ void ARpyMainActorBase::CloseVN_Implementation()
 	OnVNClosed();
 }
 
-void ARpyMainActorBase::AddOnCloseVNEventListener_Implementation(const TScriptInterface<IRpyCloseVNEventListener>& Listener)
+void ARpyMainActorBase::AddOnCloseVNEventListener_Implementation(const TScriptInterface<IRpyCloseVNEventListener> &Listener)
 {
 	if (IsValid(Listener.GetObject()))
 	{
@@ -113,9 +113,9 @@ TSubclassOf<URpyState> ARpyMainActorBase::GetStateClass_Implementation()
 	return URpyMainActorState::StaticClass();
 }
 
-URpyState* ARpyMainActorBase::SaveToState_Implementation(UObject* Outer)
+URpyState *ARpyMainActorBase::SaveToState_Implementation(UObject *Outer)
 {
-	URpyMainActorState* State = NewObject<URpyMainActorState>(Outer ? Outer : this);
+	URpyMainActorState *State = NewObject<URpyMainActorState>(Outer ? Outer : this);
 	if (!State)
 	{
 		return nullptr;
@@ -131,9 +131,9 @@ URpyState* ARpyMainActorBase::SaveToState_Implementation(UObject* Outer)
 	return State;
 }
 
-void ARpyMainActorBase::LoadFromState_Implementation(const URpyState* State)
+void ARpyMainActorBase::LoadFromState_Implementation(const URpyState *State)
 {
-	const URpyMainActorState* MainState = Cast<URpyMainActorState>(State);
+	const URpyMainActorState *MainState = Cast<URpyMainActorState>(State);
 	if (!MainState)
 	{
 		return;

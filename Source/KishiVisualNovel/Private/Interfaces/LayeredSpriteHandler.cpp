@@ -1,5 +1,5 @@
 #include "Interfaces/LayeredSpriteHandler.h"
-#include "LayeredSprite.h"
+#include "Assets/LayeredSprite.h"
 
 void ULayeredSpriteHandlerLibrary::GetLayersToDisplayByAttribute(const TScriptInterface<ILayeredSpriteHandler> &Target, FString Attribute, TArray<FName> &NamesToShow, TArray<FName> &NamesToHide)
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "AudioPlayer.h"
+#include "Audio/AudioPlayer.h"
 #include "Components/RichTextBlock.h"
 #include "Interfaces/ScriptInterpreterManagers/RpyAudioManager.h"
 #include "Interfaces/ScriptInterpreterManagers/RpyChoiceManager.h"

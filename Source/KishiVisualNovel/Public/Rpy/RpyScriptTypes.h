@@ -5,8 +5,8 @@
 #include "Sound/SoundWave.h"
 #include "FileMediaSource.h"
 #include "LevelSequence.h"
-#include "VideoMediaSprite.h"
-#include "LayeredSprite.h"
+#include "Assets/VideoMediaSprite.h"
+#include "Assets/LayeredSprite.h"
 
 class URpyScript;
 

@@ -1,26 +1,26 @@
 #include "Widgets/KishiRpyManagerWidgetBase.h"
-#include "Widgets/KishiRpyChoiceManagerWidget.h"
-#include "Widgets/KishiRpySceneManagerWidget.h"
-#include "Widgets/KishiRpyShowManagerWidget.h"
-#include "Widgets/KishiRpyStatementManagerWidget.h"
-#include "Widgets/KishiRpyAudioManagerWidget.h"
+#include "Widgets/KishiRpyChoiceManagerWidgetBase.h"
+#include "Widgets/KishiRpySceneManagerWidgetBase.h"
+#include "Widgets/KishiRpyShowManagerWidgetBase.h"
+#include "Widgets/KishiRpyStatementManagerWidgetBase.h"
+#include "Widgets/KishiRpyAudioManagerWidgetBase.h"
 #include "Interfaces/RpyScriptInterpreter.h"
-#define IMPLEMENT_MANAGER_BASE(ClassName) \
-TScriptInterface<IRpyScriptInterpreter> ClassName::GetInterpreter_Implementation() const { return UKishiRpyManagerWidgetBase::GetInterpreter_Implementation(); } \
-void ClassName::OnInstructionComplete_Implementation(EInstructionRunTimeType Type) { UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation(Type); } \
-void ClassName::OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset) { UKishiRpyManagerWidgetBase::OnDialogueViseme_Implementation(Name, Viseme, TimeOffset); } \
-void ClassName::OnScriptComplete_Implementation() { UKishiRpyManagerWidgetBase::OnScriptComplete_Implementation(); }
+#define IMPLEMENT_MANAGER_BASE(ClassName)                                                                                                                                                       \
+	TScriptInterface<IRpyScriptInterpreter> ClassName::GetInterpreter_Implementation() const { return UKishiRpyManagerWidgetBase::GetInterpreter_Implementation(); }                              \
+	void ClassName::OnInstructionComplete_Implementation(EInstructionRunTimeType Type) { UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation(Type); }                                \
+	void ClassName::OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset) { UKishiRpyManagerWidgetBase::OnDialogueViseme_Implementation(Name, Viseme, TimeOffset); } \
+	void ClassName::OnScriptComplete_Implementation() { UKishiRpyManagerWidgetBase::OnScriptComplete_Implementation(); }
 
-IMPLEMENT_MANAGER_BASE(UKishiRpyChoiceManagerWidget)
-IMPLEMENT_MANAGER_BASE(UKishiRpySceneManagerWidget)
-IMPLEMENT_MANAGER_BASE(UKishiRpyShowManagerWidget)
-IMPLEMENT_MANAGER_BASE(UKishiRpyStatementManagerWidget)
+IMPLEMENT_MANAGER_BASE(UKishiRpyChoiceManagerWidgetBase)
+IMPLEMENT_MANAGER_BASE(UKishiRpySceneManagerWidgetBase)
+IMPLEMENT_MANAGER_BASE(UKishiRpyShowManagerWidgetBase)
+IMPLEMENT_MANAGER_BASE(UKishiRpyStatementManagerWidgetBase)
 
 #undef IMPLEMENT_MANAGER_BASE
 
-TScriptInterface<IRpyScriptInterpreter> UKishiRpyAudioManagerWidget::GetInterpreter_Implementation() const { return UKishiRpyManagerWidgetBase::GetInterpreter_Implementation(); }
-void UKishiRpyAudioManagerWidget::OnInstructionComplete_Implementation(EInstructionRunTimeType Type) { UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation(Type); }
-void UKishiRpyAudioManagerWidget::OnScriptComplete_Implementation() { UKishiRpyManagerWidgetBase::OnScriptComplete_Implementation(); }
+TScriptInterface<IRpyScriptInterpreter> UKishiRpyAudioManagerWidgetBase::GetInterpreter_Implementation() const { return UKishiRpyManagerWidgetBase::GetInterpreter_Implementation(); }
+void UKishiRpyAudioManagerWidgetBase::OnInstructionComplete_Implementation(EInstructionRunTimeType Type) { UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation(Type); }
+void UKishiRpyAudioManagerWidgetBase::OnScriptComplete_Implementation() { UKishiRpyManagerWidgetBase::OnScriptComplete_Implementation(); }
 
 void UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation(EInstructionRunTimeType Type)
 {
@@ -38,4 +38,3 @@ void UKishiRpyManagerWidgetBase::Reset_Implementation()
 {
 	OnManagerReset();
 }
-

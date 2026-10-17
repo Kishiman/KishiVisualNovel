@@ -1,4 +1,4 @@
-#include "Widgets/KishiChoiceEntryWidget.h"
+#include "Widgets/KishiChoiceEntryWidgetBase.h"
 #include "Interfaces/RpyScriptInterpreterBaseManager.h"
 #include "Interfaces/RpyScriptInterpreter.h"
 #include "Interfaces/LayeredSpriteHandler.h"
@@ -19,16 +19,16 @@
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 
-void UKishiChoiceEntryWidget::NativeOnInitialized()
+void UKishiChoiceEntryWidgetBase::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	if (ChoiceButton)
 	{
-		ChoiceButton->OnClicked.AddDynamic(this, &UKishiChoiceEntryWidget::HandleClicked);
+		ChoiceButton->OnClicked.AddDynamic(this, &UKishiChoiceEntryWidgetBase::HandleClicked);
 	}
 }
 
-void UKishiChoiceEntryWidget::SetChoice(int32 Index, const FString& Text)
+void UKishiChoiceEntryWidgetBase::SetChoice(int32 Index, const FString &Text)
 {
 	ChoiceIndex = Index;
 	ChoiceText = Text;
@@ -38,7 +38,7 @@ void UKishiChoiceEntryWidget::SetChoice(int32 Index, const FString& Text)
 	}
 }
 
-void UKishiChoiceEntryWidget::HandleClicked()
+void UKishiChoiceEntryWidgetBase::HandleClicked()
 {
 	OnChoiceClicked.Broadcast(ChoiceIndex);
 }

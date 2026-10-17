@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "KishiDataAsset.h"
+#include "Assets/KishiDataAssetBase.h"
 #include "Structs/DynamicObject.h"
 #include "Rpy/RpyScriptTypes.h"
 #include "Rpy/RpySceneTypes.h"
@@ -16,7 +16,7 @@ class IRpyScriptInterpreter;
 class URpyInstruction;
 
 UCLASS()
-class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAsset
+class KISHIVISUALNOVEL_API URpyScript : public UKishiDataAssetBase
 {
 	GENERATED_BODY()
 public:

@@ -2,7 +2,7 @@
 #include "Rpy/RpyInstruction.h"
 #include "Interfaces/RpyScriptInterpreter.h"
 #include "Misc/FileHelper.h"
-#include "Rpy/VisualNovelXmlParser.h"
+#include "Rpy/Parsing/VisualNovelXmlParser.h"
 #include "Rpy/RpyInstructions.h"
 
 FRpyImage FRpyImage::MakeLayeredImage(FName name, FString path)
@@ -318,7 +318,7 @@ void URpyScript::Serialize(FStructuredArchiveRecord Record)
   // this->PostLoad();
 };
 
-URpyScript::URpyScript() : UKishiDataAsset()
+URpyScript::URpyScript() : UKishiDataAssetBase()
 {
   UE_LOG(LogTemp, Warning, TEXT("URpyScript(), instruction count:%d"), instructions.Num());
   Parse();
@@ -344,78 +344,92 @@ void URpyScript::BeginDestroy()
 
 bool URpyScript::ImportXml(FString text)
 {
-	URpyScript* StagingScript = NewObject<URpyScript>(this, NAME_None, RF_Transient);
-	if (!StagingScript)
-		return false;
+  URpyScript *StagingScript = NewObject<URpyScript>(this, NAME_None, RF_Transient);
+  if (!StagingScript)
+    return false;
 
-	StagingScript->images = images;
-	StagingScript->audios = audios;
-	StagingScript->transitions = transitions;
-	StagingScript->characters = characters;
-	StagingScript->compileData = FDynamicObject();
-	StagingScript->xmlGeneratedImageKeys = xmlGeneratedImageKeys;
-	StagingScript->xmlGeneratedAudioKeys = xmlGeneratedAudioKeys;
-	StagingScript->xmlGeneratedTransitionKeys = xmlGeneratedTransitionKeys;
-	StagingScript->xmlGeneratedCharacterKeys = xmlGeneratedCharacterKeys;
+  StagingScript->images = images;
+  StagingScript->audios = audios;
+  StagingScript->transitions = transitions;
+  StagingScript->characters = characters;
+  StagingScript->compileData = FDynamicObject();
+  StagingScript->xmlGeneratedImageKeys = xmlGeneratedImageKeys;
+  StagingScript->xmlGeneratedAudioKeys = xmlGeneratedAudioKeys;
+  StagingScript->xmlGeneratedTransitionKeys = xmlGeneratedTransitionKeys;
+  StagingScript->xmlGeneratedCharacterKeys = xmlGeneratedCharacterKeys;
 
-	for (FName Key : StagingScript->xmlGeneratedImageKeys) StagingScript->images.Remove(Key);
-	for (FName Key : StagingScript->xmlGeneratedAudioKeys) StagingScript->audios.Remove(Key);
-	for (FName Key : StagingScript->xmlGeneratedTransitionKeys) StagingScript->transitions.Remove(Key);
-	for (FName Key : StagingScript->xmlGeneratedCharacterKeys) StagingScript->characters.Remove(Key);
-	StagingScript->xmlGeneratedImageKeys.Empty();
-	StagingScript->xmlGeneratedAudioKeys.Empty();
-	StagingScript->xmlGeneratedTransitionKeys.Empty();
-	StagingScript->xmlGeneratedCharacterKeys.Empty();
+  for (FName Key : StagingScript->xmlGeneratedImageKeys)
+    StagingScript->images.Remove(Key);
+  for (FName Key : StagingScript->xmlGeneratedAudioKeys)
+    StagingScript->audios.Remove(Key);
+  for (FName Key : StagingScript->xmlGeneratedTransitionKeys)
+    StagingScript->transitions.Remove(Key);
+  for (FName Key : StagingScript->xmlGeneratedCharacterKeys)
+    StagingScript->characters.Remove(Key);
+  StagingScript->xmlGeneratedImageKeys.Empty();
+  StagingScript->xmlGeneratedAudioKeys.Empty();
+  StagingScript->xmlGeneratedTransitionKeys.Empty();
+  StagingScript->xmlGeneratedCharacterKeys.Empty();
 
-	TSet<FName> ExistingImageKeys;
-	TSet<FName> ExistingAudioKeys;
-	TSet<FName> ExistingTransitionKeys;
-	StagingScript->images.GetKeys(StagingScript->xmlGeneratedImageKeys);
-	for (FName Key : StagingScript->xmlGeneratedImageKeys) ExistingImageKeys.Add(Key);
-	StagingScript->audios.GetKeys(StagingScript->xmlGeneratedAudioKeys);
-	for (FName Key : StagingScript->xmlGeneratedAudioKeys) ExistingAudioKeys.Add(Key);
-	StagingScript->transitions.GetKeys(StagingScript->xmlGeneratedTransitionKeys);
-	for (FName Key : StagingScript->xmlGeneratedTransitionKeys) ExistingTransitionKeys.Add(Key);
-	StagingScript->xmlGeneratedImageKeys.Empty();
-	StagingScript->xmlGeneratedAudioKeys.Empty();
-	StagingScript->xmlGeneratedTransitionKeys.Empty();
+  TSet<FName> ExistingImageKeys;
+  TSet<FName> ExistingAudioKeys;
+  TSet<FName> ExistingTransitionKeys;
+  StagingScript->images.GetKeys(StagingScript->xmlGeneratedImageKeys);
+  for (FName Key : StagingScript->xmlGeneratedImageKeys)
+    ExistingImageKeys.Add(Key);
+  StagingScript->audios.GetKeys(StagingScript->xmlGeneratedAudioKeys);
+  for (FName Key : StagingScript->xmlGeneratedAudioKeys)
+    ExistingAudioKeys.Add(Key);
+  StagingScript->transitions.GetKeys(StagingScript->xmlGeneratedTransitionKeys);
+  for (FName Key : StagingScript->xmlGeneratedTransitionKeys)
+    ExistingTransitionKeys.Add(Key);
+  StagingScript->xmlGeneratedImageKeys.Empty();
+  StagingScript->xmlGeneratedAudioKeys.Empty();
+  StagingScript->xmlGeneratedTransitionKeys.Empty();
 
-	StagingScript->scriptXml = text;
-	if (!StagingScript->Parse() || !StagingScript->Compile())
-	{
-		UE_LOG(LogTemp, Error, TEXT("XML import failed; preserving the previously imported script state."));
-		StagingScript->instructions.Empty();
-		return false;
-	}
-	StagingScript->LoadRpyData();
+  StagingScript->scriptXml = text;
+  if (!StagingScript->Parse() || !StagingScript->Compile())
+  {
+    UE_LOG(LogTemp, Error, TEXT("XML import failed; preserving the previously imported script state."));
+    StagingScript->instructions.Empty();
+    return false;
+  }
+  StagingScript->LoadRpyData();
 
-	TArray<FName> FinalKeys;
-	StagingScript->images.GetKeys(FinalKeys);
-	for (FName Key : FinalKeys) if (!ExistingImageKeys.Contains(Key)) StagingScript->xmlGeneratedImageKeys.AddUnique(Key);
-	FinalKeys.Empty();
-	StagingScript->audios.GetKeys(FinalKeys);
-	for (FName Key : FinalKeys) if (!ExistingAudioKeys.Contains(Key)) StagingScript->xmlGeneratedAudioKeys.AddUnique(Key);
-	FinalKeys.Empty();
-	StagingScript->transitions.GetKeys(FinalKeys);
-	for (FName Key : FinalKeys) if (!ExistingTransitionKeys.Contains(Key)) StagingScript->xmlGeneratedTransitionKeys.AddUnique(Key);
+  TArray<FName> FinalKeys;
+  StagingScript->images.GetKeys(FinalKeys);
+  for (FName Key : FinalKeys)
+    if (!ExistingImageKeys.Contains(Key))
+      StagingScript->xmlGeneratedImageKeys.AddUnique(Key);
+  FinalKeys.Empty();
+  StagingScript->audios.GetKeys(FinalKeys);
+  for (FName Key : FinalKeys)
+    if (!ExistingAudioKeys.Contains(Key))
+      StagingScript->xmlGeneratedAudioKeys.AddUnique(Key);
+  FinalKeys.Empty();
+  StagingScript->transitions.GetKeys(FinalKeys);
+  for (FName Key : FinalKeys)
+    if (!ExistingTransitionKeys.Contains(Key))
+      StagingScript->xmlGeneratedTransitionKeys.AddUnique(Key);
 
-	scriptXml = MoveTemp(StagingScript->scriptXml);
-	images = MoveTemp(StagingScript->images);
-	audios = MoveTemp(StagingScript->audios);
-	transitions = MoveTemp(StagingScript->transitions);
-	characters = MoveTemp(StagingScript->characters);
-	compileData = MoveTemp(StagingScript->compileData);
-	instructions = MoveTemp(StagingScript->instructions);
-	labels = MoveTemp(StagingScript->labels);
-	instructionsById = MoveTemp(StagingScript->instructionsById);
-	init = nullptr;
-	xmlGeneratedImageKeys = MoveTemp(StagingScript->xmlGeneratedImageKeys);
-	xmlGeneratedAudioKeys = MoveTemp(StagingScript->xmlGeneratedAudioKeys);
-	xmlGeneratedTransitionKeys = MoveTemp(StagingScript->xmlGeneratedTransitionKeys);
-	xmlGeneratedCharacterKeys = MoveTemp(StagingScript->xmlGeneratedCharacterKeys);
-	for (URpyInstruction* Instruction : instructions)
-		if (Instruction) Instruction->script = this;
-	return true;
+  scriptXml = MoveTemp(StagingScript->scriptXml);
+  images = MoveTemp(StagingScript->images);
+  audios = MoveTemp(StagingScript->audios);
+  transitions = MoveTemp(StagingScript->transitions);
+  characters = MoveTemp(StagingScript->characters);
+  compileData = MoveTemp(StagingScript->compileData);
+  instructions = MoveTemp(StagingScript->instructions);
+  labels = MoveTemp(StagingScript->labels);
+  instructionsById = MoveTemp(StagingScript->instructionsById);
+  init = nullptr;
+  xmlGeneratedImageKeys = MoveTemp(StagingScript->xmlGeneratedImageKeys);
+  xmlGeneratedAudioKeys = MoveTemp(StagingScript->xmlGeneratedAudioKeys);
+  xmlGeneratedTransitionKeys = MoveTemp(StagingScript->xmlGeneratedTransitionKeys);
+  xmlGeneratedCharacterKeys = MoveTemp(StagingScript->xmlGeneratedCharacterKeys);
+  for (URpyInstruction *Instruction : instructions)
+    if (Instruction)
+      Instruction->script = this;
+  return true;
 }
 
 namespace
@@ -567,44 +581,52 @@ namespace
     return FString();
   }
 
-  bool IsXmlScalarType(const FString& Value, const FString& ExpectedType)
+  bool IsXmlScalarType(const FString &Value, const FString &ExpectedType)
   {
-    if (ExpectedType == TEXT("string")) return true;
-    if (ExpectedType == TEXT("bool")) return Value == TEXT("true") || Value == TEXT("false");
-    if (ExpectedType == TEXT("integer")) return InferXmlScalarType(Value) == TEXT("integer");
-    if (ExpectedType == TEXT("float")) return InferXmlScalarType(Value) == TEXT("float") || InferXmlScalarType(Value) == TEXT("integer");
-    if (ExpectedType == TEXT("name") || ExpectedType == TEXT("asset")) return !Value.IsEmpty();
+    if (ExpectedType == TEXT("string"))
+      return true;
+    if (ExpectedType == TEXT("bool"))
+      return Value == TEXT("true") || Value == TEXT("false");
+    if (ExpectedType == TEXT("integer"))
+      return InferXmlScalarType(Value) == TEXT("integer");
+    if (ExpectedType == TEXT("float"))
+      return InferXmlScalarType(Value) == TEXT("float") || InferXmlScalarType(Value) == TEXT("integer");
+    if (ExpectedType == TEXT("name") || ExpectedType == TEXT("asset"))
+      return !Value.IsEmpty();
     if (ExpectedType == TEXT("vector"))
     {
       TArray<FString> Components;
       Value.ParseIntoArray(Components, TEXT(","), true);
-      if (Components.Num() != 3) return false;
-      for (FString& Component : Components)
+      if (Components.Num() != 3)
+        return false;
+      for (FString &Component : Components)
       {
         Component.TrimStartAndEndInline();
-        if (InferXmlScalarType(Component) == TEXT("string")) return false;
+        if (InferXmlScalarType(Component) == TEXT("string"))
+          return false;
       }
       return true;
     }
     return false;
   }
 
-  void ReadCustomProps(const FVisualNovelXmlNode* Node, const FRpyInstructionSchema& Schema, FRpyInstructionProps& Props)
+  void ReadCustomProps(const FVisualNovelXmlNode *Node, const FRpyInstructionSchema &Schema, FRpyInstructionProps &Props)
   {
-    for (const TPair<FName, FString>& Definition : Schema.OptionalProps)
+    for (const TPair<FName, FString> &Definition : Schema.OptionalProps)
     {
       const FString FieldName = Definition.Key.ToString();
-      if (!Node->HasAttribute(*FieldName)) continue;
-      FRpyInstructionProp& Prop = Props.Values.AddDefaulted_GetRef();
+      if (!Node->HasAttribute(*FieldName))
+        continue;
+      FRpyInstructionProp &Prop = Props.Values.AddDefaulted_GetRef();
       Prop.Name = Definition.Key;
       Prop.Type = Definition.Value;
       Prop.Value = Node->GetAttribute(*FieldName);
     }
   }
 
-  bool ValidateCustomInstruction(const FVisualNovelXmlNode* Node, const FRpyInstructionSchema& Schema)
+  bool ValidateCustomInstruction(const FVisualNovelXmlNode *Node, const FRpyInstructionSchema &Schema)
   {
-    for (const TPair<FName, FString>& Definition : Schema.RequiredFields)
+    for (const TPair<FName, FString> &Definition : Schema.RequiredFields)
     {
       const FString FieldName = Definition.Key.ToString();
       if (!Node->HasAttribute(*FieldName))
@@ -618,7 +640,7 @@ namespace
         return false;
       }
     }
-    for (const TPair<FName, FString>& Definition : Schema.OptionalProps)
+    for (const TPair<FName, FString> &Definition : Schema.OptionalProps)
     {
       const FString FieldName = Definition.Key.ToString();
       if (Node->HasAttribute(*FieldName) && !IsXmlScalarType(Node->GetAttribute(*FieldName), Definition.Value))
@@ -627,7 +649,7 @@ namespace
         return false;
       }
     }
-    for (const FVisualNovelXmlAttribute& Attribute : Node->Attributes)
+    for (const FVisualNovelXmlAttribute &Attribute : Node->Attributes)
     {
       const FName AttributeName(*Attribute.Name);
       if (!Schema.RequiredFields.Contains(AttributeName) && !Schema.OptionalProps.Contains(AttributeName))
@@ -683,7 +705,7 @@ namespace
       Required = {TEXT("source")};
     else if (FRpyInstructionRegistry::IsRegistered(FName(*Type)))
     {
-      const FRpyInstructionSchema* Schema = FRpyInstructionRegistry::FindSchema(FName(*Type));
+      const FRpyInstructionSchema *Schema = FRpyInstructionRegistry::FindSchema(FName(*Type));
       return Schema && ValidateCustomInstruction(Node, *Schema);
     }
     else if (Type != TEXT("menu") && Type != TEXT("else") && Type != TEXT("return") && Type != TEXT("init"))
@@ -1121,10 +1143,10 @@ namespace
     if (!Result && FRpyInstructionRegistry::IsRegistered(FName(*Type)))
     {
       TMap<FName, FRpyInstructionProp> RequiredFields;
-      const FRpyInstructionSchema* Schema = FRpyInstructionRegistry::FindSchema(FName(*Type));
+      const FRpyInstructionSchema *Schema = FRpyInstructionRegistry::FindSchema(FName(*Type));
       if (!Schema)
         return nullptr;
-      for (const TPair<FName, FString>& Definition : Schema->RequiredFields)
+      for (const TPair<FName, FString> &Definition : Schema->RequiredFields)
       {
         const FString FieldName = Definition.Key.ToString();
         FRpyInstructionProp Value;
@@ -1220,7 +1242,8 @@ bool URpyScript::Compile()
     for (int32 Index = Sequence.Num() - 1; Index >= 0; --Index)
     {
       URpyInstruction *Instruction = Sequence[Index];
-      if (!Instruction) continue;
+      if (!Instruction)
+        continue;
       Instruction->next = Next;
       if (Instruction->children.Num() > 0)
         LinkSequence(Instruction->children, Next);

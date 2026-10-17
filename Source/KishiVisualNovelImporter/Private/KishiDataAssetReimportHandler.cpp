@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "KishiDataAssetReimportHandler.h"
 #include "KishiVisualNovelImporterLog.h"
-// #include "TextFile.h"
+// #include "Assets/TextFile.h"
 #include "HAL/FileManager.h"
 #include "EditorFramework/AssetImportData.h"
 //////////////////////////////////////////////////////////////////////////
@@ -16,29 +15,29 @@
 // 	bCreateNew = false;
 // }
 
-bool FKishiDataAssetReimportHandler::CanReimport(UObject* Obj, TArray<FString>& OutFilenames)
+bool FKishiDataAssetReimportHandler::CanReimport(UObject *Obj, TArray<FString> &OutFilenames)
 {
 	if (Obj->GetClass() == AsFactory->SupportedClass)
 	{
-		UKishiDataAsset* kishiDataAsset = (UKishiDataAsset*)(Obj);
+		UKishiDataAssetBase *kishiDataAsset = (UKishiDataAssetBase *)(Obj);
 		kishiDataAsset->AssetImportData->ExtractFilenames(OutFilenames);
 		return true;
 	}
 	return false;
 }
 
-void FKishiDataAssetReimportHandler::SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths)
+void FKishiDataAssetReimportHandler::SetReimportPaths(UObject *Obj, const TArray<FString> &NewReimportPaths)
 {
-	UKishiDataAsset* kishiDataAsset = (UKishiDataAsset*)(Obj);
+	UKishiDataAssetBase *kishiDataAsset = (UKishiDataAssetBase *)(Obj);
 	if (kishiDataAsset && ensure(NewReimportPaths.Num() == 1))
 	{
 		kishiDataAsset->AssetImportData->UpdateFilenameOnly(NewReimportPaths[0]);
 	}
 }
 
-EReimportResult::Type FKishiDataAssetReimportHandler::Reimport(UObject* Obj)
+EReimportResult::Type FKishiDataAssetReimportHandler::Reimport(UObject *Obj)
 {
-	UKishiDataAsset* kishiDataAsset = (UKishiDataAsset*)(Obj);
+	UKishiDataAssetBase *kishiDataAsset = (UKishiDataAssetBase *)(Obj);
 	if (!kishiDataAsset)
 	{
 		return EReimportResult::Failed;
@@ -94,4 +93,3 @@ int32 FKishiDataAssetReimportHandler::GetPriority() const
 }
 
 //////////////////////////////////////////////////////////////////////////
-
