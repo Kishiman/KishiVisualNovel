@@ -3,6 +3,7 @@
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/PanelWidget.h"
+#include "Animation/Transitions/RpyMoveTransition.h"
 #include "Engine/World.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "PaperSprite.h"
@@ -325,25 +326,32 @@ void UKishiLayeredSpriteWidgetBase::StartMove(FVector2D MoveTo, float Speed, EIn
 {
 	const FVector2D Start = RenderTransform.Translation;
 	const float Duration = Speed == 0.0f ? 100.0f : 1.0f / Speed;
+	UClass *TransitionClass = nullptr;
 	switch (Method)
 	{
 	case EInterpolationMethod::Constant:
-		UAnimationSolverVector2DLibrary::PlayConstant(TranslateAnimationSolver, Start, MoveTo, Duration);
+		TransitionClass = URpyMoveTransition::StaticClass();
 		break;
 	case EInterpolationMethod::Ease:
-		UAnimationSolverVector2DLibrary::PlayEase(TranslateAnimationSolver, Start, MoveTo, Duration, 2.0f);
+		TransitionClass = URpyMoveEaseTransition::StaticClass();
 		break;
 	default:
+		ActiveTranslateTransition = nullptr;
 		break;
+	}
+
+	if (TransitionClass)
+	{
+		ActiveTranslateTransition = NewObject<URpyTransitionBase>(this, TransitionClass);
+		ActiveTranslateTransition->Start2D(this, Start, MoveTo, Duration);
 	}
 }
 
 void UKishiLayeredSpriteWidgetBase::SuperTick(float DeltaSeconds)
 {
-	FVector2D Translation;
-	if (UAnimationSolverVector2DLibrary::Tick(TranslateAnimationSolver, DeltaSeconds, Translation))
+	if (IsValid(ActiveTranslateTransition) && ActiveTranslateTransition->TickTransition(DeltaSeconds))
 	{
-		SetRenderTranslation(Translation);
+		ActiveTranslateTransition = nullptr;
 	}
 }
 

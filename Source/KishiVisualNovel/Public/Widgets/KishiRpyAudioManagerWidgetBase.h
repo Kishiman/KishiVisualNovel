@@ -13,13 +13,14 @@
 
 #include "KishiRpyAudioManagerWidgetBase.generated.h"
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Audio Manager Base"))
 class KISHIVISUALNOVEL_API UKishiRpyAudioManagerWidgetBase : public UKishiRpyManagerWidgetBase, public IRpyAudioManager
 {
 	GENERATED_BODY()
 public:
+	virtual void SetInterpreter_Implementation(const TScriptInterface<IRpyScriptInterpreter> &InInterpreter) override { UKishiRpyManagerWidgetBase::SetInterpreter_Implementation(InInterpreter); }
 	virtual TScriptInterface<IRpyScriptInterpreter> GetInterpreter_Implementation() const override;
-	virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType Type) override;
+	virtual void OnInstructionComplete_Implementation() override;
 	virtual void OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset) override;
 	virtual void OnScriptComplete_Implementation() override;
 	virtual void Reset_Implementation() override;
@@ -41,13 +42,13 @@ protected:
 	TMap<FName, USoundClass *> AudioChannels;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy|Audio")
 	USoundWave *Blip = nullptr;
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Audio")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Audio Manager Widget Base|Hooks")
 	void OnPauseAudioRequested(float Timeout);
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Audio")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Audio Manager Widget Base|Hooks")
 	void OnStopAudioRequested(FName Channel, const FRpyAudioOptions &Options);
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Audio")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Audio Manager Widget Base|Hooks")
 	void OnQueueAudioRequested(FName Channel, const FRpyAudio &Audio, const FRpyAudioOptions &Options);
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Audio")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Audio Manager Widget Base|Hooks")
 	void OnPlayAudioRequested(FName Channel, const FRpyAudio &Audio, const FRpyAudioOptions &Options);
 	USoundWave *ResolveAudio(const FRpyAudio &Audio) const;
 };

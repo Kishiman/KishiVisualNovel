@@ -13,13 +13,14 @@
 
 #include "KishiRpyStatementManagerWidgetBase.generated.h"
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Statement Manager Base"))
 class KISHIVISUALNOVEL_API UKishiRpyStatementManagerWidgetBase : public UKishiRpyManagerWidgetBase, public IRpyStatementManager
 {
 	GENERATED_BODY()
 public:
+	virtual void SetInterpreter_Implementation(const TScriptInterface<IRpyScriptInterpreter> &InInterpreter) override { UKishiRpyManagerWidgetBase::SetInterpreter_Implementation(InInterpreter); }
 	virtual TScriptInterface<IRpyScriptInterpreter> GetInterpreter_Implementation() const override;
-	virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType Type) override;
+	virtual void OnInstructionComplete_Implementation() override;
 	virtual void OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset) override;
 	virtual void OnScriptComplete_Implementation() override;
 	virtual void Reset_Implementation() override;
@@ -50,7 +51,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Rpy|Statement")
 	FMouthViseme LastViseme;
 	float CharacterAccumulator = 0.0f;
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Statement")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Statement Manager Widget Base|Hooks")
 	void OnStatementRequested(FName Name, const FString &Statement);
 	void UpdateVisibleStatement();
 	void CompleteOrRevealStatement();

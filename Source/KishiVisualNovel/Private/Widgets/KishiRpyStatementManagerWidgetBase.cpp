@@ -14,7 +14,6 @@
 #include "LevelSequencePlayer.h"
 #include "PaperSprite.h"
 #include "TimerManager.h"
-#include "Rpy/RpySession.h"
 #include "Templates/KishiScriptInterface.h"
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
@@ -106,7 +105,7 @@ void UKishiRpyStatementManagerWidgetBase::CompleteOrRevealStatement()
 	}
 	if (IsValid(Interpreter.GetObject()))
 	{
-		IRpyScriptInterpreter::Execute_OnInstructionComplete(Interpreter.GetObject(), EInstructionRunTimeType::SAY);
+		IRpyScriptInterpreter::Execute_HandleInstructionComplete(Interpreter.GetObject());
 	}
 }
 

@@ -11,6 +11,7 @@
 class UCanvasPanel;
 class UPanelWidget;
 class UPaperSprite;
+class URpyTransitionBase;
 
 /**
  * Native, Blueprintable implementation of the layered-sprite handler contract.
@@ -115,6 +116,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Visual Novel|Animation")
 	FAnimationSolverVector2D TranslateAnimationSolver;
+
+	UPROPERTY(Transient)
+	URpyTransitionBase *ActiveTranslateTransition = nullptr;
 
 private:
 	void SetLayerWidgetSprite(UUserWidget *LayerWidget, UPaperSprite *Sprite) const;

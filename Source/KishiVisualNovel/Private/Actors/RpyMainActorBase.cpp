@@ -6,7 +6,6 @@
 #include "Interfaces/RpyScriptInterpreter.h"
 #include "Interfaces/RpyStatefulActor.h"
 #include "Rpy/RpyScript.h"
-#include "Widgets/KishiVNPlayerWidgetBase.h"
 
 ARpyMainActorBase::ARpyMainActorBase()
 {
@@ -42,39 +41,63 @@ void ARpyMainActorBase::StartRpyScript_Implementation(URpyScript *Script, FName 
 	{
 		return;
 	}
-	Session->interpreter = Interpreter;
 	Session->AddScript(Script);
-	if (IsValid(Interpreter.GetObject()))
+	if (!InitializeInterpreterForSession(Session))
 	{
-		IRpyScriptInterpreter::Execute_StartUp(Interpreter.GetObject());
-	}
-	if (VNPlayerClass)
-	{
-		APlayerController *PlayerController = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
-		VNPlayer = CreateWidget<UUserWidget>(PlayerController, VNPlayerClass);
-		if (VNPlayer)
-		{
-			if (VNPlayer->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
-			{
-				Interpreter.SetObject(VNPlayer);
-				Interpreter.SetInterface(Cast<IRpyScriptInterpreter>(VNPlayer));
-				Session->interpreter = Interpreter;
-			}
-			if (UKishiVNPlayerWidgetBase *NativePlayer = Cast<UKishiVNPlayerWidgetBase>(VNPlayer))
-			{
-				NativePlayer->SetSession(Session);
-			}
-			VNPlayer->AddToViewport();
-			if (PlayerController)
-			{
-				PlayerController->bShowMouseCursor = true;
-				PlayerController->bEnableClickEvents = true;
-				PlayerController->bEnableMouseOverEvents = true;
-				UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController, VNPlayer);
-			}
-		}
+		Session = nullptr;
+		return;
 	}
 	Session->StartLabel(Label);
+}
+
+bool ARpyMainActorBase::InitializeInterpreterForSession(URpySession *TargetSession)
+{
+	if (!IsValid(TargetSession))
+	{
+		return false;
+	}
+
+	APlayerController *PlayerController = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr;
+	if (!IsValid(VNPlayer) && VNPlayerClass)
+	{
+		VNPlayer = CreateWidget<UUserWidget>(PlayerController, VNPlayerClass);
+		if (!IsValid(VNPlayer))
+		{
+			UE_LOG(LogTemp, Error, TEXT("ARpyMainActorBase: Failed to create VN player widget."));
+			return false;
+		}
+	}
+
+	if (IsValid(VNPlayer) && VNPlayer->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
+	{
+		Interpreter.SetObject(VNPlayer);
+		Interpreter.SetInterface(Cast<IRpyScriptInterpreter>(VNPlayer));
+	}
+
+	UObject *InterpreterObject = Interpreter.GetObject();
+	if (!IsValid(InterpreterObject) || !InterpreterObject->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ARpyMainActorBase: Cannot initialize a VN session without an RPY script interpreter."));
+		return false;
+	}
+
+	TargetSession->interpreter = Interpreter;
+	IRpyScriptInterpreter::Execute_SetSession(InterpreterObject, TargetSession);
+	IRpyScriptInterpreter::Execute_StartUp(InterpreterObject);
+
+	if (IsValid(VNPlayer) && !VNPlayer->IsInViewport())
+	{
+		VNPlayer->AddToViewport();
+	}
+	if (IsValid(VNPlayer) && PlayerController)
+	{
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->bEnableClickEvents = true;
+		PlayerController->bEnableMouseOverEvents = true;
+		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController, VNPlayer);
+	}
+
+	return true;
 }
 
 void ARpyMainActorBase::CloseVN_Implementation()
@@ -126,7 +149,7 @@ URpyState *ARpyMainActorBase::SaveToState_Implementation(UObject *Outer)
 	URpyStatefulActorLibrary::BaseSaveToState(StatefulTarget, State);
 	if (IsValid(Session))
 	{
-		State->rpySessionState = Cast<URpySessionState>(Session->SaveToState(State));
+		State->rpySessionState = Cast<URpySessionState>(IRpyStateful::Execute_SaveToState(Session, State));
 	}
 	return State;
 }
@@ -145,7 +168,11 @@ void ARpyMainActorBase::LoadFromState_Implementation(const URpyState *State)
 	if (MainState->rpySessionState && SessionClass)
 	{
 		Session = NewObject<URpySession>(this, SessionClass);
-		Session->LoadFromState(MainState->rpySessionState);
-		Session->interpreter = Interpreter;
+		if (!InitializeInterpreterForSession(Session))
+		{
+			Session = nullptr;
+			return;
+		}
+		IRpyStateful::Execute_LoadFromState(Session, MainState->rpySessionState);
 	}
 }

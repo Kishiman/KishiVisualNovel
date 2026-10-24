@@ -103,6 +103,10 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Instruction")
     FName InstructionId;
 
+    /** Whether Execute() completed synchronously and the session advanced automatically. */
+    UPROPERTY(Transient, BlueprintReadOnly, Category = "Instruction")
+    bool bAutoExecuteNext = true;
+
     /** All command-specific optional values live here. */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")
     FRpyInstructionProps Props;

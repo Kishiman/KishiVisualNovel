@@ -15,7 +15,7 @@ URpyState *URpyComponent::SaveToState_Implementation(UObject *Outer)
   ComponentState->ComponentName = GetFName();
   if (CurrentSession)
   {
-    ComponentState->rpySessionState = Cast<URpySessionState>(CurrentSession->SaveToState_Implementation(Outer));
+    ComponentState->rpySessionState = Cast<URpySessionState>(IRpyStateful::Execute_SaveToState(CurrentSession, Outer));
   }
   return ComponentState;
 }
@@ -46,7 +46,7 @@ void URpyComponent::LoadFromState_Implementation(const URpyState *State)
     }
     CurrentSession->interpreter = CurrentInterpreter;
     IRpyScriptInterpreter::Execute_StartUp(CurrentInterpreter.GetObject());
-    CurrentSession->LoadFromState_Implementation(ComponentState->rpySessionState);
+    IRpyStateful::Execute_LoadFromState(CurrentSession, ComponentState->rpySessionState);
 		CurrentSession->OnScriptComplete.AddUniqueDynamic(this, &URpyComponent::CloseScript);
   }
 }

@@ -14,13 +14,14 @@ class ULevelSequencePlayer;
 
 #include "KishiRpySceneManagerWidgetBase.generated.h"
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Scene Manager Base"))
 class KISHIVISUALNOVEL_API UKishiRpySceneManagerWidgetBase : public UKishiRpyManagerWidgetBase, public IRpySceneManager
 {
 	GENERATED_BODY()
 public:
+	virtual void SetInterpreter_Implementation(const TScriptInterface<IRpyScriptInterpreter> &InInterpreter) override { UKishiRpyManagerWidgetBase::SetInterpreter_Implementation(InInterpreter); }
 	virtual TScriptInterface<IRpyScriptInterpreter> GetInterpreter_Implementation() const override;
-	virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType Type) override;
+	virtual void OnInstructionComplete_Implementation() override;
 	virtual void OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset) override;
 	virtual void OnScriptComplete_Implementation() override;
 	virtual void Reset_Implementation() override;
@@ -41,6 +42,6 @@ protected:
 	FVector2D SceneTargetSize = FVector2D(1920.0f, 1080.0f);
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Scene")
 	ULevelSequencePlayer *ActiveLevelSequencePlayer = nullptr;
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Scene")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Scene Manager Widget Base|Hooks")
 	void OnSceneRequested(const FRpyImage &Image, const FRpySceneOptions &Options);
 };

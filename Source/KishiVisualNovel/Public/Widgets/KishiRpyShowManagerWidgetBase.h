@@ -14,13 +14,14 @@ class UCanvasPanel;
 
 #include "KishiRpyShowManagerWidgetBase.generated.h"
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Show Manager Base"))
 class KISHIVISUALNOVEL_API UKishiRpyShowManagerWidgetBase : public UKishiRpyManagerWidgetBase, public IRpyShowManager
 {
 	GENERATED_BODY()
 public:
+	virtual void SetInterpreter_Implementation(const TScriptInterface<IRpyScriptInterpreter> &InInterpreter) override { UKishiRpyManagerWidgetBase::SetInterpreter_Implementation(InInterpreter); }
 	virtual TScriptInterface<IRpyScriptInterpreter> GetInterpreter_Implementation() const override;
-	virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType Type) override;
+	virtual void OnInstructionComplete_Implementation() override;
 	virtual void OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset) override;
 	virtual void OnScriptComplete_Implementation() override;
 	virtual void Reset_Implementation() override;
@@ -44,9 +45,9 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Show")
 	TMap<FName, UUserWidget *> ShownWidgets;
 	TMap<FName, FTimerHandle> HideTimers;
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Show")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Show Manager Widget Base|Hooks")
 	void OnShowRequested(const FRpyImage &Image, const FRpySceneOptions &Options);
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Show")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Show Manager Widget Base|Hooks")
 	void OnHideRequested(FName Tag, const FRpySceneOptions &Options);
 	UUserWidget *CreateImageWidget(const FRpyImage &Image, const FRpySceneOptions &Options);
 	void RemoveShownWidget(FName Tag);

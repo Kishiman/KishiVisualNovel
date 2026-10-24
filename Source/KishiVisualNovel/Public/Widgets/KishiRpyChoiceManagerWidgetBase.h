@@ -16,13 +16,14 @@ class UPanelWidget;
 
 class UKishiChoiceEntryWidgetBase;
 
-UCLASS(Abstract, Blueprintable)
+UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Choice Manager Base"))
 class KISHIVISUALNOVEL_API UKishiRpyChoiceManagerWidgetBase : public UKishiRpyManagerWidgetBase, public IRpyChoiceManager
 {
 	GENERATED_BODY()
 public:
+	virtual void SetInterpreter_Implementation(const TScriptInterface<IRpyScriptInterpreter> &InInterpreter) override { UKishiRpyManagerWidgetBase::SetInterpreter_Implementation(InInterpreter); }
 	virtual TScriptInterface<IRpyScriptInterpreter> GetInterpreter_Implementation() const override;
-	virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType Type) override;
+	virtual void OnInstructionComplete_Implementation() override;
 	virtual void OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset) override;
 	virtual void OnScriptComplete_Implementation() override;
 	virtual void Reset_Implementation() override;
@@ -39,8 +40,8 @@ protected:
 	UPanelWidget *ChoicesPanel = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy|Choice")
 	TSubclassOf<UKishiChoiceEntryWidgetBase> ChoiceEntryClass;
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Choice")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Choice Manager Widget Base|Hooks")
 	void OnChoicesRequested(const TArray<FString> &Choices);
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Choice")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Choice Manager Widget Base|Hooks")
 	void OnChoiceSelected(int32 Index);
 };

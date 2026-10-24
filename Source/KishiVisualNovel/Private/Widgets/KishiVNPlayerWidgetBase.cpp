@@ -3,16 +3,46 @@
 #include "Interfaces/RpyScriptInterpreter.h"
 #include "Interfaces/RpyScriptInterpreterBaseManager.h"
 #include "Components/Widget.h"
+#include "Blueprint/WidgetTree.h"
 #include "UObject/UnrealType.h"
 #include "Rpy/RpySession.h"
-#include "Widgets/KishiRpyAudioManagerWidgetBase.h"
-#include "Widgets/KishiRpyChoiceManagerWidgetBase.h"
-#include "Widgets/KishiRpySceneManagerWidgetBase.h"
-#include "Widgets/KishiRpyShowManagerWidgetBase.h"
-#include "Widgets/KishiRpyStatementManagerWidgetBase.h"
 
 namespace
 {
+	template <typename TManagerInterface>
+	UUserWidget *FindManagerWidget(const TArray<UWidget *> &Widgets, const TCHAR *RoleName, bool bWarnOnMissing)
+	{
+		UUserWidget *FoundWidget = nullptr;
+		for (UWidget *Widget : Widgets)
+		{
+			if (!IsValid(Widget) || !Widget->GetClass()->ImplementsInterface(TManagerInterface::UClassType::StaticClass()))
+			{
+				continue;
+			}
+
+			UUserWidget *ManagerWidget = Cast<UUserWidget>(Widget);
+			if (!ManagerWidget)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("VN Player Interpreter: %s manager interface is implemented by '%s', which is not a UserWidget."), RoleName, *Widget->GetName());
+				continue;
+			}
+
+			if (FoundWidget)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("VN Player Interpreter: Multiple %s manager widgets found ('%s' and '%s'); using the first."), RoleName, *FoundWidget->GetName(), *ManagerWidget->GetName());
+				continue;
+			}
+
+			FoundWidget = ManagerWidget;
+		}
+
+		if (!FoundWidget && bWarnOnMissing)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("VN Player Interpreter: No %s manager widget found. Add a UserWidget that implements the %s manager interface to this widget tree."), RoleName, RoleName);
+		}
+		return FoundWidget;
+	}
+
 	template <typename TInterface>
 	TScriptInterface<TInterface> MakeWidgetInterface(UUserWidget *Widget)
 	{
@@ -35,7 +65,23 @@ TScriptInterface<IRpyStatementManager> UKishiVNPlayerWidgetBase::GetStatementMan
 void UKishiVNPlayerWidgetBase::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+	DiscoverManagers(false);
 	WireManagers();
+}
+
+void UKishiVNPlayerWidgetBase::DiscoverManagers(bool bWarnOnMissing)
+{
+	TArray<UWidget *> Widgets;
+	if (WidgetTree)
+	{
+		WidgetTree->GetAllWidgets(Widgets);
+	}
+
+	AudioManager = FindManagerWidget<IRpyAudioManager>(Widgets, TEXT("Audio"), bWarnOnMissing);
+	ChoiceManager = FindManagerWidget<IRpyChoiceManager>(Widgets, TEXT("Choice"), bWarnOnMissing);
+	SceneManager = FindManagerWidget<IRpySceneManager>(Widgets, TEXT("Scene"), bWarnOnMissing);
+	ShowManager = FindManagerWidget<IRpyShowManager>(Widgets, TEXT("Show"), bWarnOnMissing);
+	StatementManager = FindManagerWidget<IRpyStatementManager>(Widgets, TEXT("Statement"), bWarnOnMissing);
 }
 
 void UKishiVNPlayerWidgetBase::WireManagers()
@@ -45,15 +91,16 @@ void UKishiVNPlayerWidgetBase::WireManagers()
 	Self.SetInterface(Cast<IRpyScriptInterpreter>(this));
 	for (UUserWidget *Widget : {AudioManager, ChoiceManager, SceneManager, ShowManager, StatementManager})
 	{
-		if (UKishiRpyManagerWidgetBase *Manager = Cast<UKishiRpyManagerWidgetBase>(Widget))
+		if (IsValid(Widget) && Widget->GetClass()->ImplementsInterface(URpyScriptInterpreterBaseManager::StaticClass()))
 		{
-			Manager->SetInterpreter(Self);
+			IRpyScriptInterpreterBaseManager::Execute_SetInterpreter(Widget, Self);
 		}
 	}
 }
 
 void UKishiVNPlayerWidgetBase::StartUp_Implementation()
 {
+	DiscoverManagers(true);
 	WireManagers();
 	bStarted = true;
 	OnInterpreterStarted();
@@ -120,7 +167,7 @@ void UKishiVNPlayerWidgetBase::setBackLogMenuVisible_Implementation(bool bVisibl
 	const_cast<UKishiVNPlayerWidgetBase *>(this)->OnBackLogMenuVisibilityChanged(bVisible);
 }
 
-void UKishiVNPlayerWidgetBase::SetSession(URpySession *InSession)
+void UKishiVNPlayerWidgetBase::SetSession_Implementation(URpySession *InSession)
 {
 	Session = InSession;
 	if (IsValid(Session))
@@ -130,13 +177,13 @@ void UKishiVNPlayerWidgetBase::SetSession(URpySession *InSession)
 	}
 }
 
-void UKishiVNPlayerWidgetBase::OnInstructionComplete_Implementation(EInstructionRunTimeType Type)
+void UKishiVNPlayerWidgetBase::HandleInstructionComplete_Implementation()
 {
 	TScriptInterface<IRpyScriptInterpreter> Self;
 	Self.SetObject(this);
 	Self.SetInterface(Cast<IRpyScriptInterpreter>(this));
-	URpyScriptInterpreterImplementation::IOnInstructionComplete_Default(Self, Type);
-	OnInstructionCompleted(Type);
+	OnInstructionCompleted();
+	URpyScriptInterpreterImplementation::IHandleInstructionComplete_Default(Self);
 }
 
 void UKishiVNPlayerWidgetBase::OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset)

@@ -17,22 +17,22 @@ class KISHIVISUALNOVEL_API IRpySceneManager : public IRpyScriptInterpreterBaseMa
   GENERATED_BODY()
 public:
   // get state
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpySceneManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   FRpySceneManagerState GetSceneManagerState() const;
-  virtual FRpySceneManagerState GetSceneManagerState_Implementation() const = 0;
+  virtual FRpySceneManagerState GetSceneManagerState_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpySceneManager::GetSceneManagerState")); return {}; }
 
   // set state
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpySceneManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   void SetSceneManagerState(const FRpySceneManagerState &State);
-  virtual void SetSceneManagerState_Implementation(const FRpySceneManagerState &State) = 0;
+  virtual void SetSceneManagerState_Implementation(const FRpySceneManagerState &State) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpySceneManager::SetSceneManagerState")); }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpySceneManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   bool Scene(FRpyImage rpyImage, FRpySceneOptions options);
-  virtual bool Scene_Implementation(FRpyImage rpyImage, FRpySceneOptions options) = 0;
+  virtual bool Scene_Implementation(FRpyImage rpyImage, FRpySceneOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpySceneManager::Scene")); return {}; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpySceneManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   FRpySceneManagerState GetCurrentSceneState();
-  virtual FRpySceneManagerState GetCurrentSceneState_Implementation() const = 0;
+  virtual FRpySceneManagerState GetCurrentSceneState_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpySceneManager::GetCurrentSceneState")); return {}; }
 };
 
 // UCLASS()

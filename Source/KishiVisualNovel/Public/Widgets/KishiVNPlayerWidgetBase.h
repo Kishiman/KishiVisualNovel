@@ -10,8 +10,12 @@
 #include "Interfaces/ScriptInterpreterManagers/RpyStatementManager.h"
 #include "KishiVNPlayerWidgetBase.generated.h"
 
-/** C++ implementation of the interpreter contract used by WGT_VNPlayer. */
-UCLASS(Abstract, Blueprintable)
+/**
+ * Abstract native implementation of IRpyScriptInterpreter for the VN player widget.
+ * Create a child Widget Blueprint from this class. The interpreter interface is implemented
+ * here; customize the player through the Blueprint events below instead of implementing it again.
+ */
+UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Player Interpreter Base"))
 class KISHIVISUALNOVEL_API UKishiVNPlayerWidgetBase : public UUserWidget, public IRpyScriptInterpreter
 {
 	GENERATED_BODY()
@@ -27,31 +31,30 @@ public:
 	virtual void setConfigMenuVisible_Implementation(bool bVisible) const override;
 	virtual bool getBackLogMenuVisible_Implementation() const override { return bBackLogMenuVisible; }
 	virtual void setBackLogMenuVisible_Implementation(bool bVisible) const override;
+	virtual void SetSession_Implementation(URpySession *InSession) override;
 	virtual URpySession *GetSession_Implementation() const override { return Session; }
 	virtual TScriptInterface<IRpyAudioManager> GetAudioManager_Implementation() const override;
 	virtual TScriptInterface<IRpyChoiceManager> GetChoiceManager_Implementation() const override;
 	virtual TScriptInterface<IRpySceneManager> GetSceneManager_Implementation() const override;
 	virtual TScriptInterface<IRpyShowManager> GetShowManager_Implementation() const override;
 	virtual TScriptInterface<IRpyStatementManager> GetStatementManager_Implementation() const override;
-	virtual void OnInstructionComplete_Implementation(EInstructionRunTimeType Type) override;
+	virtual void HandleInstructionComplete_Implementation() override;
 	virtual void OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset) override;
 	virtual void OnScriptComplete_Implementation() override;
-
-	UFUNCTION(BlueprintCallable, Category = "Rpy")
-	void SetSession(URpySession *InSession);
 
 protected:
 	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Menus")
 	UUserWidget *SaveMenu = nullptr;
-	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Managers")
+	// Cached from the widget tree by interface, so manager widget names do not matter.
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Managers")
 	UUserWidget *AudioManager = nullptr;
-	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Managers")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Managers")
 	UUserWidget *ChoiceManager = nullptr;
-	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Managers")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Managers")
 	UUserWidget *SceneManager = nullptr;
-	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Managers")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Managers")
 	UUserWidget *ShowManager = nullptr;
-	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Managers")
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Managers")
 	UUserWidget *StatementManager = nullptr;
 	UPROPERTY(BlueprintReadOnly, Category = "Rpy")
 	URpySession *Session = nullptr;
@@ -66,15 +69,20 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Rpy|Menus")
 	mutable bool bBackLogMenuVisible = false;
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy")
+	/** Child Blueprint hook called after the native interpreter starts. */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi VN Player Widget Base|Hooks")
 	void OnInterpreterStarted();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy")
+	/** Child Blueprint hook called after the native interpreter shuts down. */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi VN Player Widget Base|Hooks")
 	void OnInterpreterShutdown();
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy")
-	void OnInstructionCompleted(EInstructionRunTimeType Type);
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy")
+	/** Child Blueprint hook called after an instruction completes. */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi VN Player Widget Base|Hooks")
+	void OnInstructionCompleted();
+	/** Child Blueprint hook for dialogue viseme updates. */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi VN Player Widget Base|Hooks")
 	void OnViseme(FName Name, EMouthViseme Viseme, float TimeOffset);
-	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy")
+	/** Child Blueprint hook called when the VN script completes. */
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi VN Player Widget Base|Hooks")
 	void OnVNScriptCompleted();
 	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Menus")
 	void OnSaveMenuVisibilityChanged(bool bVisible);
@@ -85,5 +93,6 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Rpy|Menus")
 	void OnBackLogMenuVisibilityChanged(bool bVisible);
 	virtual void NativeOnInitialized() override;
+	void DiscoverManagers(bool bWarnOnMissing);
 	void WireManagers();
 };

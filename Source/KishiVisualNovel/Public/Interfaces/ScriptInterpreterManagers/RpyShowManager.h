@@ -17,26 +17,26 @@ class KISHIVISUALNOVEL_API IRpyShowManager : public IRpyScriptInterpreterBaseMan
   GENERATED_BODY()
 public:
   // get state
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyShowManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   FRpyShowManagerState GetShowManagerState() const;
-  virtual FRpyShowManagerState GetShowManagerState_Implementation() const = 0;
+  virtual FRpyShowManagerState GetShowManagerState_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyShowManager::GetShowManagerState")); return {}; }
 
   // set state
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyShowManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   void SetShowManagerState(const FRpyShowManagerState &State);
-  virtual void SetShowManagerState_Implementation(const FRpyShowManagerState &State) = 0;
+  virtual void SetShowManagerState_Implementation(const FRpyShowManagerState &State) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyShowManager::SetShowManagerState")); }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyShowManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   bool Show(FRpyImage rpyImage, FRpySceneOptions options);
-  virtual bool Show_Implementation(FRpyImage rpyImage, FRpySceneOptions options) = 0;
+  virtual bool Show_Implementation(FRpyImage rpyImage, FRpySceneOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyShowManager::Show")); return {}; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyShowManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   bool Hide(FName tag, FRpySceneOptions options);
-  virtual bool Hide_Implementation(FName tag, FRpySceneOptions options) = 0;
+  virtual bool Hide_Implementation(FName tag, FRpySceneOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyShowManager::Hide")); return {}; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyShowManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   TArray<FRpyShowManagerState> GetCurrentShowStates();
-  virtual TArray<FRpyShowManagerState> GetCurrentShowStates_Implementation() const = 0;
+  virtual TArray<FRpyShowManagerState> GetCurrentShowStates_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyShowManager::GetCurrentShowStates")); return {}; }
 };
 
 // UCLASS()

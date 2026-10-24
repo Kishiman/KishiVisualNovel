@@ -81,7 +81,7 @@ bool UBaseRpyGameInstance::SaveGameToSlot(UBaseRpySaveGame *SaveGame, const FStr
     Async(EAsyncExecution::Thread, [this, Future = MoveTemp(Future), SaveGame, SlotName, UserIndex]() mutable
           {
         auto PNGData = Future.Get(); // blocks until screenshot ready
-        SaveGame->SetScreenshot_Implementation(PNGData);
+        IRpySaveGame::Execute_SetScreenshot(SaveGame, PNGData);
         UGameplayStatics::SaveGameToSlot(SaveGame, SlotName, UserIndex);
         FString Path = FPaths::ProjectSavedDir() + "Screenshots/" + SlotName + ".png";
         FFileHelper::SaveArrayToFile(PNGData, *Path);

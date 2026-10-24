@@ -63,6 +63,7 @@ bool URpySession::Run()
 		try
 		{
 			bool autoNext = this->current->Execute(this);
+			this->current->bAutoExecuteNext = autoNext;
 			if (!autoNext)
 				break;
 			this->current = this->current->GetNext(this);
@@ -136,6 +137,12 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 		UE_LOG(LogTemp, Error, TEXT("LoadFromState_Implementation: State is not URpySessionState"));
 		return;
 	}
+	UObject *InterpreterObject = interpreter.GetObject();
+	if (!IsValid(InterpreterObject) || !InterpreterObject->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadFromState_Implementation: Cannot restore the session without a valid script interpreter."));
+		return;
+	}
 	// Load the saved state into the session
 	if (sessionState->currentInstruction.script.IsValid() && sessionState->currentInstruction.index != -1)
 	{
@@ -190,6 +197,12 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 	auto sceneManager = IRpyScriptInterpreter::Execute_GetSceneManager(interpreter.GetObject());
 	auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(interpreter.GetObject());
 	auto statementManager = IRpyScriptInterpreter::Execute_GetStatementManager(interpreter.GetObject());
+	if (!IsValid(audioManager.GetObject()) || !IsValid(choiceManager.GetObject()) || !IsValid(sceneManager.GetObject()) ||
+		!IsValid(showManager.GetObject()) || !IsValid(statementManager.GetObject()))
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadFromState_Implementation: The script interpreter is missing one or more required managers."));
+		return;
+	}
 
 	IRpyAudioManager::Execute_Reset(audioManager.GetObject());
 	IRpyChoiceManager::Execute_Reset(choiceManager.GetObject());

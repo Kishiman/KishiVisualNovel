@@ -32,6 +32,8 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
 - This plugin targets UE 4.27 and its supported compiler/toolchain. Check engine headers for the exact API and include path before using newer Unreal APIs.
 - Keep reflected types compatible with UnrealHeaderTool. A `USTRUCT` cannot contain `UFUNCTION`; put Blueprint functions in a `UBlueprintFunctionLibrary`. Each reflected header must include its own `.generated.h` as the final include.
 - Use `UPROPERTY` for UObject references that need to be retained by the garbage collector. Do not manually `delete` UObjects.
+- For Blueprint event functions declared on a `UINTERFACE`, dispatch through `IInterface::Execute_Function(UObject*, ...)`. Never call the event on an object/interface pointer or call another object's `_Implementation` directly; that bypasses Blueprint dispatch and can assert. Implementers should define or override `_Implementation` as the event body, while call sites use `Execute_*`.
+- Treat `*Base` classes as optional proposed implementations of their interfaces. When behavior depends on an interface, check `UClass::ImplementsInterface` and dispatch through `IInterface::Execute_*`; do not cast to a plugin Base class. Put shared configuration operations, such as assigning an interpreter to a manager, on the relevant interface so direct implementers work too.
 - Keep editor-only classes and module dependencies in `KishiVisualNovelImporter`; runtime code must not depend on editor modules.
 - Keep behavior-preserving changes localized. When making an intentional breaking format or API change, update the XML documentation and relevant fixtures in the same change.
 

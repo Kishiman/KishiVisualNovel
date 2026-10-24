@@ -32,6 +32,8 @@ public:
 	UUserWidget* GetVNPlayer() const { return VNPlayer; }
 
 protected:
+	bool InitializeInterpreterForSession(URpySession *TargetSession);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Rpy")
 	TSubclassOf<UUserWidget> VNPlayerClass;
 

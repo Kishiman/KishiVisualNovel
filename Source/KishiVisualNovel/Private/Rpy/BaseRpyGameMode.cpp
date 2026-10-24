@@ -13,7 +13,7 @@ UBaseRpySaveGame *ABaseRpyGameMode::CreateSaveGame()
         return nullptr;
 
     // store level name
-    SaveGame->SetLevelName_Implementation(UGameplayStatics::GetCurrentLevelName(this));
+    IRpySaveGame::Execute_SetLevelName(SaveGame, UGameplayStatics::GetCurrentLevelName(this));
 
     TArray<AActor *> AllActors;
     UGameplayStatics::GetAllActorsWithInterface(GetWorld(), URpyStatefulActor::StaticClass(), AllActors);
@@ -28,7 +28,7 @@ UBaseRpySaveGame *ABaseRpyGameMode::CreateSaveGame()
             continue;
         }
         State->PrintDebug();
-        SaveGame->SetStatefulActorState_Implementation(Actor, State);
+        IRpySaveGame::Execute_SetStatefulActorState(SaveGame, Actor, State);
     }
 
     TArray<AActor *> ActorsWithComponents;
@@ -68,7 +68,7 @@ void ABaseRpyGameMode::RestoreSaveGame(UBaseRpySaveGame *SaveGame)
 
     for (AActor *Actor : AllActors)
     {
-        auto State = SaveGame->GetStatefulActorState_Implementation(Actor);
+        auto State = IRpySaveGame::Execute_GetStatefulActorState(SaveGame, Actor);
         if (!State)
         {
             UE_LOG(LogTemp, Warning, TEXT("SaveGame returned null state for Actor %s"), *Actor->GetName());
