@@ -5,42 +5,86 @@
   <asset kind="image" name="flight_attendant" path="DBCooper/airplane_attendent_LS" />
   <label name="start">
     <scene asset="bg_meadow" />
-    <say>scene bg meadow</say>
-    <show asset="flight_attendant" transition="fade" position="left" />
-    <say>show flight_attendant with fade at left</say>
-    <hide tag="flight_attendant" />
-    <show asset="sylvie" attributes="green normal" transition="fade" position="right" />
-    <say>hide flight_attendant
-      show sylvie green smile with fade at right
-      pause 2.0</say>
-    <pause duration="2.0" />
-    <show asset="sylvie" attributes="green giggle" transition="fade" position="left" />
-    <say>show sylvie green giggle with fade at left</say>
-    <hide tag="sylvie" transition="fade" duration="0.5" />
-    <say>hide sylvie with fade 0.5</say>
-    <show asset="sylvie" attributes="green normal" transition="easeinright" position="right" />
-    <say>show sylvie green smile with easeinright at right</say>
-    <show asset="sylvie" attributes="green giggle" transition="easeinleft" position="left" />
-    <say>show sylvie green giggle with easeinleft at left</say>
+
+    <show asset="sylvie" attributes="green giggle" transition="easeinbottom" position="left" />
+    <say>easeinbottom: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="easeinbottom" position="right" />
+    <say>easeinbottom: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="easeinbottom" position="left" />
+    <say>easeinbottom: show left, green giggle</say>
     <hide tag="sylvie" transition="easeinbottom" duration="0.5" />
-    <say>hide sylvie with easeinbottom 0.5</say>
+    <say>easeinbottom: hide</say>
+
+    <show asset="sylvie" attributes="green giggle" transition="fade" position="left" />
+    <say>fade: show left, green giggle</say>
+    <show asset="sylvie" attributes="green giggle" transition="fade" position="right" />
+    <say>fade: show right, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="fade" position="left" />
+    <say>fade: show left, green normal</say>
+    <hide tag="sylvie" transition="fade" duration="0.5" />
+    <say>fade: hide</say>
+
+    <show asset="sylvie" attributes="green giggle" transition="easeinright" position="left" />
+    <say>easeinright: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="easeinright" position="right" />
+    <say>easeinright: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="easeinright" position="left" />
+    <say>easeinright: show left, green giggle</say>
+    <hide tag="sylvie" transition="easeinright" duration="0.5" />
+    <say>easeinright: hide</say>
+
+    <show asset="sylvie" attributes="green giggle" transition="easeinleft" position="left" />
+    <say>easeinleft: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="easeinleft" position="right" />
+    <say>easeinleft: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="easeinleft" position="left" />
+    <say>easeinleft: show left, green giggle</say>
+    <hide tag="sylvie" transition="easeinleft" duration="0.5" />
+    <say>easeinleft: hide</say>
+
+    <show asset="sylvie" attributes="green giggle" transition="moveinright" position="left" />
+    <say>moveinright: show left, green giggle</say>
     <show asset="sylvie" attributes="green normal" transition="moveinright" position="right" />
-    <say>show sylvie green smile with moveinright at right</say>
+    <say>moveinright: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="moveinright" position="left" />
+    <say>moveinright: show left, green giggle</say>
+    <hide tag="sylvie" transition="moveinright" duration="0.5" />
+    <say>moveinright: hide</say>
+
     <show asset="sylvie" attributes="green giggle" transition="moveinleft" position="left" />
-    <say>show sylvie green giggle with moveinleft at left</say>
+    <say>moveinleft: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="moveinleft" position="right" />
+    <say>moveinleft: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="moveinleft" position="left" />
+    <say>moveinleft: show left, green giggle</say>
+    <hide tag="sylvie" transition="moveinleft" duration="0.5" />
+    <say>moveinleft: hide</say>
+
+    <show asset="sylvie" attributes="green giggle" transition="moveinbottom" position="left" />
+    <say>moveinbottom: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="moveinbottom" position="right" />
+    <say>moveinbottom: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="moveinbottom" position="left" />
+    <say>moveinbottom: show left, green giggle</say>
     <hide tag="sylvie" transition="moveinbottom" duration="0.5" />
-    <say>hide sylvie with moveinbottom 0.5</say>
-    <show asset="sylvie" attributes="green normal" transition="dissolve" position="right" />
-    <say>show sylvie green smile with dissolve at right</say>
+    <say>moveinbottom: hide</say>
+
     <show asset="sylvie" attributes="green giggle" transition="dissolve" position="left" />
-    <say>show sylvie green giggle with dissolve at left</say>
+    <say>dissolve: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="dissolve" position="right" />
+    <say>dissolve: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="dissolve" position="left" />
+    <say>dissolve: show left, green giggle</say>
     <hide tag="sylvie" transition="dissolve" duration="0.5" />
-    <say>hide sylvie with dissolve 0.5</say>
-    <show asset="sylvie" attributes="green normal" transition="zoom" position="right" />
-    <say>show sylvie green smile with zoom at right</say>
+    <say>dissolve: hide</say>
+
     <show asset="sylvie" attributes="green giggle" transition="zoom" position="left" />
-    <say>show sylvie green giggle with zoom at left</say>
+    <say>zoom: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="zoom" position="right" />
+    <say>zoom: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="zoom" position="left" />
+    <say>zoom: show left, green giggle</say>
     <hide tag="sylvie" transition="zoom" duration="0.5" />
-    <say>hide sylvie with zoom 0.5</say>
+    <say>zoom: hide</say>
   </label>
 </visualNovel>
