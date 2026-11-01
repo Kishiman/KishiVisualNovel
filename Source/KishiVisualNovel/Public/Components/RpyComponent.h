@@ -108,8 +108,8 @@ public:
   UPROPERTY(BlueprintAssignable)
   FOnScriptComplete OnScriptComplete;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
-  TSubclassOf<URpyScriptInterpreter> InterpreterClass;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction", meta = (MustImplement = "RpyScriptInterpreter"))
+  TSubclassOf<UObject> InterpreterClass;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
   URpySession *CurrentSession;

@@ -26,11 +26,11 @@ inline RpyInstructionType operator|(RpyInstructionType a, RpyInstructionType b)
 };
 inline RpyInstructionType operator&(RpyInstructionType a, RpyInstructionType b)
 {
-    return static_cast<RpyInstructionType>(static_cast<uint8>(a) | static_cast<uint8>(b));
+    return static_cast<RpyInstructionType>(static_cast<uint8>(a) & static_cast<uint8>(b));
 };
 constexpr bool operator!(RpyInstructionType value)
 {
-    return static_cast<bool>(static_cast<uint8>(value));
+    return static_cast<uint8>(value) == 0;
 }
 
 UCLASS(BlueprintType)

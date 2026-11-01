@@ -13,7 +13,7 @@ void URpySession::AddScript(URpyScript *script)
 }
 void URpySession::ClearScript(URpyScript *script)
 {
-	scripts.Empty();
+	scripts.Remove(script);
 }
 TArray<FName> URpySession::GetLabels() const
 {
@@ -33,17 +33,22 @@ EInstructionRunTimeType URpySession::GetRunTimeType() const
 
 bool URpySession::StartLabel(FName label)
 {
+	this->current = nullptr;
 	for (auto script : scripts)
 	{
-		this->current = script->labels[label];
-		if (this->current)
+		URpyInstruction **found = script ? script->labels.Find(label) : nullptr;
+		if (found && *found)
 		{
+			this->current = *found;
 			FDynamicObject::AssignIfNotExist(this->runtimeData, script->compileData);
 			break;
 		}
 	}
 	if (!this->current)
-		return true;
+	{
+		UE_LOG(LogTemp, Error, TEXT("URpySession::StartLabel: Label '%s' was not found in the session's scripts"), *label.ToString());
+		return false;
+	}
 	return Run();
 };
 bool URpySession::RunNext()
@@ -60,21 +65,11 @@ bool URpySession::Run()
 	{
 
 		UE_LOG(LogTemp, Display, TEXT("Executing instruction: %s"), *this->current->ToString());
-		try
-		{
-			bool autoNext = this->current->Execute(this);
-			this->current->bAutoExecuteNext = autoNext;
-			if (!autoNext)
-				break;
-			this->current = this->current->GetNext(this);
-		}
-		catch (const std::exception &e)
-		{
-			UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
-			IRpyScriptInterpreter::Execute_OnScriptComplete(this->interpreter.GetObject());
-			OnScriptComplete.Broadcast();
-			return false;
-		}
+		bool autoNext = this->current->Execute(this);
+		this->current->bAutoExecuteNext = autoNext;
+		if (!autoNext)
+			break;
+		this->current = this->current->GetNext(this);
 	}
 	if (!this->current)
 	{
@@ -185,7 +180,6 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 		}
 	}
 	this->runtimeData = sessionState->runtimeData;
-	this->sceneState = sessionState->sceneState;
 	this->sceneState = sessionState->sceneState;
 	this->showState = sessionState->showState;
 	this->statementState = sessionState->statementState;

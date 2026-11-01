@@ -18,7 +18,13 @@ public:
   };
   virtual URpyInstruction *GetNext(URpySession *session)
   {
-    return this->script->labels[this->label];
+    URpyInstruction **Target = this->script->labels.Find(this->label);
+    if (!Target)
+    {
+      UE_LOG(LogTemp, Error, TEXT("UJumpInstruction::GetNext: Label '%s' was not found"), *this->label.ToString());
+      return nullptr;
+    }
+    return *Target;
   };
   virtual TArray<URpyInstruction *> GetPossibleNextInstructions() const override
   {

@@ -33,7 +33,7 @@ void URpyComponent::LoadFromState_Implementation(const URpyState *State)
   {
     if (!CurrentInterpreter && InterpreterClass)
     {
-      CurrentInterpreter = TScriptInterface<IRpyScriptInterpreter>(NewObject<URpyScriptInterpreter>(this, InterpreterClass));
+      CurrentInterpreter = TScriptInterface<IRpyScriptInterpreter>(NewObject<UObject>(this, InterpreterClass));
     }
     if (!CurrentInterpreter)
     {
@@ -73,7 +73,7 @@ void URpyComponent::StartScript(URpyScript *Script, FName const &Label)
       UE_LOG(LogTemp, Error, TEXT("URpyComponent::StartScript: No InterpreterClass set"));
       return;
     }
-    CurrentInterpreter = TScriptInterface<IRpyScriptInterpreter>(NewObject<URpyScriptInterpreter>(this, InterpreterClass));
+    CurrentInterpreter = TScriptInterface<IRpyScriptInterpreter>(NewObject<UObject>(this, InterpreterClass));
   }
   if (!CurrentSession)
   {
