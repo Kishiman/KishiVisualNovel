@@ -9,6 +9,22 @@
 /** Calls sprite, media and transition functions that widgets declare in Blueprint, by name. */
 namespace
 {
+	/** Sets the function's target size parameter. WGT_Sprite names it "Target Size"; UKishiSpriteWidget names it TargetSize. */
+	inline void SetTargetSizeParam(UFunction* Function, void* Params, FVector2D TargetSize)
+	{
+		for (const TCHAR* Name : {TEXT("TargetSize"), TEXT("Target Size"), TEXT("MaxSize"), TEXT("Max Size")})
+		{
+			FStructProperty* Property = FindFProperty<FStructProperty>(Function, Name);
+			if (Property && Property->Struct == TBaseStructure<FVector2D>::Get())
+			{
+				Property->CopyCompleteValue(Property->ContainerPtrToValuePtr<void>(Params), &TargetSize);
+				return;
+			}
+		}
+		// Left at zero, the image is usually scaled to nothing.
+		UE_LOG(LogTemp, Warning, TEXT("%s has no TargetSize parameter; the image may be drawn at zero size."), *Function->GetPathName());
+	}
+
 	/** Returns false if the widget has no SetSprite function. */
 	inline bool SetImageOnWidget(UUserWidget* Widget, UPaperSprite* Sprite, FVector2D TargetSize)
 	{
@@ -22,8 +38,7 @@ namespace
 		if (!SpriteProperty) SpriteProperty = FindFProperty<FObjectPropertyBase>(Function, TEXT("InSprite"));
 		if (SpriteProperty)
 			SpriteProperty->SetObjectPropertyValue_InContainer(Params.GetStructMemory(), Sprite);
-		if (FStructProperty* Property = FindFProperty<FStructProperty>(Function, TEXT("TargetSize")))
-			if (Property->Struct == TBaseStructure<FVector2D>::Get()) Property->CopyCompleteValue(Property->ContainerPtrToValuePtr<void>(Params.GetStructMemory()), &TargetSize);
+		SetTargetSizeParam(Function, Params.GetStructMemory(), TargetSize);
 		FProperty* Method = FindFProperty<FProperty>(Function, TEXT("Method"));
 		if (!Method) Method = FindFProperty<FProperty>(Function, TEXT("ScalingMethod"));
 		if (Method)
@@ -54,8 +69,7 @@ namespace
 		if (!MediaProperty) MediaProperty = FindFProperty<FObjectPropertyBase>(Function, TEXT("InMediaSource"));
 		if (MediaProperty)
 			MediaProperty->SetObjectPropertyValue_InContainer(Params.GetStructMemory(), MediaSource);
-		if (FStructProperty* Property = FindFProperty<FStructProperty>(Function, TEXT("TargetSize")))
-			if (Property->Struct == TBaseStructure<FVector2D>::Get()) Property->CopyCompleteValue(Property->ContainerPtrToValuePtr<void>(Params.GetStructMemory()), &TargetSize);
+		SetTargetSizeParam(Function, Params.GetStructMemory(), TargetSize);
 		Widget->ProcessEvent(Function, Params.GetStructMemory());
 		return true;
 	}

@@ -31,6 +31,10 @@ public:
 	virtual FRpySceneManagerState GetCurrentSceneState_Implementation() const override { return SceneState; }
 
 protected:
+	virtual TSharedRef<SWidget> RebuildWidget() override;
+	/** Creates SceneSprite from SceneSpriteClass when the tree has none: as the root of an empty tree, behind the other children of a root panel, or else in the viewport behind the player. */
+	void EnsureSceneSprite();
+
 	UPROPERTY(BlueprintReadOnly, Category = "Rpy|Scene")
 	FRpySceneManagerState SceneState;
 	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Scene")
