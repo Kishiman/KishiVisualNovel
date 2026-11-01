@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "UObject/UnrealType.h"
 #include "Rpy/RpySession.h"
+#include "KishiRpyWidgetReflection.h"
 
 namespace
 {
@@ -65,6 +66,8 @@ TScriptInterface<IRpyStatementManager> UKishiVNPlayerWidgetBase::GetStatementMan
 void UKishiVNPlayerWidgetBase::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+	if (!IsDesignTime())
+		WarnOnInterfaceEventOverrides(this);
 	DiscoverManagers(false);
 	WireManagers();
 }

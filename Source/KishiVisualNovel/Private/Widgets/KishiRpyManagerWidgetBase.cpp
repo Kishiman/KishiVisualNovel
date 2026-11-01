@@ -5,6 +5,7 @@
 #include "Widgets/KishiRpyStatementManagerWidgetBase.h"
 #include "Widgets/KishiRpyAudioManagerWidgetBase.h"
 #include "Interfaces/RpyScriptInterpreter.h"
+#include "KishiRpyWidgetReflection.h"
 #define IMPLEMENT_MANAGER_BASE(ClassName)                                                                                                                                                       \
 	TScriptInterface<IRpyScriptInterpreter> ClassName::GetInterpreter_Implementation() const { return UKishiRpyManagerWidgetBase::GetInterpreter_Implementation(); }                              \
 	void ClassName::OnInstructionComplete_Implementation() { UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation(); }                         \
@@ -13,7 +14,6 @@
 
 IMPLEMENT_MANAGER_BASE(UKishiRpyChoiceManagerWidgetBase)
 IMPLEMENT_MANAGER_BASE(UKishiRpySceneManagerWidgetBase)
-IMPLEMENT_MANAGER_BASE(UKishiRpyShowManagerWidgetBase)
 IMPLEMENT_MANAGER_BASE(UKishiRpyStatementManagerWidgetBase)
 
 #undef IMPLEMENT_MANAGER_BASE
@@ -21,6 +21,17 @@ IMPLEMENT_MANAGER_BASE(UKishiRpyStatementManagerWidgetBase)
 TScriptInterface<IRpyScriptInterpreter> UKishiRpyAudioManagerWidgetBase::GetInterpreter_Implementation() const { return UKishiRpyManagerWidgetBase::GetInterpreter_Implementation(); }
 void UKishiRpyAudioManagerWidgetBase::OnInstructionComplete_Implementation() { UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation(); }
 void UKishiRpyAudioManagerWidgetBase::OnScriptComplete_Implementation() { UKishiRpyManagerWidgetBase::OnScriptComplete_Implementation(); }
+
+TScriptInterface<IRpyScriptInterpreter> UKishiRpyShowManagerWidgetBase::GetInterpreter_Implementation() const { return UKishiRpyManagerWidgetBase::GetInterpreter_Implementation(); }
+void UKishiRpyShowManagerWidgetBase::OnInstructionComplete_Implementation() { UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation(); }
+void UKishiRpyShowManagerWidgetBase::OnScriptComplete_Implementation() { UKishiRpyManagerWidgetBase::OnScriptComplete_Implementation(); }
+
+void UKishiRpyManagerWidgetBase::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+	if (!IsDesignTime())
+		WarnOnInterfaceEventOverrides(this);
+}
 
 void UKishiRpyManagerWidgetBase::OnInstructionComplete_Implementation()
 {

@@ -48,7 +48,7 @@ Other parts of the target:
 
 ## Roadmap
 
-Port the VN2D managers right after the session fixes. That way steps 3 to 7 break only the VN2D widgets built on the C++ Bases, not the five Legacy widgets.
+Port the VN2D managers right after the session fixes. That way steps 3 to 7 change the VN2D widgets built on the C++ Bases. The five Legacy widgets still need the step 3 and step 4 Blueprint fixes, because the game's levels use them (see the step 2 findings).
 
 Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry in `Config/DefaultEngine.ini` so existing Blueprint nodes keep resolving.
 
@@ -95,15 +95,70 @@ Finish each step with the following:
 
 ### 2. Port the VN2D managers (Blueprint)
 
-- [ ] Create `VN2D_ChoiceManager` from `UKishiRpyChoiceManagerWidgetBase`.
-- [ ] Create `VN2D_SceneManager` from `UKishiRpySceneManagerWidgetBase`.
-- [ ] Create `VN2D_ShowManager` from `UKishiRpyShowManagerWidgetBase`.
-- [ ] Create `VN2D_AudioManager` from `UKishiRpyAudioManagerWidgetBase`.
+Decisions (2026-11-01): Legacy stays in place and quarantine is deferred. VN2D uses the native showable widgets, and the show fixes live in C++.
+
+- [x] Add what the Bases are missing in C++ (built 2026-11-01):
+  - Show manager `Show` / `Hide` go through `IShowable` when the widget implements it, mapping `FRpySceneOptions` to `FKishiShowableOptions` (attributes, transition type, duration). Widgets without `IShowable` keep the `PlayTransition` path.
+  - Showing the same tag with the same layered sprite reuses the widget, so expressions switch in place. A position given with `MOVE` / `EASE` animates from the old position.
+  - New optional hook `ILayeredSpriteHandler::OnSpeakerViseme`; `UKishiLayeredSpriteWidgetBase` forwards it to `UpdateVisemeLayer`. The show manager calls it on the sprite whose tag matches the speaker.
+  - The `SetSprite` / `SetFileMediaSource` reflection helpers also accept `UKishiSpriteWidget`'s parameter names (`InSprite`, `InMediaSource`, `ScalingMethod`). Before, native sprite widgets got no image in the show and scene managers.
+- [x] Base review fixes (built 2026-11-01):
+  - Show manager: one path. `Show` calls `ResolveShowableClass` → `CreateShowableFromClass` → `ApplyImageToShowable` → `IShowable::Show`, and every image is tracked in `TrackedShowables` (`ShownWidgets` and the `PlayTransition` fallback are gone, which pulls the step 7 item forward). `ResolveShowableClass` and `ApplyImageToShowable` are overridable hooks with defaults. The C++-implemented helpers moved from `|Required` to `|Showables`. `SpriteWidgetClass` / `LayeredSpriteWidgetClass` must now implement `IShowable`. A widget position shifts the widget instead of shrinking it.
+  - Missing setup now logs an error instead of failing silently: no `ShowCanvas`, no widget class, an asset that can't be applied, no `ChoicesPanel` / `ChoiceEntryClass`, no `SceneSprite`, an unknown audio channel.
+  - No more stalls on failure (stopgap until step 3): `show` / `scene` with an undefined image, a scene or audio manager that can't play, and `hide` of an unknown tag all log and continue. `scene _` clears the scene.
+  - Statement manager `Say` returns `false`, so the script waits for the player. Before, it returned `true` for any non-empty line, and the session ran straight past dialogue.
+  - Choice manager: clicks now reach `Choose`. They were bound to `Choose_Implementation`, which isn't a `UFUNCTION`, so the dynamic delegate couldn't bind.
+  - `Set*ManagerState` in the choice, scene, show and audio Bases dispatch through `Execute_*`.
+  - The audio blip plays directly instead of going through `PlayAudio`, so it's no longer saved in the audio state.
+  - `UKishiSpriteWidget` draws its image at brush size from the top-left instead of stretching it. `UKishiShowableWidget::Show` uses `SelfHitTestInvisible`, so shown images don't block clicks.
+  - The Bases warn once per class (editor only) when a Blueprint child overrides an interface event they implement in C++.
+- [x] Fix `VN2D_RPYShowManager` (a reparented copy of the Legacy show manager):
+  - Rename `SpritePanel` to `ShowCanvas`.
+  - Delete the `OnDialogueViseme` event and the Legacy graphs (`FindSpriteByTag`, `SetUpSprite`, `Show Sprite`, `ShowLayeredSprite`, `RemoveWidgetFromParent`).
+  - Set `SpriteWidgetClass` and `LayeredSpriteWidgetClass`.
+
+  Recreating it from the Base is simpler.
+
+- [x] Fix `VN2D_RPYPlayer`: delete the empty `StartUp` and `OnDialogueViseme` events. They replace the C++ implementations, so managers aren't re-discovered on start and visemes never reach the managers. Use `OnInterpreterStarted` / `OnViseme` instead.
+- [ ] Create `VN2D_ChoiceEntry` from `UKishiChoiceEntryWidgetBase` (replaces `IndexedButton`).
+- [ ] Create `VN2D_ChoiceManager` from `UKishiRpyChoiceManagerWidgetBase`: add a `ChoicesPanel` panel and set `ChoiceEntryClass` to `VN2D_ChoiceEntry`.
+- [ ] Create `VN2D_SceneManager` from `UKishiRpySceneManagerWidgetBase`: add a `SceneSprite` widget (a `UKishiSpriteWidget` subclass), or set `SceneSpriteClass`.
+- [ ] Create `VN2D_ShowManager` from `UKishiRpyShowManagerWidgetBase`: add a `ShowCanvas` canvas; set `SpriteWidgetClass` to `KishiSpriteWidget` and `LayeredSpriteWidgetClass` to `KishiLayeredSpriteWidget` (or VN2D subclasses of them). Set `NeutralVisemeLayer` on the layered sprite class if lip sync is wanted.
+- [ ] Create `VN2D_AudioManager` from `UKishiRpyAudioManagerWidgetBase`: copy `AudioChannels` and `Blip` from `WGT_RPYAudioManager`.
 - [ ] Copy only layout and styling from the Legacy widgets, not graph logic.
-- [ ] Add all four to `VN2D_RPYPlayer`, with one per interface.
-- [ ] Add any hook a Base is missing in C++ (rebuild).
-- [ ] Confirm that no level references `WGT_VNPlayer` or `RpyActor`.
-- [ ] Move `Styles/Legacy` to a quarantine folder and fix up redirectors.
+- [ ] In `VN2D_RPYPlayer`, replace the four `WGT_RPY*Manager` children with the VN2D ones, one per interface.
+- [ ] Test a script that uses `show` with attributes, a `with` transition and dialogue lip sync.
+- [x] Confirm that no level references `WGT_VNPlayer` or `RpyActor`. **Failed (2026-11-01), see below.**
+- [ ] Move `Styles/Legacy` to a quarantine folder and fix up redirectors. **Deferred: the game's levels still use Legacy.**
+- [ ] Plan how the first-person game (`DetectiveOffice_Layout`, `RpyFirstPersonCharacter`) moves off Legacy. It needs the world-space scene path (`VNCamera` + `Anchor`) from step 8.
+
+#### Findings (2026-11-01)
+
+Legacy is still in use. Assets that reference it, found by scanning the binary assets (some go through the redirectors in `/KishiVisualNovel/Blueprints/`):
+
+| Legacy asset              | Used by                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `RpyActor`                | Levels `demo1` (game `Content/VisualNovel/Maps`), `demo`, `demo_keiku`; `RpyScriptInteractableActor`                    |
+| `RpyFirstPersonCharacter` | Level `DetectiveOffice_Layout` (game); `FirstPersonGameMode` (game); `RpyFirstPersonGameMode`; `VNFirstPersonCharacter` |
+| `VNCamera`                | Level `demo_danganronpa`; `CameraActor`; transition `trial_intro`                                                       |
+| `WGT_VNPlayer`            | `Widgets/WGT_KVNInterpreter`                                                                                            |
+| `WGT_LayeredSprite`       | `LayeredSpriteInteractableActor`, `Widgets/WGT_PSDFile`                                                                 |
+| `WGT_RPY*Manager`         | `VN2D_RPYPlayer` (all five), `Widgets/RpyManagers/WGT_Showmanager`                                                      |
+| `WGT_SaveMenu`            | `VN2D_RPYPlayer`, `WGT_RPYSaveMenu`, level `test_widget`                                                                |
+
+The game's own first-person level runs on Legacy. So the earlier assumption that steps 3 to 7 only break VN2D does not hold.
+
+Gaps between the C++ Bases and the Legacy managers:
+
+- **Choice:** at parity. VN2D needs a choice entry widget derived from `UKishiChoiceEntryWidgetBase` (Legacy uses `IndexedButton`).
+- **Audio:** at parity. It plays the blip on visemes and has the same channels; copy the `AudioChannels` map and `Blip` from `WGT_RPYAudioManager`.
+- **Scene:** handles sprite, video and level sequence. The Legacy `ENONE` / level path, which attaches `VNCamera` to an `Anchor` tagged with `options.layer`, is missing. That is world-space behavior (step 8); VN2D doesn't need it.
+- **Show:** three gaps.
+  - `options.attribute` is ignored, so expressions are never applied.
+  - Each `Show` recreates the widget instead of reusing the one with the same tag.
+  - Visemes aren't forwarded to the speaker's layered sprite, and nothing calls `UKishiLayeredSpriteWidgetBase::UpdateVisemeLayer`.
+
+  The native `UKishiSpriteWidget` / `UKishiLayeredSpriteWidget` already handle attributes through `IShowable::Show`, but the Rpy `Show` path uses the reflection-based `PlayTransition` on `KishiWidget` instead, and no Blueprint uses the native widgets.
 
 ### 3. Instruction result enum
 
@@ -113,7 +168,7 @@ Finish each step with the following:
 - [ ] Update `URpySession::Run` to advance on `Continue`, wait on `Wait`, and log and apply the chosen policy on `Failed`.
 - [ ] Show manager Base: return `Failed` for unsupported types instead of stalling (finding 3).
 - [ ] Blueprint: refresh the VN2D managers and fix any return pins.
-- [ ] Blueprint (only if Legacy is kept): redo the return values in the five `WGT_RPY*Manager` widgets.
+- [ ] Blueprint (required, since Legacy is kept and the game uses it): redo the return values in the five `WGT_RPY*Manager` widgets.
 
 ### 4. Tidy the interfaces
 
@@ -152,7 +207,7 @@ Finish each step with the following:
 ### 7. Unify show and scene
 
 - [ ] Have the scene manager call the show Library on a background layer.
-- [ ] Delete the `ShownWidgets` path and keep `TrackedShowables`.
+- [x] Delete the `ShownWidgets` path and keep `TrackedShowables` (done in step 2).
 - [ ] Merge `FRpySceneOptions` into `FKishiShowableOptions`, with `StructRedirects` if needed.
 - [ ] Stop the scene manager from calling `AddToViewport` on its own sprite.
 - [ ] Blueprint: re-wire the break/make struct nodes in `KishiWidget` and `WGT_LayeredSprite`.

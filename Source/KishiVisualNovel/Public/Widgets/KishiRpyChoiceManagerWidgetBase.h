@@ -44,4 +44,7 @@ protected:
 	void OnChoicesRequested(const TArray<FString> &Choices);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Choice Manager Widget Base|Hooks")
 	void OnChoiceSelected(int32 Index);
+	/** Bound to each entry's OnChoiceClicked; dispatches through IRpyChoiceManager::Execute_Choose so Blueprint overrides run. */
+	UFUNCTION()
+	void HandleChoiceClicked(int32 Index);
 };

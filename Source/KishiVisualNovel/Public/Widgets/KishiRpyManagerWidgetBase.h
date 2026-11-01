@@ -29,6 +29,7 @@ public:
 	virtual void Reset_Implementation();
 
 protected:
+	virtual void NativeOnInitialized() override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rpy") TScriptInterface<IRpyScriptInterpreter> Interpreter;
 	/** Child Blueprint hook called when the interpreter reports a completed instruction. */
 	UFUNCTION(BlueprintImplementableEvent, Category="Kishi Rpy Manager Widget Base|Hooks") void OnManagerInstructionComplete();

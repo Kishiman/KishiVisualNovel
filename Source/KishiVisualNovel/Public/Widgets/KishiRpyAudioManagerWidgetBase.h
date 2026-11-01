@@ -51,4 +51,5 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Audio Manager Widget Base|Hooks")
 	void OnPlayAudioRequested(FName Channel, const FRpyAudio &Audio, const FRpyAudioOptions &Options);
 	USoundWave *ResolveAudio(const FRpyAudio &Audio) const;
+	void LogAudioFailure(const TCHAR *Operation, FName Channel, const FRpyAudio &Audio, const USoundWave *Sound) const;
 };

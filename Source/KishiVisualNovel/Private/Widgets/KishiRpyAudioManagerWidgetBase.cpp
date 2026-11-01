@@ -31,7 +31,7 @@ void UKishiRpyAudioManagerWidgetBase::SetAudioManagerState_Implementation(const 
 	AudioState.audioStates.Reset();
 	for (const FRpyAudioPlayState &Saved : State.audioStates)
 	{
-		PlayAudio_Implementation(Saved.channel, Saved.rpyAudio, Saved.options);
+		IRpyAudioManager::Execute_PlayAudio(this, Saved.channel, Saved.rpyAudio, Saved.options);
 	}
 }
 
@@ -39,7 +39,8 @@ bool UKishiRpyAudioManagerWidgetBase::PauseAudio_Implementation(float Timeout)
 {
 	if (!AudioPlayer)
 	{
-		return false;
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot pause audio, there is no AudioPlayer."), *GetName());
+		return true;
 	}
 	AudioPlayer->PauseAudio(NAME_None, Timeout);
 	OnPauseAudioRequested(Timeout);
@@ -56,7 +57,8 @@ bool UKishiRpyAudioManagerWidgetBase::StopAudio_Implementation(FName Channel, FR
 {
 	if (!AudioPlayer)
 	{
-		return false;
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot stop channel '%s', there is no AudioPlayer."), *GetName(), *Channel.ToString());
+		return true;
 	}
 	AudioPlayer->StopAudio(Channel, Options.fadeOut);
 	OnStopAudioRequested(Channel, Options);
@@ -70,7 +72,8 @@ bool UKishiRpyAudioManagerWidgetBase::QueueAudio_Implementation(FName Channel, F
 	USoundWave *Sound = ResolveAudio(Audio);
 	if (!AudioPlayer || !Sound || !AudioPlayer->audioChannels.Contains(Channel))
 	{
-		return false;
+		LogAudioFailure(TEXT("queue"), Channel, Audio, Sound);
+		return true;
 	}
 	AudioPlayer->QueueAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop);
 	OnQueueAudioRequested(Channel, Audio, Options);
@@ -82,7 +85,8 @@ bool UKishiRpyAudioManagerWidgetBase::PlayAudio_Implementation(FName Channel, FR
 	USoundWave *Sound = ResolveAudio(Audio);
 	if (!AudioPlayer || !Sound || !AudioPlayer->audioChannels.Contains(Channel))
 	{
-		return false;
+		LogAudioFailure(TEXT("play"), Channel, Audio, Sound);
+		return true;
 	}
 	AudioPlayer->PlayAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop);
 	FRpyAudioPlayState *Entry = AudioState.audioStates.FindByPredicate([Channel](const FRpyAudioPlayState &Item)
@@ -116,12 +120,27 @@ void UKishiRpyAudioManagerWidgetBase::NativeOnInitialized()
 void UKishiRpyAudioManagerWidgetBase::OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset)
 {
 	UKishiRpyManagerWidgetBase::OnDialogueViseme_Implementation(Name, Viseme, TimeOffset);
-	if (Viseme != EMouthViseme::Neutral && IsValid(Blip))
+	// Play the blip directly so it is not recorded in the saved audio state.
+	const FName BlipChannel(TEXT("sound"));
+	if (Viseme != EMouthViseme::Neutral && IsValid(Blip) && AudioPlayer && AudioPlayer->audioChannels.Contains(BlipChannel))
 	{
-		FRpyAudioOptions Options;
-		FRpyAudio Audio;
-		Audio.audio = Blip;
-		PlayAudio_Implementation(FName(TEXT("sound")), Audio, Options);
+		AudioPlayer->PlayAudio(BlipChannel, Blip, 0.0f, 0.0f, false);
+	}
+}
+
+void UKishiRpyAudioManagerWidgetBase::LogAudioFailure(const TCHAR *Operation, FName Channel, const FRpyAudio &Audio, const USoundWave *Sound) const
+{
+	if (!AudioPlayer)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot %s audio, there is no AudioPlayer."), *GetName(), Operation);
+	}
+	else if (!Sound)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot %s audio '%s' on channel '%s', the sound could not be loaded."), *GetName(), Operation, *Audio.path, *Channel.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot %s audio on channel '%s', add it to AudioChannels."), *GetName(), Operation, *Channel.ToString());
 	}
 }
 

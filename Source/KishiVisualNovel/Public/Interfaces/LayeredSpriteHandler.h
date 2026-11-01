@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Utils/StringUtils.h"
 #include "LayeredSpriteHandler.generated.h"
 
 class ULayeredSprite;
@@ -31,6 +32,10 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     void SetLayerDisplay(FName LayerName, bool Value);
     virtual void SetLayerDisplay_Implementation(FName LayerName, bool Value) = 0;
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ILayeredSpriteHandler|Hooks", meta = (ToolTip = "Optional: called when the speaker this sprite is shown for changes mouth viseme. The default does nothing."))
+    void OnSpeakerViseme(EMouthViseme Viseme, float TimeOffset);
+    virtual void OnSpeakerViseme_Implementation(EMouthViseme Viseme, float TimeOffset) {}
 };
 
 UCLASS()

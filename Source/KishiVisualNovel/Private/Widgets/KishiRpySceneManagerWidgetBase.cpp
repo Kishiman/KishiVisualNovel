@@ -22,21 +22,30 @@
 
 void UKishiRpySceneManagerWidgetBase::SetSceneManagerState_Implementation(const FRpySceneManagerState &State)
 {
-	SceneState = State;
-	Scene_Implementation(State.rpyImage, State.options);
+	IRpySceneManager::Execute_Scene(this, State.rpyImage, State.options);
 }
 
 bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpySceneOptions Options)
 {
 	SceneState.rpyImage = Image;
 	SceneState.options = Options;
+	if (Image.type == ERpyImageType::ENONE)
+	{
+		// "scene _" clears the scene.
+		if (IsValid(SceneSprite))
+			SceneSprite->SetVisibility(ESlateVisibility::Collapsed);
+		OnSceneRequested(Image, Options);
+		return true;
+	}
 	if (!IsValid(SceneSprite) && SceneSpriteClass)
 	{
 		SceneSprite = CreateWidget<UUserWidget>(this, SceneSpriteClass);
 		if (SceneSprite)
 		{
 			bOwnsSceneSprite = true;
-			SceneSprite->AddToViewport();
+			// Below the player widget, so the background never covers its sprites and dialogue.
+			SceneSprite->AddToViewport(-100);
+			UE_LOG(LogTemp, Log, TEXT("[VNShow] %s: no SceneSprite widget in the tree, added %s to the viewport behind the player."), *GetName(), *SceneSprite->GetName());
 		}
 	}
 	bool bHandled = false;
@@ -77,8 +86,14 @@ bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpy
 	default:
 		break;
 	}
+	if (!bHandled)
+	{
+		// Log and continue so a missing asset or SceneSprite never stalls the script.
+		UE_LOG(LogTemp, Error, TEXT("%s: could not display scene image '%s' of type %s. Check the image's asset, and add a SceneSprite widget or set SceneSpriteClass."),
+					 *GetName(), *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type));
+	}
 	OnSceneRequested(Image, Options);
-	return bHandled;
+	return true;
 }
 
 void UKishiRpySceneManagerWidgetBase::Reset_Implementation()

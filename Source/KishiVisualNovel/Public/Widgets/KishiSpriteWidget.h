@@ -61,5 +61,6 @@ protected:
 	UImage* SpriteImage = nullptr;
 
 private:
+	void EnsureSpriteImage();
 	void ApplySpriteBrush(UObject* Resource, FVector2D SourceSize, FVector2D TargetSize, EScalingMethod ScalingMethod);
 };

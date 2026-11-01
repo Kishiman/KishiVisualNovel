@@ -42,7 +42,8 @@ bool UKishiRpyStatementManagerWidgetBase::Say_Implementation(FName Name, const F
 	LastViseme = FMouthViseme();
 	UpdateVisibleStatement();
 	OnStatementRequested(Name, Statement);
-	return TaggedStatement.Length > 0;
+	// Wait: the session advances when the player clicks through the line (CompleteOrRevealStatement).
+	return false;
 }
 
 void UKishiRpyStatementManagerWidgetBase::NativeTick(const FGeometry &MyGeometry, float InDeltaTime)

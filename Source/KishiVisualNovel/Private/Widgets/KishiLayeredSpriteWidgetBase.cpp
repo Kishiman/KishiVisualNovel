@@ -12,8 +12,18 @@
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 
+// Temporary transition and visibility tracing. Filter the Output Log on "[VNShow]".
+#define VNSHOW_LOG(Format, ...) UE_LOG(LogTemp, Log, TEXT("[VNShow] %s: " Format), *GetName(), ##__VA_ARGS__)
+
 TSharedRef<SWidget> UKishiLayeredSpriteWidgetBase::RebuildWidget()
 {
+	EnsureCanvas();
+	return Super::RebuildWidget();
+}
+
+void UKishiLayeredSpriteWidgetBase::EnsureCanvas()
+{
+	// Built on demand, so layers loaded before the first layout pass are not lost.
 	if (!Canvas && WidgetTree)
 	{
 		Canvas = WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(), TEXT("Canvas"));
@@ -22,7 +32,6 @@ TSharedRef<SWidget> UKishiLayeredSpriteWidgetBase::RebuildWidget()
 			WidgetTree->RootWidget = Canvas;
 		}
 	}
-	return Super::RebuildWidget();
 }
 
 void UKishiLayeredSpriteWidgetBase::NativeOnInitialized()
@@ -37,6 +46,8 @@ void UKishiLayeredSpriteWidgetBase::NativeOnInitialized()
 
 void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOptions& Options)
 {
+	VNSHOW_LOG("layered show attributes='%s' (active='%s') firstShow=%d shown=%d useFrom=%d type=%s", *Options.Attributes, *ActiveAttributes,
+						 bHasShownAttributes ? 0 : 1, IShowable::Execute_IsShown(this) ? 1 : 0, Options.bUseFrom ? 1 : 0, *UEnum::GetValueAsString(Options.Type));
 	if (!bHasShownAttributes)
 	{
 		if (!Options.Attributes.IsEmpty())
@@ -49,7 +60,8 @@ void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOpti
 		return;
 	}
 
-	if (Options.Attributes != ActiveAttributes && IsValid(LayeredSprite) && IShowable::Execute_IsShown(this))
+	// A move animates the whole sprite, so its layers are swapped at once below and travel with it.
+	if (Options.Attributes != ActiveAttributes && IsValid(LayeredSprite) && IShowable::Execute_IsShown(this) && !Options.bUseFrom)
 	{
 		TArray<FName> NamesToShow;
 		TArray<FName> NamesToHide;
@@ -85,6 +97,7 @@ void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOpti
 			{
 				IAnimatable::Execute_Skip(this);
 			}
+			VNSHOW_LOG("layered show: whole-image swap, hiding then showing '%s'", *Options.Attributes);
 			PendingAttributeOptions = Options;
 			PendingAttributeOptions.Duration = Options.Duration * 0.5f;
 			bWaitingForAttributeSwap = true;
@@ -94,6 +107,7 @@ void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOpti
 			return;
 		}
 
+		VNSHOW_LOG("layered show: animating %d layers in and %d out", NamesToShow.Num(), NamesToHide.Num());
 		ApplyAttributeSelection(Options.Attributes, Options, true);
 		ActiveAttributes = Options.Attributes;
 		return;
@@ -112,6 +126,7 @@ void UKishiLayeredSpriteWidgetBase::HandleAnimationEnded_Implementation()
 	if (bWaitingForAttributeSwap)
 	{
 		bWaitingForAttributeSwap = false;
+		VNSHOW_LOG("layered show: swap midpoint, showing '%s'", *PendingAttributeOptions.Attributes);
 		ApplyAttributeSelection(PendingAttributeOptions.Attributes, PendingAttributeOptions, false);
 		ActiveAttributes = PendingAttributeOptions.Attributes;
 		bAwaitingAttributeShowCompletion = true;
@@ -158,6 +173,8 @@ void UKishiLayeredSpriteWidgetBase::SetLayerShown(FName LayerName, bool bShown, 
 {
 	LayerDisplay.Add(LayerName, bShown);
 	UUserWidget** LayerWidget = Layers.Find(LayerName);
+	VNSHOW_LOG("layer '%s' %s %s (widget=%s)", *LayerName.ToString(), bShown ? TEXT("shown") : TEXT("hidden"),
+						 bAnimate ? TEXT("animated") : TEXT("instantly"), LayerWidget ? *GetNameSafe(*LayerWidget) : TEXT("None"));
 	if (!LayerWidget || !IsValid(*LayerWidget)) return;
 	if (!bAnimate || !(*LayerWidget)->GetClass()->ImplementsInterface(UShowable::StaticClass()))
 	{
@@ -227,8 +244,11 @@ void UKishiLayeredSpriteWidgetBase::SetLayeredSprite(ULayeredSprite *Sprite)
 void UKishiLayeredSpriteWidgetBase::LoadLayers()
 {
 	ClearLayers();
+	EnsureCanvas();
 	if (!IsValid(LayeredSprite) || !IsValid(Canvas))
 	{
+		if (IsValid(LayeredSprite))
+			UE_LOG(LogTemp, Error, TEXT("%s: cannot load the layers of %s, there is no Canvas."), *GetName(), *LayeredSprite->GetName());
 		return;
 	}
 
@@ -249,6 +269,9 @@ void UKishiLayeredSpriteWidgetBase::LoadLayers()
 			LayerWidget->SetRenderOpacity(bShouldDisplay ? 1.0f : 0.0f);
 			LayerWidget->SetVisibility(bShouldDisplay ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
 		}
+		// Temporary show lifecycle tracing. Filter the Output Log on "[VNShow]".
+		UE_LOG(LogTemp, Log, TEXT("[VNShow] %s: layer '%s' sprite=%s offset=%s displayed=%d widget=%s"), *GetName(), *Layer.name.ToString(),
+					 *GetNameSafe(Layer.sprite), *Layer.offset.ToString(), LayerDisplay.FindRef(Layer.name) ? 1 : 0, *GetNameSafe(LayerWidget));
 	}
 }
 
@@ -289,8 +312,9 @@ UUserWidget *UKishiLayeredSpriteWidgetBase::AddLayer(FName Name, UPaperSprite *S
 		return nullptr;
 	}
 
-	CanvasSlot->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
-	CanvasSlot->SetOffsets(FMargin(0.0f));
+	// Size each layer to its image at its offset, so the canvas, and the whole sprite, take the size of its layers.
+	CanvasSlot->SetAnchors(FAnchors(0.0f, 0.0f));
+	CanvasSlot->SetAutoSize(true);
 	CanvasSlot->SetPosition(Position);
 	CanvasSlot->SetZOrder(ZOrder);
 	LayerWidget->SetRenderOpacity(0.0f);
@@ -343,7 +367,7 @@ bool UKishiLayeredSpriteWidgetBase::PlayKishiWidgetTransition(UUserWidget *Layer
 	{
 		if (SceneOptionsProperty->Struct == FRpySceneOptions::StaticStruct())
 		{
-			SceneOptionsProperty->CopyCompleteValue_InContainer(Parameters.GetStructMemory(), &SceneOptions);
+			SceneOptionsProperty->CopyCompleteValue(SceneOptionsProperty->ContainerPtrToValuePtr<void>(Parameters.GetStructMemory()), &SceneOptions);
 		}
 	}
 	if (FProperty *PlayModeProperty = FindFProperty<FProperty>(PlayTransitionFunction, TEXT("PlayMode")))
@@ -573,7 +597,7 @@ void UKishiLayeredSpriteWidgetBase::InitializeLayerWidget_Implementation(UUserWi
 	{
 		if (SizeProperty->Struct == TBaseStructure<FVector2D>::Get())
 		{
-			SizeProperty->CopyCompleteValue_InContainer(LayerWidget, &TargetSize);
+			SizeProperty->CopyCompleteValue(SizeProperty->ContainerPtrToValuePtr<void>(LayerWidget), &TargetSize);
 		}
 	}
 }
@@ -595,17 +619,28 @@ void UKishiLayeredSpriteWidgetBase::SetLayerWidgetSprite(UUserWidget *LayerWidge
 	}
 
 	FStructOnScope Parameters(SetSpriteFunction);
-	if (FObjectPropertyBase *SpriteProperty = FindFProperty<FObjectPropertyBase>(SetSpriteFunction, TEXT("Sprite")))
+	// WGT_Sprite names the parameter Sprite; UKishiSpriteWidget names it InSprite.
+	FObjectPropertyBase *SpriteProperty = FindFProperty<FObjectPropertyBase>(SetSpriteFunction, TEXT("Sprite"));
+	if (!SpriteProperty)
+	{
+		SpriteProperty = FindFProperty<FObjectPropertyBase>(SetSpriteFunction, TEXT("InSprite"));
+	}
+	if (SpriteProperty)
 	{
 		SpriteProperty->SetObjectPropertyValue_InContainer(Parameters.GetStructMemory(), Sprite);
 	}
+	// Reflection zero-fills parameters and ignores C++ default arguments, so pass every sizing parameter explicitly.
 	const FVector2D TargetSize = MatchSize;
 	if (FStructProperty *SizeProperty = FindFProperty<FStructProperty>(SetSpriteFunction, TEXT("TargetSize")))
 	{
 		if (SizeProperty->Struct == TBaseStructure<FVector2D>::Get())
 		{
-			SizeProperty->CopyCompleteValue_InContainer(Parameters.GetStructMemory(), &TargetSize);
+			SizeProperty->CopyCompleteValue(SizeProperty->ContainerPtrToValuePtr<void>(Parameters.GetStructMemory()), &TargetSize);
 		}
+	}
+	if (FEnumProperty *MethodProperty = FindFProperty<FEnumProperty>(SetSpriteFunction, TEXT("ScalingMethod")))
+	{
+		MethodProperty->GetUnderlyingProperty()->SetIntPropertyValue(MethodProperty->ContainerPtrToValuePtr<void>(Parameters.GetStructMemory()), static_cast<int64>(EScalingMethod::Fit));
 	}
 	LayerWidget->ProcessEvent(SetSpriteFunction, Parameters.GetStructMemory());
 }

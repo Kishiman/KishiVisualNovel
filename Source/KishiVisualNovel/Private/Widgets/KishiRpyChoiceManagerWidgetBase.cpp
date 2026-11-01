@@ -22,12 +22,16 @@
 
 void UKishiRpyChoiceManagerWidgetBase::SetChoiceManagerState_Implementation(const FRpyChoiceManagerState &State)
 {
-	Menu_Implementation(State.choices);
+	IRpyChoiceManager::Execute_Menu(this, State.choices);
 }
 
 bool UKishiRpyChoiceManagerWidgetBase::Menu_Implementation(const TArray<FString> &Choices)
 {
 	ChoiceState.choices = Choices;
+	if (!ChoicesPanel || !ChoiceEntryClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot display %d choices without a panel named ChoicesPanel and a ChoiceEntryClass; the menu only works if OnChoicesRequested displays them."), *GetName(), Choices.Num());
+	}
 	if (ChoicesPanel)
 	{
 		ChoicesPanel->ClearChildren();
@@ -41,13 +45,18 @@ bool UKishiRpyChoiceManagerWidgetBase::Menu_Implementation(const TArray<FString>
 					continue;
 				}
 				Entry->SetChoice(Index, Choices[Index]);
-				Entry->OnChoiceClicked.AddDynamic(this, &UKishiRpyChoiceManagerWidgetBase::Choose_Implementation);
+				Entry->OnChoiceClicked.AddDynamic(this, &UKishiRpyChoiceManagerWidgetBase::HandleChoiceClicked);
 				ChoicesPanel->AddChild(Entry);
 			}
 		}
 	}
 	OnChoicesRequested(Choices);
 	return ChoicesPanel != nullptr || ChoiceEntryClass != nullptr;
+}
+
+void UKishiRpyChoiceManagerWidgetBase::HandleChoiceClicked(int32 Index)
+{
+	IRpyChoiceManager::Execute_Choose(this, Index);
 }
 
 void UKishiRpyChoiceManagerWidgetBase::Choose_Implementation(int32 Index)

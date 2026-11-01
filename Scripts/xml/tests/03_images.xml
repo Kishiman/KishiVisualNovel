@@ -6,15 +6,6 @@
   <label name="start">
     <scene asset="bg_meadow" />
 
-    <show asset="sylvie" attributes="green giggle" transition="easeinbottom" position="left" />
-    <say>easeinbottom: show left, green giggle</say>
-    <show asset="sylvie" attributes="green normal" transition="easeinbottom" position="right" />
-    <say>easeinbottom: show right, green normal</say>
-    <show asset="sylvie" attributes="green giggle" transition="easeinbottom" position="left" />
-    <say>easeinbottom: show left, green giggle</say>
-    <hide tag="sylvie" transition="easeinbottom" duration="0.5" />
-    <say>easeinbottom: hide</say>
-
     <show asset="sylvie" attributes="green giggle" transition="fade" position="left" />
     <say>fade: show left, green giggle</say>
     <show asset="sylvie" attributes="green giggle" transition="fade" position="right" />
@@ -23,6 +14,15 @@
     <say>fade: show left, green normal</say>
     <hide tag="sylvie" transition="fade" duration="0.5" />
     <say>fade: hide</say>
+
+    <show asset="sylvie" attributes="green giggle" transition="zoom" position="left" />
+    <say>zoom: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="zoom" position="right" />
+    <say>zoom: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="zoom" position="left" />
+    <say>zoom: show left, green giggle</say>
+    <hide tag="sylvie" transition="zoom" duration="0.5" />
+    <say>zoom: hide</say>
 
     <show asset="sylvie" attributes="green giggle" transition="easeinright" position="left" />
     <say>easeinright: show left, green giggle</say>
@@ -33,14 +33,14 @@
     <hide tag="sylvie" transition="easeinright" duration="0.5" />
     <say>easeinright: hide</say>
 
-    <show asset="sylvie" attributes="green giggle" transition="easeinleft" position="left" />
-    <say>easeinleft: show left, green giggle</say>
-    <show asset="sylvie" attributes="green normal" transition="easeinleft" position="right" />
-    <say>easeinleft: show right, green normal</say>
-    <show asset="sylvie" attributes="green giggle" transition="easeinleft" position="left" />
-    <say>easeinleft: show left, green giggle</say>
-    <hide tag="sylvie" transition="easeinleft" duration="0.5" />
-    <say>easeinleft: hide</say>
+    <show asset="sylvie" attributes="green giggle" transition="easeinbottom" position="left" />
+    <say>easeinbottom: show left, green giggle</say>
+    <show asset="sylvie" attributes="green normal" transition="easeinbottom" position="right" />
+    <say>easeinbottom: show right, green normal</say>
+    <show asset="sylvie" attributes="green giggle" transition="easeinbottom" position="left" />
+    <say>easeinbottom: show left, green giggle</say>
+    <hide tag="sylvie" transition="easeinbottom" duration="0.5" />
+    <say>easeinbottom: hide</say>
 
     <show asset="sylvie" attributes="green giggle" transition="moveinright" position="left" />
     <say>moveinright: show left, green giggle</say>
@@ -51,15 +51,6 @@
     <hide tag="sylvie" transition="moveinright" duration="0.5" />
     <say>moveinright: hide</say>
 
-    <show asset="sylvie" attributes="green giggle" transition="moveinleft" position="left" />
-    <say>moveinleft: show left, green giggle</say>
-    <show asset="sylvie" attributes="green normal" transition="moveinleft" position="right" />
-    <say>moveinleft: show right, green normal</say>
-    <show asset="sylvie" attributes="green giggle" transition="moveinleft" position="left" />
-    <say>moveinleft: show left, green giggle</say>
-    <hide tag="sylvie" transition="moveinleft" duration="0.5" />
-    <say>moveinleft: hide</say>
-
     <show asset="sylvie" attributes="green giggle" transition="moveinbottom" position="left" />
     <say>moveinbottom: show left, green giggle</say>
     <show asset="sylvie" attributes="green normal" transition="moveinbottom" position="right" />
@@ -69,22 +60,5 @@
     <hide tag="sylvie" transition="moveinbottom" duration="0.5" />
     <say>moveinbottom: hide</say>
 
-    <show asset="sylvie" attributes="green giggle" transition="dissolve" position="left" />
-    <say>dissolve: show left, green giggle</say>
-    <show asset="sylvie" attributes="green normal" transition="dissolve" position="right" />
-    <say>dissolve: show right, green normal</say>
-    <show asset="sylvie" attributes="green giggle" transition="dissolve" position="left" />
-    <say>dissolve: show left, green giggle</say>
-    <hide tag="sylvie" transition="dissolve" duration="0.5" />
-    <say>dissolve: hide</say>
-
-    <show asset="sylvie" attributes="green giggle" transition="zoom" position="left" />
-    <say>zoom: show left, green giggle</say>
-    <show asset="sylvie" attributes="green normal" transition="zoom" position="right" />
-    <say>zoom: show right, green normal</say>
-    <show asset="sylvie" attributes="green giggle" transition="zoom" position="left" />
-    <say>zoom: show left, green giggle</say>
-    <hide tag="sylvie" transition="zoom" duration="0.5" />
-    <say>zoom: hide</say>
   </label>
 </visualNovel>

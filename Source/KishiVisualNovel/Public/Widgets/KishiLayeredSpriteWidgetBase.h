@@ -30,6 +30,7 @@ public:
 	virtual void SetSprite_Implementation(ULayeredSprite *Sprite) override;
 	virtual bool GetLayerDisplay_Implementation(FName LayerName) const override;
 	virtual void SetLayerDisplay_Implementation(FName LayerName, bool bValue) override;
+	virtual void OnSpeakerViseme_Implementation(EMouthViseme Viseme, float TimeOffset) override { UpdateVisemeLayer(Viseme, TimeOffset); }
 
 	UFUNCTION(BlueprintCallable, Category = "Visual Novel|Layered Sprite")
 	void SetLayeredSprite(ULayeredSprite *Sprite);
@@ -124,6 +125,7 @@ protected:
 	URpyTransitionBase *ActiveTranslateTransition = nullptr;
 
 private:
+	void EnsureCanvas();
 	void ApplyAttributeSelection(const FString& Attributes, const FKishiShowableOptions& Options, bool bAnimate);
 	void SetLayerShown(FName LayerName, bool bShown, const FKishiShowableOptions& Options, bool bAnimate);
 	void SetLayerWidgetSprite(UUserWidget *LayerWidget, UPaperSprite *Sprite) const;

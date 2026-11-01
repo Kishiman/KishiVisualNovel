@@ -30,7 +30,10 @@ public:
       if (!_rpyImage && AssetKey != name)
         _rpyImage = script->images.Find(AssetKey);
       if (!_rpyImage)
-        return false;
+      {
+        UE_LOG(LogTemp, Error, TEXT("scene: image '%s' is not defined in the script; skipping it."), *AssetKey.ToString());
+        return true;
+      }
       rpyImage = *_rpyImage;
     }
     session->sceneState.rpyImage = rpyImage;
