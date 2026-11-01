@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "Widgets/KishiShowableWidget.h"
 #include "Interfaces/LayeredSpriteHandler.h"
 #include "Assets/LayeredSprite.h"
 #include "Animation/AnimationSolverVector2D.h"
@@ -19,11 +19,13 @@ class URpyTransitionBase;
  * sprite widget class (WGT_Sprite in the existing content).
  */
 UCLASS(Abstract, Blueprintable)
-class KISHIVISUALNOVEL_API UKishiLayeredSpriteWidgetBase : public UUserWidget, public ILayeredSpriteHandler
+class KISHIVISUALNOVEL_API UKishiLayeredSpriteWidgetBase : public UKishiShowableWidget, public ILayeredSpriteHandler
 {
 	GENERATED_BODY()
 
 public:
+	virtual void Show_Implementation(const FKishiShowableOptions& Options) override;
+	virtual void HandleAnimationEnded_Implementation() override;
 	virtual ULayeredSprite *GetSprite_Implementation() const override;
 	virtual void SetSprite_Implementation(ULayeredSprite *Sprite) override;
 	virtual bool GetLayerDisplay_Implementation(FName LayerName) const override;
@@ -87,6 +89,7 @@ public:
 	void OnLayerDisplayChanged(UUserWidget *LayerWidget, bool bDisplayed, const FRpySceneOptions &SceneOptions, float Delay);
 
 protected:
+	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry &MyGeometry, float InDeltaTime) override;
 
@@ -121,7 +124,14 @@ protected:
 	URpyTransitionBase *ActiveTranslateTransition = nullptr;
 
 private:
+	void ApplyAttributeSelection(const FString& Attributes, const FKishiShowableOptions& Options, bool bAnimate);
+	void SetLayerShown(FName LayerName, bool bShown, const FKishiShowableOptions& Options, bool bAnimate);
 	void SetLayerWidgetSprite(UUserWidget *LayerWidget, UPaperSprite *Sprite) const;
 	void SetLayerDisplayInternal(FName LayerName, bool bValue, const FRpySceneOptions &SceneOptions, float Delay, bool bPlayTransition);
 	bool PlayKishiWidgetTransition(UUserWidget *LayerWidget, bool bShow, const FRpySceneOptions &SceneOptions, float Delay) const;
+	FString ActiveAttributes;
+	bool bHasShownAttributes = false;
+	FKishiShowableOptions PendingAttributeOptions;
+	bool bWaitingForAttributeSwap = false;
+	bool bAwaitingAttributeShowCompletion = false;
 };

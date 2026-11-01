@@ -6,9 +6,11 @@
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/PanelWidget.h"
+#include "Components/SceneComponent.h"
 #include "Components/RichTextBlock.h"
 #include "Components/TextBlock.h"
 #include "Engine/World.h"
+#include "GameFramework/Actor.h"
 #include "Input/Reply.h"
 #include "InputCoreTypes.h"
 #include "LevelSequencePlayer.h"
@@ -19,6 +21,7 @@
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 #include "KishiRpyWidgetReflection.h"
+#include "Animation/KishiAnimationComponent.h"
 
 void UKishiRpyShowManagerWidgetBase::SetShowManagerState_Implementation(const FRpyShowManagerState &State)
 {
@@ -97,6 +100,9 @@ bool UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName Tag, FRpySceneOpt
 
 void UKishiRpyShowManagerWidgetBase::Reset_Implementation()
 {
+	TArray<FName> GenericTags;
+	TrackedShowables.GetKeys(GenericTags);
+	for (FName Tag : GenericTags) RemoveShowable(Tag);
 	for (const TPair<FName, UUserWidget *> &Pair : ShownWidgets)
 	{
 		if (IsValid(Pair.Value))
@@ -111,6 +117,119 @@ void UKishiRpyShowManagerWidgetBase::Reset_Implementation()
 	HideTimers.Reset();
 	ShowState.imageStates.Reset();
 	UKishiRpyManagerWidgetBase::Reset_Implementation();
+}
+
+UObject* UKishiRpyShowManagerWidgetBase::CreateShowableFromClass(TSubclassOf<UObject> ShowableClass, FName Tag, FVector WorldLocation, FRotator WorldRotation, FVector2D WidgetPosition, int32 ZOrder)
+{
+	if (!ShowableClass || !ShowableClass->ImplementsInterface(UShowable::StaticClass()) || !GetWorld())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ShowManager: CreateShowableFromClass requires a valid IShowable class and world."));
+		return nullptr;
+	}
+	if (TrackedShowables.Contains(Tag)) RemoveShowable(Tag);
+
+	UObject* Showable = nullptr;
+	if (ShowableClass->IsChildOf(UUserWidget::StaticClass()))
+	{
+		TSubclassOf<UUserWidget> WidgetClass = ShowableClass.Get();
+		UUserWidget* Widget = CreateWidget<UUserWidget>(this, WidgetClass);
+		if (!Widget) return nullptr;
+		if (ShowCanvas)
+		{
+			if (UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(ShowCanvas->AddChild(Widget)))
+			{
+				CanvasSlot->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
+				CanvasSlot->SetOffsets(FMargin(0.0f));
+				CanvasSlot->SetPosition(WidgetPosition);
+				CanvasSlot->SetZOrder(ZOrder);
+			}
+			else
+			{
+				Widget->RemoveFromParent();
+				return nullptr;
+			}
+		}
+		Showable = Widget;
+	}
+	else if (ShowableClass->IsChildOf(AActor::StaticClass()))
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		Showable = GetWorld()->SpawnActor<AActor>(Cast<UClass>(ShowableClass), WorldLocation, WorldRotation, SpawnParams);
+	}
+	else if (ShowableClass->IsChildOf(UActorComponent::StaticClass()))
+	{
+		AActor* Owner = GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), WorldLocation, WorldRotation);
+		if (!Owner) return nullptr;
+		USceneComponent* Root = NewObject<USceneComponent>(Owner, TEXT("ShowableRoot"));
+		Owner->SetRootComponent(Root);
+		Owner->AddInstanceComponent(Root);
+		Root->RegisterComponent();
+		UActorComponent* Component = NewObject<UActorComponent>(Owner, Cast<UClass>(ShowableClass));
+		if (!Component || !Component->GetClass()->ImplementsInterface(UShowable::StaticClass()))
+		{
+			Owner->Destroy();
+			return nullptr;
+		}
+		Owner->AddInstanceComponent(Component);
+		Component->RegisterComponent();
+		if (UKishiAnimationComponent* AnimationComponent = Cast<UKishiAnimationComponent>(Component))
+		{
+			AnimationComponent->WorldTarget = Root;
+		}
+		Showable = Component;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ShowManager: showable class must derive from UUserWidget, AActor, or UActorComponent."));
+		return nullptr;
+	}
+
+	if (!IsValid(Showable) || !Showable->GetClass()->ImplementsInterface(UShowable::StaticClass())) return nullptr;
+	TrackedShowables.Add(Tag, Showable);
+	if (FNameProperty* TagProperty = FindFProperty<FNameProperty>(Showable->GetClass(), TEXT("Tag")))
+	{
+		TagProperty->SetPropertyValue_InContainer(Showable, Tag);
+	}
+	return Showable;
+}
+
+bool UKishiRpyShowManagerWidgetBase::ShowTrackedShowable(FName Tag, const FKishiShowableOptions& Options)
+{
+	UObject* const* Found = TrackedShowables.Find(Tag);
+	if (!Found || !IsValid(*Found) || !(*Found)->GetClass()->ImplementsInterface(UShowable::StaticClass())) return false;
+	IShowable::Execute_Show(*Found, Options);
+	return true;
+}
+
+bool UKishiRpyShowManagerWidgetBase::HideTrackedShowable(FName Tag, const FKishiShowableOptions& Options)
+{
+	UObject* const* Found = TrackedShowables.Find(Tag);
+	if (!Found || !IsValid(*Found) || !(*Found)->GetClass()->ImplementsInterface(UShowable::StaticClass())) return false;
+	IShowable::Execute_Hide(*Found, Options);
+	return true;
+}
+
+bool UKishiRpyShowManagerWidgetBase::RemoveShowable(FName Tag)
+{
+	UObject** Found = TrackedShowables.Find(Tag);
+	if (!Found) return false;
+	UObject* Object = *Found;
+	TrackedShowables.Remove(Tag);
+	if (UUserWidget* Widget = Cast<UUserWidget>(Object))
+	{
+		Widget->RemoveFromParent();
+	}
+	else if (AActor* Actor = Cast<AActor>(Object))
+	{
+		Actor->Destroy();
+	}
+	else if (UActorComponent* Component = Cast<UActorComponent>(Object))
+	{
+		if (AActor* Owner = Component->GetOwner()) Owner->Destroy();
+		else Component->DestroyComponent();
+	}
+	return true;
 }
 
 TArray<FRpyShowManagerState> UKishiRpyShowManagerWidgetBase::GetCurrentShowStates_Implementation() const

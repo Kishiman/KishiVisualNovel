@@ -1,4 +1,5 @@
 #include "Widgets/KishiLayeredSpriteWidgetBase.h"
+#include "Widgets/KishiSpriteWidget.h"
 
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
@@ -6,14 +7,173 @@
 #include "Animation/Transitions/RpyMoveTransition.h"
 #include "Engine/World.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Blueprint/WidgetTree.h"
 #include "PaperSprite.h"
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 
+TSharedRef<SWidget> UKishiLayeredSpriteWidgetBase::RebuildWidget()
+{
+	if (!Canvas && WidgetTree)
+	{
+		Canvas = WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(), TEXT("Canvas"));
+		if (!WidgetTree->RootWidget)
+		{
+			WidgetTree->RootWidget = Canvas;
+		}
+	}
+	return Super::RebuildWidget();
+}
+
 void UKishiLayeredSpriteWidgetBase::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+	if (!LayerWidgetClass)
+	{
+		LayerWidgetClass = UKishiSpriteWidget::StaticClass();
+	}
 	LoadLayers();
+}
+
+void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOptions& Options)
+{
+	if (!bHasShownAttributes)
+	{
+		if (!Options.Attributes.IsEmpty())
+		{
+			ApplyAttributeSelection(Options.Attributes, Options, false);
+		}
+		ActiveAttributes = Options.Attributes;
+		bHasShownAttributes = true;
+		UKishiShowableWidget::Show_Implementation(Options);
+		return;
+	}
+
+	if (Options.Attributes != ActiveAttributes && IsValid(LayeredSprite) && IShowable::Execute_IsShown(this))
+	{
+		TArray<FName> NamesToShow;
+		TArray<FName> NamesToHide;
+		TArray<FName> NamesToDisplay;
+		TArray<FName> NamesToHideForAttribute;
+		if (!Options.Attributes.IsEmpty())
+		{
+			LayeredSprite->FindNamesByAttribute(Options.Attributes, NamesToDisplay, NamesToHideForAttribute);
+		}
+		for (const FSpriteLayer& Layer : LayeredSprite->layers)
+		{
+			bool bShouldDisplay = Layer.displayed;
+			if (!Options.Attributes.IsEmpty())
+			{
+				if (NamesToDisplay.Contains(Layer.name)) bShouldDisplay = true;
+				else if (NamesToHideForAttribute.Contains(Layer.name)) bShouldDisplay = false;
+			}
+			const bool* bWasDisplayed = LayerDisplay.Find(Layer.name);
+			if (bWasDisplayed && *bWasDisplayed != bShouldDisplay)
+			{
+				(bShouldDisplay ? NamesToShow : NamesToHide).Add(Layer.name);
+			}
+		}
+
+		// A fade or dissolve reads as one image replacement when both sides change.
+		// Other effects can be applied to the individual layers in parallel.
+		const bool bWholeImageTransition = NamesToShow.Num() > 0 && NamesToHide.Num() > 0 &&
+			(Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Dissolve);
+		if (bWholeImageTransition)
+		{
+			// Finish any active outer animation before arming the swap callback.
+			if (IAnimatable::Execute_IsAnimating(this))
+			{
+				IAnimatable::Execute_Skip(this);
+			}
+			PendingAttributeOptions = Options;
+			PendingAttributeOptions.Duration = Options.Duration * 0.5f;
+			bWaitingForAttributeSwap = true;
+			FKishiShowableOptions HideOptions = PendingAttributeOptions;
+			HideOptions.Attributes = ActiveAttributes;
+			UKishiShowableWidget::Hide_Implementation(HideOptions);
+			return;
+		}
+
+		ApplyAttributeSelection(Options.Attributes, Options, true);
+		ActiveAttributes = Options.Attributes;
+		return;
+	}
+
+	if (Options.Attributes != ActiveAttributes)
+	{
+		ApplyAttributeSelection(Options.Attributes, Options, false);
+		ActiveAttributes = Options.Attributes;
+	}
+	UKishiShowableWidget::Show_Implementation(Options);
+}
+
+void UKishiLayeredSpriteWidgetBase::HandleAnimationEnded_Implementation()
+{
+	if (bWaitingForAttributeSwap)
+	{
+		bWaitingForAttributeSwap = false;
+		ApplyAttributeSelection(PendingAttributeOptions.Attributes, PendingAttributeOptions, false);
+		ActiveAttributes = PendingAttributeOptions.Attributes;
+		bAwaitingAttributeShowCompletion = true;
+
+		FKishiShowableOptions ShowOptions = PendingAttributeOptions;
+		ShowOptions.Delay = 0.0f;
+		UKishiShowableWidget::Show_Implementation(ShowOptions);
+		return;
+	}
+	if (bAwaitingAttributeShowCompletion)
+	{
+		bAwaitingAttributeShowCompletion = false;
+	}
+	UKishiShowableWidget::HandleAnimationEnded_Implementation();
+}
+
+void UKishiLayeredSpriteWidgetBase::ApplyAttributeSelection(const FString& Attributes, const FKishiShowableOptions& Options, bool bAnimate)
+{
+	if (!IsValid(LayeredSprite))	return;
+
+	TArray<FName> NamesToDisplay;
+	TArray<FName> NamesToHide;
+	if (!Attributes.IsEmpty())
+	{
+		LayeredSprite->FindNamesByAttribute(Attributes, NamesToDisplay, NamesToHide);
+	}
+	for (const FSpriteLayer& Layer : LayeredSprite->layers)
+	{
+		bool bShouldDisplay = Layer.displayed;
+		if (!Attributes.IsEmpty())
+		{
+			if (NamesToDisplay.Contains(Layer.name)) bShouldDisplay = true;
+			else if (NamesToHide.Contains(Layer.name)) bShouldDisplay = false;
+		}
+		const bool* bWasDisplayed = LayerDisplay.Find(Layer.name);
+		if (!bWasDisplayed || *bWasDisplayed != bShouldDisplay)
+		{
+			SetLayerShown(Layer.name, bShouldDisplay, Options, bAnimate);
+		}
+	}
+}
+
+void UKishiLayeredSpriteWidgetBase::SetLayerShown(FName LayerName, bool bShown, const FKishiShowableOptions& Options, bool bAnimate)
+{
+	LayerDisplay.Add(LayerName, bShown);
+	UUserWidget** LayerWidget = Layers.Find(LayerName);
+	if (!LayerWidget || !IsValid(*LayerWidget)) return;
+	if (!bAnimate || !(*LayerWidget)->GetClass()->ImplementsInterface(UShowable::StaticClass()))
+	{
+		(*LayerWidget)->SetRenderOpacity(bShown ? 1.0f : 0.0f);
+		(*LayerWidget)->SetVisibility(bShown ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+		return;
+	}
+	if (bShown)
+	{
+		(*LayerWidget)->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		IShowable::Execute_Show(*LayerWidget, Options);
+	}
+	else
+	{
+		IShowable::Execute_Hide(*LayerWidget, Options);
+	}
 }
 
 void UKishiLayeredSpriteWidgetBase::NativeTick(const FGeometry &MyGeometry, float InDeltaTime)
@@ -51,6 +211,8 @@ void UKishiLayeredSpriteWidgetBase::SetLayeredSprite(ULayeredSprite *Sprite)
 	}
 
 	LayeredSprite = Sprite;
+	ActiveAttributes.Reset();
+	bHasShownAttributes = false;
 	LayerDisplay.Reset();
 	if (LayeredSprite)
 	{
