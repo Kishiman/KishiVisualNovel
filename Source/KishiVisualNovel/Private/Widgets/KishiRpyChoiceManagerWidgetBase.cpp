@@ -66,6 +66,12 @@ void UKishiRpyChoiceManagerWidgetBase::Choose_Implementation(int32 Index)
 		return;
 	}
 	OnChoiceSelected(Index);
+	// Clear before notifying the session: OnChoice may synchronously reach the next menu and repopulate the panel.
+	ChoiceState.choices.Reset();
+	if (ChoicesPanel)
+	{
+		ChoicesPanel->ClearChildren();
+	}
 	if (IsValid(Interpreter.GetObject()))
 	{
 		URpySession *Session = IRpyScriptInterpreter::Execute_GetSession(Interpreter.GetObject());

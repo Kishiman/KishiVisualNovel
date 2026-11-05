@@ -22,9 +22,9 @@
 void UKishiChoiceEntryWidgetBase::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-	if (ChoiceButton)
+	if (UButton *Button = GetChoiceButton())
 	{
-		ChoiceButton->OnClicked.AddDynamic(this, &UKishiChoiceEntryWidgetBase::HandleClicked);
+		Button->OnClicked.AddUniqueDynamic(this, &UKishiChoiceEntryWidgetBase::HandleClicked);
 	}
 }
 
@@ -32,10 +32,28 @@ void UKishiChoiceEntryWidgetBase::SetChoice(int32 Index, const FString &Text)
 {
 	ChoiceIndex = Index;
 	ChoiceText = Text;
-	if (ChoiceLabel)
+	if (UTextBlock *Label = GetChoiceLabel())
 	{
-		ChoiceLabel->SetText(FText::FromString(Text));
+		Label->SetText(FText::FromString(Text));
 	}
+}
+
+UButton *UKishiChoiceEntryWidgetBase::GetChoiceButton_Implementation() const
+{
+	if (!ChoiceButton)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: GetChoiceButton is required. Override it or name a Button widget ChoiceButton."), *GetNameSafe(GetClass()));
+	}
+	return ChoiceButton;
+}
+
+UTextBlock *UKishiChoiceEntryWidgetBase::GetChoiceLabel_Implementation() const
+{
+	if (!ChoiceLabel)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: GetChoiceLabel is required. Override it or name a TextBlock widget ChoiceLabel."), *GetNameSafe(GetClass()));
+	}
+	return ChoiceLabel;
 }
 
 void UKishiChoiceEntryWidgetBase::HandleClicked()

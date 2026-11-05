@@ -120,15 +120,15 @@ Decisions (2026-11-01): Legacy stays in place and quarantine is deferred. VN2D u
   Recreating it from the Base is simpler.
 
 - [x] Fix `VN2D_RPYPlayer`: delete the empty `StartUp` and `OnDialogueViseme` events. They replace the C++ implementations, so managers aren't re-discovered on start and visemes never reach the managers. Use `OnInterpreterStarted` / `OnViseme` instead.
-- [ ] Create `VN2D_ChoiceEntry` from `UKishiChoiceEntryWidgetBase` (replaces `IndexedButton`).
-- [ ] Create `VN2D_ChoiceManager` from `UKishiRpyChoiceManagerWidgetBase`: add a `ChoicesPanel` panel and set `ChoiceEntryClass` to `VN2D_ChoiceEntry`.
-- [ ] Create `VN2D_SceneManager` from `UKishiRpySceneManagerWidgetBase`: add a `SceneSprite` widget (a `UKishiSpriteWidget` subclass), or set `SceneSpriteClass`.
-- [ ] Create `VN2D_ShowManager` from `UKishiRpyShowManagerWidgetBase`: add a `ShowCanvas` canvas; set `SpriteWidgetClass` to `KishiSpriteWidget` and `LayeredSpriteWidgetClass` to `KishiLayeredSpriteWidget` (or VN2D subclasses of them). Set `NeutralVisemeLayer` on the layered sprite class if lip sync is wanted.
+- [x] Create `VN2D_ChoiceEntry` from `UKishiChoiceEntryWidgetBase` (replaces `IndexedButton`).
+- [x] Create `VN2D_ChoiceManager` from `UKishiRpyChoiceManagerWidgetBase`: add a `ChoicesPanel` panel and set `ChoiceEntryClass` to `VN2D_ChoiceEntry`.
+- [x] Create `VN2D_SceneManager` from `UKishiRpySceneManagerWidgetBase`: add a `SceneSprite` widget (a `UKishiSpriteWidget` subclass), or set `SceneSpriteClass`.
+- [x] Create `VN2D_ShowManager` from `UKishiRpyShowManagerWidgetBase`: add a `ShowCanvas` canvas; set `SpriteWidgetClass` to `KishiSpriteWidget` and `LayeredSpriteWidgetClass` to `KishiLayeredSpriteWidget` (or VN2D subclasses of them). Set `NeutralVisemeLayer` on the layered sprite class if lip sync is wanted.
 - [ ] Create `VN2D_AudioManager` from `UKishiRpyAudioManagerWidgetBase`: copy `AudioChannels` and `Blip` from `WGT_RPYAudioManager`.
 - [ ] Copy only layout and styling from the Legacy widgets, not graph logic.
 - [ ] In `VN2D_RPYPlayer`, replace the four `WGT_RPY*Manager` children with the VN2D ones, one per interface.
 - [ ] Test a script that uses `show` with attributes, a `with` transition and dialogue lip sync.
-- [x] Confirm that no level references `WGT_VNPlayer` or `RpyActor`. **Failed (2026-11-01), see below.**
+- [ ] Confirm that no level references `WGT_VNPlayer` or `RpyActor`. **Failed (2026-11-01), see below.**
 - [ ] Move `Styles/Legacy` to a quarantine folder and fix up redirectors. **Deferred: the game's levels still use Legacy.**
 - [ ] Plan how the first-person game (`DetectiveOffice_Layout`, `RpyFirstPersonCharacter`) moves off Legacy. It needs the world-space scene path (`VNCamera` + `Anchor`) from step 8.
 

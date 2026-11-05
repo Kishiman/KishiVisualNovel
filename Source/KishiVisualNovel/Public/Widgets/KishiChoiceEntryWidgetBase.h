@@ -29,6 +29,10 @@ public:
 	FString ChoiceText;
 	UFUNCTION(BlueprintCallable, Category = "Rpy|Choice")
 	void SetChoice(int32 Index, const FString &Text);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Kishi Choice Entry Widget Base|Required", meta = (ToolTip = "Required: return the button that selects this choice. The default returns the widget named ChoiceButton, if any."))
+	UButton *GetChoiceButton() const;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Kishi Choice Entry Widget Base|Required", meta = (ToolTip = "Required: return the text block that displays this choice's text. The default returns the widget named ChoiceLabel, if any."))
+	UTextBlock *GetChoiceLabel() const;
 
 protected:
 	virtual void NativeOnInitialized() override;
