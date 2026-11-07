@@ -444,9 +444,13 @@ void UKishiLayeredSpriteWidgetBase::UpdateVisemeLayer(EMouthViseme Viseme, float
 		}
 	}
 
-	if (Viseme == EMouthViseme::Neutral && TimeOffset >= VisemeNeutralOffset)
+	if (Viseme == EMouthViseme::Neutral)
 	{
-		ResetNeutralVisemeLayer();
+		// A short pause keeps the current mouth shape; only a long enough silence closes it.
+		if (TimeOffset >= VisemeNeutralOffset)
+		{
+			ResetNeutralVisemeLayer();
+		}
 		return;
 	}
 

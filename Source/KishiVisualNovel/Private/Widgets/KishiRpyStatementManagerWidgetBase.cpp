@@ -64,11 +64,25 @@ void UKishiRpyStatementManagerWidgetBase::NativeTick(const FGeometry &MyGeometry
 	PreviousStatementCharactersNum = StatementCharactersNum;
 	StatementCharactersNum = NewCount;
 	UpdateVisibleStatement();
-	LastViseme = UStringUtils::getVisemeBetween(TaggedStatement, PreviousStatementCharactersNum, StatementCharactersNum);
-	const float Remaining = TextSpeed > 0.0f ? FMath::Max(0.0f, static_cast<float>(TaggedStatement.Length - LastViseme.taggedIndex)) / TextSpeed : 0.0f;
+	EmitDialogueViseme();
+}
+
+void UKishiRpyStatementManagerWidgetBase::EmitDialogueViseme()
+{
+	// Keep the last spoken viseme through Neutral characters, so the mouth holds its shape until
+	// the speaker has been silent for a while, as WGT_RPYStatementManager does.
+	const FMouthViseme Viseme = UStringUtils::getVisemeBetween(TaggedStatement, PreviousStatementCharactersNum, StatementCharactersNum);
+	if (Viseme.type != EMouthViseme::Neutral)
+	{
+		LastViseme = Viseme;
+	}
+	// The offset is the time since the last spoken viseme; a fully revealed line reports a long silence.
+	const bool bLineComplete = StatementCharactersNum >= TaggedStatement.Length;
+	const float TimeOffset = bLineComplete ? 60.0f
+										   : (TextSpeed > 0.0f ? FMath::Max(0, StatementCharactersNum - LastViseme.taggedIndex) / TextSpeed : 60.0f);
 	if (IsValid(Interpreter.GetObject()))
 	{
-		IRpyScriptInterpreter::Execute_OnDialogueViseme(Interpreter.GetObject(), StatementState.name, LastViseme.type, Remaining);
+		IRpyScriptInterpreter::Execute_OnDialogueViseme(Interpreter.GetObject(), StatementState.name, Viseme.type, TimeOffset);
 	}
 }
 
@@ -102,6 +116,9 @@ void UKishiRpyStatementManagerWidgetBase::CompleteOrRevealStatement()
 		StatementCharactersNum = TaggedStatement.Length;
 		CharacterAccumulator = static_cast<float>(StatementCharactersNum);
 		UpdateVisibleStatement();
+		// Close the speaker's mouth when the rest of the line is revealed at once.
+		LastViseme = FMouthViseme();
+		EmitDialogueViseme();
 		return;
 	}
 	if (IsValid(Interpreter.GetObject()))

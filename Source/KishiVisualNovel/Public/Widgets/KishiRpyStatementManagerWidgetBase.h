@@ -55,4 +55,5 @@ protected:
 	void OnStatementRequested(FName Name, const FString &Statement);
 	void UpdateVisibleStatement();
 	void CompleteOrRevealStatement();
+	void EmitDialogueViseme();
 };
