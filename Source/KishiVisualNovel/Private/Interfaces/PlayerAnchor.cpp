@@ -2,6 +2,19 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/Actor.h"
+
+TScriptInterface<IPlayerAnchor> UPlayerAnchorLibrary::FindPlayerAnchor(AActor *Actor)
+{
+  if (!IsValid(Actor))
+    return nullptr;
+  if (Actor->GetClass()->ImplementsInterface(UPlayerAnchor::StaticClass()))
+    return Actor;
+  for (UActorComponent *Component : Actor->GetComponents())
+    if (IsValid(Component) && Component->GetClass()->ImplementsInterface(UPlayerAnchor::StaticClass()))
+      return Component;
+  return nullptr;
+}
 
 FAnchorCameraResult UPlayerAnchorLibrary::UpdateAnchoredCameraAndCursor(const TScriptInterface<IPlayerAnchor> &Anchor, const UCameraComponent *Camera, const FVector2D &CursorPos, float ViewportWidth, float ViewportHeight, float Threshold, const FVector2D &TurnInput, float DeltaTime, float TurnSpeed)
 {

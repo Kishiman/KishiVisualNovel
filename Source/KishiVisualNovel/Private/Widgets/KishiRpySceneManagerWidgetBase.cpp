@@ -13,6 +13,16 @@
 #include "Input/Reply.h"
 #include "InputCoreTypes.h"
 #include "LevelSequencePlayer.h"
+#include "LevelSequenceActor.h"
+#include "LevelSequence.h"
+#include "MovieScene.h"
+#include "MovieSceneTrack.h"
+#include "Sections/MovieSceneCameraCutSection.h"
+#include "EngineUtils.h"
+#include "Camera/PlayerCameraManager.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Interfaces/RpyCameraAnchor.h"
 #include "PaperSprite.h"
 #include "TimerManager.h"
 #include "Rpy/RpySession.h"
@@ -80,6 +90,8 @@ bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpy
 							*GetNameSafe(Image.videoMediaSprite), *GetNameSafe(Image.levelSequence));
 	SceneState.rpyImage = Image;
 	SceneState.options = Options;
+	// Anchor and camera transition first: "scene _" with a transition still moves the camera.
+	ApplySceneCameraTransition(Options);
 	if (Image.type == ERpyImageType::ENONE)
 	{
 		// "scene _" clears the scene.
@@ -111,20 +123,9 @@ bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpy
 		}
 		break;
 	case ERpyImageType::ELEVEL_SEQUENCE:
+		// A level sequence image replaces any transition sequence started above.
 		if (IsValid(Image.levelSequence))
-		{
-			if (IsValid(ActiveLevelSequencePlayer))
-				ActiveLevelSequencePlayer->Stop();
-			FMovieSceneSequencePlaybackSettings Settings;
-			Settings.bAutoPlay = true;
-			ALevelSequenceActor *SequenceActor = nullptr;
-			ActiveLevelSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(this, Image.levelSequence, Settings, SequenceActor);
-			if (ActiveLevelSequencePlayer)
-			{
-				ActiveLevelSequencePlayer->Play();
-				bHandled = true;
-			}
-		}
+			bHandled = PlaySceneSequence(Image.levelSequence, FindSceneCamera());
 		break;
 	default:
 		break;
@@ -150,12 +151,195 @@ bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpy
 	return true;
 }
 
-void UKishiRpySceneManagerWidgetBase::Reset_Implementation()
+AActor *UKishiRpySceneManagerWidgetBase::FindSceneCamera_Implementation() const
+{
+	APlayerController *PlayerController = GetOwningPlayer();
+	if (!PlayerController)
+		PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (!PlayerController)
+		return nullptr;
+	if (PlayerController->PlayerCameraManager)
+		if (AActor *ViewTarget = PlayerController->PlayerCameraManager->GetViewTarget())
+			return ViewTarget;
+	return PlayerController->GetViewTarget();
+}
+
+USceneComponent *UKishiRpySceneManagerWidgetBase::FindSceneAnchor_Implementation(FName Layer) const
+{
+	static const FName MasterLayer(TEXT("master"));
+	UWorld *World = GetWorld();
+	if (Layer.IsNone() || Layer == MasterLayer || !World)
+		return nullptr;
+	const TScriptInterface<IRpyCameraAnchor> CameraAnchor = URpyCameraAnchorLibrary::FindAnchorByLayerName(World, Layer);
+	if (UObject *AnchorObject = CameraAnchor.GetObject())
+	{
+		if (USceneComponent *AnchorComponent = Cast<USceneComponent>(AnchorObject))
+			return AnchorComponent;
+		if (AActor *AnchorActor = IRpyCameraAnchor::Execute_GetActor(AnchorObject))
+			if (USceneComponent *AnchorRoot = AnchorActor->GetRootComponent())
+				return AnchorRoot;
+	}
+	UClass *Class = AnchorClass ? AnchorClass.Get() : AActor::StaticClass();
+	for (TActorIterator<AActor> It(World, Class); It; ++It)
+		if (It->ActorHasTag(Layer) && It->GetRootComponent())
+			return It->GetRootComponent();
+	UE_LOG(LogTemp, Warning, TEXT("%s: no camera anchor or %s actor tagged with scene layer '%s'; the camera stays on its current parent."), *GetName(),
+				 *Class->GetName(), *Layer.ToString());
+	return nullptr;
+}
+
+bool UKishiRpySceneManagerWidgetBase::AttachCameraToAnchor(AActor *Camera, USceneComponent *Anchor)
+{
+	if (!IsValid(Camera) || !IsValid(Anchor) || Anchor->GetOwner() == Camera)
+		return false;
+	USceneComponent *CameraRoot = Camera->GetRootComponent();
+	if (!CameraRoot)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot attach camera %s to anchor %s because the camera has no root component."), *GetName(), *Camera->GetName(), *Anchor->GetName());
+		return false;
+	}
+	if (AnchoredCamera != Camera)
+	{
+		// A different camera: put the previous one back, then remember where this one came from.
+		RestoreSceneCamera();
+		AnchoredCamera = Camera;
+		CameraOriginalParent = CameraRoot->GetAttachParent();
+		CameraOriginalSocket = CameraRoot->GetAttachSocketName();
+		CameraOriginalRelativeTransform = CameraRoot->GetRelativeTransform();
+	}
+	if (CameraRoot->Mobility != EComponentMobility::Movable)
+		CameraRoot->SetMobility(EComponentMobility::Movable);
+	const bool bAttached = CameraRoot->AttachToComponent(Anchor, FAttachmentTransformRules::KeepRelativeTransform);
+	VNSCENE_LOG("attached camera %s to anchor %s.%s: %d", *Camera->GetName(), *GetNameSafe(Anchor->GetOwner()), *Anchor->GetName(), bAttached ? 1 : 0);
+	return bAttached;
+}
+
+bool UKishiRpySceneManagerWidgetBase::PlaySceneSequence(ULevelSequence *Sequence, AActor *Camera)
+{
+	StopSceneSequence();
+	if (!IsValid(Sequence))
+		return false;
+	FMovieSceneSequencePlaybackSettings Settings;
+	// No autoplay: the camera binding must be set before the first evaluation.
+	Settings.bAutoPlay = false;
+	ALevelSequenceActor *SequenceActor = nullptr;
+	ULevelSequencePlayer *Player = ULevelSequencePlayer::CreateLevelSequencePlayer(this, Sequence, Settings, SequenceActor);
+	if (!Player || !SequenceActor)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: could not create a player for level sequence %s."), *GetName(), *Sequence->GetName());
+		return false;
+	}
+	ActiveLevelSequencePlayer = Player;
+	ActiveLevelSequenceActor = SequenceActor;
+	UMovieScene *MovieScene = Sequence->GetMovieScene();
+	if (IsValid(Camera) && MovieScene)
+	{
+		if (!CameraBindingTag.IsNone() && MovieScene->AllTaggedBindings().Contains(CameraBindingTag))
+		{
+			SequenceActor->SetBindingByTag(CameraBindingTag, {Camera});
+			VNSCENE_LOG("bound sequence %s tag '%s' to camera %s", *Sequence->GetName(), *CameraBindingTag.ToString(), *Camera->GetName());
+		}
+		else
+		{
+			const FGuid CameraGuid = FindSequenceCameraBinding(MovieScene);
+			if (CameraGuid.IsValid())
+			{
+				SequenceActor->SetBinding(UE::MovieScene::FFixedObjectBindingID(CameraGuid, MovieSceneSequenceID::Root), {Camera});
+				VNSCENE_LOG("bound sequence %s camera binding '%s' to camera %s (no binding tagged '%s')", *Sequence->GetName(),
+										*MovieScene->GetObjectDisplayName(CameraGuid).ToString(), *Camera->GetName(), *CameraBindingTag.ToString());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("%s: level sequence %s has no binding tagged '%s', no camera cut binding and more than one possessable; it plays with the bindings saved in the asset, so the scene camera does not move."),
+							 *GetName(), *Sequence->GetName(), *CameraBindingTag.ToString());
+			}
+		}
+	}
+	Player->Play();
+	return true;
+}
+
+FGuid UKishiRpySceneManagerWidgetBase::FindSequenceCameraBinding(UMovieScene *MovieScene)
+{
+	if (!MovieScene)
+		return FGuid();
+	// The camera a camera cut cuts to is the sequence's camera.
+	if (const UMovieSceneTrack *CameraCutTrack = MovieScene->GetCameraCutTrack())
+		for (const UMovieSceneSection *Section : CameraCutTrack->GetAllSections())
+			if (const UMovieSceneCameraCutSection *CutSection = Cast<UMovieSceneCameraCutSection>(Section))
+			{
+				const FGuid Guid = CutSection->GetCameraBindingID().GetGuid();
+				if (Guid.IsValid() && MovieScene->FindPossessable(Guid))
+					return Guid;
+			}
+	// Otherwise a sequence that possesses a single object animates the camera.
+	if (MovieScene->GetPossessableCount() == 1)
+		return MovieScene->GetPossessable(0).GetGuid();
+	return FGuid();
+}
+
+void UKishiRpySceneManagerWidgetBase::StopSceneSequence()
 {
 	if (IsValid(ActiveLevelSequencePlayer))
-	{
 		ActiveLevelSequencePlayer->Stop();
-		ActiveLevelSequencePlayer = nullptr;
+	if (IsValid(ActiveLevelSequenceActor))
+		ActiveLevelSequenceActor->Destroy();
+	ActiveLevelSequencePlayer = nullptr;
+	ActiveLevelSequenceActor = nullptr;
+}
+
+void UKishiRpySceneManagerWidgetBase::RestoreSceneCamera()
+{
+	if (IsValid(AnchoredCamera))
+		if (USceneComponent *CameraRoot = AnchoredCamera->GetRootComponent())
+		{
+			if (IsValid(CameraOriginalParent))
+				CameraRoot->AttachToComponent(CameraOriginalParent, FAttachmentTransformRules::KeepRelativeTransform, CameraOriginalSocket);
+			else
+				CameraRoot->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+			CameraRoot->SetRelativeTransform(CameraOriginalRelativeTransform);
+		}
+	AnchoredCamera = nullptr;
+	CameraOriginalParent = nullptr;
+	CameraOriginalSocket = NAME_None;
+}
+
+bool UKishiRpySceneManagerWidgetBase::ApplySceneCameraTransition(const FRpySceneOptions &Options)
+{
+	ULevelSequence *Sequence = nullptr;
+	if (Options.with == ERPYTransitionType::LEVEL_SEQUENCE || Options.transition.type == ERPYTransitionType::LEVEL_SEQUENCE)
+	{
+		Sequence = Options.transition.levelSequence;
+		if (!IsValid(Sequence) && !Options.transition.path.IsEmpty())
+			Sequence = LoadObject<ULevelSequence>(nullptr, *Options.transition.path);
+		if (!IsValid(Sequence))
+			UE_LOG(LogTemp, Error, TEXT("%s: scene transition '%s' has no level sequence (path '%s')."), *GetName(), *Options.transition.name.ToString(),
+						 *Options.transition.path);
+	}
+	USceneComponent *Anchor = FindSceneAnchor(Options.layer);
+	if (!Anchor && !Sequence)
+		return false;
+	// Stop the previous sequence before reading the view target, so its camera cuts do not decide which camera moves.
+	if (Sequence)
+		StopSceneSequence();
+	AActor *Camera = FindSceneCamera();
+	if (!IsValid(Camera))
+		UE_LOG(LogTemp, Error, TEXT("%s: no active camera for scene layer '%s' / transition '%s'."), *GetName(), *Options.layer.ToString(),
+					 *Options.transition.name.ToString());
+	if (Anchor)
+		AttachCameraToAnchor(Camera, Anchor);
+	return Sequence && PlaySceneSequence(Sequence, Camera);
+}
+
+void UKishiRpySceneManagerWidgetBase::Reset_Implementation()
+{
+	StopSceneSequence();
+	if (bRestoreCameraOnReset)
+		RestoreSceneCamera();
+	else
+	{
+		AnchoredCamera = nullptr;
+		CameraOriginalParent = nullptr;
 	}
 	if (IsValid(SceneSprite))
 	{

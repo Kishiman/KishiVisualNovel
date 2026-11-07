@@ -44,7 +44,7 @@ void UKishiLayeredSpriteWidgetBase::NativeOnInitialized()
 	LoadLayers();
 }
 
-void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOptions& Options)
+void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOptions &Options)
 {
 	VNSHOW_LOG("layered show attributes='%s' (active='%s') firstShow=%d shown=%d useFrom=%d type=%s", *Options.Attributes, *ActiveAttributes,
 						 bHasShownAttributes ? 0 : 1, IShowable::Execute_IsShown(this) ? 1 : 0, Options.bUseFrom ? 1 : 0, *UEnum::GetValueAsString(Options.Type));
@@ -71,15 +71,17 @@ void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOpti
 		{
 			LayeredSprite->FindNamesByAttribute(Options.Attributes, NamesToDisplay, NamesToHideForAttribute);
 		}
-		for (const FSpriteLayer& Layer : LayeredSprite->layers)
+		for (const FSpriteLayer &Layer : LayeredSprite->layers)
 		{
 			bool bShouldDisplay = Layer.displayed;
 			if (!Options.Attributes.IsEmpty())
 			{
-				if (NamesToDisplay.Contains(Layer.name)) bShouldDisplay = true;
-				else if (NamesToHideForAttribute.Contains(Layer.name)) bShouldDisplay = false;
+				if (NamesToDisplay.Contains(Layer.name))
+					bShouldDisplay = true;
+				else if (NamesToHideForAttribute.Contains(Layer.name))
+					bShouldDisplay = false;
 			}
-			const bool* bWasDisplayed = LayerDisplay.Find(Layer.name);
+			const bool *bWasDisplayed = LayerDisplay.Find(Layer.name);
 			if (bWasDisplayed && *bWasDisplayed != bShouldDisplay)
 			{
 				(bShouldDisplay ? NamesToShow : NamesToHide).Add(Layer.name);
@@ -89,7 +91,7 @@ void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOpti
 		// A fade or dissolve reads as one image replacement when both sides change.
 		// Other effects can be applied to the individual layers in parallel.
 		const bool bWholeImageTransition = NamesToShow.Num() > 0 && NamesToHide.Num() > 0 &&
-			(Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Dissolve);
+																			 (Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Dissolve);
 		if (bWholeImageTransition)
 		{
 			// Finish any active outer animation before arming the swap callback.
@@ -143,9 +145,10 @@ void UKishiLayeredSpriteWidgetBase::HandleAnimationEnded_Implementation()
 	UKishiShowableWidget::HandleAnimationEnded_Implementation();
 }
 
-void UKishiLayeredSpriteWidgetBase::ApplyAttributeSelection(const FString& Attributes, const FKishiShowableOptions& Options, bool bAnimate)
+void UKishiLayeredSpriteWidgetBase::ApplyAttributeSelection(const FString &Attributes, const FKishiShowableOptions &Options, bool bAnimate)
 {
-	if (!IsValid(LayeredSprite))	return;
+	if (!IsValid(LayeredSprite))
+		return;
 
 	TArray<FName> NamesToDisplay;
 	TArray<FName> NamesToHide;
@@ -153,15 +156,17 @@ void UKishiLayeredSpriteWidgetBase::ApplyAttributeSelection(const FString& Attri
 	{
 		LayeredSprite->FindNamesByAttribute(Attributes, NamesToDisplay, NamesToHide);
 	}
-	for (const FSpriteLayer& Layer : LayeredSprite->layers)
+	for (const FSpriteLayer &Layer : LayeredSprite->layers)
 	{
 		bool bShouldDisplay = Layer.displayed;
 		if (!Attributes.IsEmpty())
 		{
-			if (NamesToDisplay.Contains(Layer.name)) bShouldDisplay = true;
-			else if (NamesToHide.Contains(Layer.name)) bShouldDisplay = false;
+			if (NamesToDisplay.Contains(Layer.name))
+				bShouldDisplay = true;
+			else if (NamesToHide.Contains(Layer.name))
+				bShouldDisplay = false;
 		}
-		const bool* bWasDisplayed = LayerDisplay.Find(Layer.name);
+		const bool *bWasDisplayed = LayerDisplay.Find(Layer.name);
 		if (!bWasDisplayed || *bWasDisplayed != bShouldDisplay)
 		{
 			SetLayerShown(Layer.name, bShouldDisplay, Options, bAnimate);
@@ -169,13 +174,14 @@ void UKishiLayeredSpriteWidgetBase::ApplyAttributeSelection(const FString& Attri
 	}
 }
 
-void UKishiLayeredSpriteWidgetBase::SetLayerShown(FName LayerName, bool bShown, const FKishiShowableOptions& Options, bool bAnimate)
+void UKishiLayeredSpriteWidgetBase::SetLayerShown(FName LayerName, bool bShown, const FKishiShowableOptions &Options, bool bAnimate)
 {
 	LayerDisplay.Add(LayerName, bShown);
-	UUserWidget** LayerWidget = Layers.Find(LayerName);
+	UUserWidget **LayerWidget = Layers.Find(LayerName);
 	VNSHOW_LOG("layer '%s' %s %s (widget=%s)", *LayerName.ToString(), bShown ? TEXT("shown") : TEXT("hidden"),
 						 bAnimate ? TEXT("animated") : TEXT("instantly"), LayerWidget ? *GetNameSafe(*LayerWidget) : TEXT("None"));
-	if (!LayerWidget || !IsValid(*LayerWidget)) return;
+	if (!LayerWidget || !IsValid(*LayerWidget))
+		return;
 	if (!bAnimate || !(*LayerWidget)->GetClass()->ImplementsInterface(UShowable::StaticClass()))
 	{
 		(*LayerWidget)->SetRenderOpacity(bShown ? 1.0f : 0.0f);

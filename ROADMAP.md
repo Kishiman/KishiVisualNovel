@@ -38,7 +38,7 @@ Each feature gets four pieces:
 | Interface   | `IRpyShowManager`                | Required `Handle...` operations (the fallback logs an error and returns a safe default) and optional `On...` hooks (empty bodies, never `= 0`) |
 | Library     | `URpyShowManagerLibrary`         | Static `*_Default` functions on `TScriptInterface<I...>` that hold the shared logic; dispatch only through `Execute_*`                         |
 | Widget Base | `UKishiRpyShowManagerWidgetBase` | `_Implementation` overrides that call the Library, plus Blueprint hooks in its own category                                                    |
-| Actor Base  | `AKishiRpyShowManagerActorBase`  | Same as the widget Base, for presentation in world space                                                                                       |
+| Component   | `UKishiRpyShowManagerComponent`  | Same as the widget Base, for presentation in world space; attaches to any actor (step 10)                                                      |
 
 Other parts of the target:
 
@@ -61,8 +61,9 @@ Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry in `Config/
 | 5   | Libraries               | Rename the interpreter library; add five manager libraries; move shared logic into `*_Default`                                                                                   | `WGT_VNPlayer` `*_Default` nodes                                                                            | `ClassRedirects`                                                                 |
 | 6   | Showable assets         | Asset hierarchy, registry, `SetShowableAsset`, slimmer `FRpyImage` with a `PostLoad` conversion                                                                                  | Reparent `WGT_Sprite` / `WGT_LayeredSprite`; Legacy scene and show managers can't be kept                   | Create assets; fill the registry; resave scripts and layered sprites             |
 | 7   | Unify show and scene    | Shared show Library; delete the `ShownWidgets` path; merge the option structs                                                                                                    | Re-wire struct nodes in `KishiWidget` / `WGT_LayeredSprite`; add a background canvas to `VN2D_SceneManager` | `StructRedirects`                                                                |
-| 8   | Actor Bases             | Actor show and scene managers                                                                                                                                                    | Optional: reparent world showables                                                                          | Decide which managers need world space                                           |
+| 8   | World-space managers    | Show and scene manager **components** (see step 10), not Actor Bases                                                                                                             | Optional: reparent world showables                                                                          | Decide which managers need world space                                           |
 | 9   | Docs                    | None                                                                                                                                                                             | None                                                                                                        | Point `CLAUDE.md` at `@AGENTS.md`; add the architecture rules                    |
+| 10  | Components over actors  | Component counterpart of every class in `Public/Actors`; `IRpyMainComponent`; actor-or-component lookup libraries                                                                | `VNCamera`, `RpyScriptInteractableActor`, then the other Legacy VN actors use the components                | Keep `Public/Actors` unchanged for existing assets; decide when to deprecate it  |
 
 ## Checklist
 
@@ -79,6 +80,7 @@ Finish each step with the following:
 - [ ] Should the `Rpy` prefix stay now that scripts are XML?
 - [ ] What should `Failed` do: advance and log, or stop the script? (Needed before step 3.)
 - [ ] Should the asset-to-showable map live in Project Settings or on each asset class?
+- [ ] When no asset uses the classes in `Public/Actors` any more, deprecate them (`UCLASS(Deprecated)`) or keep them? (Step 10.)
 - [ ] Which managers need an actor Base (world space)? (Needed before step 8.)
 
 ### 1. Stabilize the session
@@ -125,12 +127,12 @@ Decisions (2026-11-01): Legacy stays in place and quarantine is deferred. VN2D u
 - [x] Create `VN2D_SceneManager` from `UKishiRpySceneManagerWidgetBase`: add a `SceneSprite` widget (a `UKishiSpriteWidget` subclass), or set `SceneSpriteClass`.
 - [x] Create `VN2D_ShowManager` from `UKishiRpyShowManagerWidgetBase`: add a `ShowCanvas` canvas; set `SpriteWidgetClass` to `KishiSpriteWidget` and `LayeredSpriteWidgetClass` to `KishiLayeredSpriteWidget` (or VN2D subclasses of them). Set `NeutralVisemeLayer` on the layered sprite class if lip sync is wanted.
 - [x] Create `VN2D_AudioManager` from `UKishiRpyAudioManagerWidgetBase`: copy `AudioChannels` and `Blip` from `WGT_RPYAudioManager`.
-- [ ] Copy only layout and styling from the Legacy widgets, not graph logic.
-- [ ] In `VN2D_RPYPlayer`, replace the four `WGT_RPY*Manager` children with the VN2D ones, one per interface.
-- [ ] Test a script that uses `show` with attributes, a `with` transition and dialogue lip sync.
+- [x] Copy only layout and styling from the Legacy widgets, not graph logic.
+- [x] In `VN2D_RPYPlayer`, replace the four `WGT_RPY*Manager` children with the VN2D ones, one per interface.
+- [x] Test a script that uses `show` with attributes, a `with` transition and dialogue lip sync.
 - [ ] Confirm that no level references `WGT_VNPlayer` or `RpyActor`. **Failed (2026-11-01), see below.**
 - [ ] Move `Styles/Legacy` to a quarantine folder and fix up redirectors. **Deferred: the game's levels still use Legacy.**
-- [ ] Plan how the first-person game (`DetectiveOffice_Layout`, `RpyFirstPersonCharacter`) moves off Legacy. It needs the world-space scene path (`VNCamera` + `Anchor`) from step 8.
+- [ ] Plan how the first-person game (`DetectiveOffice_Layout`, `RpyFirstPersonCharacter`) moves off Legacy. It needs the world-space scene path (`VNCamera` + `Anchor`), now in the scene manager Base, and the VN components from step 10.
 
 #### Findings (2026-11-01)
 
@@ -152,7 +154,7 @@ Gaps between the C++ Bases and the Legacy managers:
 
 - **Choice:** at parity. VN2D needs a choice entry widget derived from `UKishiChoiceEntryWidgetBase` (Legacy uses `IndexedButton`).
 - **Audio:** at parity. It plays the blip on visemes and has the same channels; copy the `AudioChannels` map and `Blip` from `WGT_RPYAudioManager`.
-- **Scene:** handles sprite, video and level sequence. The Legacy `ENONE` / level path, which attaches `VNCamera` to an `Anchor` tagged with `options.layer`, is missing. That is world-space behavior (step 8); VN2D doesn't need it.
+- **Scene:** handles sprite, video and level sequence. ~~The Legacy `ENONE` / level path is missing.~~ Done (2026-11-07): for `<scene transition="..." layer="...">`, the Base attaches the active camera (the view target) to the layer's anchor with Keep Relative and plays the transition sequence, binding the sequence's `Camera`-tagged binding to that camera. It also works with `scene _`. Anchors are found by `IRpyCameraAnchor` (actor or component) first, then by actor tag (`AnchorClass`).
 - **Show:** three gaps.
   - `options.attribute` is ignored, so expressions are never applied.
   - Each `Show` recreates the widget instead of reusing the one with the same tag.
@@ -213,9 +215,9 @@ Gaps between the C++ Bases and the Legacy managers:
 - [ ] Blueprint: re-wire the break/make struct nodes in `KishiWidget` and `WGT_LayeredSprite`.
 - [ ] Blueprint: add a background canvas to `VN2D_SceneManager`.
 
-### 8. Actor Bases
+### 8. World-space managers
 
-- [ ] Add actor show and scene manager Bases that use the same Libraries.
+- [ ] Add show and scene manager components (not Actor Bases, see step 10) that use the same Libraries.
 - [ ] Blueprint (optional): reparent `LayeredSpriteInteractableActor` and other world showables.
 
 ### 9. Docs
@@ -226,3 +228,57 @@ Gaps between the C++ Bases and the Legacy managers:
 - [ ] Update `Scripts/xml/XML_FORMAT.md` and the fixtures under `Scripts/xml/tests` if step 6 changes how scripts reference images.
 - [ ] Trim the Node2Code panel walkthrough in `AGENTS.md`.
 - [ ] Commit `AGENTS.md` and `CLAUDE.md`.
+
+### 10. Components over actors
+
+**Why:** `Maps/demo_danganronpa` runs its VN from `Blueprints/VNCamera`, which derives from `Pawn`. The native VN logic lives in Actor Bases (`ARpyMainActorBase` and the others), so using it would force `VNCamera` to change its parent class. Components can be added to any actor, whether it is an `Actor`, a `Pawn` or a `Character`.
+
+**Rule:** new VN logic goes in `Source/KishiVisualNovel/Public/Components`. The classes in `Public/Actors` stay, unchanged, so existing assets keep working. They get no new features.
+
+| Actor class (kept)             | Component                                                 | Interface                  | Find it on an actor                                                                  |
+| ------------------------------ | --------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------ |
+| `ARpyMainActorBase`            | `URpyComponent` ("VN Main Component")                     | `IRpyMainComponent` (new)  | `URpyMainComponentLibrary::FindVNHost`, `StartRpyScriptOnActor`, `CloseVNOnActor`    |
+| `ARpyCloseVNEventListenerBase` | `URpyCloseVNEventListenerComponent` ("VN Close Listener") | `IRpyCloseVNEventListener` | `RegisterWithVNHost`, or `AutoRegisterVNHost` on BeginPlay                           |
+| `APlayerAnchorActorBase`       | `UPlayerAnchorComponent` (scene component)                | `IPlayerAnchor`            | `UPlayerAnchorLibrary::FindPlayerAnchor`                                             |
+| `ARpyCameraAnchorActorBase`    | `URpyCameraAnchorComponent` (scene component)             | `IRpyCameraAnchor`         | `URpyCameraAnchorLibrary::FindAnchorByLayerName` (components match on `AnchorLayer`) |
+
+Notes:
+
+- `IRpyMainComponent` has the same operations as `IRpyMainActor`, except that `IsActive` is named `IsVNActive`. A component can't implement `IRpyMainActor`, because `UActorComponent::IsActive` is already a UFUNCTION: `Execute_IsActive` would find it and return the component's activation state. `IRpyMainComponent` derives from `IRpyStatefulComponent`, so the save game stores the session with the owner's components.
+- The lookup libraries check the actor first, then its components. Callers should go through them (or `Execute_*` on what they return), not cast to a component class.
+
+C++ (built 2026-11-07):
+
+- [x] Add `IRpyMainComponent` and `URpyMainComponentLibrary` (`Interfaces/RpyMainComponent.h`).
+- [x] Rewrite `URpyComponent` as the counterpart of `ARpyMainActorBase`: it has `VNPlayerClass`, `SessionClass`, `Interpreter`, close listeners plus an `OnVNClosed` delegate, `OnScriptComplete`, and save and load of the session. It uses the pawn's controller when its owner is a possessed pawn. Two new options: `bCloseOnScriptComplete`, and `bSetUIInputMode`, which restores Game input on close. The rewrite fixes these bugs in the old component:
+  - It created the interpreter with `NewObject`, which can't create widgets.
+  - A second `StartScript` reused the old session and ignored the new script.
+  - `AddDynamic` ran on every start.
+  - The interpreter never got `SetSession` / `StartUp`.
+  - `CloseScript` kept the session.
+  - The state was named `RpyMainActorState`.
+
+  `InterpreterClass`, `StartScript` and `CloseScript` are removed; no Blueprint used them.
+- [x] Add `UPlayerAnchorComponent`. The anchor transform is relative to the component. It uses `OnAnchorEntered` / `OnAnchorExited` delegates instead of BlueprintImplementableEvents, and it tracks who is anchored (`bSingleOccupant`).
+- [x] Add `URpyCameraAnchorComponent`. Its camera is the first camera below it, then the owner's first camera; `SetCameraComponent` overrides that.
+- [x] Add `URpyCloseVNEventListenerComponent`, which broadcasts `OnVNClosed`.
+- [x] `FindAnchorByLayerName` also matches components. Add `UPlayerAnchorLibrary::FindPlayerAnchor`. Make `UpdateAnchoredCameraAndCursor` static: it was an instance function on a function library, so Blueprint couldn't call it.
+- [x] Scene manager Base: `FindSceneAnchor` returns a `USceneComponent`. It checks `IRpyCameraAnchor` first, then actors with an `AnchorClass` tag, and the camera attaches to that component.
+
+Blueprint and content:
+
+- [ ] `VNCamera`: add a VN Main Component with `VNPlayerClass = VN2D_RPYPlayer`. Replace `Set Up Session And Player`, `Event Start Rpy Script`, `SaveToState` and `LoadFromState` with calls to the component. Then remove `IRpyMainActor` from its interfaces. Until then the pawn and the component would both save a session.
+- [ ] `RpyScriptInteractableActor`: replace the `StartRpyScript` call on the `RpyMainActor` interface with `Start Rpy Script On Actor`, so it works with actors and components.
+- [ ] `PlayerAnchorActor`: use a Player Anchor Component.
+- [ ] `demo_danganronpa` (optional): replace the `Anchor` actors with VN Camera Anchor Components whose `AnchorLayer` is the old tag. Tagged actors still work through `AnchorClass`.
+- [ ] `RpyActor` and `RpyFirstPersonCharacter`: move to the VN Main Component when they leave Legacy (step 2).
+- [ ] Step 8: build the world-space show and scene managers as components.
+
+Tests:
+
+- [ ] `demo_danganronpa`: start a script on `VNCamera` through its component. Play `<scene asset="_" transition="intro" layer="student3" />`, then save, load and close mid-script, and check that a VN Close Listener Component fires.
+- [ ] Put a VN Main Component on a plain `Actor`, a `Pawn` and a `Character`, and run one script on each.
+
+Follow-up:
+
+- [ ] `ARpyMainActorBase` and `URpyComponent` duplicate their session setup. Move it into the main Library in step 5, or leave it until the Actor classes are deprecated.

@@ -7,8 +7,10 @@
     <scene asset="_" transition="intro" />
     <show asset="Augustina" attributes="dress smile" transition="fade" />
     <say character="aug">...................... I like this <red>dress</red>.</say>
+    <scene asset="_" layer="student1" />
     <show asset="Augustina" attributes="dress tongue sweat" />
     <say character="aug">But what I like even more...</say>
+    <scene asset="_" layer="student2" />
     <show asset="Augustina" attributes="dress unsure blush half up" />
     <say character="aug">Augustina dress unsure blush half up</say>
     <show asset="Augustina" attributes="dress unsure blush half oneup" />

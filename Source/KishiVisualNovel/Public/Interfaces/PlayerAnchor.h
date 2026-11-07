@@ -60,8 +60,12 @@ public:
   DefaultImplementation
   */
 
+  /** Returns Actor itself when it implements IPlayerAnchor, else its first component that does, else None. */
+  UFUNCTION(BlueprintPure, Category = "PlayerAnchor")
+  static TScriptInterface<IPlayerAnchor> FindPlayerAnchor(AActor *Actor);
+
   UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Anchor"), Category = "PlayerAnchor")
-  FAnchorCameraResult UpdateAnchoredCameraAndCursor(
+  static FAnchorCameraResult UpdateAnchoredCameraAndCursor(
       const TScriptInterface<IPlayerAnchor> &Anchor,
       const UCameraComponent *Camera,
       const FVector2D &CursorPos,
