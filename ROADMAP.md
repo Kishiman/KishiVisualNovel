@@ -124,7 +124,7 @@ Decisions (2026-11-01): Legacy stays in place and quarantine is deferred. VN2D u
 - [x] Create `VN2D_ChoiceManager` from `UKishiRpyChoiceManagerWidgetBase`: add a `ChoicesPanel` panel and set `ChoiceEntryClass` to `VN2D_ChoiceEntry`.
 - [x] Create `VN2D_SceneManager` from `UKishiRpySceneManagerWidgetBase`: add a `SceneSprite` widget (a `UKishiSpriteWidget` subclass), or set `SceneSpriteClass`.
 - [x] Create `VN2D_ShowManager` from `UKishiRpyShowManagerWidgetBase`: add a `ShowCanvas` canvas; set `SpriteWidgetClass` to `KishiSpriteWidget` and `LayeredSpriteWidgetClass` to `KishiLayeredSpriteWidget` (or VN2D subclasses of them). Set `NeutralVisemeLayer` on the layered sprite class if lip sync is wanted.
-- [ ] Create `VN2D_AudioManager` from `UKishiRpyAudioManagerWidgetBase`: copy `AudioChannels` and `Blip` from `WGT_RPYAudioManager`.
+- [x] Create `VN2D_AudioManager` from `UKishiRpyAudioManagerWidgetBase`: copy `AudioChannels` and `Blip` from `WGT_RPYAudioManager`.
 - [ ] Copy only layout and styling from the Legacy widgets, not graph logic.
 - [ ] In `VN2D_RPYPlayer`, replace the four `WGT_RPY*Manager` children with the VN2D ones, one per interface.
 - [ ] Test a script that uses `show` with attributes, a `with` transition and dialogue lip sync.
