@@ -268,8 +268,8 @@ C++ (built 2026-11-07):
 Blueprint and content:
 
 - [ ] `VNCamera`: add a VN Main Component with `VNPlayerClass = VN2D_RPYPlayer`. Replace `Set Up Session And Player`, `Event Start Rpy Script`, `SaveToState` and `LoadFromState` with calls to the component. Then remove `IRpyMainActor` from its interfaces. Until then the pawn and the component would both save a session.
-- [ ] `RpyScriptInteractableActor`: replace the `StartRpyScript` call on the `RpyMainActor` interface with `Start Rpy Script On Actor`, so it works with actors and components.
-- [ ] `PlayerAnchorActor`: use a Player Anchor Component.
+- [ ] `RpyScriptInteractableActor`: replace the `StartRpyScript` call on the `RpyMainActor` interface with `Start Rpy Script On Actor`, so it works with actors and components. `URpyScriptInteractionComponent` does this; see step 11.
+- [ ] `PlayerAnchorActor`: use a Player Anchor Component. `UPlayerAnchorInteractionComponent` works with one; see step 11.
 - [ ] `demo_danganronpa` (optional): replace the `Anchor` actors with VN Camera Anchor Components whose `AnchorLayer` is the old tag. Tagged actors still work through `AnchorClass`.
 - [ ] `RpyActor` and `RpyFirstPersonCharacter`: move to the VN Main Component when they leave Legacy (step 2).
 - [ ] Step 8: build the world-space show and scene managers as components.
@@ -282,3 +282,84 @@ Tests:
 Follow-up:
 
 - [ ] `ARpyMainActorBase` and `URpyComponent` duplicate their session setup. Move it into the main Library in step 5, or leave it until the Actor classes are deprecated.
+
+### 11. Interaction and first-person migration
+
+**Goal:** move the interaction system to Interface + native component + Blueprint, and take the first-person game off `Legacy/RpyFirstPersonCharacter` without reimplementing the FPS basics. Following step 10, all of it is components, so designers attach it to existing actors and never have to inherit from a plugin class.
+
+An actor has one `UInteractableComponent` and any number of handler components, for example "talk" + "shop" or "sit" + "move". At BeginPlay each handler finds or adds the Interactable and registers its action there. The Interactable broadcasts its delegates and runs only the handler registered for the requested action; that handler also gets `HandleInteractionEnd`, while focus and nearby hooks go to all handlers. It also shows the prompt widget at its own location while focused, when `InteractionWidgetClass` is set. Actors that only bind the delegates, or implement `IInteractable` without registering, keep working, so the Blueprints can be migrated one at a time. `EndInteraction` resets `State` to `Interactable` itself.
+
+| Blueprint (`Blueprints/InteractableActors`) | Add these components                                               | Native behavior                                                                |
+| ------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `InteractableActor`                         | None: set `InteractionWidgetClass` on its Interactable             | Prompt widget that follows the Interactable while focused                      |
+| `InteractableLightActor`                    | `ULightInteractionComponent`                                       | Its action toggles the owner's first light and ends the interaction            |
+| `RpyScriptInteractableActor`                | `URpyScriptInteractionComponent`                                   | Starts the script on the interacting actor's VN host; ends when it closes      |
+| `LayeredSpriteInteractableActor`            | `ULayeredSpriteWidgetComponent`, `URpyScriptInteractionComponent`  | World-space sprite that faces the owner's camera                               |
+| `PlayerAnchorActor`                         | `UPlayerAnchorInteractionComponent`, `UPlayerAnchorComponent`      | Camera view until the `Return` action, with occupancy through the anchor       |
+
+- A handler adds an Interactable component when the actor has none (`FindOrAddInteractable`). Add one yourself to set `InteractionWidgetClass`, `InteractableName` or the prompt's position.
+- `UInteractionHandlerComponentBase` is the native starting point for new handlers, which implement `HandleInteractionStart`. `HandledActionName` (default `action`) is the input action that runs the handler, and `HandledActionLabel` is the prompt text. Each handler on an actor needs its own action name; a duplicate logs an error and is ignored.
+- `Actions` on the Interactable is the list on offer: authored entries plus one per handler. A handler with the same name as an authored entry takes that entry, and an empty `HandledActionLabel` keeps its label. An action not on the list is ignored. An empty list accepts any action.
+- A second action needs its own input: add a mapping in the input settings and add the name to `InteractActionNames` on `URpyFirstPersonComponent`. `RpyFirstPersonCharacter` only sends `action`.
+- `UInteractionCameraHandlerComponentBase` adds the view change and `BlendTime`. The view moves only when the owner has a Camera component, and a Camera Anchor component on the owner adds edge turning.
+- The script and anchor handlers do not need the owner to be a `StaticMeshActor`, or any particular class.
+
+`URpyFirstPersonComponent` ("VN First Person Component") derives from `URpyComponent` and replaces the VN side of `RpyFirstPersonCharacter`:
+
+| `RpyFirstPersonCharacter`                                     | `URpyFirstPersonComponent`                                  |
+| ------------------------------------------------------------- | ----------------------------------------------------------- |
+| `Interacting` component                                       | Finds the owner's, or creates one                           |
+| `InputAction action`                                          | Binds `InteractActionNames` on the pawn's input component   |
+| `startScript`, started at `start` on BeginPlay                | `StartScript` and `StartLabel`, once the player has control |
+| `CursorWidgetClass`, `SetMouseCursorWidget`, `CenterOnScreen` | `CursorWidgetClass`; recentered on close                    |
+| `Session`, `VNPlayer`, `SaveToState`, `LoadFromState`         | Inherited from `URpyComponent`                              |
+| `SwitchInputModeToUI`, `SwitchInputModeToDefault`             | `VNInputMode` while a VN runs; Gameplay afterwards          |
+| `CloseVN` ends the current interaction                        | Same                                                        |
+| Movement, look, jump, gun, VR                                 | Not included; the owner keeps its own                       |
+
+C++ (built 2026-11-08):
+
+- [x] Add `IInteractable`, `IInteractionPromptWidget` and `UInteractableLibrary` (`Interfaces/Interactable.h`).
+- [x] Add the components above and `URpyFirstPersonComponent`.
+- [x] Fix `UInteractingComponent`: an interaction that ended during `Interact` (the light) never released its flag, so scanning stopped; a refused `Interact` also kept the flag; `HandleInteractionEnded` used the focused interactable, which may have changed or be null. `CallEndInteractionOnInteractable` now ends the running interactions, not whatever is focused.
+- [x] Merge `UInteractionPromptComponent` into `UInteractableComponent`. Move `HandledActionName` to `UInteractionHandlerComponentBase` and add `HandledActionLabel`. Handlers register their action with `RegisterAction`, so an actor can have several.
+
+Blueprint and content. Back up or commit first. Work from child to parent, because a child's graph can call functions in its parent, and do each Blueprint's graph steps together, since the old graph would otherwise run alongside the native code.
+
+Done:
+
+- [x] `WGT_interaction`: add the `InteractionPromptWidget` interface. Implement `Handle Interaction Prompt Setup`: set `Tag` from `DisplayName`, then call `SetInteractableActions`.
+- [x] `InteractableLightActor`: reparented to `StaticMeshActor`, with its own Interactable and Light Interaction Components.
+- [x] `PlayerAnchorActor`: reparented to `StaticMeshActor`, with its own Interactable, Player Anchor Interaction and Player Anchor Components.
+
+After the prompt merge:
+
+- [ ] `InteractableLightActor` and `PlayerAnchorActor`: the Interaction Prompt Component class no longer exists. Commit or back up the assets before opening them. Set `InteractionWidgetClass = WGT_interaction` on the Interactable, remove any leftover prompt entry, compile and save.
+- [ ] Open and save `DetectiveOffice_Layout` and `FPS_demo`, whose placed actors still reference the removed class.
+
+The script chain, in this order. Do not reparent it: `RpyScriptInteractableActor` and `LayeredSpriteInteractableActor` keep their parent, so placed actors keep their inherited `Interactable`, `Camera` and `CameraAnchor` values, and they get the prompt once, from `InteractableActor`:
+
+- [ ] Record the placed values first. In `DetectiveOffice_Layout` and `FPS_demo`, select the script and sprite actors, press Ctrl+C and paste into a text file. Non-default values such as `InteractionScript`, `InteractionScriptLabel`, `Layered Sprite` and `Name` appear as text. Deleting the Blueprint variables loses them.
+- [ ] `LayeredSpriteInteractableActor`: note the size and transform of `LayeredSpriteWidget`, then replace it with a Layered Sprite Widget Component with `Widget Class = WGT_LayeredSprite`, and re-enter them. Set its `Layered Sprite` to the old variable's default (`Augustina`). Delete the construction script graph, the `WidgetLookAtCamera` macro, the `Layered Sprite` variable and the empty `ActorBeginOverlap` event.
+- [ ] `RpyScriptInteractableActor`: add a VN Script Interaction Component with `InteractionScript = 00_hello_world` and `InteractionScriptLabel = start`, the old defaults; `BlendTime` already defaults to 0.5. Delete the whole event graph, including the `SetUpWidget` call and the nearby debug print. Delete `handleInteractionStart`, `handleInteractionEnd`, the `InteractionEnd` dispatcher and the three moved variables.
+- [ ] `InteractableActor`: on the Interactable, set `InteractionWidgetClass = WGT_interaction` and set `InteractableName` from `Name`. Delete the event graph, `SetUpWidget`, `UpdateWidget`, `TickInteractableActor` and the `InteractionWidget` and `Name` variables. Compile all three Blueprints.
+- [ ] Re-enter the recorded values on placed actors, on the components in each actor's Details panel. Press Play and run the script tests below while the player is still `RpyFirstPersonCharacter`. Both character types can host the new handler.
+
+The first-person character, last:
+
+- [ ] `Content/DetectiveStart/FirstPerson/Blueprints/FirstPersonCharacter`: delete the broken `InteractableScanner` variable and the `InputAction action` / `CallActionOnFocusedActor` nodes. Add a VN First Person Component with `VNPlayerClass` and `CursorWidgetClass = WGT_Cursor`, plus `StartScript` if the level needs one. Add an Interacting component too if `FocusDistance` or `NearbyRadius` need tuning.
+- [ ] Set `Default Pawn Class` to `FirstPersonCharacter` on `Blueprints/RpyFirstPersonGameMode`, which is the project default and the mode `DetectiveOffice_Layout` references, and on `FirstPersonGameMode`.
+- [ ] `DetectiveOffice_Layout`: delete the placed `VNFirstPersonCharacter_4`. The name comes from a redirector to `Legacy/RpyFirstPersonCharacter`, and it scans alongside the spawned player.
+- [ ] Open the Reference Viewer on `Legacy/RpyFirstPersonCharacter` and clear what still points to it, including `Styles/FPS/FPS_RpyMainActor`. Then fix up the redirectors under `Blueprints`.
+
+Tests:
+
+- [ ] Add a handler component to a plain `Actor` and a `StaticMeshActor` that are not interaction Blueprints, and interact with each. The actor needs collision that blocks the Visibility channel.
+- [ ] Check placed instances in `DetectiveOffice_Layout` and `Styles/FPS/FPS_demo` after re-entering their values.
+- [ ] Two handlers on one actor, with two input mappings on the first-person component: the prompt lists both labels with their keys, each key runs its own handler, and only that handler gets the end call. Two handlers with the same action name log an error.
+- [ ] Light: toggle it twice, then focus something else. The second toggle and the refocus failed before the `UInteractingComponent` fix.
+- [ ] Script interactable, with and without a Camera on the owner: start, finish and close. The view returns, the player can move, and the actor can be used again. Repeat three times, because `SetIgnoreMoveInput` is a counter.
+- [ ] Player anchor, with and without a Camera Anchor: enter, leave with `Return`, re-enter. With a Player Anchor Component, a second occupant is refused.
+- [ ] Layered sprite: the sprite shows in a level loaded in PIE and faces the camera.
+- [ ] Save and load mid-script on the first-person character.
+- [ ] Possess a pawn after BeginPlay and check that `action` still works.

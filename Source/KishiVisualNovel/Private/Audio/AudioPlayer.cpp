@@ -25,7 +25,7 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 		{
 			UAudioComponent *audioComponent = audioComponents[channel];
 
-			if (audioComponent)
+			if (IsValid(audioComponent))
 			{
 				audioComponent->FadeOut(fadeOut, 0);
 			}
@@ -87,7 +87,7 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 void UAudioPlayer::PauseAudio(FName channel, float fadeOut)
 {
 	// Check if the audio component exists and is playing
-	if (audioComponents.Contains(channel) && audioComponents[channel]->IsPlaying())
+	if (IsValid(audioComponents.FindRef(channel)) && audioComponents[channel]->IsPlaying())
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PauseAudio %s"), *channel.ToString());
 		UAudioComponent *audioComponent = audioComponents[channel];
@@ -105,7 +105,7 @@ void UAudioPlayer::PauseAudio(FName channel, float fadeOut)
 void UAudioPlayer::ResumeAudio(FName channel, float fadeIn)
 {
 	// Check if the audio component exists and is paused
-	if (audioComponents.Contains(channel) && audioComponents[channel]->GetPlayState() == EAudioComponentPlayState::Paused)
+	if (IsValid(audioComponents.FindRef(channel)) && audioComponents[channel]->GetPlayState() == EAudioComponentPlayState::Paused)
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::ResumeAudio %s"), *channel.ToString());
 		UAudioComponent *audioComponent = audioComponents[channel];
@@ -155,7 +155,7 @@ void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, fl
 void UAudioPlayer::StopAudio(FName channel, float fadeOut)
 {
 	// Check if the audio component exists and is playing or paused
-	if (audioComponents.Contains(channel))
+	if (IsValid(audioComponents.FindRef(channel)))
 	{
 		auto PlayState = audioComponents[channel]->GetPlayState();
 		if (PlayState != EAudioComponentPlayState::Stopped)
@@ -173,7 +173,7 @@ void UAudioPlayer::StopAudio(FName channel, float fadeOut)
 	}
 }
 
-UAudioPlayer *UAudioPlayer::singletonInstance = nullptr;
+TWeakObjectPtr<UAudioPlayer> UAudioPlayer::singletonInstance;
 
 void UAudioPlayer::PostInitProperties()
 {
@@ -202,7 +202,7 @@ void UAudioPlayer::ShutdownAudioPlayer()
 	{
 		if (UAudioComponent *AudioComp = Pair.Value)
 		{
-			if (AudioComp->IsPlaying())
+			if (IsValid(AudioComp) && AudioComp->IsPlaying())
 			{
 				// Smoothly fade out before stopping (optional)
 				const float FadeOutDuration = 0.5f;
@@ -226,26 +226,35 @@ void UAudioPlayer::ShutdownAudioPlayer()
 		this->ConditionalBeginDestroy();
 	}
 	// Force destruction (safe only if not referenced elsewhere)
-	if (this == singletonInstance)
+	if (singletonInstance.Get() == this)
 	{
-		singletonInstance = nullptr;
+		singletonInstance.Reset();
 	}
 }
 
 UAudioPlayer *UAudioPlayer::GetSingletonInstance(UObject *Outer, bool bRooted)
 {
-	if (!singletonInstance)
+	UWorld *World = Outer ? Outer->GetWorld() : nullptr;
+	if (!World)
 	{
-		singletonInstance = NewObject<UAudioPlayer>(Outer);
-		singletonInstance->audioWorld = Outer->GetWorld();
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::GetSingletonInstance: %s has no world."), *GetNameSafe(Outer));
+		return nullptr;
 	}
-	if (bRooted && !singletonInstance->IsRooted())
+	// One player per world: an instance left over from another world (a previous PIE session) is not reused.
+	UAudioPlayer *Instance = singletonInstance.Get();
+	if (!Instance || Instance->audioWorld != World)
 	{
-		singletonInstance->AddToRoot();
+		Instance = NewObject<UAudioPlayer>(Outer);
+		Instance->audioWorld = World;
+		singletonInstance = Instance;
 	}
-	else if (!bRooted && singletonInstance->IsRooted())
+	if (bRooted && !Instance->IsRooted())
 	{
-		singletonInstance->RemoveFromRoot();
+		Instance->AddToRoot();
 	}
-	return singletonInstance;
+	else if (!bRooted && Instance->IsRooted())
+	{
+		Instance->RemoveFromRoot();
+	}
+	return Instance;
 }

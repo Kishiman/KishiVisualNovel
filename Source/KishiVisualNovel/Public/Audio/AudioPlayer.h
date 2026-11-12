@@ -58,7 +58,8 @@ protected:
 	UPROPERTY()
 	TMap<FName, UAudioComponent *> audioComponents;
 
-	static UAudioPlayer *singletonInstance;
+	// Weak: nothing roots the player by default, so GC may collect it once its widgets are gone.
+	static TWeakObjectPtr<UAudioPlayer> singletonInstance;
 	struct FAudioInfo
 	{
 		USoundWave *Audio;

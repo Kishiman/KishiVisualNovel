@@ -8,12 +8,12 @@
     <show asset="Augustina" attributes="dress smile" transition="fade" />
     <say character="aug">...................... I like this <red>dress</red>.</say>
     <scene asset="_" layer="student1" />
-    <show asset="Augustina" attributes="dress tongue sweat" />
+    <show asset="Augustina" attributes="swimsuit tongue sweat" />
     <say character="aug">But what I like even more...</say>
     <scene asset="_" layer="student2" />
-    <show asset="Augustina" attributes="dress unsure blush half up" />
-    <say character="aug">Augustina dress unsure blush half up</say>
-    <show asset="Augustina" attributes="dress unsure blush half oneup" />
+    <show asset="Augustina" attributes="swimsuit unsure blush half up" />
+    <say character="aug">Augustina swimsuit unsure blush half up</say>
+    <show asset="Augustina" attributes="swimsuit unsure blush half oneup" />
     <say character="aug">Augustina dress unsure blush half oneup</say>
     <scene asset="_" transition="intro" layer="student3" />
     <show asset="Augustina" attributes="jeans surprise" transition="fade" duration="5.0" />

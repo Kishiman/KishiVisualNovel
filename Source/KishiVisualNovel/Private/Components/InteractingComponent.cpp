@@ -18,6 +18,7 @@ void UInteractingComponent::SetFocusedInteractable(UInteractableComponent *NewFo
   auto previousFocusedInteractable = this->FocusedInteractable;
   if (previousFocusedInteractable != NewFocusedInteractable)
   {
+    UE_LOG(LogTemp, Log, TEXT("%s on %s: focus changed to %s on %s"), *GetName(), *GetNameSafe(GetOwner()), *GetNameSafe(NewFocusedInteractable), *GetNameSafe(NewFocusedInteractable ? NewFocusedInteractable->GetOwner() : nullptr));
     if (previousFocusedInteractable)
     {
       previousFocusedInteractable->SetIsFocused(false);
@@ -41,7 +42,9 @@ void UInteractingComponent::ScanInteractableActors()
 {
   if (InteractionFlags.Num() <= interactablePerFlag.Num())
   {
-    // skip scan if all flags are occupied
+    // Skip the scan while all flags are occupied, but drop the focus so its prompt hides during the interaction.
+    if (this->FocusedInteractable != nullptr)
+      SetFocusedInteractable(nullptr);
     return;
   }
   FHitResult focusHit;
@@ -53,11 +56,6 @@ void UInteractingComponent::ScanInteractableActors()
       ECC_Visibility,
       false,
       0.0f);
-
-  if (focusedInteractable)
-  {
-    UE_LOG(LogTemp, Warning, TEXT("Focused Interactable: %s"), *focusedInteractable->GetName());
-  }
 
   if (focusedInteractable &&
       focusedInteractable->State == EInteractableState::Interactable &&
@@ -127,26 +125,38 @@ void UInteractingComponent::ScanInteractableActors()
 }
 UInteractableComponent *UInteractingComponent::CallInteractOnInteractable(FName ActionName)
 {
-  if (this->FocusedInteractable)
+  UInteractableComponent *Target = this->FocusedInteractable;
+  if (!Target || !Target->CanInteract(ActionName, this))
   {
-    this->interactablePerFlag.Add(this->FocusedInteractable->InteractionFlag, this->FocusedInteractable);
-    this->FocusedInteractable->Interact(ActionName, this);
-    this->OnInteractionStart.Broadcast(ActionName, this, this->FocusedInteractable);
-    this->FocusedInteractable->OnInteractionEnd.AddDynamic(this, &UInteractingComponent::HandleInteractionEnded);
-    return this->FocusedInteractable;
+    UE_LOG(LogTemp, Warning, TEXT("%s on %s: action '%s' ignored, focused interactable is %s on %s."), *GetName(), *GetNameSafe(GetOwner()), *ActionName.ToString(), *GetNameSafe(Target), *GetNameSafe(Target ? Target->GetOwner() : nullptr));
+    return nullptr;
   }
-  return nullptr;
+  this->interactablePerFlag.Add(Target->InteractionFlag, Target);
+  // Everything is set up before Interact, because an interaction can end during the call (a light switch, a refused action).
+  Target->OnInteractionEnd.AddUniqueDynamic(this, &UInteractingComponent::HandleInteractionEnded);
+  this->OnInteractionStart.Broadcast(ActionName, this, Target);
+  Target->Interact(ActionName, this);
+  return Target;
 }
 void UInteractingComponent::HandleInteractionEnded(UInteractingComponent *interactingComponent, UInteractableComponent *interactedComponent)
 {
-  this->interactablePerFlag.Remove(this->FocusedInteractable->InteractionFlag);
-  this->FocusedInteractable->OnInteractionEnd.RemoveDynamic(this, &UInteractingComponent::HandleInteractionEnded);
+  if (interactedComponent)
+  {
+    this->interactablePerFlag.Remove(interactedComponent->InteractionFlag);
+    interactedComponent->OnInteractionEnd.RemoveDynamic(this, &UInteractingComponent::HandleInteractionEnded);
+  }
   this->OnInteractionEnd.Broadcast(interactingComponent, interactedComponent);
 }
 void UInteractingComponent::CallEndInteractionOnInteractable() const
 {
-  if (this->FocusedInteractable)
+  // Copy: ending an interaction removes it from the map.
+  TArray<UInteractableComponent *> ActiveInteractables;
+  this->interactablePerFlag.GenerateValueArray(ActiveInteractables);
+  for (UInteractableComponent *ActiveInteractable : ActiveInteractables)
   {
-    this->FocusedInteractable->EndInteraction();
+    if (IsValid(ActiveInteractable))
+    {
+      ActiveInteractable->EndInteraction();
+    }
   }
 }
