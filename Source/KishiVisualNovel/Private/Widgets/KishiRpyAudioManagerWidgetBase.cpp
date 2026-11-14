@@ -75,7 +75,7 @@ bool UKishiRpyAudioManagerWidgetBase::QueueAudio_Implementation(FName Channel, F
 		LogAudioFailure(TEXT("queue"), Channel, Audio, Sound);
 		return true;
 	}
-	AudioPlayer->QueueAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop);
+	AudioPlayer->QueueAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop, Options.volume);
 	OnQueueAudioRequested(Channel, Audio, Options);
 	return true;
 }
@@ -88,7 +88,7 @@ bool UKishiRpyAudioManagerWidgetBase::PlayAudio_Implementation(FName Channel, FR
 		LogAudioFailure(TEXT("play"), Channel, Audio, Sound);
 		return true;
 	}
-	AudioPlayer->PlayAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop);
+	AudioPlayer->PlayAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop, Options.volume);
 	FRpyAudioPlayState *Entry = AudioState.audioStates.FindByPredicate([Channel](const FRpyAudioPlayState &Item)
 																																		 { return Item.channel == Channel; });
 	if (!Entry)
@@ -120,11 +120,13 @@ void UKishiRpyAudioManagerWidgetBase::NativeOnInitialized()
 void UKishiRpyAudioManagerWidgetBase::OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset)
 {
 	UKishiRpyManagerWidgetBase::OnDialogueViseme_Implementation(Name, Viseme, TimeOffset);
-	// Play the blip directly so it is not recorded in the saved audio state.
+	// Play the blip directly so it is not recorded in the saved audio state, and as a one-shot
+	// so that a line of dialogue does not cut off a sound effect the script started on the same
+	// channel: a blip is emitted for every revealed character.
 	const FName BlipChannel(TEXT("sound"));
 	if (Viseme != EMouthViseme::Neutral && IsValid(Blip) && AudioPlayer && AudioPlayer->audioChannels.Contains(BlipChannel))
 	{
-		AudioPlayer->PlayAudio(BlipChannel, Blip, 0.0f, 0.0f, false);
+		AudioPlayer->PlayOneShot(BlipChannel, Blip);
 	}
 }
 

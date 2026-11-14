@@ -40,6 +40,16 @@ To display angle-bracket text literally, escape it using XML entities. The impor
 <say character="narrator">Type &lt;red&gt; to show the literal text &lt;red&gt;.</say>
 ```
 
+Line breaks in the file, and the indentation that follows them, are formatting rather than script content, so long dialogue can be wrapped freely. Every run of literal whitespace that spans a line break is read as a single space, and a statement is trimmed at both ends. Write an intentional line break as `&#10;`, which is decoded after that normalization, or put the text in a `<![CDATA[ ... ]]>` section, which is kept verbatim. Runs of spaces and tabs within one line are kept as written.
+
+```xml
+<say character="aug">
+  This wrapped line reads as one line,
+  with a single space before "with".
+</say>
+<say character="aug">First line.&#10;Second line.</say>
+```
+
 Custom C++ instructions register a field schema with their factory. Required attribute values are passed in the required-field map; optional attributes are passed as typed `FRpyInstructionProps`. Supported schema types are `string`, `bool`, `integer`, `float`, `name`, `asset`, and three-component `vector`. Attributes absent from both maps are rejected.
 
 ```cpp

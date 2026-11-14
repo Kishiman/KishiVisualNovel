@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- show: named positions, vector positions and zOrder.
+       Expected: the sprite sits where each line says. Named positions are left (x -0.4),
+       right (x 0.4) and center / truecenter (origin); a vector takes two or three
+       components. The sprite keeps its size at every position: a position that shrinks or
+       stretches the image is a failure. The last two lines must overlap with the second
+       sprite in front. -->
+  <label name="start">
+    <scene asset="bg_meadow" />
+    <show asset="sylvie" attributes="green normal" position="left" />
+    <say>position="left"</say>
+    <show asset="sylvie" attributes="green normal" position="center" />
+    <say>position="center"</say>
+    <show asset="sylvie" attributes="green normal" position="right" />
+    <say>position="right"</say>
+    <show asset="sylvie" attributes="green normal" position="truecenter" />
+    <say>position="truecenter"</say>
+    <show asset="sylvie" attributes="green smile" position="(-0.2,0.1)" />
+    <say>position="(-0.2,0.1)": two components</say>
+    <show asset="sylvie" attributes="green smile" position="(0.2,-0.1,0.0)" />
+    <say>position="(0.2,-0.1,0.0)": three components</say>
+    <show asset="sylvie" attributes="green normal" position="left" transition="moveinleft" duration="0.5" />
+    <say>moving an already shown sprite animates it to the new position</say>
+    <show asset="eileen" position="right" zOrder="10" />
+    <say>zOrder="10": the second sprite draws in front</say>
+    <hide tag="eileen" />
+    <hide tag="sylvie" />
+    <return />
+  </label>
+</visualNovel>

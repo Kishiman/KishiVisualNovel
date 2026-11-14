@@ -1,0 +1,6 @@
+<visualNovel version="1">
+  <!-- Only lt, gt, amp, quot, apos and numeric entities are defined. -->
+  <label name="start">
+    <say>A non-breaking&nbsp;space is not an XML entity.</say>
+  </label>
+</visualNovel>

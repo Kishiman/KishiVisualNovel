@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- show: layered sprite attributes.
+       Expected: every line changes only the layers it names, and the sprite stays in
+       place because each show reuses the widget already tracked under the tag. Augustina's
+       groups are outfit (dress / jeans / swimsuit), mouth, eyes, eyebrows, emotion and
+       glasses; an attribute from a group that is not named keeps its previous layer.
+       A sprite that pops back to its base look, or jumps position, is a failure. -->
+  <character name="aug" displayName="Augustina" color="#c8ffc8" />
+  <asset kind="image" name="Augustina" path="Augustina" />
+  <label name="start">
+    <show asset="Augustina" transition="fade" duration="0.5" />
+    <say character="aug">No attributes: the base layers only.</say>
+    <show asset="Augustina" attributes="happy" />
+    <say character="aug">One group: mouth happy, everything else unchanged.</say>
+    <show asset="Augustina" attributes="dress smile" />
+    <say character="aug">Two groups: outfit dress and mouth smile.</say>
+    <show asset="Augustina" attributes="jeans wink dark" />
+    <say character="aug">Three groups: outfit jeans, eyes wink, emotion dark.</say>
+    <show asset="Augustina" attributes="swimsuit unsure blush half up" />
+    <say character="aug">Five attributes across five groups.</say>
+    <show asset="Augustina" attributes="dress smile" transition="dissolve" duration="0.5" />
+    <say character="aug">A transition on a re-show applies to the same widget.</say>
+    <hide tag="Augustina" transition="fade" duration="0.5" />
+    <say>The sprite is hidden; hiding an unknown tag only logs and continues.</say>
+    <hide tag="Augustina" />
+    <return />
+  </label>
+</visualNovel>

@@ -1,0 +1,6 @@
+<visualNovel version="1">
+  <!-- "show" requires the asset field. -->
+  <label name="start">
+    <show attributes="green normal" />
+  </label>
+</visualNovel>

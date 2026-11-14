@@ -19,6 +19,43 @@ namespace
 		}
 		return Result;
 	}
+
+	// Line breaks in the source, and the indentation that follows them, come from how the
+	// .xml file is formatted rather than from the script: wrapping a long line of dialogue
+	// must not put a break and a run of tabs into the spoken text. Each run of literal
+	// whitespace that spans a line break therefore collapses to a single space, so wrapped
+	// text reads as one line. Entity references are decoded after this step, so an explicit
+	// &#10; still produces a line break, and CDATA sections keep their text verbatim.
+	FString CollapseFormattingWhitespace(const FString& Text)
+	{
+		FString Result;
+		Result.Reserve(Text.Len());
+		int32 Index = 0;
+		while (Index < Text.Len())
+		{
+			if (!FChar::IsWhitespace(Text[Index]))
+			{
+				Result.AppendChar(Text[Index++]);
+				continue;
+			}
+			const int32 RunStart = Index;
+			bool bSpansLineBreak = false;
+			while (Index < Text.Len() && FChar::IsWhitespace(Text[Index]))
+			{
+				bSpansLineBreak |= FChar::IsLinebreak(Text[Index]);
+				++Index;
+			}
+			if (bSpansLineBreak)
+			{
+				Result.AppendChar(TEXT(' '));
+			}
+			else
+			{
+				Result += Text.Mid(RunStart, Index - RunStart);
+			}
+		}
+		return Result;
+	}
 }
 
 FString FVisualNovelXmlNode::GetAttribute(const TCHAR* Name) const
@@ -213,7 +250,7 @@ bool FVisualNovelXmlParser::ParseText(FString& OutText)
 {
 	const int32 Start = Position;
 	while (Position < Source->Len() && (*Source)[Position] != TEXT('<')) ++Position;
-	return DecodeEntities(Source->Mid(Start, Position - Start), OutText);
+	return DecodeEntities(CollapseFormattingWhitespace(Source->Mid(Start, Position - Start)), OutText);
 }
 
 bool FVisualNovelXmlParser::DecodeEntities(const FString& Encoded, FString& Decoded)

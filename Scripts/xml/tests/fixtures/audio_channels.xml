@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- play / queue / stop: audio channels and options.
+       Expected: the channels are the keys configured on the audio manager - music, sound
+       and voice. Music loops and fades in to 0.8 volume; the footsteps hand over to the
+       queued effect when they end, and both play through the dialogue that follows them
+       without being cut off by its lip-sync blips; the voice clip plays on its own channel;
+       stop silences a channel, with a fade when it asks for one. An "unknown audio channel"
+       error in the log is a failure, as is a track that keeps playing after its stop, and so
+       is a queued audio that never starts.
+       A queue waits for the audio ahead of it to end, so nothing may be queued behind
+       looping music: that audio never ends and the queue would never start. -->
+  <asset kind="sound" name="illurock" path="illurock" />
+  <asset kind="sound" name="footsteps" path="pixabay/footsteps-in-a-hallway" />
+  <asset kind="sound" name="effect" path="effect" />
+  <label name="start">
+    <play channel="music" asset="illurock" loop="true" fadeIn="1.0" volume="0.8" />
+    <say>Music is fading in on the music channel at 0.8 volume, looping.</say>
+    <play channel="sound" asset="footsteps" />
+    <queue channel="sound" asset="effect" />
+    <say>Footsteps play on the sound channel, then the queued effect takes over when they
+      end. Neither is cut off by the blips of this line, and the music keeps going.</say>
+    <voice asset="cicifyre/BrightFemale/01-hello" />
+    <say>A voice clip plays on the voice channel.</say>
+    <stop channel="sound" />
+    <say>The sound channel is stopped immediately, queue and all.</say>
+    <stop channel="music" fadeOut="1.0" />
+    <say>The music channel fades out over one second.</say>
+    <pause duration="1.5" />
+    <say>After the pause everything is silent.</say>
+    <return />
+  </label>
+</visualNovel>

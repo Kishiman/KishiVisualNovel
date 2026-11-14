@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<visualNovel version="1">
+  <!-- The smallest valid script: a declaration, a root, one label, one line.
+       Expected: the line is displayed and the script ends. Used as the default script
+       for interaction actors and as an import smoke test. -->
+  <label name="start">
+    <say>Hello World!</say>
+  </label>
+</visualNovel>

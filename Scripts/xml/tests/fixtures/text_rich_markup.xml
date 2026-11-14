@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- say: real style elements versus escaped literal markup.
+       Expected: "red" and "blue" render as styles (they must exist in the Rich Text style
+       set), while the escaped angle brackets stay visible as text. Markup that shows as
+       literal text, or literal text that disappears into markup, is a failure. -->
+  <label name="start">
+    <say>Literal &lt;red&gt; markup stays plain text. Real styles use elements: <red>red <blue>nested blue</blue> red again</red>.</say>
+    <say>The literal closing text &lt;/red&gt; also stays visible, and ampersands &amp; quotes &quot; remain readable.</say>
+  </label>
+</visualNovel>

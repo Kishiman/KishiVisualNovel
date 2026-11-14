@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- character: every attribute of a declaration.
+       Expected: both characters show their displayName. "color", "image" and "voice" are
+       stored in the script's character data and can be inspected in the asset editor;
+       no manager reads them yet, so they must not change what is displayed. -->
+  <character name="s" displayName="Sylvie" color="#c8ffc8" image="sylvie" voice="cicifyre/BrightFemale/01-hello" />
+  <character name="m" displayName="Me" color="#c8c8ff" />
+  <label name="start">
+    <say character="s">I am declared with a colour, an image tag and a voice.</say>
+    <say character="m">I am declared with a colour only.</say>
+    <say>Open the script asset and check that both declarations kept their values.</say>
+    <return />
+  </label>
+</visualNovel>

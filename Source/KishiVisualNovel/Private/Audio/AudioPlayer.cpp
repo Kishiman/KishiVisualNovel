@@ -3,7 +3,85 @@
 
 #include "Kismet/GameplayStatics.h"
 
-void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut, bool loop)
+FName UAudioPlayer::OneShotSlot(FName channel)
+{
+	// A derived key, so a one-shot and the audio a channel itself plays never share a slot.
+	return FName(*FString::Printf(TEXT("%s (one-shot)"), *channel.ToString()));
+}
+
+UAudioComponent *UAudioPlayer::StartSlotAudio(FName slot, USoundClass *soundClass, const FAudioInfo &info)
+{
+	USoundWave *audio = info.Audio.Get();
+	if (!audio)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::StartSlotAudio(%s): the audio is no longer loaded"), *slot.ToString());
+		return nullptr;
+	}
+	// The sound class is an override on the component, and it is only read when playback starts,
+	// so the component is created stopped and played once the channel's class is on it.
+	UAudioComponent *component = UGameplayStatics::CreateSound2D(this, audio);
+	if (!component)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::StartSlotAudio(%s): Failed to create sound component"), *slot.ToString());
+		return nullptr;
+	}
+	component->SetUISound(true);
+	component->SoundClassOverride = soundClass;
+	audioComponents.Add(slot, component);
+	component->OnAudioFinishedNative.AddUObject(this, &UAudioPlayer::OnSlotAudioFinished);
+	// 4.27 has no per-component loop flag: looping is a property of the wave itself.
+	audio->bLooping = info.loop ? 1 : 0;
+	// A zero duration sets the volume straight away instead of fading up to it.
+	component->FadeIn(info.FadeIn, info.Volume);
+	return component;
+}
+
+void UAudioPlayer::StopSlotAudio(FName slot, float fadeOut)
+{
+	UAudioComponent *component = nullptr;
+	audioComponents.RemoveAndCopyValue(slot, component);
+	if (IsValid(component))
+	{
+		component->FadeOut(fadeOut, 0.0f);
+	}
+}
+
+void UAudioPlayer::OnSlotAudioFinished(UAudioComponent *component)
+{
+	if (!component)
+	{
+		return;
+	}
+	// Only the component a slot is still playing advances that slot's queue: one that was
+	// replaced or stopped on purpose has already been dropped from the map, so its end does
+	// nothing. A one-shot slot has no queue, so its end only clears the slot.
+	const FName *found = nullptr;
+	for (const TPair<FName, UAudioComponent *> &Pair : audioComponents)
+	{
+		if (Pair.Value == component)
+		{
+			found = &Pair.Key;
+			break;
+		}
+	}
+	if (!found)
+	{
+		return;
+	}
+	const FName slot = *found;
+	audioComponents.Remove(slot);
+	TArray<FAudioInfo> *queue = audioQueues.Find(slot);
+	if (!queue || queue->Num() == 0)
+	{
+		return;
+	}
+	const FAudioInfo next = (*queue)[0];
+	queue->RemoveAt(0);
+	UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::OnSlotAudioFinished %s: starting the next queued audio"), *slot.ToString());
+	StartSlotAudio(slot, audioChannels.FindRef(slot), next);
+}
+
+void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut, bool loop, float volume)
 {
 	// Check if the audio not null
 	if (!audio || audio->IsPendingKill())
@@ -17,84 +95,40 @@ void UAudioPlayer::PlayAudio(FName channel, USoundWave *audio, float fadeIn, flo
 		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): channel does not exist "), *channel.ToString());
 		return;
 	}
-	try
-	{
-		// UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PlayAudio %s"), *channel.ToString());
-		// Create an audio component if it doesn't exist
-		if (audioComponents.Contains(channel))
-		{
-			UAudioComponent *audioComponent = audioComponents[channel];
-
-			if (IsValid(audioComponent))
-			{
-				audioComponent->FadeOut(fadeOut, 0);
-			}
-		}
-		UAudioComponent *newComponent = UGameplayStatics::SpawnSound2D(this, audio);
-		if (!newComponent)
-		{
-			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Failed to spawn sound component"), *channel.ToString());
-			return;
-		}
-		newComponent->SetUISound(true);
-		newComponent->SoundClassOverride = audioChannels[channel];
-		audioComponents.Add(channel, newComponent);
-
-		UAudioComponent *audioComponent = newComponent;
-
-		if (!audioComponent)
-		{
-			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): audioComponent is null"), *channel.ToString());
-			return;
-		}
-
-		// Clear the audio queue
-		audioQueues.FindOrAdd(channel).Empty();
-
-		// if (!audio->load())
-		// {
-		// 	audio->ConditionalPostLoad();
-		// 	UE_LOG(LogTemp, Warning, TEXT("UAudioPlayer::PlayAudio(%s): Forcing load of audio asset"), *channel.ToString());
-		// }
-		// Enable looping
-		audio->bLooping = loop ? 1 : 0;
-
-		// UGameplayStatics::PlaySound2D(this, audio);
-		// return;
-		// Set the audio and fade parameters
-		audioComponent->SetSound(audio);
-
-		if (!audioComponent)
-		{
-			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): audioComponent is null"), *channel.ToString());
-			return;
-		}
-		if (audioComponent && !(audioComponent->Sound))
-		{
-			UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Failed to set audio"), *channel.ToString());
-			return;
-		}
-
-		// Play the audio
-		audioComponent->FadeIn(fadeIn);
-	}
-	catch (const std::exception &e)
-	{
-		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): Caught exception: %s"), *channel.ToString(), e.what());
-	}
+	// A fresh play takes the channel over. Its queue goes before its audio is stopped, so that
+	// stopping the audio cannot start a queued track.
+	audioQueues.Remove(channel);
+	StopSlotAudio(channel, fadeOut);
+	FAudioInfo info;
+	info.Audio = audio;
+	info.FadeIn = fadeIn;
+	info.FadeOut = fadeOut;
+	info.Volume = volume;
+	info.loop = loop;
+	StartSlotAudio(channel, audioChannels.FindRef(channel), info);
 }
 
 void UAudioPlayer::PauseAudio(FName channel, float fadeOut)
 {
+	// No channel means every channel, so that everything can be silenced at once.
+	if (channel.IsNone())
+	{
+		for (const TPair<FName, UAudioComponent *> &Pair : audioComponents)
+		{
+			if (IsValid(Pair.Value) && Pair.Value->IsPlaying())
+			{
+				Pair.Value->SetPaused(true);
+			}
+		}
+		return;
+	}
 	// Check if the audio component exists and is playing
 	if (IsValid(audioComponents.FindRef(channel)) && audioComponents[channel]->IsPlaying())
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::PauseAudio %s"), *channel.ToString());
-		UAudioComponent *audioComponent = audioComponents[channel];
-
-		// Fade out and pause the audio
-		audioComponent->FadeOut(fadeOut, 0);
-		audioComponent->SetPaused(true);
+		// Only pause: fading the audio out to nothing would stop it instead, and a stopped
+		// component cannot be resumed, nor could the channel's queue tell that stop from an end.
+		audioComponents[channel]->SetPaused(true);
 	}
 	else
 	{
@@ -104,14 +138,23 @@ void UAudioPlayer::PauseAudio(FName channel, float fadeOut)
 
 void UAudioPlayer::ResumeAudio(FName channel, float fadeIn)
 {
+	if (channel.IsNone())
+	{
+		for (const TPair<FName, UAudioComponent *> &Pair : audioComponents)
+		{
+			if (IsValid(Pair.Value) && Pair.Value->GetPlayState() == EAudioComponentPlayState::Paused)
+			{
+				Pair.Value->SetPaused(false);
+			}
+		}
+		return;
+	}
 	// Check if the audio component exists and is paused
 	if (IsValid(audioComponents.FindRef(channel)) && audioComponents[channel]->GetPlayState() == EAudioComponentPlayState::Paused)
 	{
 		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::ResumeAudio %s"), *channel.ToString());
-		UAudioComponent *audioComponent = audioComponents[channel];
-
-		// Fade in and resume the audio
-		audioComponent->FadeIn(fadeIn);
+		// Resume where the audio was paused. Fading it in would play it again from its start.
+		audioComponents[channel]->SetPaused(false);
 	}
 	else
 	{
@@ -119,12 +162,12 @@ void UAudioPlayer::ResumeAudio(FName channel, float fadeIn)
 	}
 }
 
-void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut, bool loop)
+void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, float fadeOut, bool loop, float volume)
 {
 	// Check if the audio not null
 	if (!audio || audio->IsPendingKill())
 	{
-		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayAudio(%s): NULL or invalid audio"), *channel.ToString());
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::QueueAudio(%s): NULL or invalid audio"), *channel.ToString());
 		return;
 	}
 	// Check if the audio channel exists
@@ -133,23 +176,45 @@ void UAudioPlayer::QueueAudio(FName channel, USoundWave *audio, float fadeIn, fl
 		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::QueueAudio(%s): channel does not exist "), *channel.ToString());
 		return;
 	}
-	try
+	FAudioInfo info;
+	info.Audio = audio;
+	info.FadeIn = fadeIn;
+	info.FadeOut = fadeOut;
+	info.Volume = volume;
+	info.loop = loop;
+	UAudioComponent *current = audioComponents.FindRef(channel);
+	if (!IsValid(current) || !current->IsPlaying())
 	{
-		/* code */
-		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::QueueAudio %s"), *channel.ToString());
-		// Add the audio info to the queue
-		FAudioInfo audioInfo;
-		audioInfo.Audio = audio;
-		audioInfo.FadeIn = fadeIn;
-		audioInfo.FadeOut = fadeOut;
-		audioInfo.loop = loop;
+		// There is nothing to queue behind, so the audio starts now.
+		UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::QueueAudio %s: the channel is idle, playing now"), *channel.ToString());
+		StartSlotAudio(channel, audioChannels.FindRef(channel), info);
+		return;
+	}
+	UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::QueueAudio %s"), *channel.ToString());
+	// Add the audio info to the queue
+	audioQueues.FindOrAdd(channel).Add(info);
+}
 
-		audioQueues.FindOrAdd(channel).Add(audioInfo);
-	}
-	catch (const std::exception &e)
+void UAudioPlayer::PlayOneShot(FName channel, USoundWave *audio, float volume)
+{
+	if (!audio || audio->IsPendingKill())
 	{
-		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::QueueAudio(%s): Caught exception: %s"), *channel.ToString(), e.what());
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayOneShot(%s): NULL or invalid audio"), *channel.ToString());
+		return;
 	}
+	if (!audioChannels.Contains(channel))
+	{
+		UE_LOG(LogTemp, Error, TEXT("UAudioPlayer::PlayOneShot(%s): channel does not exist "), *channel.ToString());
+		return;
+	}
+	FAudioInfo info;
+	info.Audio = audio;
+	info.Volume = volume;
+	// The one-shot slot carries the channel's sound class but not the audio the channel is
+	// playing, so only the one-shot before it is replaced.
+	const FName slot = OneShotSlot(channel);
+	StopSlotAudio(slot, 0.0f);
+	StartSlotAudio(slot, audioChannels.FindRef(channel), info);
 }
 
 void UAudioPlayer::StopAudio(FName channel, float fadeOut)
@@ -161,16 +226,17 @@ void UAudioPlayer::StopAudio(FName channel, float fadeOut)
 		if (PlayState != EAudioComponentPlayState::Stopped)
 		{
 			UE_LOG(LogTemp, Display, TEXT("UAudioPlayer::StopAudio %s"), *channel.ToString());
-			UAudioComponent *audioComponent = audioComponents[channel];
+
+			// Clear the audio queue first, so that stopping cannot start a queued track
+			audioQueues.Remove(channel);
 
 			// Fade out and stop the audio
-			audioComponent->FadeOut(fadeOut, 0);
-
-			// Clear the audio queue
-			audioQueues.FindOrAdd(channel).Empty();
+			StopSlotAudio(channel, fadeOut);
 			return;
 		}
 	}
+	// Nothing is playing, but a queue left on the channel would start by itself later.
+	audioQueues.Remove(channel);
 }
 
 TWeakObjectPtr<UAudioPlayer> UAudioPlayer::singletonInstance;
@@ -204,6 +270,9 @@ void UAudioPlayer::ShutdownAudioPlayer()
 		{
 			if (IsValid(AudioComp) && AudioComp->IsPlaying())
 			{
+				// Nothing may start a queued track while the player is going away.
+				AudioComp->OnAudioFinishedNative.RemoveAll(this);
+
 				// Smoothly fade out before stopping (optional)
 				const float FadeOutDuration = 0.5f;
 				AudioComp->FadeOut(FadeOutDuration, 0.0f);

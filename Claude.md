@@ -9,7 +9,7 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
 - `Source/KishiVisualNovel`: runtime visual-novel assets, XML parsing, instruction execution, sessions, save-state integration, and runtime interfaces.
 - `Source/KishiVisualNovelImporter`: editor-only importers and asset editors. Keep editor dependencies and Slate editor widgets in this module.
 - `Source/Kishi`: shared runtime helpers, including string and tagged-text utilities.
-- `Scripts/xml`: current XML scripts and test fixtures.
+- `Scripts/xml`: current XML scripts; `tests/fixtures` holds per-feature regression fixtures, `tests/samples` full demos, `tests/fixtures/invalid` scripts that must fail to import.
 - `Scripts/rpy`: legacy Ren'Py fixtures and migration inputs. XML is the runtime script format.
 - `Tools`: script migration and related developer tools.
 
@@ -47,6 +47,6 @@ Wait for the build process to finish. Inspect its complete output and exit code 
 
 ## Validation fixtures
 
-- Add XML regression fixtures under `Scripts/xml/tests` and document any prerequisites for project-specific custom instructions.
-- Keep intentionally invalid parser/schema fixtures clearly marked and separate from scripts expected to import successfully.
+- Add XML regression fixtures under `Scripts/xml/tests/fixtures`: one feature per file, opening with a comment that names the feature and states the expected result, and named `<area>_<feature>.xml` with no number. Full playable demos go in `Scripts/xml/tests/samples`. Read `Scripts/xml/tests/README.md` before adding either.
+- Scripts that must fail to import belong in `Scripts/xml/tests/fixtures/invalid`, listed in that folder's README with their expected error. Behaviour that only logs and still imports does not belong there; document it in the suite README instead. Note any prerequisites for project-specific custom instructions.
 - When a code change affects parsing, instruction execution, serialization, or the editor, run the build above and inspect all output. Also exercise the relevant XML fixture in the editor when practical.

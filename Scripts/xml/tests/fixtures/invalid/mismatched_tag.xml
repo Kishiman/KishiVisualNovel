@@ -1,0 +1,6 @@
+<visualNovel version="1">
+  <!-- The closing tag does not match the opening one. -->
+  <label name="start">
+    <say>I like this <red>dress</blue>.</say>
+  </label>
+</visualNovel>

@@ -1,0 +1,6 @@
+<visualNovel version="1">
+  <!-- "set" takes exactly one of value or expression, never both. -->
+  <label name="start">
+    <set name="flag" value="true" expression="1 + 1" />
+  </label>
+</visualNovel>

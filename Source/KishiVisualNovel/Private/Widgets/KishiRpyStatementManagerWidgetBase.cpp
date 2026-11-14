@@ -18,10 +18,20 @@
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 
+namespace
+{
+	// FName(NAME_None).ToString() is "None", which would be shown as the speaker of an
+	// unattributed line. Narration has no speaker, so it displays nothing.
+	FString SpeakerDisplayName(FName Name)
+	{
+		return Name.IsNone() ? FString() : Name.ToString();
+	}
+}
+
 void UKishiRpyStatementManagerWidgetBase::SetStatementManagerState_Implementation(const FRpyStatementManagerState &State)
 {
 	StatementState = State;
-	SpeakerName = State.name.ToString();
+	SpeakerName = SpeakerDisplayName(State.name);
 	UStringUtils::StringToTaggedString(State.statement, TaggedStatement);
 	StatementCharactersNum = TaggedStatement.Length;
 	PreviousStatementCharactersNum = StatementCharactersNum;
@@ -34,7 +44,7 @@ bool UKishiRpyStatementManagerWidgetBase::Say_Implementation(FName Name, const F
 {
 	StatementState.name = Name;
 	StatementState.statement = Statement;
-	SpeakerName = Name.ToString();
+	SpeakerName = SpeakerDisplayName(Name);
 	UStringUtils::StringToTaggedString(Statement, TaggedStatement);
 	StatementCharactersNum = 0;
 	PreviousStatementCharactersNum = 0;

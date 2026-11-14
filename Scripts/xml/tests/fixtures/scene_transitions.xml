@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- scene: backgrounds, transitions and the layer attribute.
+       Expected: the background changes to the one each line names. A scene without a
+       transition cuts; "duration" sets the transition length; "layer" selects the scene
+       layer the background belongs to, and "master" is the default. A scene replaces the
+       previous background rather than stacking on top of it. -->
+  <label name="start">
+    <scene asset="bg_lecturehall" />
+    <say>No transition: an immediate cut to the lecture hall.</say>
+    <scene asset="bg_uni" transition="fade" />
+    <say>fade to the university.</say>
+    <scene asset="bg_meadow" transition="dissolve" duration="1.5" />
+    <say>dissolve to the meadow over 1.5 seconds.</say>
+    <scene asset="bg_club" transition="fade" duration="0.5" layer="master" />
+    <say>fade to the club on the master layer.</say>
+    <scene asset="black" transition="dissolve" />
+    <say>dissolve to black.</say>
+    <return />
+  </label>
+</visualNovel>

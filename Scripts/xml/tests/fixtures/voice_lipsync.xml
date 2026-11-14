@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- voice: voice playback and viseme lip sync.
+       Expected: each line plays its voice clip on the voice channel, and the mouth layer
+       of the sprite whose tag matches the speaker animates while the clip plays, then
+       returns to the neutral viseme. The sprite tag must match the character's image tag
+       for the visemes to arrive, so this fixture declares Augustina with image="Augustina".
+       Silent playback, or a mouth that never moves, is a failure. -->
+  <character name="aug" displayName="Augustina" color="#c8ffc8" image="Augustina" />
+  <asset kind="image" name="Augustina" path="Augustina" />
+  <label name="start">
+    <show asset="Augustina" attributes="dress smile" transition="fade" duration="0.5" />
+    <voice asset="cicifyre/BrightFemale/01-good_afternoon" />
+    <say character="aug">A voiced line: the mouth moves while the clip plays.</say>
+    <show asset="Augustina" attributes="happy" />
+    <voice asset="cicifyre/BrightFemale/01-okay" />
+    <say character="aug">A second clip on the same channel replaces the first.</say>
+    <show asset="Augustina" attributes="swimsuit laugh" transition="dissolve" duration="1.0" />
+    <voice asset="cicifyre/BrightFemale/01-laughter" />
+    <say character="aug">Visemes keep working across an attribute change.</say>
+    <say character="aug">An unvoiced line leaves the mouth at the neutral viseme.</say>
+    <hide tag="Augustina" transition="fade" duration="0.5" />
+    <return />
+  </label>
+</visualNovel>

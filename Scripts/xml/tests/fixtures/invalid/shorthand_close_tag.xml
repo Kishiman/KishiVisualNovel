@@ -1,0 +1,6 @@
+<visualNovel version="1">
+  <!-- Rich Text shorthand closing markup is not well-formed XML. -->
+  <label name="start">
+    <say>I like this <red>dress</>.</say>
+  </label>
+</visualNovel>

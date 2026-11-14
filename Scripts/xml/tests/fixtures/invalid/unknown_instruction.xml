@@ -1,0 +1,6 @@
+<visualNovel version="1">
+  <!-- An element that is neither a built-in command nor a registered custom one. -->
+  <label name="start">
+    <teleport target="hero" />
+  </label>
+</visualNovel>

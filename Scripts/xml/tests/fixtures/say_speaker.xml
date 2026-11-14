@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- say: where the name box text comes from.
+       Expected: line 1 shows an empty name box (narration), line 2 "Sylvie" (declared
+       character resolved through its key), line 3 "Eileen" (literal speaker, no
+       declaration), line 4 an empty name box again. A name box reading "None" or "s"
+       is a failure. -->
+  <character name="s" displayName="Sylvie" color="#c8ffc8" />
+  <label name="start">
+    <say>Narration has no speaker, so the name box stays empty.</say>
+    <say character="s">A declared character shows its displayName, not its key.</say>
+    <say speaker="Eileen">An undeclared speaker is shown exactly as written.</say>
+    <say>Back to narration: the name box must be empty again.</say>
+    <return />
+  </label>
+</visualNovel>

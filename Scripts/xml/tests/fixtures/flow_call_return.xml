@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- call / return: the call stack.
+       Expected: the lines appear in the order 1, 2, 3, 4, 5. A "call" runs the label and
+       comes back to the instruction after it, while a "jump" does not return. Reaching
+       line 5 proves the second call returned to the caller and not to the first one. -->
+  <label name="start">
+    <say>1: before the first call.</say>
+    <call label="aside" />
+    <say>3: back from the first call.</say>
+    <call label="aside" />
+    <say>5: back from the second call. Ending here.</say>
+    <return />
+  </label>
+  <label name="aside">
+    <say>2 and 4: inside the called label.</say>
+    <return />
+  </label>
+</visualNovel>

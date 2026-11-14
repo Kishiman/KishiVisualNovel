@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- scene: the "_" asset clears instead of showing.
+       Expected: the first clear removes the background and leaves the shown sprite in
+       place; the second clear runs on a named layer. Neither clear may stall the script,
+       and neither may hide the sprite. -->
+  <label name="start">
+    <scene asset="bg_meadow" transition="fade" />
+    <show asset="sylvie" attributes="green normal" position="left" />
+    <say>A background and a sprite are on screen.</say>
+    <scene asset="_" />
+    <say>scene asset="_" cleared the background; the sprite is still shown.</say>
+    <scene asset="bg_club" transition="fade" />
+    <say>A new background can be set after a clear.</say>
+    <scene asset="_" layer="master" />
+    <say>scene asset="_" with a layer clears that layer.</say>
+    <hide tag="sylvie" />
+    <return />
+  </label>
+</visualNovel>

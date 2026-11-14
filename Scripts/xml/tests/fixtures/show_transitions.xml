@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- show / hide: every built-in transition name.
+       Expected: each line names the transition that just played, so the dialogue and the
+       animation must agree. The named directions are the four suffixes of "easein" and
+       "movein"; "ease" and "move" without a direction use the position change instead.
+       A transition that does nothing, or a "Could Not Found Default Transition" error in
+       the log, is a failure. -->
+  <label name="start">
+    <scene asset="bg_meadow" />
+
+    <show asset="sylvie" attributes="green normal" transition="fade" duration="0.5" />
+    <say>fade in</say>
+    <hide tag="sylvie" transition="fade" duration="0.5" />
+    <say>fade out</say>
+
+    <show asset="sylvie" attributes="green smile" transition="dissolve" duration="0.5" />
+    <say>dissolve in</say>
+    <hide tag="sylvie" transition="dissolve" duration="0.5" />
+    <say>dissolve out</say>
+
+    <show asset="sylvie" attributes="green giggle" transition="zoom" duration="0.5" />
+    <say>zoom (also accepted as zoomin)</say>
+    <hide tag="sylvie" transition="zoom" duration="0.5" />
+    <say>zoom out</say>
+
+    <show asset="sylvie" attributes="green normal" transition="blur" duration="0.5" />
+    <say>blur</say>
+    <show asset="sylvie" attributes="green surprised" transition="shake" duration="0.5" />
+    <say>shake</say>
+    <show asset="sylvie" attributes="green smile" transition="wipe" duration="0.5" />
+    <say>wipe</say>
+    <hide tag="sylvie" transition="fade" duration="0.5" />
+
+    <show asset="sylvie" attributes="green normal" transition="easeinleft" duration="0.5" />
+    <say>easeinleft</say>
+    <show asset="sylvie" attributes="green normal" transition="easeinright" duration="0.5" />
+    <say>easeinright</say>
+    <show asset="sylvie" attributes="green normal" transition="easeintop" duration="0.5" />
+    <say>easeintop (also accepted as easeinup)</say>
+    <show asset="sylvie" attributes="green normal" transition="easeinbottom" duration="0.5" />
+    <say>easeinbottom (also accepted as easeindown)</say>
+    <hide tag="sylvie" transition="easeinleft" duration="0.5" />
+    <say>easeinleft on hide</say>
+
+    <show asset="sylvie" attributes="green smile" transition="moveinleft" duration="0.5" />
+    <say>moveinleft</say>
+    <show asset="sylvie" attributes="green smile" transition="moveinright" duration="0.5" />
+    <say>moveinright</say>
+    <show asset="sylvie" attributes="green smile" transition="moveintop" duration="0.5" />
+    <say>moveintop</say>
+    <show asset="sylvie" attributes="green smile" transition="moveinbottom" duration="0.5" />
+    <say>moveinbottom</say>
+    <hide tag="sylvie" transition="moveinbottom" duration="0.5" />
+    <say>moveinbottom on hide</say>
+    <return />
+  </label>
+</visualNovel>

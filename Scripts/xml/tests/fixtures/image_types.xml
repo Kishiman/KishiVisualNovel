@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- show: the four image kinds a script can reference.
+       Expected: each kind is displayed by the show manager and the script advances past
+       every line. Sprite and layered sprite are supported today; the level-sequence and
+       video kinds are the cases that must not stall the session (see ROADMAP step 6).
+       A line that never advances, or a missing image with no log entry, is a failure. -->
+  <asset kind="image" name="still" path="black" />
+  <asset kind="image" name="sequence" path="stairs" />
+  <asset kind="image" name="clip" path="DBCooperKeiku/plane_takeoff" />
+  <label name="start">
+    <show asset="still" />
+    <say>Sprite: a PaperSprite shown as a still image.</say>
+    <hide tag="still" />
+    <show asset="sylvie" attributes="green smile" />
+    <say>Layered sprite: layers selected by attributes.</say>
+    <hide tag="sylvie" />
+    <show asset="sequence" />
+    <say>Level sequence: played as a showable.</say>
+    <hide tag="sequence" />
+    <show asset="clip" />
+    <say>Video: played through its media source.</say>
+    <hide tag="clip" />
+    <say>Reaching this line means no image kind stalled the script.</say>
+    <return />
+  </label>
+</visualNovel>

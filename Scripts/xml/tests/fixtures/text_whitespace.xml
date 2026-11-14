@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- Formatting whitespace must not reach the dialogue. Each line below states what it
+       should look like on screen; a failure shows a stray line break or indentation. -->
+  <label name="start">
+    <say>
+      This line is wrapped in the file and indented on both sides, so it must read
+      as a single line with one space between "read" and "as".
+    </say>
+    <say>An explicit break follows this colon:&#10;and this continues on the next line.</say>
+    <say>A space before a style element survives: I like this <red>dress</red>, and
+      these <blue>jeans with <red>red stitching</red></blue>.</say>
+    <say><![CDATA[Preformatted:
+    this CDATA block keeps its break and its indentation.]]></say>
+    <say>Tabs	between	words	are	kept	because	they	span	no	line	break.</say>
+  </label>
+</visualNovel>

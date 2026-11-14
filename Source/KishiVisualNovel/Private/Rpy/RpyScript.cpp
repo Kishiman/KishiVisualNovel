@@ -854,6 +854,9 @@ namespace
       if (Speaker.IsEmpty())
         Props.GetString(FName(TEXT("speaker")), Speaker);
       FString Statement = Node->GetRichTextContent();
+      // The parser already collapsed the line breaks and indentation inside the element;
+      // a leading or trailing run became a single space, which is formatting too.
+      Statement.TrimStartAndEndInline();
       USayInstruction *Say = CreateRpyInstruction<USayInstruction>(Script);
       Say->name = FName(*Speaker);
       Say->statement = MoveTemp(Statement);

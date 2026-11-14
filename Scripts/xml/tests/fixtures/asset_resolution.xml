@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- asset lookup: declared paths versus implicit names.
+       Expected: all three images appear. "attendant" proves a declared path under a
+       subfolder resolves; "bg_meadow" proves the implicit "<name>_Sprite" fallback for a
+       texture that has no asset of its own; "sylvie" proves an implicit layered sprite.
+       Any "Could Not Found Default Image" error in the log is a failure. -->
+  <asset kind="image" name="attendant" path="DBCooper/airplane_attendent_LS" />
+  <label name="start">
+    <scene asset="bg_meadow" />
+    <say>Implicit background: resolved through bg_meadow_Sprite.</say>
+    <show asset="sylvie" attributes="green normal" position="left" />
+    <say>Implicit layered sprite: resolved through Images/sylvie.</say>
+    <show asset="attendant" position="right" />
+    <say>Declared asset: resolved through the path in its declaration.</say>
+    <hide tag="attendant" />
+    <hide tag="sylvie" />
+    <return />
+  </label>
+</visualNovel>
