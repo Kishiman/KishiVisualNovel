@@ -72,7 +72,6 @@ protected:
 	void EmitDialogueViseme();
 
 private:
-	UObject *GetInterpreterObject() const;
 	UFUNCTION()
 	void HandleSaveButtonClicked();
 	UFUNCTION()

@@ -44,11 +44,38 @@ public:
   virtual ERpyInstructionResult PlayAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::PlayAudio")); return ERpyInstructionResult::Failed; }
 };
 
-// UCLASS()
-// class KISHIVISUALNOVEL_API URpyAudioManagerLibrary : public UBlueprintFunctionLibrary
-// {
-//   GENERATED_BODY()
-// public:
-// protected:
-// private:
-// };
+class UAudioPlayer;
+class USoundWave;
+
+/** Shared logic for IRpyAudioManager implementers: the widget Base calls these, and a component or Blueprint manager can call them the same way. The manager owns its UAudioPlayer and its FRpyAudioManagerState. */
+UCLASS()
+class KISHIVISUALNOVEL_API URpyAudioManagerLibrary : public UBlueprintFunctionLibrary
+{
+  GENERATED_BODY()
+public:
+  UFUNCTION(BlueprintPure, Category = "Rpy Audio Manager Library", meta = (ToolTip = "Return the audio's sound: its loaded asset, else the asset at its path, else None."))
+  static USoundWave *ResolveAudio(const FRpyAudio &Audio);
+
+  UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default PlayAudio: play the sound on the player's channel, replacing what is playing there. Returns Continue, or Failed after logging why. Record the channel in the manager's state when it succeeds."))
+  static ERpyInstructionResult PlayAudio_Default(const TScriptInterface<IRpyAudioManager> &Target, UAudioPlayer *Player, FName Channel, const FRpyAudio &Audio, const FRpyAudioOptions &Options);
+
+  UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default QueueAudio: queue the sound on the player's channel after what is playing. Returns Continue, or Failed after logging why."))
+  static ERpyInstructionResult QueueAudio_Default(const TScriptInterface<IRpyAudioManager> &Target, UAudioPlayer *Player, FName Channel, const FRpyAudio &Audio, const FRpyAudioOptions &Options);
+
+  UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default StopAudio: stop the player's channel, fading out as the options say. Returns Continue, or Failed after logging why. Remove the channel from the manager's state when it succeeds."))
+  static ERpyInstructionResult StopAudio_Default(const TScriptInterface<IRpyAudioManager> &Target, UAudioPlayer *Player, FName Channel, const FRpyAudioOptions &Options);
+
+  UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default PauseAudio: pause every channel of the player, fading out over the timeout. Returns Continue, or Failed after logging why."))
+  static ERpyInstructionResult PauseAudio_Default(const TScriptInterface<IRpyAudioManager> &Target, UAudioPlayer *Player, float Timeout);
+
+  UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default SetAudioManagerState: stop every channel in PreviousState, then call PlayAudio on the manager for every channel in State. Clear the manager's own state before calling this."))
+  static void SetAudioManagerState_Default(const TScriptInterface<IRpyAudioManager> &Target, UAudioPlayer *Player, const FRpyAudioManagerState &PreviousState, const FRpyAudioManagerState &State);
+
+  UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (ToolTip = "Play the dialogue blip as a one-shot on the 'sound' channel for a spoken (non-Neutral) viseme. A one-shot is not recorded in the saved state and does not cut off a sound the script started on that channel."))
+  static void PlayDialogueBlip(UAudioPlayer *Player, USoundWave *Blip, EMouthViseme Viseme);
+
+  /** Record a channel that PlayAudio started, replacing the channel's previous entry. */
+  static void RecordPlayedAudio(FRpyAudioManagerState &State, FName Channel, const FRpyAudio &Audio, const FRpyAudioOptions &Options);
+  /** Remove a channel that StopAudio stopped. */
+  static void RecordStoppedAudio(FRpyAudioManagerState &State, FName Channel);
+};

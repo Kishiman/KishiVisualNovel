@@ -70,12 +70,12 @@ protected:
 	FName CameraOriginalSocket;
 	FTransform CameraOriginalRelativeTransform;
 
-	/** Optional override. Returns the camera actor that scene anchors and level sequences move. The default returns the owning player's view target. */
+	/** Optional override. Returns the camera actor that scene anchors and level sequences move. The default returns the owning player's view target (URpySceneManagerLibrary::FindSceneCamera). */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Kishi Rpy Scene Manager Widget Base|Hooks")
 	AActor *FindSceneCamera() const;
 	/** Optional override. Returns the component a scene's "layer" attaches the camera to, or None to leave the camera where it is. The default returns, in order:
 	 * the IRpyCameraAnchor component or actor for Layer (URpyCameraAnchorLibrary::FindAnchorByLayerName), then the root of the first AnchorClass actor tagged with
-	 * Layer. It returns None for None and "master". */
+	 * Layer. It returns None for None and "master". See URpySceneManagerLibrary::FindSceneAnchor. */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Kishi Rpy Scene Manager Widget Base|Hooks")
 	USceneComponent *FindSceneAnchor(FName Layer) const;
 
@@ -85,8 +85,6 @@ protected:
 	/** Stops the active scene level sequence, then plays Sequence once with its camera binding retargeted at Camera. */
 	UFUNCTION(BlueprintCallable, Category = "Kishi Rpy Scene Manager Widget Base")
 	bool PlaySceneSequence(ULevelSequence *Sequence, AActor *Camera);
-	/** Returns the binding to retarget at the scene camera when a sequence has no CameraBindingTag binding: the camera cut track's camera, else the only possessable. */
-	static FGuid FindSequenceCameraBinding(class UMovieScene *MovieScene);
 	/** Stops and destroys the active scene level sequence. */
 	UFUNCTION(BlueprintCallable, Category = "Kishi Rpy Scene Manager Widget Base")
 	void StopSceneSequence();

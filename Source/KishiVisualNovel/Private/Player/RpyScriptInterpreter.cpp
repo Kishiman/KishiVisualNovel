@@ -2,16 +2,38 @@
 #include "Player/RpyScriptInterpreter.h"
 
 #include "Player/RpyScriptInterpreterBaseManager.h"
-#include "Templates/KishiScriptInterface.h"
 #include "Script/RpyInstruction.h"
 #include "Session/RpySession.h"
 
-void URpyScriptInterpreterImplementation::IHandleInstructionComplete_Default(const TScriptInterface<IRpyScriptInterpreter> &Target)
+namespace
+{
+  /** The interpreter's managers that implement IRpyScriptInterpreterBaseManager, in audio, choice, scene, show, statement order. */
+  TArray<UObject *, TInlineAllocator<5>> GetManagers(UObject *InterpreterObject)
+  {
+    TArray<UObject *, TInlineAllocator<5>> Managers;
+    UObject *const Candidates[] = {
+        IRpyScriptInterpreter::Execute_GetAudioManager(InterpreterObject).GetObject(),
+        IRpyScriptInterpreter::Execute_GetChoiceManager(InterpreterObject).GetObject(),
+        IRpyScriptInterpreter::Execute_GetSceneManager(InterpreterObject).GetObject(),
+        IRpyScriptInterpreter::Execute_GetShowManager(InterpreterObject).GetObject(),
+        IRpyScriptInterpreter::Execute_GetStatementManager(InterpreterObject).GetObject()};
+    for (UObject *Manager : Candidates)
+    {
+      if (IsValid(Manager) && Manager->GetClass()->ImplementsInterface(URpyScriptInterpreterBaseManager::StaticClass()))
+      {
+        Managers.Add(Manager);
+      }
+    }
+    return Managers;
+  }
+}
+
+void URpyScriptInterpreterLibrary::HandleInstructionComplete_Default(const TScriptInterface<IRpyScriptInterpreter> &Target)
 {
   UObject *InterpreterObject = Target.GetObject();
   if (!IsValid(InterpreterObject))
   {
-    UE_LOG(LogTemp, Error, TEXT("IHandleInstructionComplete_Default requires a valid interpreter."));
+    UE_LOG(LogTemp, Error, TEXT("HandleInstructionComplete_Default requires a valid interpreter."));
     return;
   }
 
@@ -19,33 +41,12 @@ void URpyScriptInterpreterImplementation::IHandleInstructionComplete_Default(con
   URpyInstruction *Instruction = IsValid(Session) ? Session->current : nullptr;
   if (!IsValid(Instruction))
   {
-    UE_LOG(LogTemp, Error, TEXT("IHandleInstructionComplete_Default requires a valid current instruction."));
+    UE_LOG(LogTemp, Error, TEXT("HandleInstructionComplete_Default requires a valid current instruction."));
     return;
   }
-  TKishiScriptInterface<IRpyScriptInterpreterBaseManager> audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(Target.GetObject());
-  if (audioManager)
+  for (UObject *Manager : GetManagers(InterpreterObject))
   {
-    IRpyScriptInterpreterBaseManager::Execute_OnInstructionComplete(audioManager.GetObject());
-  }
-  TKishiScriptInterface<IRpyScriptInterpreterBaseManager> choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(Target.GetObject());
-  if (choiceManager)
-  {
-    IRpyScriptInterpreterBaseManager::Execute_OnInstructionComplete(choiceManager.GetObject());
-  }
-  TKishiScriptInterface<IRpyScriptInterpreterBaseManager> sceneManager = IRpyScriptInterpreter::Execute_GetSceneManager(Target.GetObject());
-  if (sceneManager)
-  {
-    IRpyScriptInterpreterBaseManager::Execute_OnInstructionComplete(sceneManager.GetObject());
-  }
-  TKishiScriptInterface<IRpyScriptInterpreterBaseManager> showManager = IRpyScriptInterpreter::Execute_GetShowManager(Target.GetObject());
-  if (showManager)
-  {
-    IRpyScriptInterpreterBaseManager::Execute_OnInstructionComplete(showManager.GetObject());
-  }
-  TKishiScriptInterface<IRpyScriptInterpreterBaseManager> statementManager = IRpyScriptInterpreter::Execute_GetStatementManager(Target.GetObject());
-  if (statementManager)
-  {
-    IRpyScriptInterpreterBaseManager::Execute_OnInstructionComplete(statementManager.GetObject());
+    IRpyScriptInterpreterBaseManager::Execute_OnInstructionComplete(Manager);
   }
 
   if (!IsValid(Session) || Session->current != Instruction)
@@ -67,16 +68,22 @@ void URpyScriptInterpreterImplementation::IHandleInstructionComplete_Default(con
     IRpyScriptInterpreter::Execute_Shutdown(InterpreterObject);
   }
 }
-void URpyScriptInterpreterImplementation::IOnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, EMouthViseme viseme, float timeOffset)
+void URpyScriptInterpreterLibrary::OnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, EMouthViseme viseme, float timeOffset)
 {
-  TKishiScriptInterface<IRpyScriptInterpreterBaseManager> audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(Target.GetObject());
-  if (audioManager)
+  UObject *InterpreterObject = Target.GetObject();
+  if (!IsValid(InterpreterObject))
   {
-    IRpyScriptInterpreterBaseManager::Execute_OnDialogueViseme(audioManager.GetObject(), name, viseme, timeOffset);
+    UE_LOG(LogTemp, Error, TEXT("OnDialogueViseme_Default requires a valid interpreter."));
+    return;
   }
-  TKishiScriptInterface<IRpyScriptInterpreterBaseManager> showManager = IRpyScriptInterpreter::Execute_GetShowManager(Target.GetObject());
-  if (showManager)
+  UObject *const Listeners[] = {
+      IRpyScriptInterpreter::Execute_GetAudioManager(InterpreterObject).GetObject(),
+      IRpyScriptInterpreter::Execute_GetShowManager(InterpreterObject).GetObject()};
+  for (UObject *Manager : Listeners)
   {
-    IRpyScriptInterpreterBaseManager::Execute_OnDialogueViseme(showManager.GetObject(), name, viseme, timeOffset);
+    if (IsValid(Manager) && Manager->GetClass()->ImplementsInterface(URpyScriptInterpreterBaseManager::StaticClass()))
+    {
+      IRpyScriptInterpreterBaseManager::Execute_OnDialogueViseme(Manager, name, viseme, timeOffset);
+    }
   }
 }

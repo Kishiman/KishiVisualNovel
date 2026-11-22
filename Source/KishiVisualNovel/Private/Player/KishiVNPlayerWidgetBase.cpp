@@ -208,7 +208,7 @@ void UKishiVNPlayerWidgetBase::HandleInstructionComplete_Implementation()
 	Self.SetObject(this);
 	Self.SetInterface(Cast<IRpyScriptInterpreter>(this));
 	OnInstructionCompleted();
-	URpyScriptInterpreterImplementation::IHandleInstructionComplete_Default(Self);
+	URpyScriptInterpreterLibrary::HandleInstructionComplete_Default(Self);
 }
 
 void UKishiVNPlayerWidgetBase::OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset)
@@ -216,7 +216,7 @@ void UKishiVNPlayerWidgetBase::OnDialogueViseme_Implementation(FName Name, EMout
 	TScriptInterface<IRpyScriptInterpreter> Self;
 	Self.SetObject(this);
 	Self.SetInterface(Cast<IRpyScriptInterpreter>(this));
-	URpyScriptInterpreterImplementation::IOnDialogueViseme_Default(Self, Name, Viseme, TimeOffset);
+	URpyScriptInterpreterLibrary::OnDialogueViseme_Default(Self, Name, Viseme, TimeOffset);
 	OnViseme(Name, Viseme, TimeOffset);
 }
 

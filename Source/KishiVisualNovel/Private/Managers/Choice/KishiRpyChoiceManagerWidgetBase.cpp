@@ -22,7 +22,7 @@
 
 void UKishiRpyChoiceManagerWidgetBase::SetChoiceManagerState_Implementation(const FRpyChoiceManagerState &State)
 {
-	IRpyChoiceManager::Execute_Menu(this, State.choices);
+	URpyChoiceManagerLibrary::SetChoiceManagerState_Default(this, State);
 }
 
 ERpyInstructionResult UKishiRpyChoiceManagerWidgetBase::Menu_Implementation(const TArray<FString> &Choices)
@@ -78,14 +78,7 @@ void UKishiRpyChoiceManagerWidgetBase::Choose_Implementation(int32 Index)
 	{
 		ChoicesPanel->ClearChildren();
 	}
-	if (IsValid(Interpreter.GetObject()))
-	{
-		URpySession *Session = IRpyScriptInterpreter::Execute_GetSession(Interpreter.GetObject());
-		if (IsValid(Session))
-		{
-			Session->OnChoice(Index);
-		}
-	}
+	URpyChoiceManagerLibrary::Choose_Default(this, Index);
 }
 
 void UKishiRpyChoiceManagerWidgetBase::Reset_Implementation()

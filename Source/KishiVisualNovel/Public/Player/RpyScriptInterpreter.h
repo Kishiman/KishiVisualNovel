@@ -105,18 +105,15 @@ public:
   virtual void OnScriptComplete_Implementation() {}
 };
 
-UCLASS(MinimalAPI)
-class URpyScriptInterpreterImplementation : public UBlueprintFunctionLibrary
+/** Shared logic for IRpyScriptInterpreter implementers. The VN player Base calls these from its _Implementation overrides; a Blueprint or C++ interpreter can call them the same way. */
+UCLASS()
+class KISHIVISUALNOVEL_API URpyScriptInterpreterLibrary : public UBlueprintFunctionLibrary
 {
   GENERATED_BODY()
 public:
-  /*
-  Default Implementation
-  */
+  UFUNCTION(BlueprintCallable, Category = "Rpy Script Interpreter Library", meta = (DefaultToSelf = "Target", ToolTip = "Default HandleInstructionComplete: notify every manager's OnInstructionComplete, then advance the session if the current instruction returned Wait, and shut the interpreter down when the script ends."))
+  static void HandleInstructionComplete_Default(const TScriptInterface<IRpyScriptInterpreter> &Target);
 
-  UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"), Category = "Default")
-  static void IHandleInstructionComplete_Default(const TScriptInterface<IRpyScriptInterpreter> &Target);
-
-  UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Target"), Category = "Default")
-  static void IOnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, EMouthViseme viseme, float timeOffset);
+  UFUNCTION(BlueprintCallable, Category = "Rpy Script Interpreter Library", meta = (DefaultToSelf = "Target", ToolTip = "Default OnDialogueViseme: forward the viseme to the audio and show managers."))
+  static void OnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, EMouthViseme viseme, float timeOffset);
 };

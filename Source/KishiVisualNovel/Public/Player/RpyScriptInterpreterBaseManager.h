@@ -53,6 +53,9 @@ public:
   UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "Target"))
   static EInstructionRunTimeType GetRunTimeType(const TScriptInterface<IRpyScriptInterpreterBaseManager> &Target);
 
+  UFUNCTION(BlueprintCallable, Category = "Rpy Script Interpreter Base Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Report that the work an operation returned Wait for has finished: calls HandleInstructionComplete on the manager's interpreter. Returns false, after logging why, if the manager has no interpreter."))
+  static bool ReportInstructionComplete(const TScriptInterface<IRpyScriptInterpreterBaseManager> &Target);
+
 protected:
 private:
 };

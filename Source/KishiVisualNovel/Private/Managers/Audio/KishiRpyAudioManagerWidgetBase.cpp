@@ -21,30 +21,20 @@
 
 void UKishiRpyAudioManagerWidgetBase::SetAudioManagerState_Implementation(const FRpyAudioManagerState &State)
 {
-	if (AudioPlayer)
-	{
-		for (const FRpyAudioPlayState &Current : AudioState.audioStates)
-		{
-			AudioPlayer->StopAudio(Current.channel, 0.0f);
-		}
-	}
+	const FRpyAudioManagerState Previous = AudioState;
+	const FRpyAudioManagerState Saved = State;
 	AudioState.audioStates.Reset();
-	for (const FRpyAudioPlayState &Saved : State.audioStates)
-	{
-		IRpyAudioManager::Execute_PlayAudio(this, Saved.channel, Saved.rpyAudio, Saved.options);
-	}
+	URpyAudioManagerLibrary::SetAudioManagerState_Default(this, AudioPlayer, Previous, Saved);
 }
 
 ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::PauseAudio_Implementation(float Timeout)
 {
-	if (!AudioPlayer)
+	const ERpyInstructionResult Result = URpyAudioManagerLibrary::PauseAudio_Default(this, AudioPlayer, Timeout);
+	if (Result != ERpyInstructionResult::Failed)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s: cannot pause audio, there is no AudioPlayer."), *GetName());
-		return ERpyInstructionResult::Failed;
+		OnPauseAudioRequested(Timeout);
 	}
-	AudioPlayer->PauseAudio(NAME_None, Timeout);
-	OnPauseAudioRequested(Timeout);
-	return ERpyInstructionResult::Continue;
+	return Result;
 }
 
 void UKishiRpyAudioManagerWidgetBase::Reset_Implementation()
@@ -55,51 +45,34 @@ void UKishiRpyAudioManagerWidgetBase::Reset_Implementation()
 
 ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::StopAudio_Implementation(FName Channel, FRpyAudioOptions Options)
 {
-	if (!AudioPlayer)
+	const ERpyInstructionResult Result = URpyAudioManagerLibrary::StopAudio_Default(this, AudioPlayer, Channel, Options);
+	if (Result != ERpyInstructionResult::Failed)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s: cannot stop channel '%s', there is no AudioPlayer."), *GetName(), *Channel.ToString());
-		return ERpyInstructionResult::Failed;
+		OnStopAudioRequested(Channel, Options);
+		URpyAudioManagerLibrary::RecordStoppedAudio(AudioState, Channel);
 	}
-	AudioPlayer->StopAudio(Channel, Options.fadeOut);
-	OnStopAudioRequested(Channel, Options);
-	AudioState.audioStates.RemoveAll([Channel](const FRpyAudioPlayState &Item)
-																	 { return Item.channel == Channel; });
-	return ERpyInstructionResult::Continue;
+	return Result;
 }
 
 ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::QueueAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options)
 {
-	USoundWave *Sound = ResolveAudio(Audio);
-	if (!AudioPlayer || !Sound || !AudioPlayer->audioChannels.Contains(Channel))
+	const ERpyInstructionResult Result = URpyAudioManagerLibrary::QueueAudio_Default(this, AudioPlayer, Channel, Audio, Options);
+	if (Result != ERpyInstructionResult::Failed)
 	{
-		LogAudioFailure(TEXT("queue"), Channel, Audio, Sound);
-		return ERpyInstructionResult::Failed;
+		OnQueueAudioRequested(Channel, Audio, Options);
 	}
-	AudioPlayer->QueueAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop, Options.volume);
-	OnQueueAudioRequested(Channel, Audio, Options);
-	return ERpyInstructionResult::Continue;
+	return Result;
 }
 
 ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::PlayAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options)
 {
-	USoundWave *Sound = ResolveAudio(Audio);
-	if (!AudioPlayer || !Sound || !AudioPlayer->audioChannels.Contains(Channel))
+	const ERpyInstructionResult Result = URpyAudioManagerLibrary::PlayAudio_Default(this, AudioPlayer, Channel, Audio, Options);
+	if (Result != ERpyInstructionResult::Failed)
 	{
-		LogAudioFailure(TEXT("play"), Channel, Audio, Sound);
-		return ERpyInstructionResult::Failed;
+		URpyAudioManagerLibrary::RecordPlayedAudio(AudioState, Channel, Audio, Options);
+		OnPlayAudioRequested(Channel, Audio, Options);
 	}
-	AudioPlayer->PlayAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop, Options.volume);
-	FRpyAudioPlayState *Entry = AudioState.audioStates.FindByPredicate([Channel](const FRpyAudioPlayState &Item)
-																																		 { return Item.channel == Channel; });
-	if (!Entry)
-	{
-		Entry = &AudioState.audioStates.AddDefaulted_GetRef();
-	}
-	Entry->channel = Channel;
-	Entry->rpyAudio = Audio;
-	Entry->options = Options;
-	OnPlayAudioRequested(Channel, Audio, Options);
-	return ERpyInstructionResult::Continue;
+	return Result;
 }
 
 void UKishiRpyAudioManagerWidgetBase::NativeOnInitialized()
@@ -115,37 +88,6 @@ void UKishiRpyAudioManagerWidgetBase::NativeOnInitialized()
 void UKishiRpyAudioManagerWidgetBase::OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset)
 {
 	UKishiRpyManagerWidgetBase::OnDialogueViseme_Implementation(Name, Viseme, TimeOffset);
-	// Play the blip directly so it is not recorded in the saved audio state, and as a one-shot
-	// so that a line of dialogue does not cut off a sound effect the script started on the same
-	// channel: a blip is emitted for every revealed character.
-	const FName BlipChannel(TEXT("sound"));
-	if (Viseme != EMouthViseme::Neutral && IsValid(Blip) && AudioPlayer && AudioPlayer->audioChannels.Contains(BlipChannel))
-	{
-		AudioPlayer->PlayOneShot(BlipChannel, Blip);
-	}
+	URpyAudioManagerLibrary::PlayDialogueBlip(AudioPlayer, Blip, Viseme);
 }
 
-void UKishiRpyAudioManagerWidgetBase::LogAudioFailure(const TCHAR *Operation, FName Channel, const FRpyAudio &Audio, const USoundWave *Sound) const
-{
-	if (!AudioPlayer)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s: cannot %s audio, there is no AudioPlayer."), *GetName(), Operation);
-	}
-	else if (!Sound)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s: cannot %s audio '%s' on channel '%s', the sound could not be loaded."), *GetName(), Operation, *Audio.path, *Channel.ToString());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s: cannot %s audio on channel '%s', add it to AudioChannels."), *GetName(), Operation, *Channel.ToString());
-	}
-}
-
-USoundWave *UKishiRpyAudioManagerWidgetBase::ResolveAudio(const FRpyAudio &Audio) const
-{
-	if (IsValid(Audio.audio))
-	{
-		return Audio.audio;
-	}
-	return Audio.path.IsEmpty() ? nullptr : LoadObject<USoundWave>(nullptr, *Audio.path);
-}

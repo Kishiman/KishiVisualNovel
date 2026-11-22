@@ -11,6 +11,7 @@ The XML script pipeline and the interface layer are in good shape. Since the Leg
 - **Execution results (fixed in step 3, 2026-11-22):** `Execute()` and the manager operations return `Continue`, `Wait` or `Failed`, and a failure follows the Failed Instruction Policy (default: log and advance) instead of stalling the script.
 - **Biggest risk now:** show, scene and statement state is stored twice, in the session and in the managers, and can drift (finding 5, step 7 and the State target below).
 - **Biggest design gap:** `FRpyImage` is a tagged union (sprite, layered sprite, video, level sequence), and every manager switches on its type, each supporting a different subset. Showables should be resolved through an asset-to-showable registry instead.
+- **Libraries (step 5, 2026-11-22):** the interpreter and each manager have a `U*Library` with the logic that does not depend on a Base's storage or widgets; the widget Bases call it, and the coming components can too.
 - **Conventions (step 4, 2026-11-22):** every interface follows the `Required` / `Hooks` rules. No interface event is declared `= 0`, required operations log an error and return a safe default, and self-calls go through `Execute_*`.
 
 ### Key findings
@@ -50,9 +51,9 @@ Other parts of the target:
 
 ## Roadmap
 
-Steps 1, 2, 3, 4, 10 and the C++ of 11 are done (steps 3 and 4 still need a Blueprint compile in the editor). Legacy was deleted on 2026-11-22, so the remaining steps only touch C++ and the VN2D, VN3D and FPS Blueprints built on the Bases, with no Legacy Blueprint rework. Step 5 comes next. Step 13's content moves can run alongside it, since they touch only assets and settings.
+Steps 1, 2, 3, 4, 5, 10 and the C++ of 11 are done (steps 3, 4 and 5 still need a Blueprint compile in the editor). Legacy was deleted on 2026-11-22, so the remaining steps only touch C++ and the VN2D, VN3D and FPS Blueprints built on the Bases, with no Legacy Blueprint rework. Step 6 comes next. Step 13's content moves can run alongside it, since they touch only assets and settings.
 
-Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry so existing Blueprint nodes keep resolving. Put plugin redirects in `Plugins/KishiVisualNovel/Config/DefaultKishiVisualNovel.ini` (create it on first use), so they ship with the plugin; engine plugins such as Paper2D do the same in their own ini. A rename that only changes case needs no redirect, since FName lookups ignore case.
+Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry so existing Blueprint nodes keep resolving. Put plugin redirects in `Plugins/KishiVisualNovel/Config/DefaultKishiVisualNovel.ini` (created in step 5), so they ship with the plugin; engine plugins such as Paper2D do the same in their own ini. A rename that only changes case needs no redirect, since FName lookups ignore case.
 
 | #   | Step                    | C++ change                                                                                                                                                                       | Blueprint rework                                                                      | Other actions                                                        |
 | --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -60,7 +61,7 @@ Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry so existing
 | 2   | Port the VN2D managers  | Only hooks a Base is missing                                                                                                                                                     | Done: VN2D Choice, Scene, Show, Audio, Save menu and Save slot from the C++ Bases     | Done: Legacy deleted (2026-11-22)                                    |
 | 3   | Instruction result enum | Done: `ERpyInstructionResult` on `Execute()` and on every manager operation; `FailedInstructionPolicy` setting                                                                   | None: no Blueprint overrides or calls a manager operation (export, 2026-11-22)        | Done: `Failed` logs and advances by default                          |
 | 4   | Tidy the interfaces     | Done: no `= 0` on interface events; `GetCurrent*State` removed; `const` fixed; categories; `Execute_*` at self-calls; PascalCase menu functions                                  | None: no Blueprint uses the removed or renamed functions (export, 2026-11-22)         | None: the menu renames change only case, so no redirects             |
-| 5   | Libraries               | Rename the interpreter library; add five manager libraries; move shared logic into `*_Default`                                                                                   | Check that the VN2D nodes still resolve                                               | `ClassRedirects`                                                     |
+| 5   | Libraries               | Done: `URpyScriptInterpreterLibrary`; five manager libraries; Bases call the shared logic; `ReportInstructionComplete`                                                           | None: no Blueprint calls the renamed or moved functions (export, 2026-11-22)          | Done: redirects in `Config/DefaultKishiVisualNovel.ini`              |
 | 6   | Showable assets         | Asset hierarchy, registry, `SetShowableAsset`, slimmer `FRpyImage` with a `PostLoad` conversion                                                                                  | Reparent `WGT_Sprite`, or implement `SetShowableAsset`                                | Create assets; fill the registry; resave scripts and layered sprites |
 | 7   | Unify show and scene    | Shared show Library; delete the `ShownWidgets` path; merge the option structs                                                                                                    | Re-wire struct nodes in `KishiWidget`; add a background canvas to `VN2D_SceneManager` | `StructRedirects`                                                    |
 | 8   | World-space managers    | Show and scene manager **components** (see step 10), not Actor Bases                                                                                                             | Optional: reparent world showables                                                    | Decide which managers need world space                               |
@@ -198,10 +199,31 @@ Tests:
 
 ### 5. Libraries
 
-- [ ] Rename `URpyScriptInterpreterImplementation` to `URpyScriptInterpreterLibrary` and add a `ClassRedirects` entry.
-- [ ] Add the five `U*ManagerLibrary` classes (replace the commented-out stubs).
-- [ ] Move shared Base logic into the `*_Default` functions; Bases call the Library.
-- [ ] Blueprint: check that the VN2D, VN3D and FPS Blueprints still compile after the rename.
+Scope (2026-11-22): the Libraries hold the logic that does not depend on how a manager stores its state or draws itself, so a component manager (step 8) or a Blueprint manager can reuse it. Each Base keeps its own state struct, widgets and Blueprint hooks, and calls the Library for the rest. `*_Default` functions are the default bodies of interface operations, take the manager as `Target` and dispatch through `Execute_*`; the other functions are helpers.
+
+C++ (built 2026-11-22):
+
+- [x] Renamed `URpyScriptInterpreterImplementation` to `URpyScriptInterpreterLibrary`, now exported with `KISHIVISUALNOVEL_API`, and its functions to `HandleInstructionComplete_Default` / `OnDialogueViseme_Default`. Both now loop over the managers and check `ImplementsInterface` before dispatching. A `ClassRedirects` entry and `FunctionRedirects` entries are in `Config/DefaultKishiVisualNovel.ini`.
+- [x] Added the five `U*ManagerLibrary` classes in place of the commented-out stubs, in the interface headers, with their code in `Private/Managers/<Feature>/Rpy<Feature>Manager.cpp`:
+  - Audio: `ResolveAudio`, `PlayAudio_Default`, `QueueAudio_Default`, `StopAudio_Default`, `PauseAudio_Default`, `SetAudioManagerState_Default`, `PlayDialogueBlip`, and C++ helpers that record played and stopped channels in an `FRpyAudioManagerState`. The manager passes its `UAudioPlayer`.
+  - Choice: `SetChoiceManagerState_Default`, `Choose_Default` (sends the index to the session).
+  - Scene: `SetSceneManagerState_Default`, `FindSceneCamera`, `FindSceneAnchor`, `AttachCameraToAnchor`, `PlayCameraSequence`, `StopCameraSequence`, `GetTransitionSequence`, `FindSequenceCameraBinding`. None touch widgets.
+  - Show: `SetShowManagerState_Default`, `MakeShowableOptions` (moved from the Base, with a `FunctionRedirects` entry), `ApplyImageToShowable`, `CanReuseShowable`, `ForwardSpeakerViseme`.
+  - Statement: `GetSpeakerDisplayName`, `ToggleSaveMenu`, `ToggleLoadMenu`, `QuickSave`, `QuickLoad`, and a C++ `EmitDialogueViseme`.
+- [x] `URpyScriptInterpreterBaseManagerLibrary::ReportInstructionComplete` calls `HandleInstructionComplete` on a manager's interpreter, so any manager that returned `Wait` can report completion. The statement Base uses it.
+- [x] The Bases call the Libraries. They keep what is tied to their storage or widgets: state structs, panels and canvases, showable tracking and placement, the scene sprite, and which camera is anchored and where it came from. Without an interpreter, `Choose` and line completion now log an error where they did nothing before.
+- [ ] Left for later: showable tracking, placement and transitions move to the show Library in step 7 (with the scene manager), and remembering the anchored camera moves when step 8 adds the scene component. The session setup that `ARpyMainActorBase` duplicates waits on the deprecation decision in step 10.
+
+Blueprint:
+
+- [x] No Blueprint calls the renamed or moved functions (Node2Code export, 2026-11-22), so the redirects are a safety net.
+- [ ] Compile all Blueprints in the editor.
+
+Tests:
+
+- [ ] Play a VN2D script with a menu, music and a sound, a `show` with a transition, a scene change, and a line with a speaker: choices advance, audio plays and stops, sprites animate, the speaker's name shows and the blip plays.
+- [ ] Save and load mid-script: audio, show, scene and statement state come back.
+- [ ] Use the statement manager's save, load, quick save and quick load buttons.
 
 ### 6. Showable assets
 
@@ -294,7 +316,7 @@ Tests:
 
 Follow-up:
 
-- [ ] `ARpyMainActorBase` and `URpyComponent` duplicate their session setup. Deprecating the Actor classes (no asset uses them) removes the duplicate; otherwise move it into the main Library in step 5.
+- [ ] `ARpyMainActorBase` and `URpyComponent` duplicate their session setup. Deprecating the Actor classes (no asset uses them) removes the duplicate; otherwise move it into a main Library. Step 5 left it, pending that decision.
 
 ### 11. Interaction and first-person migration
 

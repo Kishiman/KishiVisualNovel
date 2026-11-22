@@ -38,11 +38,15 @@ public:
   virtual void Choose_Implementation(int idx) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyChoiceManager::Choose")); }
 };
 
-// UCLASS()
-// class KISHIVISUALNOVEL_API URpyChoiceManagerLibrary : public UBlueprintFunctionLibrary
-// {
-//   GENERATED_BODY()
-// public:
-// protected:
-// private:
-// };
+/** Shared logic for IRpyChoiceManager implementers: the widget Base calls these, and a component or Blueprint manager can call them the same way. */
+UCLASS()
+class KISHIVISUALNOVEL_API URpyChoiceManagerLibrary : public UBlueprintFunctionLibrary
+{
+  GENERATED_BODY()
+public:
+  UFUNCTION(BlueprintCallable, Category = "Rpy Choice Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default SetChoiceManagerState: call Menu on the manager with the saved choices."))
+  static void SetChoiceManagerState_Default(const TScriptInterface<IRpyChoiceManager> &Target, const FRpyChoiceManagerState &State);
+
+  UFUNCTION(BlueprintCallable, Category = "Rpy Choice Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default Choose: send the picked index to the session, which jumps to the choice's block. Clear the displayed choices first, since the session may reach the next menu before this returns. Returns false, after logging why, if there is no session; the session logs an index that is not a choice."))
+  static bool Choose_Default(const TScriptInterface<IRpyChoiceManager> &Target, int32 Index);
+};

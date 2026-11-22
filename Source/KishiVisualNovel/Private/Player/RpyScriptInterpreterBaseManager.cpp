@@ -18,3 +18,20 @@ EInstructionRunTimeType URpyScriptInterpreterBaseManagerLibrary::GetRunTimeType(
     return EInstructionRunTimeType();
   return session->GetRunTimeType();
 }
+bool URpyScriptInterpreterBaseManagerLibrary::ReportInstructionComplete(const TScriptInterface<IRpyScriptInterpreterBaseManager> &Target)
+{
+  UObject *Manager = Target.GetObject();
+  if (!IsValid(Manager))
+  {
+    UE_LOG(LogTemp, Error, TEXT("ReportInstructionComplete requires a valid manager."));
+    return false;
+  }
+  UObject *InterpreterObject = IRpyScriptInterpreterBaseManager::Execute_GetInterpreter(Manager).GetObject();
+  if (!IsValid(InterpreterObject) || !InterpreterObject->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
+  {
+    UE_LOG(LogTemp, Error, TEXT("%s: cannot report instruction completion without an interpreter; the VN player sets it on its managers."), *Manager->GetName());
+    return false;
+  }
+  IRpyScriptInterpreter::Execute_HandleInstructionComplete(InterpreterObject);
+  return true;
+}

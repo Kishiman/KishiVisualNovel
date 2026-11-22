@@ -19,16 +19,6 @@
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 
-namespace
-{
-	// FName(NAME_None).ToString() is "None", which would be shown as the speaker of an
-	// unattributed line. Narration has no speaker, so it displays nothing.
-	FString SpeakerDisplayName(FName Name)
-	{
-		return Name.IsNone() ? FString() : Name.ToString();
-	}
-}
-
 void UKishiRpyStatementManagerWidgetBase::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -42,47 +32,30 @@ void UKishiRpyStatementManagerWidgetBase::NativeOnInitialized()
 		QLoadButton->OnClicked.AddUniqueDynamic(this, &UKishiRpyStatementManagerWidgetBase::HandleQuickLoadButtonClicked);
 }
 
-UObject *UKishiRpyStatementManagerWidgetBase::GetInterpreterObject() const
-{
-	UObject *InterpreterObject = Interpreter.GetObject();
-	if (IsValid(InterpreterObject) && InterpreterObject->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
-		return InterpreterObject;
-	UE_LOG(LogTemp, Error, TEXT("%s: no interpreter to open the save or load menu; the VN player sets it on its managers."), *GetName());
-	return nullptr;
-}
-
 void UKishiRpyStatementManagerWidgetBase::HandleSaveButtonClicked()
 {
-	if (UObject *InterpreterObject = GetInterpreterObject())
-		IRpyScriptInterpreter::Execute_SetSaveMenuVisible(InterpreterObject, !IRpyScriptInterpreter::Execute_GetSaveMenuVisible(InterpreterObject));
+	URpyStatementManagerLibrary::ToggleSaveMenu(this);
 }
 
 void UKishiRpyStatementManagerWidgetBase::HandleLoadButtonClicked()
 {
-	if (UObject *InterpreterObject = GetInterpreterObject())
-		IRpyScriptInterpreter::Execute_SetLoadMenuVisible(InterpreterObject, !IRpyScriptInterpreter::Execute_GetLoadMenuVisible(InterpreterObject));
+	URpyStatementManagerLibrary::ToggleLoadMenu(this);
 }
 
 void UKishiRpyStatementManagerWidgetBase::HandleQuickSaveButtonClicked()
 {
-	if (UBaseRpyGameInstance *GameInstance = UBaseRpyGameInstance::GetBaseRpyGameInstance(this))
-		GameInstance->QuickSave();
-	else
-		UE_LOG(LogTemp, Error, TEXT("%s: cannot quick save, the Game Instance Class must derive from BaseRpyGameInstance."), *GetName());
+	URpyStatementManagerLibrary::QuickSave(this);
 }
 
 void UKishiRpyStatementManagerWidgetBase::HandleQuickLoadButtonClicked()
 {
-	if (UBaseRpyGameInstance *GameInstance = UBaseRpyGameInstance::GetBaseRpyGameInstance(this))
-		GameInstance->QuickLoad();
-	else
-		UE_LOG(LogTemp, Error, TEXT("%s: cannot quick load, the Game Instance Class must derive from BaseRpyGameInstance."), *GetName());
+	URpyStatementManagerLibrary::QuickLoad(this);
 }
 
 void UKishiRpyStatementManagerWidgetBase::SetStatementManagerState_Implementation(const FRpyStatementManagerState &State)
 {
 	StatementState = State;
-	SpeakerName = SpeakerDisplayName(State.name);
+	SpeakerName = URpyStatementManagerLibrary::GetSpeakerDisplayName(State.name);
 	UStringUtils::StringToTaggedString(State.statement, TaggedStatement);
 	StatementCharactersNum = TaggedStatement.Length;
 	PreviousStatementCharactersNum = StatementCharactersNum;
@@ -95,7 +68,7 @@ ERpyInstructionResult UKishiRpyStatementManagerWidgetBase::Say_Implementation(FN
 {
 	StatementState.name = Name;
 	StatementState.statement = Statement;
-	SpeakerName = SpeakerDisplayName(Name);
+	SpeakerName = URpyStatementManagerLibrary::GetSpeakerDisplayName(Name);
 	UStringUtils::StringToTaggedString(Statement, TaggedStatement);
 	StatementCharactersNum = 0;
 	PreviousStatementCharactersNum = 0;
@@ -130,21 +103,7 @@ void UKishiRpyStatementManagerWidgetBase::NativeTick(const FGeometry &MyGeometry
 
 void UKishiRpyStatementManagerWidgetBase::EmitDialogueViseme()
 {
-	// Keep the last spoken viseme through Neutral characters, so the mouth holds its shape until
-	// the speaker has been silent for a while, as WGT_RPYStatementManager does.
-	const FMouthViseme Viseme = UStringUtils::getVisemeBetween(TaggedStatement, PreviousStatementCharactersNum, StatementCharactersNum);
-	if (Viseme.type != EMouthViseme::Neutral)
-	{
-		LastViseme = Viseme;
-	}
-	// The offset is the time since the last spoken viseme; a fully revealed line reports a long silence.
-	const bool bLineComplete = StatementCharactersNum >= TaggedStatement.Length;
-	const float TimeOffset = bLineComplete ? 60.0f
-										   : (TextSpeed > 0.0f ? FMath::Max(0, StatementCharactersNum - LastViseme.taggedIndex) / TextSpeed : 60.0f);
-	if (IsValid(Interpreter.GetObject()))
-	{
-		IRpyScriptInterpreter::Execute_OnDialogueViseme(Interpreter.GetObject(), StatementState.name, Viseme.type, TimeOffset);
-	}
+	URpyStatementManagerLibrary::EmitDialogueViseme(this, StatementState.name, TaggedStatement, PreviousStatementCharactersNum, StatementCharactersNum, TextSpeed, LastViseme);
 }
 
 FReply UKishiRpyStatementManagerWidgetBase::NativeOnMouseButtonDown(const FGeometry &InGeometry, const FPointerEvent &InMouseEvent)
@@ -182,10 +141,7 @@ void UKishiRpyStatementManagerWidgetBase::CompleteOrRevealStatement()
 		EmitDialogueViseme();
 		return;
 	}
-	if (IsValid(Interpreter.GetObject()))
-	{
-		IRpyScriptInterpreter::Execute_HandleInstructionComplete(Interpreter.GetObject());
-	}
+	URpyScriptInterpreterBaseManagerLibrary::ReportInstructionComplete(this);
 }
 
 void UKishiRpyStatementManagerWidgetBase::Reset_Implementation()

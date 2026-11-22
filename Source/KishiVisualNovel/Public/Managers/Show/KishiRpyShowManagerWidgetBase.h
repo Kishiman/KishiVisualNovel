@@ -51,10 +51,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Kishi Rpy Show Manager Widget Base|Showables", meta = (ToolTip = "Stop tracking the showable under Tag and remove it: widgets from their parent, actors and component owners from the world."))
 	bool RemoveShowable(FName Tag);
 
-	/** Converts script scene options into the options IShowable::Show and IShowable::Hide take. */
-	UFUNCTION(BlueprintPure, Category = "Kishi Rpy Show Manager Widget Base|Showables")
-	static FKishiShowableOptions MakeShowableOptions(const FRpySceneOptions &Options);
-
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry &MyGeometry, float InDeltaTime) override;
@@ -85,7 +81,7 @@ protected:
 	TSubclassOf<UObject> ResolveShowableClass(const FRpyImage &Image) const;
 	virtual TSubclassOf<UObject> ResolveShowableClass_Implementation(const FRpyImage &Image) const;
 
-	/** Optional hook: give a new showable the image's asset. The default calls ILayeredSpriteHandler::SetSprite for layered sprites, and a SetSprite or SetFileMediaSource function for sprites and videos. Return false if the asset could not be applied. */
+	/** Optional hook: give a new showable the image's asset. The default calls URpyShowManagerLibrary::ApplyImageToShowable with ShowTargetSize. Return false if the asset could not be applied. */
 	UFUNCTION(BlueprintNativeEvent, Category = "Kishi Rpy Show Manager Widget Base|Hooks")
 	bool ApplyImageToShowable(UObject *Showable, const FRpyImage &Image);
 	virtual bool ApplyImageToShowable_Implementation(UObject *Showable, const FRpyImage &Image);
@@ -96,8 +92,6 @@ protected:
 	void OnHideRequested(FName Tag, const FRpySceneOptions &Options);
 
 private:
-	/** True when the showable under the image's tag can switch to it in place: same class and, for layered sprites, the same asset. */
-	bool CanReuseShowable(UObject *Showable, TSubclassOf<UObject> ShowableClass, const FRpyImage &Image) const;
 	/** Places a widget showable's bottom center at Position, a fraction of ShowCanvas from its bottom center. Returns the offset in pixels from the new position back to the old one. */
 	FVector2D PlaceWidgetShowable(UObject *Showable, FVector2D Position, int32 ZOrder) const;
 	/** Sets a widget showable's render scale so its content fits ShowCanvas, scaling down only. */

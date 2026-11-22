@@ -118,10 +118,7 @@ void UKishiRpyShowManagerWidgetBase::SetShowManagerState_Implementation(const FR
 	const FRpyShowManagerState Saved = State;
 	RemoveAllShowables();
 	ShowState.imageStates.Reset();
-	for (const FRpyShowImageState &ImageState : Saved.imageStates)
-	{
-		IRpyShowManager::Execute_Show(this, ImageState.rpyImage, ImageState.options);
-	}
+	URpyShowManagerLibrary::SetShowManagerState_Default(this, Saved);
 }
 
 ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyImage Image, FRpySceneOptions Options)
@@ -145,14 +142,14 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyIm
 	FVector2D MoveFrom = FVector2D::ZeroVector;
 	bool bEnters = true;
 	VNSHOW_LOG("Show resolved class=%s existing=%s", *GetNameSafe(ShowableClass.Get()), *GetNameSafe(Showable));
-	if (CanReuseShowable(Showable, ShowableClass, Image))
+	if (URpyShowManagerLibrary::CanReuseShowable(Showable, ShowableClass, Image))
 	{
 		VNSHOW_LOG("Show reusing %s", *GetNameSafe(Showable));
 		bEnters = !IShowable::Execute_IsShown(Showable);
 		// Same layered sprite: switch attributes and position in place instead of recreating it.
 		if (Options.positionType != EPositionType::NONE)
 		{
-			const FKishiShowableOptions ShowableOptions = MakeShowableOptions(Options);
+			const FKishiShowableOptions ShowableOptions = URpyShowManagerLibrary::MakeShowableOptions(Options);
 			// Fades, zoom, wipe and blur reveal in place instead of travelling.
 			const bool bRevealsInPlace = ShowableOptions.bAnimateOpacity || ShowableOptions.Type == EKishiAnimationType::Zoom ||
 																	 ShowableOptions.Type == EKishiAnimationType::Wipe || ShowableOptions.Type == EKishiAnimationType::Blur;
@@ -161,7 +158,7 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyIm
 				// Play the transition out where it is, then move and play it in with the new attributes.
 				FRpySceneOptions HalfOptions = Options;
 				HalfOptions.transitionTime = ShowableOptions.Duration * 0.5f;
-				FKishiShowableOptions HideOptions = MakeShowableOptions(HalfOptions);
+				FKishiShowableOptions HideOptions = URpyShowManagerLibrary::MakeShowableOptions(HalfOptions);
 				HideOptions.Attributes = FString();
 				VNSHOW_LOG("Show '%s' transitions out before moving, then in at the new position.", *Image.tag.ToString());
 				IShowable::Execute_Hide(Showable, HideOptions);
@@ -271,7 +268,7 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName 
 	ShowState.imageStates.RemoveAt(Index);
 
 	UObject *Showable = FindShowable(StateTag);
-	const float Duration = MakeShowableOptions(Options).Duration;
+	const float Duration = URpyShowManagerLibrary::MakeShowableOptions(Options).Duration;
 	if (!IsValid(Showable) || Duration <= 0.0f || !GetWorld())
 	{
 		RemoveShowable(StateTag);
@@ -297,9 +294,7 @@ void UKishiRpyShowManagerWidgetBase::Reset_Implementation()
 void UKishiRpyShowManagerWidgetBase::OnDialogueViseme_Implementation(FName Name, EMouthViseme Viseme, float TimeOffset)
 {
 	UKishiRpyManagerWidgetBase::OnDialogueViseme_Implementation(Name, Viseme, TimeOffset);
-	UObject *Speaker = FindShowable(Name);
-	if (IsValid(Speaker) && Speaker->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()))
-		ILayeredSpriteHandler::Execute_OnSpeakerViseme(Speaker, Viseme, TimeOffset);
+	URpyShowManagerLibrary::ForwardSpeakerViseme(FindShowable(Name), Viseme, TimeOffset);
 }
 
 UObject *UKishiRpyShowManagerWidgetBase::CreateShowableFromClass(TSubclassOf<UObject> ShowableClass, FName Tag, FVector WorldLocation, FRotator WorldRotation, FVector2D WidgetPosition, int32 ZOrder)
@@ -430,50 +425,6 @@ bool UKishiRpyShowManagerWidgetBase::RemoveShowable(FName Tag)
 	return true;
 }
 
-FKishiShowableOptions UKishiRpyShowManagerWidgetBase::MakeShowableOptions(const FRpySceneOptions &Options)
-{
-	FKishiShowableOptions Result;
-	Result.Attributes = Options.attribute;
-	Result.Space = EKishiAnimationSpace::ParentWidget;
-	Result.Duration = Options.transitionTime;
-	Result.bAnimateOpacity = false;
-	switch (Options.with)
-	{
-	case ERPYTransitionType::FADE:
-		Result.Type = EKishiAnimationType::Fade;
-		Result.bAnimateOpacity = true;
-		break;
-	case ERPYTransitionType::DISSOLVE:
-		Result.Type = EKishiAnimationType::Dissolve;
-		Result.bAnimateOpacity = true;
-		break;
-	case ERPYTransitionType::BLUR:
-		Result.Type = EKishiAnimationType::Blur;
-		break;
-	case ERPYTransitionType::EASE:
-		Result.Type = EKishiAnimationType::Ease;
-		break;
-	case ERPYTransitionType::MOVE:
-		Result.Type = EKishiAnimationType::Move;
-		break;
-	case ERPYTransitionType::SHAKE:
-		Result.Type = EKishiAnimationType::Shake;
-		break;
-	case ERPYTransitionType::WIPE:
-		Result.Type = EKishiAnimationType::Wipe;
-		break;
-	case ERPYTransitionType::ZOOM:
-		Result.Type = EKishiAnimationType::Zoom;
-		break;
-	default:
-		// NONE and LEVEL_SEQUENCE have no showable animation.
-		Result.Type = EKishiAnimationType::Linear;
-		Result.Duration = 0.0f;
-		break;
-	}
-	return Result;
-}
-
 TSubclassOf<UObject> UKishiRpyShowManagerWidgetBase::ResolveShowableClass_Implementation(const FRpyImage &Image) const
 {
 	switch (Image.type)
@@ -494,30 +445,7 @@ bool UKishiRpyShowManagerWidgetBase::ApplyImageToShowable_Implementation(UObject
 		return false;
 	VNSHOW_LOG("ApplyImageToShowable %s: hasSetSprite=%d implementsLayeredSpriteHandler=%d", *Showable->GetName(),
 						 Showable->FindFunction(FName(TEXT("SetSprite"))) ? 1 : 0, Showable->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()) ? 1 : 0);
-	switch (Image.type)
-	{
-	case ERpyImageType::ELAYERED_SPRITE:
-		if (!IsValid(Image.layeredSprite) || !Showable->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()))
-			return false;
-		ILayeredSpriteHandler::Execute_SetSprite(Showable, Image.layeredSprite);
-		return true;
-	case ERpyImageType::ESPRITE:
-		return IsValid(Image.sprite) && SetImageOnWidget(Cast<UUserWidget>(Showable), Image.sprite, ShowTargetSize);
-	case ERpyImageType::EVIDEO_MEDIA_SPRITE:
-		return IsValid(Image.videoMediaSprite) && IsValid(Image.videoMediaSprite->fileMediaSource) &&
-					 SetMediaOnWidget(Cast<UUserWidget>(Showable), Image.videoMediaSprite->fileMediaSource, ShowTargetSize);
-	default:
-		return false;
-	}
-}
-
-bool UKishiRpyShowManagerWidgetBase::CanReuseShowable(UObject *Showable, TSubclassOf<UObject> ShowableClass, const FRpyImage &Image) const
-{
-	// Sprites and videos are recreated so the new image runs its own show transition.
-	if (!IsValid(Showable) || !ShowableClass || Showable->GetClass() != ShowableClass.Get() || Image.type != ERpyImageType::ELAYERED_SPRITE)
-		return false;
-	return Showable->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()) &&
-				 ILayeredSpriteHandler::Execute_GetSprite(Showable) == Image.layeredSprite;
+	return URpyShowManagerLibrary::ApplyImageToShowable(Showable, Image, ShowTargetSize);
 }
 
 FVector2D UKishiRpyShowManagerWidgetBase::PlaceWidgetShowable(UObject *Showable, FVector2D Position, int32 ZOrder) const
@@ -593,7 +521,7 @@ void UKishiRpyShowManagerWidgetBase::PlayShowableTransition(UObject *Showable, c
 {
 	if (!IsValid(Showable) || !Showable->GetClass()->ImplementsInterface(UShowable::StaticClass()))
 		return;
-	FKishiShowableOptions ShowableOptions = MakeShowableOptions(Options);
+	FKishiShowableOptions ShowableOptions = URpyShowManagerLibrary::MakeShowableOptions(Options);
 	const bool bTravels = ShowableOptions.Type == EKishiAnimationType::Move || ShowableOptions.Type == EKishiAnimationType::Ease;
 	if (bShow && bTravels && bEnters && Options.direction != ERPYTransitionDirection::NONE)
 	{
