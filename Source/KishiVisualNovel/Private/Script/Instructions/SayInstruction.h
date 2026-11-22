@@ -15,9 +15,12 @@ public:
   FString statement;
   virtual FString ToString() const override { return FormatInstruction(TEXT("say"), FString::Printf(TEXT("character=\"%s\" %s"), *name.ToString(), *statement)); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::SAY; }
-  virtual bool Execute(URpySession *session)
+  virtual ERpyInstructionResult Execute(URpySession *session)
   {
-    auto statementManager = IRpyScriptInterpreter::Execute_GetStatementManager(session->interpreter.GetObject());
+    UObject *StatementManager = RpyFindManager(session, TEXT("say"), TEXT("statement manager"), [](UObject *Interpreter)
+                                    { return IRpyScriptInterpreter::Execute_GetStatementManager(Interpreter); });
+    if (!StatementManager)
+      return ERpyInstructionResult::Failed;
     FString RenderedStatement = this->statement;
     FTaggedString TaggedStatement;
     if (UStringUtils::StringToTaggedString(this->statement, TaggedStatement))
@@ -36,6 +39,6 @@ public:
     if (Props.GetString(FName(TEXT("with")), With))
       session->statementState.with = FName(*With);
 
-    return IRpyStatementManager::Execute_Say(statementManager.GetObject(), DisplayName, RenderedStatement);
+    return IRpyStatementManager::Execute_Say(StatementManager, DisplayName, RenderedStatement);
   };
 };

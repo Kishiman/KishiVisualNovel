@@ -35,16 +35,16 @@ void UKishiRpyAudioManagerWidgetBase::SetAudioManagerState_Implementation(const 
 	}
 }
 
-bool UKishiRpyAudioManagerWidgetBase::PauseAudio_Implementation(float Timeout)
+ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::PauseAudio_Implementation(float Timeout)
 {
 	if (!AudioPlayer)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s: cannot pause audio, there is no AudioPlayer."), *GetName());
-		return true;
+		return ERpyInstructionResult::Failed;
 	}
 	AudioPlayer->PauseAudio(NAME_None, Timeout);
 	OnPauseAudioRequested(Timeout);
-	return true;
+	return ERpyInstructionResult::Continue;
 }
 
 void UKishiRpyAudioManagerWidgetBase::Reset_Implementation()
@@ -53,40 +53,40 @@ void UKishiRpyAudioManagerWidgetBase::Reset_Implementation()
 	UKishiRpyManagerWidgetBase::Reset_Implementation();
 }
 
-bool UKishiRpyAudioManagerWidgetBase::StopAudio_Implementation(FName Channel, FRpyAudioOptions Options)
+ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::StopAudio_Implementation(FName Channel, FRpyAudioOptions Options)
 {
 	if (!AudioPlayer)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s: cannot stop channel '%s', there is no AudioPlayer."), *GetName(), *Channel.ToString());
-		return true;
+		return ERpyInstructionResult::Failed;
 	}
 	AudioPlayer->StopAudio(Channel, Options.fadeOut);
 	OnStopAudioRequested(Channel, Options);
 	AudioState.audioStates.RemoveAll([Channel](const FRpyAudioPlayState &Item)
 																	 { return Item.channel == Channel; });
-	return true;
+	return ERpyInstructionResult::Continue;
 }
 
-bool UKishiRpyAudioManagerWidgetBase::QueueAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options)
+ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::QueueAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options)
 {
 	USoundWave *Sound = ResolveAudio(Audio);
 	if (!AudioPlayer || !Sound || !AudioPlayer->audioChannels.Contains(Channel))
 	{
 		LogAudioFailure(TEXT("queue"), Channel, Audio, Sound);
-		return true;
+		return ERpyInstructionResult::Failed;
 	}
 	AudioPlayer->QueueAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop, Options.volume);
 	OnQueueAudioRequested(Channel, Audio, Options);
-	return true;
+	return ERpyInstructionResult::Continue;
 }
 
-bool UKishiRpyAudioManagerWidgetBase::PlayAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options)
+ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::PlayAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options)
 {
 	USoundWave *Sound = ResolveAudio(Audio);
 	if (!AudioPlayer || !Sound || !AudioPlayer->audioChannels.Contains(Channel))
 	{
 		LogAudioFailure(TEXT("play"), Channel, Audio, Sound);
-		return true;
+		return ERpyInstructionResult::Failed;
 	}
 	AudioPlayer->PlayAudio(Channel, Sound, Options.fadeIn, Options.fadeOut, Options.loop, Options.volume);
 	FRpyAudioPlayState *Entry = AudioState.audioStates.FindByPredicate([Channel](const FRpyAudioPlayState &Item)
@@ -99,7 +99,7 @@ bool UKishiRpyAudioManagerWidgetBase::PlayAudio_Implementation(FName Channel, FR
 	Entry->rpyAudio = Audio;
 	Entry->options = Options;
 	OnPlayAudioRequested(Channel, Audio, Options);
-	return true;
+	return ERpyInstructionResult::Continue;
 }
 
 TArray<FRpyAudioManagerState> UKishiRpyAudioManagerWidgetBase::GetCurrentAudioStates_Implementation() const

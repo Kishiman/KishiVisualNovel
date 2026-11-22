@@ -29,8 +29,9 @@ public:
     }
     return true;
   }
-  virtual bool Execute(URpySession *session) override
+  virtual ERpyInstructionResult Execute(URpySession *session) override
   {
+    selected = nullptr;
     TArray<FString> statements;
     session->choiceState.choices.Empty();
     for (auto &choice : choices)
@@ -38,15 +39,20 @@ public:
       statements.Add(choice->statement);
       session->choiceState.choices.Add(choice->statement);
     }
-    auto choiceManager = IRpyScriptInterpreter::Execute_GetChoiceManager(session->interpreter.GetObject());
+    UObject *ChoiceManager = RpyFindManager(session, TEXT("menu"), TEXT("choice manager"), [](UObject *Interpreter)
+                                    { return IRpyScriptInterpreter::Execute_GetChoiceManager(Interpreter); });
+    if (!ChoiceManager)
+      return ERpyInstructionResult::Failed;
 
-    IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), statements);
-    return false;
+    // A menu always waits for the player's choice, so Continue is treated as Wait.
+    if (IRpyChoiceManager::Execute_Menu(ChoiceManager, statements) == ERpyInstructionResult::Failed)
+      return ERpyInstructionResult::Failed;
+    return ERpyInstructionResult::Wait;
   }
   virtual URpyInstruction *GetNext(URpySession *session) override
   {
-
-    return selected;
+    // No choice is selected only when the menu failed and the session advances past it.
+    return selected ? selected : static_cast<URpyInstruction *>(next);
   }
   virtual TArray<URpyInstruction *> GetPossibleNextInstructions() const override
   {

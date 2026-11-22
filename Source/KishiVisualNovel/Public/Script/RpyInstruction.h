@@ -61,9 +61,10 @@ public:
     {
         return true;
     }
-    virtual bool Execute(URpySession *session)
+    /** Runs the instruction. Return Wait when it finishes later, and log before returning Failed. */
+    virtual ERpyInstructionResult Execute(URpySession *session)
     {
-        return true;
+        return ERpyInstructionResult::Continue;
     };
     virtual URpyInstruction *GetNext(URpySession *session)
     {
@@ -103,9 +104,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Instruction")
     FName InstructionId;
 
-    /** Whether Execute() completed synchronously and the session advanced automatically. */
+    /** What the last Execute() returned. Completion handling advances the session only when it was Wait. */
     UPROPERTY(Transient, BlueprintReadOnly, Category = "Instruction")
-    bool bAutoExecuteNext = true;
+    ERpyInstructionResult LastResult = ERpyInstructionResult::Continue;
 
     /** All command-specific optional values live here. */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Instruction")

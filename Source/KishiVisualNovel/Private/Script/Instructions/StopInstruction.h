@@ -13,7 +13,7 @@ public:
   FName channel;
   virtual FString ToString() const override { return FormatInstruction(TEXT("stop"), FString::Printf(TEXT("channel=\"%s\""), *channel.ToString())); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::STOP; }
-  virtual bool Execute(URpySession *session)
+  virtual ERpyInstructionResult Execute(URpySession *session)
   {
     const FRpyAudioOptions options = AudioOptionsFromProps(Props);
     auto existing = ArrayLib::FindIndexByPredicate(session->audioState.audioStates, [&](const FRpyAudioPlayState &state)
@@ -22,8 +22,11 @@ public:
     {
       session->audioState.audioStates.RemoveAt(existing);
     }
-    auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
+    UObject *AudioManager = RpyFindManager(session, TEXT("stop"), TEXT("audio manager"), [](UObject *Interpreter)
+                                    { return IRpyScriptInterpreter::Execute_GetAudioManager(Interpreter); });
+    if (!AudioManager)
+      return ERpyInstructionResult::Failed;
 
-    return IRpyAudioManager::Execute_StopAudio(audioManager.GetObject(), channel, options);
+    return IRpyAudioManager::Execute_StopAudio(AudioManager, channel, options);
   };
 };

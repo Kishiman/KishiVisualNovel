@@ -18,9 +18,9 @@ public:
   virtual FString ToString() const override { return FormatInstruction(TEXT("set"), FString::Printf(TEXT("name=\"%s\" value=\"%s\""), *varName.ToString(), *value)); }
 
   void SetValue(URpySession *session);
-  virtual bool Execute(URpySession *session) override
+  virtual ERpyInstructionResult Execute(URpySession *session) override
   {
     SetValue(session);
-    return true;
+    return ERpyInstructionResult::Continue;
   }
 };

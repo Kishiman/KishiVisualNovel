@@ -3,6 +3,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "Player/RpyScriptInterpreterBaseManager.h"
+#include "Script/RpyScriptTypes.h"
 
 #include "RpyChoiceManager.generated.h"
 
@@ -26,9 +27,9 @@ public:
   void SetChoiceManagerState(const FRpyChoiceManagerState &State);
   virtual void SetChoiceManagerState_Implementation(const FRpyChoiceManagerState &State) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyChoiceManager::SetChoiceManagerState")); }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyChoiceManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  bool Menu(const TArray<FString> &choices);
-  virtual bool Menu_Implementation(const TArray<FString> &choices) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyChoiceManager::Menu")); return {}; }
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyChoiceManager|Required", meta = (ToolTip = "Required: display the choices; the player's pick goes to Choose. Return Wait, or Failed, after logging why, if they cannot be displayed. A menu always waits for a choice, so Continue is treated as Wait."))
+  ERpyInstructionResult Menu(const TArray<FString> &choices);
+  virtual ERpyInstructionResult Menu_Implementation(const TArray<FString> &choices) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyChoiceManager::Menu")); return ERpyInstructionResult::Failed; }
 
   // Handlers Interface
 

@@ -15,7 +15,7 @@ public:
   virtual FString ToString() const override { return FormatInstruction(TEXT("pause"), FString::Printf(TEXT("duration=\"%g\""), timeInSec)); }
   UPROPERTY(Transient)
   bool running = false;
-  virtual bool Execute(URpySession *session)
+  virtual ERpyInstructionResult Execute(URpySession *session)
   {
     running = true;
     if (timeInSec > 0)
@@ -28,7 +28,8 @@ public:
             session->RunNext(); },
           timeInSec, false);
     }
-    return false;
+    // Without a duration, the pause lasts until the interpreter reports completion (a click).
+    return ERpyInstructionResult::Wait;
   };
   virtual URpyInstruction *GetNext(URpySession *session) override
   {

@@ -13,7 +13,7 @@ public:
   FName tag;
   virtual FString ToString() const override { return FormatInstruction(TEXT("hide"), FString::Printf(TEXT("tag=\"%s\""), *tag.ToString())); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::HIDE; }
-  virtual bool Execute(URpySession *session)
+  virtual ERpyInstructionResult Execute(URpySession *session)
   {
     const FRpySceneOptions options = SceneOptionsFromProps(Props, script);
 
@@ -23,8 +23,11 @@ public:
     {
       session->showState.imageStates.RemoveAt(existing);
     }
-    auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(session->interpreter.GetObject());
+    UObject *ShowManager = RpyFindManager(session, TEXT("hide"), TEXT("show manager"), [](UObject *Interpreter)
+                                    { return IRpyScriptInterpreter::Execute_GetShowManager(Interpreter); });
+    if (!ShowManager)
+      return ERpyInstructionResult::Failed;
 
-    return IRpyShowManager::Execute_Hide(showManager.GetObject(), tag, options);
+    return IRpyShowManager::Execute_Hide(ShowManager, tag, options);
   };
 };

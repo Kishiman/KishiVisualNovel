@@ -13,12 +13,15 @@ public:
   float timeout;
   virtual FString ToString() const override { return FormatInstruction(TEXT("pauseAudio"), FString::Printf(TEXT("duration=\"%g\""), timeout)); }
   virtual EInstructionRunTimeType RunTimeType() const { return EInstructionRunTimeType::PAUSE; }
-  virtual bool Execute(URpySession *session)
+  virtual ERpyInstructionResult Execute(URpySession *session)
   {
     session->audioState.audioStates.Empty();
-    auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(session->interpreter.GetObject());
+    UObject *AudioManager = RpyFindManager(session, TEXT("pause audio"), TEXT("audio manager"), [](UObject *Interpreter)
+                                    { return IRpyScriptInterpreter::Execute_GetAudioManager(Interpreter); });
+    if (!AudioManager)
+      return ERpyInstructionResult::Failed;
 
-    return IRpyAudioManager::Execute_PauseAudio(audioManager.GetObject(), this->timeout);
+    return IRpyAudioManager::Execute_PauseAudio(AudioManager, this->timeout);
   };
 };
 

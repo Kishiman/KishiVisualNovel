@@ -10,9 +10,9 @@ class UUnsupportedInstruction : public URpyInstruction
 
 public:
   virtual FString ToString() const override { return FormatInstruction(TEXT("unsupported"), FString::Printf(TEXT("type=\"%s\""), *InstructionType.ToString())); }
-  virtual bool Execute(URpySession *) override
+  virtual ERpyInstructionResult Execute(URpySession *) override
   {
     UE_LOG(LogTemp, Error, TEXT("Unsupported instruction: %s"), *ToString());
-    return false;
+    return ERpyInstructionResult::Failed;
   }
 };

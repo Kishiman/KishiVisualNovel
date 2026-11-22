@@ -87,3 +87,9 @@ These are deliberately not in `fixtures/invalid/`, because the importer accepts 
   scene runs without a transition;
 - a duplicate `<label name="...">` silently replaces the earlier label;
 - a `<jump>` or `<call>` to a label that does not exist is only detected at run time.
+
+At run time, an instruction that cannot run (an undefined image or sound, a missing manager,
+a menu with no choices, an unsupported command) logs an error and returns `Failed`. The
+session then follows the Failed Instruction Policy in Project Settings > Plugins > Kishi
+Visual Novel: by default it logs and moves on to the next instruction; `Log and Stop` ends
+the script instead.

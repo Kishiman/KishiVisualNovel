@@ -2,6 +2,7 @@
 #include "Script/RpyInstructions.h"
 #include "Script/RpyInstruction.h"
 #include "Player/RpyScriptInterpreter.h"
+#include "Settings/KishiVisualNovelSettings.h"
 
 void URpySession::PostInitProperties()
 {
@@ -65,10 +66,21 @@ bool URpySession::Run()
 	{
 
 		UE_LOG(LogTemp, Display, TEXT("Executing instruction: %s"), *this->current->ToString());
-		bool autoNext = this->current->Execute(this);
-		this->current->bAutoExecuteNext = autoNext;
-		if (!autoNext)
+		const ERpyInstructionResult Result = this->current->Execute(this);
+		this->current->LastResult = Result;
+		if (Result == ERpyInstructionResult::Wait)
 			break;
+		if (Result == ERpyInstructionResult::Failed)
+		{
+			const ERpyFailedInstructionPolicy Policy = GetDefault<UKishiVisualNovelSettings>()->FailedInstructionPolicy;
+			if (Policy == ERpyFailedInstructionPolicy::LogAndStop)
+			{
+				UE_LOG(LogTemp, Error, TEXT("URpySession::Run: instruction failed, stopping the script (Failed Instruction Policy = Log and Stop): %s"), *this->current->ToString());
+				this->current = nullptr;
+				break;
+			}
+			UE_LOG(LogTemp, Error, TEXT("URpySession::Run: instruction failed, moving on to the next one (Failed Instruction Policy = Log and Advance): %s"), *this->current->ToString());
+		}
 		this->current = this->current->GetNext(this);
 	}
 	if (!this->current)

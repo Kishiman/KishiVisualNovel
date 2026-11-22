@@ -54,7 +54,9 @@ void URpyScriptInterpreterImplementation::IHandleInstructionComplete_Default(con
     return;
   }
 
-  if (Instruction->bAutoExecuteNext)
+  // Only an instruction that returned Wait is waiting for this completion; the session
+  // already moved past anything that returned Continue or Failed.
+  if (Instruction->LastResult != ERpyInstructionResult::Wait)
   {
     return;
   }

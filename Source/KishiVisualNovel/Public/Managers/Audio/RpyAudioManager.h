@@ -3,6 +3,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "Player/RpyScriptInterpreterBaseManager.h"
+#include "Script/RpyScriptTypes.h"
 
 #include "RpyAudioManager.generated.h"
 
@@ -26,21 +27,21 @@ public:
   void SetAudioManagerState(const FRpyAudioManagerState &State);
   virtual void SetAudioManagerState_Implementation(const FRpyAudioManagerState &State) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::SetAudioManagerState")); }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  bool PauseAudio(float timeout);
-  virtual bool PauseAudio_Implementation(float timeout) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::PauseAudio")); return {}; }
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: pause every channel, fading out over the timeout. Return Continue, or Failed, after logging why, if audio cannot be paused."))
+  ERpyInstructionResult PauseAudio(float timeout);
+  virtual ERpyInstructionResult PauseAudio_Implementation(float timeout) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::PauseAudio")); return ERpyInstructionResult::Failed; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  bool StopAudio(FName channel, FRpyAudioOptions options);
-  virtual bool StopAudio_Implementation(FName channel, FRpyAudioOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::StopAudio")); return {}; }
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: stop the channel, fading out as the options say. Return Continue, or Failed, after logging why, if the channel cannot be stopped."))
+  ERpyInstructionResult StopAudio(FName channel, FRpyAudioOptions options);
+  virtual ERpyInstructionResult StopAudio_Implementation(FName channel, FRpyAudioOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::StopAudio")); return ERpyInstructionResult::Failed; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  bool QueueAudio(FName channel, FRpyAudio audio, FRpyAudioOptions options);
-  virtual bool QueueAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::QueueAudio")); return {}; }
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: queue the sound on the channel after what is playing. Return Continue, or Failed, after logging why, if the channel or sound is missing."))
+  ERpyInstructionResult QueueAudio(FName channel, FRpyAudio audio, FRpyAudioOptions options);
+  virtual ERpyInstructionResult QueueAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::QueueAudio")); return ERpyInstructionResult::Failed; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  bool PlayAudio(FName channel, FRpyAudio audio, FRpyAudioOptions options);
-  virtual bool PlayAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::PlayAudio")); return {}; }
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: play the sound on the channel, replacing what is playing there. Return Continue, or Failed, after logging why, if the channel or sound is missing."))
+  ERpyInstructionResult PlayAudio(FName channel, FRpyAudio audio, FRpyAudioOptions options);
+  virtual ERpyInstructionResult PlayAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::PlayAudio")); return ERpyInstructionResult::Failed; }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   TArray<FRpyAudioManagerState> GetCurrentAudioStates();

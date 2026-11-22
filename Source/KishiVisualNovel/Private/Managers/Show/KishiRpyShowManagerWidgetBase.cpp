@@ -124,8 +124,9 @@ void UKishiRpyShowManagerWidgetBase::SetShowManagerState_Implementation(const FR
 	}
 }
 
-bool UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyImage Image, FRpySceneOptions Options)
+ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyImage Image, FRpySceneOptions Options)
 {
+	ERpyInstructionResult Result = ERpyInstructionResult::Continue;
 	VNSHOW_LOG("Show begin. %s | %s", *DescribeImage(Image), *DescribeOptions(Options));
 	FRpyShowImageState *Existing = ShowState.imageStates.FindByPredicate([&Image](const FRpyShowImageState &Item)
 																																			 { return Item.name == Image.tag; });
@@ -181,7 +182,7 @@ bool UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyImage Image, FRpySc
 					PlayShowableTransition(Moving, HalfOptions, true, FVector2D::ZeroVector, true); }),
 																							 HalfOptions.transitionTime, false);
 				OnShowRequested(Image, Options);
-				return true;
+				return ERpyInstructionResult::Continue;
 			}
 			MoveFrom = PlaceWidgetShowable(Showable, FVector2D(Options.position.X, Options.position.Y), Options.zorder);
 		}
@@ -193,19 +194,21 @@ bool UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyImage Image, FRpySc
 			UE_LOG(LogTemp, Error, TEXT("%s: no showable class for image '%s' of type %s. Set SpriteWidgetClass and LayeredSpriteWidgetClass, or override ResolveShowableClass."),
 						 *GetName(), *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type));
 			OnShowRequested(Image, Options);
-			return true;
+			return ERpyInstructionResult::Failed;
 		}
 		Showable = CreateShowableFromClass(ShowableClass, Image.tag, Options.position, FRotator::ZeroRotator, FVector2D(Options.position.X, Options.position.Y), Options.zorder);
 		if (!Showable)
 		{
+			UE_LOG(LogTemp, Error, TEXT("%s: could not create showable %s for image '%s'."), *GetName(), *GetNameSafe(ShowableClass), *Image.tag.ToString());
 			OnShowRequested(Image, Options);
-			return true;
+			return ERpyInstructionResult::Failed;
 		}
 		VNSHOW_LOG("Show created %s", *DescribeWidget(Showable));
 		if (!ApplyImageToShowable(Showable, Image))
 		{
 			UE_LOG(LogTemp, Error, TEXT("%s: could not give image '%s' of type %s to showable %s."),
 						 *GetName(), *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type), *GetNameSafe(Showable));
+			Result = ERpyInstructionResult::Failed;
 		}
 		else
 		{
@@ -250,10 +253,10 @@ bool UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyImage Image, FRpySc
 									 *Geometry.GetAbsolutePosition().ToString(), IsInViewport() ? 1 : 0, *UEnum::GetValueAsString(GetVisibility())); }));
 		}
 	}
-	return true;
+	return Result;
 }
 
-bool UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName Tag, FRpySceneOptions Options)
+ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName Tag, FRpySceneOptions Options)
 {
 	VNSHOW_LOG("Hide '%s' | %s", *Tag.ToString(), *DescribeOptions(Options));
 	const int32 Index = ShowState.imageStates.IndexOfByPredicate([Tag](const FRpyShowImageState &Item)
@@ -261,7 +264,7 @@ bool UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName Tag, FRpySceneOpt
 	if (Index == INDEX_NONE)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s: hide '%s' ignored, no image with that tag is shown."), *GetName(), *Tag.ToString());
-		return true;
+		return ERpyInstructionResult::Continue;
 	}
 	OnHideRequested(Tag, Options);
 	const FName StateTag = ShowState.imageStates[Index].name;
@@ -272,7 +275,7 @@ bool UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName Tag, FRpySceneOpt
 	if (!IsValid(Showable) || Duration <= 0.0f || !GetWorld())
 	{
 		RemoveShowable(StateTag);
-		return true;
+		return ERpyInstructionResult::Continue;
 	}
 	PlayShowableTransition(Showable, Options, false);
 	ClearHideTimer(StateTag);
@@ -280,7 +283,7 @@ bool UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName Tag, FRpySceneOpt
 	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateWeakLambda(this, [this, StateTag]()
 																																					{ HideTimers.Remove(StateTag); RemoveShowable(StateTag); }),
 																				 Duration, false);
-	return true;
+	return ERpyInstructionResult::Continue;
 }
 
 void UKishiRpyShowManagerWidgetBase::Reset_Implementation()

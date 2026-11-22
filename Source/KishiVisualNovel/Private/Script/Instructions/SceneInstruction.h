@@ -17,7 +17,7 @@ public:
   {
     return name == FName(TEXT("_")) || ResolveImageForCompile(script, name, SceneOptionsFromProps(Props, script)) != nullptr;
   }
-  virtual bool Execute(URpySession *session)
+  virtual ERpyInstructionResult Execute(URpySession *session)
   {
     const FRpySceneOptions options = SceneOptionsFromProps(Props, script);
     FRpyImage rpyImage;
@@ -31,14 +31,17 @@ public:
         _rpyImage = script->images.Find(AssetKey);
       if (!_rpyImage)
       {
-        UE_LOG(LogTemp, Error, TEXT("scene: image '%s' is not defined in the script; skipping it."), *AssetKey.ToString());
-        return true;
+        UE_LOG(LogTemp, Error, TEXT("scene: image '%s' is not defined in the script."), *AssetKey.ToString());
+        return ERpyInstructionResult::Failed;
       }
       rpyImage = *_rpyImage;
     }
     session->sceneState.rpyImage = rpyImage;
     session->sceneState.options = options;
-    auto sceneManager = IRpyScriptInterpreter::Execute_GetSceneManager(session->interpreter.GetObject());
-    return IRpySceneManager::Execute_Scene(sceneManager.GetObject(), rpyImage, options);
+    UObject *SceneManager = RpyFindManager(session, TEXT("scene"), TEXT("scene manager"), [](UObject *Interpreter)
+                                    { return IRpyScriptInterpreter::Execute_GetSceneManager(Interpreter); });
+    if (!SceneManager)
+      return ERpyInstructionResult::Failed;
+    return IRpySceneManager::Execute_Scene(SceneManager, rpyImage, options);
   };
 };

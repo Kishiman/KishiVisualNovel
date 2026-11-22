@@ -84,7 +84,7 @@ void UKishiRpySceneManagerWidgetBase::SetSceneManagerState_Implementation(const 
 	IRpySceneManager::Execute_Scene(this, State.rpyImage, State.options);
 }
 
-bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpySceneOptions Options)
+ERpyInstructionResult UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpySceneOptions Options)
 {
 	VNSCENE_LOG("scene tag='%s' type=%s sprite=%s video=%s sequence=%s", *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type), *GetNameSafe(Image.sprite),
 							*GetNameSafe(Image.videoMediaSprite), *GetNameSafe(Image.levelSequence));
@@ -98,7 +98,7 @@ bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpy
 		if (IsValid(SceneSprite))
 			SceneSprite->SetVisibility(ESlateVisibility::Collapsed);
 		OnSceneRequested(Image, Options);
-		return true;
+		return ERpyInstructionResult::Continue;
 	}
 	EnsureSceneSprite();
 	bool bHandled = false;
@@ -132,7 +132,7 @@ bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpy
 	}
 	if (!bHandled)
 	{
-		// Log and continue so a missing asset or SceneSprite never stalls the script.
+		// Reported as Failed below; the session applies the Failed Instruction Policy.
 		UE_LOG(LogTemp, Error, TEXT("%s: could not display scene image '%s' of type %s. Check the image's asset, and add a SceneSprite widget or set SceneSpriteClass."),
 					 *GetName(), *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type));
 	}
@@ -148,7 +148,7 @@ bool UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpy
 							IsValid(SceneSprite) ? *UEnum::GetValueAsString(SceneSprite->GetVisibility()) : TEXT("None"), *UEnum::GetValueAsString(GetVisibility()),
 							*GetCachedGeometry().GetLocalSize().ToString());
 	OnSceneRequested(Image, Options);
-	return true;
+	return bHandled ? ERpyInstructionResult::Continue : ERpyInstructionResult::Failed;
 }
 
 AActor *UKishiRpySceneManagerWidgetBase::FindSceneCamera_Implementation() const

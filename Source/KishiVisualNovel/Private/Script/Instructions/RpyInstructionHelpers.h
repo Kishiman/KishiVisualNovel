@@ -25,6 +25,25 @@ TInstruction *CreateRpyInstruction(URpyScript *Script)
   return Instruction;
 }
 
+/** The interpreter's manager for a command, or null after logging why it is missing. */
+template <typename TGetter>
+UObject *RpyFindManager(URpySession *Session, const TCHAR *Command, const TCHAR *ManagerName, TGetter Getter)
+{
+  UObject *Interpreter = Session ? Session->interpreter.GetObject() : nullptr;
+  if (!IsValid(Interpreter))
+  {
+    UE_LOG(LogTemp, Error, TEXT("%s: the session has no script interpreter."), Command);
+    return nullptr;
+  }
+  UObject *Manager = Getter(Interpreter).GetObject();
+  if (!IsValid(Manager))
+  {
+    UE_LOG(LogTemp, Error, TEXT("%s: the interpreter %s has no %s."), Command, *GetNameSafe(Interpreter), ManagerName);
+    return nullptr;
+  }
+  return Manager;
+}
+
 static FRpyImage *ResolveImageForCompile(URpyScript *Script, FName Name, const FRpySceneOptions &Options)
 {
   if (!Script || Name == FName(TEXT("_")))

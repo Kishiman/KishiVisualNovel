@@ -17,7 +17,7 @@ public:
   {
     return ResolveImageForCompile(script, name, SceneOptionsFromProps(Props, script)) != nullptr;
   }
-  virtual bool Execute(URpySession *session)
+  virtual ERpyInstructionResult Execute(URpySession *session)
   {
     const FRpySceneOptions options = SceneOptionsFromProps(Props, script);
     FName AssetKey = name;
@@ -28,8 +28,8 @@ public:
       rpyImage = script->images.Find(AssetKey);
     if (!rpyImage)
     {
-      UE_LOG(LogTemp, Error, TEXT("show: image '%s' is not defined in the script; skipping it."), *AssetKey.ToString());
-      return true;
+      UE_LOG(LogTemp, Error, TEXT("show: image '%s' is not defined in the script."), *AssetKey.ToString());
+      return ERpyInstructionResult::Failed;
     }
 
     auto existing = session->showState.imageStates.FindByPredicate([&](const FRpyShowImageState &state)
@@ -50,7 +50,7 @@ public:
     if (!IsValid(interpreter))
     {
       UE_LOG(LogTemp, Error, TEXT("[VNShow] show instruction: the session has no interpreter."));
-      return true;
+      return ERpyInstructionResult::Failed;
     }
     auto showManager = IRpyScriptInterpreter::Execute_GetShowManager(interpreter);
     UE_LOG(LogTemp, Log, TEXT("[VNShow] show instruction: show manager=%s class=%s"),
@@ -58,11 +58,11 @@ public:
     if (!showManager.GetObject())
     {
       UE_LOG(LogTemp, Error, TEXT("[VNShow] show instruction: the interpreter %s returned no show manager."), *GetNameSafe(interpreter));
-      return true;
+      return ERpyInstructionResult::Failed;
     }
 
-    const bool bResult = IRpyShowManager::Execute_Show(showManager.GetObject(), *rpyImage, options);
-    UE_LOG(LogTemp, Log, TEXT("[VNShow] show instruction: Show returned %d"), bResult ? 1 : 0);
-    return bResult;
+    const ERpyInstructionResult Result = IRpyShowManager::Execute_Show(showManager.GetObject(), *rpyImage, options);
+    UE_LOG(LogTemp, Log, TEXT("[VNShow] show instruction: Show returned %s"), *UEnum::GetValueAsString(Result));
+    return Result;
   };
 };

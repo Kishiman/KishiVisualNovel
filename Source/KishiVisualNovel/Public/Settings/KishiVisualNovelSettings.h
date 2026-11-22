@@ -16,6 +16,14 @@ enum class EKishiAssetSearchKind : uint8
 	Voice
 };
 
+/** What the session does when an instruction returns ERpyInstructionResult::Failed. */
+UENUM(BlueprintType)
+enum class ERpyFailedInstructionPolicy : uint8
+{
+	LogAndAdvance UMETA(DisplayName = "Log and Advance", ToolTip = "Log an error and move on to the next instruction, as if the failed one had finished."),
+	LogAndStop UMETA(DisplayName = "Log and Stop", ToolTip = "Log an error and end the script there. The interpreter gets OnScriptComplete, as when a script reaches its end."),
+};
+
 /**
  * Project-wide settings for KishiVisualNovel, under Project Settings > Plugins > Kishi Visual Novel.
  *
@@ -30,6 +38,9 @@ class KISHIVISUALNOVEL_API UKishiVisualNovelSettings : public UDeveloperSettings
 
 public:
 	UKishiVisualNovelSettings();
+
+	UPROPERTY(config, EditAnywhere, Category = "Execution", meta = (ToolTip = "What the session does when an instruction fails, for example a show whose image cannot be displayed or a manager that is missing. Log and Advance keeps the script running; Log and Stop ends it."))
+	ERpyFailedInstructionPolicy FailedInstructionPolicy = ERpyFailedInstructionPolicy::LogAndAdvance;
 
 	UPROPERTY(config, EditAnywhere, Category = "Asset Search", meta = (ToolTip = "Folders searched, in order, for images named in scripts: sprites (with the `_Sprite` suffix), layered sprites, videos and level sequences. Use long package paths such as /Game/Images."))
 	TArray<FString> ImageSearchFolders;

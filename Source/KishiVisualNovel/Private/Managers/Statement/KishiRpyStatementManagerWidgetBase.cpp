@@ -91,7 +91,7 @@ void UKishiRpyStatementManagerWidgetBase::SetStatementManagerState_Implementatio
 	OnStatementRequested(StatementState.name, StatementState.statement);
 }
 
-bool UKishiRpyStatementManagerWidgetBase::Say_Implementation(FName Name, const FString &Statement)
+ERpyInstructionResult UKishiRpyStatementManagerWidgetBase::Say_Implementation(FName Name, const FString &Statement)
 {
 	StatementState.name = Name;
 	StatementState.statement = Statement;
@@ -103,8 +103,8 @@ bool UKishiRpyStatementManagerWidgetBase::Say_Implementation(FName Name, const F
 	LastViseme = FMouthViseme();
 	UpdateVisibleStatement();
 	OnStatementRequested(Name, Statement);
-	// Wait: the session advances when the player clicks through the line (CompleteOrRevealStatement).
-	return false;
+	// The session advances when the player clicks through the line (CompleteOrRevealStatement).
+	return ERpyInstructionResult::Wait;
 }
 
 void UKishiRpyStatementManagerWidgetBase::NativeTick(const FGeometry &MyGeometry, float InDeltaTime)

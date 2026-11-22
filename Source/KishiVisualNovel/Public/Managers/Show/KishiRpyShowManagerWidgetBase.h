@@ -33,8 +33,8 @@ public:
 	virtual void Reset_Implementation() override;
 	virtual FRpyShowManagerState GetShowManagerState_Implementation() const override { return ShowState; }
 	virtual void SetShowManagerState_Implementation(const FRpyShowManagerState &State) override;
-	virtual bool Show_Implementation(FRpyImage Image, FRpySceneOptions Options) override;
-	virtual bool Hide_Implementation(FName Tag, FRpySceneOptions Options) override;
+	virtual ERpyInstructionResult Show_Implementation(FRpyImage Image, FRpySceneOptions Options) override;
+	virtual ERpyInstructionResult Hide_Implementation(FName Tag, FRpySceneOptions Options) override;
 	virtual TArray<FRpyShowManagerState> GetCurrentShowStates_Implementation() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Kishi Rpy Show Manager Widget Base|Showables", meta = (ToolTip = "Create an IShowable widget, actor or actor component and track it under Tag, replacing any showable already tracked there. Widgets are sized to their content and their bottom center is placed at WidgetPosition, a fraction of ShowCanvas from its bottom center (0.4 moves it 40% right), like script positions; actors and components are spawned at WorldLocation. Logs an error and returns None on failure."))

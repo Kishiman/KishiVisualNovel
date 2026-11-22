@@ -25,9 +25,14 @@ void UKishiRpyChoiceManagerWidgetBase::SetChoiceManagerState_Implementation(cons
 	IRpyChoiceManager::Execute_Menu(this, State.choices);
 }
 
-bool UKishiRpyChoiceManagerWidgetBase::Menu_Implementation(const TArray<FString> &Choices)
+ERpyInstructionResult UKishiRpyChoiceManagerWidgetBase::Menu_Implementation(const TArray<FString> &Choices)
 {
 	ChoiceState.choices = Choices;
+	if (Choices.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: a menu with no choices cannot be answered."), *GetName());
+		return ERpyInstructionResult::Failed;
+	}
 	if (!ChoicesPanel || !ChoiceEntryClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s: cannot display %d choices without a panel named ChoicesPanel and a ChoiceEntryClass; the menu only works if OnChoicesRequested displays them."), *GetName(), Choices.Num());
@@ -51,7 +56,8 @@ bool UKishiRpyChoiceManagerWidgetBase::Menu_Implementation(const TArray<FString>
 		}
 	}
 	OnChoicesRequested(Choices);
-	return ChoicesPanel != nullptr || ChoiceEntryClass != nullptr;
+	// Wait even without ChoicesPanel: a Blueprint child may display the choices in OnChoicesRequested.
+	return ERpyInstructionResult::Wait;
 }
 
 void UKishiRpyChoiceManagerWidgetBase::HandleChoiceClicked(int32 Index)

@@ -12,6 +12,19 @@ class URpyScript;
 
 #include "RpyScriptTypes.generated.h"
 
+/**
+ * What an instruction, or the manager operation it calls, did when it ran.
+ * URpySession::Run advances on Continue, stops on Wait, and applies the Failed policy from
+ * UKishiVisualNovelSettings on Failed.
+ */
+UENUM(BlueprintType)
+enum class ERpyInstructionResult : uint8
+{
+	Continue UMETA(ToolTip = "Done. The session moves to the next instruction right away."),
+	Wait UMETA(ToolTip = "Started, and finishes later. The session waits until the interpreter reports that the instruction completed (for example, when the player clicks through a line or picks a choice)."),
+	Failed UMETA(ToolTip = "Could not run. Log why before returning this; the session then applies the Failed Instruction Policy from Project Settings > Plugins > Kishi Visual Novel."),
+};
+
 UENUM(BlueprintType)
 enum class EInstructionRunTimeType : uint8
 {

@@ -26,10 +26,10 @@ public:
 	virtual void Reset_Implementation() override;
 	virtual FRpyAudioManagerState GetAudioManagerState_Implementation() const override { return AudioState; }
 	virtual void SetAudioManagerState_Implementation(const FRpyAudioManagerState &State) override;
-	virtual bool PauseAudio_Implementation(float Timeout) override;
-	virtual bool StopAudio_Implementation(FName Channel, FRpyAudioOptions Options) override;
-	virtual bool QueueAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options) override;
-	virtual bool PlayAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options) override;
+	virtual ERpyInstructionResult PauseAudio_Implementation(float Timeout) override;
+	virtual ERpyInstructionResult StopAudio_Implementation(FName Channel, FRpyAudioOptions Options) override;
+	virtual ERpyInstructionResult QueueAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options) override;
+	virtual ERpyInstructionResult PlayAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options) override;
 	virtual TArray<FRpyAudioManagerState> GetCurrentAudioStates_Implementation() const override;
 
 protected:

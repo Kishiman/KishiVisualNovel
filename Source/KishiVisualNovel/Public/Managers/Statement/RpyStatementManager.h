@@ -3,6 +3,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "Player/RpyScriptInterpreterBaseManager.h"
+#include "Script/RpyScriptTypes.h"
 
 #include "RpyStatementManager.generated.h"
 
@@ -26,9 +27,9 @@ public:
   void SetStatementManagerState(const FRpyStatementManagerState &State);
   virtual void SetStatementManagerState_Implementation(const FRpyStatementManagerState &State) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyStatementManager::SetStatementManagerState")); }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyStatementManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  bool Say(FName name, const FString &statement);
-  virtual bool Say_Implementation(FName name, const FString &statement) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyStatementManager::Say")); return {}; }
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyStatementManager|Required", meta = (ToolTip = "Required: display the line. Return Wait and report completion through the interpreter when the player has read it, Continue only for a line that should not wait, or Failed, after logging why, if it cannot be displayed."))
+  ERpyInstructionResult Say(FName name, const FString &statement);
+  virtual ERpyInstructionResult Say_Implementation(FName name, const FString &statement) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyStatementManager::Say")); return ERpyInstructionResult::Failed; }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyStatementManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   FRpyStatementManagerState GetCurrentStatementState();
