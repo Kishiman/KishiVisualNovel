@@ -132,15 +132,15 @@ void UKishiVNPlayerWidgetBase::Shutdown_Implementation()
 		}
 	}
 	if (bSaveMenuVisible)
-		IRpyScriptInterpreter::Execute_setSaveMenuVisible(this, false);
+		IRpyScriptInterpreter::Execute_SetSaveMenuVisible(this, false);
 	if (bLoadMenuVisible)
-		IRpyScriptInterpreter::Execute_setLoadMenuVisible(this, false);
+		IRpyScriptInterpreter::Execute_SetLoadMenuVisible(this, false);
 	bStarted = false;
 	Session = nullptr;
 	OnInterpreterShutdown();
 }
 
-void UKishiVNPlayerWidgetBase::UpdateSaveMenu(ERpySaveMenuMode MenuMode, bool bVisible) const
+void UKishiVNPlayerWidgetBase::UpdateSaveMenu(ERpySaveMenuMode MenuMode, bool bVisible)
 {
 	if (!IsValid(SaveMenu))
 		return;
@@ -156,42 +156,40 @@ void UKishiVNPlayerWidgetBase::UpdateSaveMenu(ERpySaveMenuMode MenuMode, bool bV
 		IRpySaveMenu::Execute_HandleClose(SaveMenu);
 }
 
-void UKishiVNPlayerWidgetBase::setSaveMenuVisible_Implementation(bool bVisible) const
+void UKishiVNPlayerWidgetBase::SetSaveMenuVisible_Implementation(bool bVisible)
 {
-	UKishiVNPlayerWidgetBase *MutableThis = const_cast<UKishiVNPlayerWidgetBase *>(this);
 	if (bVisible && bLoadMenuVisible)
 	{
 		bLoadMenuVisible = false;
-		MutableThis->OnLoadMenuVisibilityChanged(false);
+		OnLoadMenuVisibilityChanged(false);
 	}
 	bSaveMenuVisible = bVisible;
 	UpdateSaveMenu(ERpySaveMenuMode::Save, bVisible);
-	MutableThis->OnSaveMenuVisibilityChanged(bVisible);
+	OnSaveMenuVisibilityChanged(bVisible);
 }
 
-void UKishiVNPlayerWidgetBase::setLoadMenuVisible_Implementation(bool bVisible) const
+void UKishiVNPlayerWidgetBase::SetLoadMenuVisible_Implementation(bool bVisible)
 {
-	UKishiVNPlayerWidgetBase *MutableThis = const_cast<UKishiVNPlayerWidgetBase *>(this);
 	if (bVisible && bSaveMenuVisible)
 	{
 		bSaveMenuVisible = false;
-		MutableThis->OnSaveMenuVisibilityChanged(false);
+		OnSaveMenuVisibilityChanged(false);
 	}
 	bLoadMenuVisible = bVisible;
 	UpdateSaveMenu(ERpySaveMenuMode::Load, bVisible);
-	MutableThis->OnLoadMenuVisibilityChanged(bVisible);
+	OnLoadMenuVisibilityChanged(bVisible);
 }
 
-void UKishiVNPlayerWidgetBase::setConfigMenuVisible_Implementation(bool bVisible) const
+void UKishiVNPlayerWidgetBase::SetConfigMenuVisible_Implementation(bool bVisible)
 {
 	bConfigMenuVisible = bVisible;
-	const_cast<UKishiVNPlayerWidgetBase *>(this)->OnConfigMenuVisibilityChanged(bVisible);
+	OnConfigMenuVisibilityChanged(bVisible);
 }
 
-void UKishiVNPlayerWidgetBase::setBackLogMenuVisible_Implementation(bool bVisible) const
+void UKishiVNPlayerWidgetBase::SetBackLogMenuVisible_Implementation(bool bVisible)
 {
 	bBackLogMenuVisible = bVisible;
-	const_cast<UKishiVNPlayerWidgetBase *>(this)->OnBackLogMenuVisibilityChanged(bVisible);
+	OnBackLogMenuVisibilityChanged(bVisible);
 }
 
 void UKishiVNPlayerWidgetBase::SetSession_Implementation(URpySession *InSession)

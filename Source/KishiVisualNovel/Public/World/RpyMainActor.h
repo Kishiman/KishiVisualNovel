@@ -97,10 +97,9 @@ class KISHIVISUALNOVEL_API IRpyCloseVNEventListener : public IRpyStatefulActor
     GENERATED_BODY()
 
 public:
-    // Event callback
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyCloseVNEventListener|Hooks", meta = (ToolTip = "Optional: called when the VN this listener is registered with closes. The default does nothing."))
     void OnCloseVNEvent();
-    virtual void OnCloseVNEvent_Implementation() = 0;
+    virtual void OnCloseVNEvent_Implementation() {}
 };
 
 UINTERFACE(Blueprintable)
@@ -119,27 +118,24 @@ public:
     {
         return URpyMainActorState::StaticClass();
     }
-    // Check if VN is currently active
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyMainActor|Required", meta = (ToolTip = "Required: return whether a VN session is running on this actor."))
     bool IsActive() const;
-    virtual bool IsActive_Implementation() const = 0;
+    virtual bool IsActive_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyMainActor::IsActive")); return false; }
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyMainActor|Required", meta = (ToolTip = "Required: return the session running on this actor, or None."))
     URpySession *GetCurrentSession() const;
-    virtual URpySession *GetCurrentSession_Implementation() const = 0;
+    virtual URpySession *GetCurrentSession_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyMainActor::GetCurrentSession")); return nullptr; }
 
-    // Start a VN script
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyMainActor|Required", meta = (ToolTip = "Required: start Script at Label, closing the running session first."))
     void StartRpyScript(URpyScript *Script, FName const &Label);
-    virtual void StartRpyScript_Implementation(URpyScript *Script, FName const &Label) = 0;
+    virtual void StartRpyScript_Implementation(URpyScript *Script, FName const &Label) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyMainActor::StartRpyScript")); }
 
-    // Close VN session
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyMainActor|Required", meta = (ToolTip = "Required: close the running session and notify the close listeners."))
     void CloseVN();
-    virtual void CloseVN_Implementation() = 0;
+    virtual void CloseVN_Implementation() { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyMainActor::CloseVN")); }
 
-    // Add event listener
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyMainActor|Required", meta = (ToolTip = "Required: register Listener to be notified when the VN closes."))
     void AddOnCloseVNEventListener(const TScriptInterface<IRpyCloseVNEventListener> &Listener);
-    virtual void AddOnCloseVNEventListener_Implementation(const TScriptInterface<IRpyCloseVNEventListener> &Listener) = 0;
+    virtual void AddOnCloseVNEventListener_Implementation(const TScriptInterface<IRpyCloseVNEventListener> &Listener) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyMainActor::AddOnCloseVNEventListener")); }
 };

@@ -31,7 +31,6 @@ public:
 	virtual FRpySceneManagerState GetSceneManagerState_Implementation() const override { return SceneState; }
 	virtual void SetSceneManagerState_Implementation(const FRpySceneManagerState &State) override;
 	virtual ERpyInstructionResult Scene_Implementation(FRpyImage Image, FRpySceneOptions Options) override;
-	virtual FRpySceneManagerState GetCurrentSceneState_Implementation() const override { return SceneState; }
 
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;

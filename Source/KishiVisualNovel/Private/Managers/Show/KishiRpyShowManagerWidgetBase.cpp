@@ -302,11 +302,6 @@ void UKishiRpyShowManagerWidgetBase::OnDialogueViseme_Implementation(FName Name,
 		ILayeredSpriteHandler::Execute_OnSpeakerViseme(Speaker, Viseme, TimeOffset);
 }
 
-TArray<FRpyShowManagerState> UKishiRpyShowManagerWidgetBase::GetCurrentShowStates_Implementation() const
-{
-	return {ShowState};
-}
-
 UObject *UKishiRpyShowManagerWidgetBase::CreateShowableFromClass(TSubclassOf<UObject> ShowableClass, FName Tag, FVector WorldLocation, FRotator WorldRotation, FVector2D WidgetPosition, int32 ZOrder)
 {
 	if (!ShowableClass || !ShowableClass->ImplementsInterface(UShowable::StaticClass()))

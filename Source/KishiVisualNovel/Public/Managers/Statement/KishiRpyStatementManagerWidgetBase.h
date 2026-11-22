@@ -29,7 +29,6 @@ public:
 	virtual FRpyStatementManagerState GetStatementManagerState_Implementation() const override { return StatementState; }
 	virtual void SetStatementManagerState_Implementation(const FRpyStatementManagerState &State) override;
 	virtual ERpyInstructionResult Say_Implementation(FName Name, const FString &Statement) override;
-	virtual FRpyStatementManagerState GetCurrentStatementState_Implementation() const override { return StatementState; }
 
 protected:
 	virtual void NativeOnInitialized() override;

@@ -36,10 +36,6 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyChoiceManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
   void Choose(int idx);
   virtual void Choose_Implementation(int idx) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyChoiceManager::Choose")); }
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyChoiceManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  FRpyChoiceManagerState GetCurrentChoiceState();
-  virtual FRpyChoiceManagerState GetCurrentChoiceState_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyChoiceManager::GetCurrentChoiceState")); return {}; }
 };
 
 // UCLASS()

@@ -31,7 +31,6 @@ public:
 	virtual void SetChoiceManagerState_Implementation(const FRpyChoiceManagerState &State) override;
 	virtual ERpyInstructionResult Menu_Implementation(const TArray<FString> &Choices) override;
 	virtual void Choose_Implementation(int32 Index) override;
-	virtual FRpyChoiceManagerState GetCurrentChoiceState_Implementation() const override { return ChoiceState; }
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Rpy|Choice")

@@ -20,20 +20,19 @@ class KISHIVISUALNOVEL_API URpyCameraAnchor : public UInterface
 class KISHIVISUALNOVEL_API IRpyCameraAnchor
 {
   GENERATED_BODY()
+
 public:
-  // instructions
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyCameraAnchor|Required", meta = (ToolTip = "Required: return the actor this anchor belongs to."))
   AActor *GetActor() const;
-  virtual AActor *GetActor_Implementation() const = 0;
+  virtual AActor *GetActor_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyCameraAnchor::GetActor")); return nullptr; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyCameraAnchor|Required", meta = (ToolTip = "Required: return this anchor's camera component, or None."))
   UCameraComponent *GetCameraComponent() const;
-  virtual UCameraComponent *GetCameraComponent_Implementation() const = 0;
+  virtual UCameraComponent *GetCameraComponent_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyCameraAnchor::GetCameraComponent")); return nullptr; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyCameraAnchor|Required", meta = (ToolTip = "Required: return the layer name that a scene instruction's layer attribute uses to find this anchor."))
   FName GetAnchorLayer() const;
-  virtual FName GetAnchorLayer_Implementation() const = 0;
+  virtual FName GetAnchorLayer_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyCameraAnchor::GetAnchorLayer")); return NAME_None; }
 };
 
 UCLASS()

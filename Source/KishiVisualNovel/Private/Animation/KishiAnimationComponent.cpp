@@ -50,7 +50,7 @@ FVector UKishiAnimationComponent::GetCurrentPosition(EKishiAnimationSpace Space)
 
 void UKishiAnimationComponent::Animate_Implementation(FVector From, FVector To, bool bUseFrom, EKishiAnimationType Type, float Delay, EKishiAnimationSpace Space, float Duration)
 {
-	if (IsAnimating_Implementation())
+	if (IAnimatable::Execute_IsAnimating(this))
 	{
 		UE_LOG(LogTemp, Log, TEXT("KishiAnimation: skipping active animation before starting the next one."));
 		IAnimatable::Execute_Skip(this);
@@ -220,7 +220,7 @@ void UKishiAnimationComponent::ApplyPosition(const FVector& Position, float Prog
 
 void UKishiAnimationComponent::Skip_Implementation()
 {
-	if (!IsAnimating_Implementation()) return;
+	if (!IAnimatable::Execute_IsAnimating(this)) return;
 	ApplyPosition(EndPosition, 1.0f);
 	FinishAnimation();
 }
@@ -264,7 +264,7 @@ void UKishiAnimationComponent::FinishAnimation()
 
 void UKishiAnimationComponent::Show_Implementation(const FKishiShowableOptions& Options)
 {
-	if (IsAnimating_Implementation()) IAnimatable::Execute_Skip(this);
+	if (IAnimatable::Execute_IsAnimating(this)) IAnimatable::Execute_Skip(this);
 	bHideAfterAnimation = false;
 	bFadeOut = false;
 	if (IsValid(WorldTarget))
@@ -282,7 +282,7 @@ void UKishiAnimationComponent::Show_Implementation(const FKishiShowableOptions& 
 
 void UKishiAnimationComponent::Hide_Implementation(const FKishiShowableOptions& Options)
 {
-	if (IsAnimating_Implementation()) IAnimatable::Execute_Skip(this);
+	if (IAnimatable::Execute_IsAnimating(this)) IAnimatable::Execute_Skip(this);
 	bHideAfterAnimation = true;
 	bFadeOut = IsValid(WidgetTarget) && (Options.bAnimateOpacity || Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Dissolve || Options.Type == EKishiAnimationType::Blur);
 	IAnimatable::Execute_Animate(this, Options.From, Options.To, Options.bUseFrom, bFadeOut ? EKishiAnimationType::Fade : Options.Type, Options.Delay, Options.Space, Options.Duration);

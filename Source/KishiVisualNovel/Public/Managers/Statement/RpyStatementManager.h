@@ -30,10 +30,6 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyStatementManager|Required", meta = (ToolTip = "Required: display the line. Return Wait and report completion through the interpreter when the player has read it, Continue only for a line that should not wait, or Failed, after logging why, if it cannot be displayed."))
   ERpyInstructionResult Say(FName name, const FString &statement);
   virtual ERpyInstructionResult Say_Implementation(FName name, const FString &statement) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyStatementManager::Say")); return ERpyInstructionResult::Failed; }
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyStatementManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  FRpyStatementManagerState GetCurrentStatementState();
-  virtual FRpyStatementManagerState GetCurrentStatementState_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyStatementManager::GetCurrentStatementState")); return {}; }
 };
 
 // UCLASS()

@@ -30,10 +30,6 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpySceneManager|Required", meta = (ToolTip = "Required: replace the background with this image; an image of type ENONE (scene _) clears it. Return Continue once it is shown, Wait if you will report completion through the interpreter yourself, or Failed, after logging why, if it cannot be shown."))
   ERpyInstructionResult Scene(FRpyImage rpyImage, FRpySceneOptions options);
   virtual ERpyInstructionResult Scene_Implementation(FRpyImage rpyImage, FRpySceneOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpySceneManager::Scene")); return ERpyInstructionResult::Failed; }
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpySceneManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  FRpySceneManagerState GetCurrentSceneState();
-  virtual FRpySceneManagerState GetCurrentSceneState_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpySceneManager::GetCurrentSceneState")); return {}; }
 };
 
 // UCLASS()

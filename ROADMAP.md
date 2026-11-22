@@ -11,24 +11,24 @@ The XML script pipeline and the interface layer are in good shape. Since the Leg
 - **Execution results (fixed in step 3, 2026-11-22):** `Execute()` and the manager operations return `Continue`, `Wait` or `Failed`, and a failure follows the Failed Instruction Policy (default: log and advance) instead of stalling the script.
 - **Biggest risk now:** show, scene and statement state is stored twice, in the session and in the managers, and can drift (finding 5, step 7 and the State target below).
 - **Biggest design gap:** `FRpyImage` is a tagged union (sprite, layered sprite, video, level sequence), and every manager switches on its type, each supporting a different subset. Showables should be resolved through an asset-to-showable registry instead.
-- **Conventions:** most interfaces follow the `Required` / `Hooks` rules. The exceptions: some interface events, both optional hooks and required operations, are declared `= 0`, and a few calls bypass `Execute_*`.
+- **Conventions (step 4, 2026-11-22):** every interface follows the `Required` / `Hooks` rules. No interface event is declared `= 0`, required operations log an error and return a safe default, and self-calls go through `Execute_*`.
 
 ### Key findings
 
-| #   | Severity | Where                                                     | Finding                                                                                                                                      |
-| --- | -------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | High     | `URpySession::StartLabel`                                 | `script->labels[label]` asserts on a missing label; use `labels.Find`. Fixed in step 1.                                                      |
-| 2   | High     | `URpySession::Run` + managers                             | `false` means both "wait" and "failed", so a failure stalls the script. Fixed in step 3.                                                     |
-| 3   | High     | `UKishiRpyShowManagerWidgetBase::Show`                    | Returns `true` only for sprites, so video and level-sequence images stall the script. Fixed in step 3.                                       |
-| 4   | High     | `RpyInstruction.h`                                        | `operator&` performs a bitwise OR; `operator!` returns `bool(value)` instead of its negation. Fixed in step 1.                               |
-| 5   | Medium   | Session vs managers                                       | Show, scene and statement state is stored twice and can drift; `LoadFromState` replays `Show` / `Say` instead of calling `Set*ManagerState`. |
-| 6   | Medium   | Manager interfaces                                        | Both `Get*ManagerState` and `GetCurrent*State` exist; the `_Implementation` constness doesn't match the UFUNCTION.                           |
-| 7   | Medium   | Interpreter, BaseManager, MainActor, LayeredSpriteHandler | Interface events declared `= 0` (also in `IRpyCameraAnchor`): optional hooks, and required ops that should log and return a default.         |
-| 8   | Medium   | Show manager Base, `ARpyMainActorBase`                    | Direct `Show_Implementation` / `CloseVN_Implementation` calls bypass Blueprint overrides.                                                    |
-| 9   | Medium   | `IAnimatable`                                             | No defaults and no categories; `HandleAnimationEnded` is named like a handler but documented as a hook.                                      |
-| 10  | Low      | `URpyComponent`                                           | `TSubclassOf<URpyScriptInterpreter>` names an interface class, which can't be instantiated.                                                  |
-| 11  | Low      | `URpySession`                                             | `ClearScript` ignores its argument; `sceneState` is assigned twice; `try` / `catch` needs `bEnableExceptions`.                               |
-| 12  | Low      | Naming                                                    | Lowercase getters, `const` setters on `mutable` fields, `Rpy` prefix left over after the switch to XML, `KishiLib` missing from the uplugin. |
+| #   | Severity | Where                                                     | Finding                                                                                                                                               |
+| --- | -------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | High     | `URpySession::StartLabel`                                 | `script->labels[label]` asserts on a missing label; use `labels.Find`. Fixed in step 1.                                                               |
+| 2   | High     | `URpySession::Run` + managers                             | `false` means both "wait" and "failed", so a failure stalls the script. Fixed in step 3.                                                              |
+| 3   | High     | `UKishiRpyShowManagerWidgetBase::Show`                    | Returns `true` only for sprites, so video and level-sequence images stall the script. Fixed in step 3.                                                |
+| 4   | High     | `RpyInstruction.h`                                        | `operator&` performs a bitwise OR; `operator!` returns `bool(value)` instead of its negation. Fixed in step 1.                                        |
+| 5   | Medium   | Session vs managers                                       | Show, scene and statement state is stored twice and can drift; `LoadFromState` replays `Show` / `Say` instead of calling `Set*ManagerState`.          |
+| 6   | Medium   | Manager interfaces                                        | Both `Get*ManagerState` and `GetCurrent*State` exist; the `_Implementation` constness doesn't match the UFUNCTION. Fixed in step 4.                   |
+| 7   | Medium   | Interpreter, BaseManager, MainActor, LayeredSpriteHandler | Interface events declared `= 0` (also in `IRpyCameraAnchor`): optional hooks, and required ops that should log and return a default. Fixed in step 4. |
+| 8   | Medium   | Show manager Base, `ARpyMainActorBase`                    | Direct `Show_Implementation` / `CloseVN_Implementation` calls bypass Blueprint overrides. Fixed in step 4.                                            |
+| 9   | Medium   | `IAnimatable`                                             | No defaults and no categories; `HandleAnimationEnded` is named like a handler but documented as a hook. Fixed in step 4.                              |
+| 10  | Low      | `URpyComponent`                                           | `TSubclassOf<URpyScriptInterpreter>` names an interface class, which can't be instantiated.                                                           |
+| 11  | Low      | `URpySession`                                             | `ClearScript` ignores its argument; `sceneState` is assigned twice; `try` / `catch` needs `bEnableExceptions`.                                        |
+| 12  | Low      | Naming                                                    | Lowercase getters, `const` setters on `mutable` fields, `Rpy` prefix left over after the switch to XML, `KishiLib` missing from the uplugin.          |
 
 ### Target architecture
 
@@ -50,25 +50,25 @@ Other parts of the target:
 
 ## Roadmap
 
-Steps 1, 2, 3, 10 and the C++ of 11 are done (step 3 still needs its Blueprint check). Legacy was deleted on 2026-11-22, so the remaining steps only touch C++ and the VN2D, VN3D and FPS Blueprints built on the Bases, with no Legacy Blueprint rework. Steps 4 and 5 come next. Step 13's content moves can run alongside them, since they touch only assets and settings.
+Steps 1, 2, 3, 4, 10 and the C++ of 11 are done (steps 3 and 4 still need a Blueprint compile in the editor). Legacy was deleted on 2026-11-22, so the remaining steps only touch C++ and the VN2D, VN3D and FPS Blueprints built on the Bases, with no Legacy Blueprint rework. Step 5 comes next. Step 13's content moves can run alongside it, since they touch only assets and settings.
 
-Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry in `Config/DefaultEngine.ini` so existing Blueprint nodes keep resolving.
+Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry so existing Blueprint nodes keep resolving. Put plugin redirects in `Plugins/KishiVisualNovel/Config/DefaultKishiVisualNovel.ini` (create it on first use), so they ship with the plugin; engine plugins such as Paper2D do the same in their own ini. A rename that only changes case needs no redirect, since FName lookups ignore case.
 
-| #   | Step                    | C++ change                                                                                                                                                                       | Blueprint rework                                                                        | Other actions                                                        |
-| --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| 1   | Stabilize the session   | `labels.Find`; fix `operator&` / `operator!`; `ClearScript` removes only its argument; drop `try` / `catch`; `InterpreterClass` becomes `TSubclassOf<UObject>` + `MustImplement` | None                                                                                    | Test that a missing label logs an error instead of asserting         |
-| 2   | Port the VN2D managers  | Only hooks a Base is missing                                                                                                                                                     | Done: VN2D Choice, Scene, Show, Audio, Save menu and Save slot from the C++ Bases       | Done: Legacy deleted (2026-11-22)                                    |
-| 3   | Instruction result enum | Done: `ERpyInstructionResult` on `Execute()` and on every manager operation; `FailedInstructionPolicy` setting                                                                   | Check `VN2D_RPYSceneManager` / `VN2D_RPYShowManager` for overrides; refresh return pins | Done: `Failed` logs and advances by default                          |
-| 4   | Tidy the interfaces     | No `= 0` on interface events; remove `GetCurrent*State`; fix `const`; add categories; use `Execute_*` at self-calls; PascalCase menu functions                                   | Refresh the state and menu nodes in the VN2D widgets                                    | `FunctionRedirects`                                                  |
-| 5   | Libraries               | Rename the interpreter library; add five manager libraries; move shared logic into `*_Default`                                                                                   | Check that the VN2D nodes still resolve                                                 | `ClassRedirects`                                                     |
-| 6   | Showable assets         | Asset hierarchy, registry, `SetShowableAsset`, slimmer `FRpyImage` with a `PostLoad` conversion                                                                                  | Reparent `WGT_Sprite`, or implement `SetShowableAsset`                                  | Create assets; fill the registry; resave scripts and layered sprites |
-| 7   | Unify show and scene    | Shared show Library; delete the `ShownWidgets` path; merge the option structs                                                                                                    | Re-wire struct nodes in `KishiWidget`; add a background canvas to `VN2D_SceneManager`   | `StructRedirects`                                                    |
-| 8   | World-space managers    | Show and scene manager **components** (see step 10), not Actor Bases                                                                                                             | Optional: reparent world showables                                                      | Decide which managers need world space                               |
-| 9   | Docs                    | None                                                                                                                                                                             | None                                                                                    | Point `CLAUDE.md` at `@AGENTS.md`; add the architecture rules        |
-| 10  | Components over actors  | Component counterpart of every class in `Public/Deprecated/Actors`; `IRpyMainComponent`; actor-or-component lookup libraries                                                     | Done: the VN styles and interaction actors use the components                           | Deprecate `Public/Deprecated/Actors`, which no asset uses            |
-| 11  | Interaction             | Interaction interfaces and handler components; `URpyFirstPersonComponent`                                                                                                        | Finish the script chain in `Blueprints/InteractableActors`                              | Re-enter placed values in `DetectiveOffice_Layout` and `FPS_demo`    |
-| 12  | Speakers                | `ISpeaker` and `UKishiCharacterAsset` (done); `FRpySpeaker`, `SayAs`, voice playback                                                                                             | None until the statement manager applies the styles                                     | Fixtures, `XML_FORMAT.md`, `DA_John`                                 |
-| 13  | Layout and styles       | Configurable search folders and feature folders (done); `UKishiVNStyleAsset`; `URpyComponent` takes a style                                                                      | Move Content into `Core`, `Styles`, `Demo`, `Tests`, `ThirdParty`; `_Template` style    | Fix up redirectors; re-import fixtures; rerun the reference scan     |
+| #   | Step                    | C++ change                                                                                                                                                                       | Blueprint rework                                                                      | Other actions                                                        |
+| --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1   | Stabilize the session   | `labels.Find`; fix `operator&` / `operator!`; `ClearScript` removes only its argument; drop `try` / `catch`; `InterpreterClass` becomes `TSubclassOf<UObject>` + `MustImplement` | None                                                                                  | Test that a missing label logs an error instead of asserting         |
+| 2   | Port the VN2D managers  | Only hooks a Base is missing                                                                                                                                                     | Done: VN2D Choice, Scene, Show, Audio, Save menu and Save slot from the C++ Bases     | Done: Legacy deleted (2026-11-22)                                    |
+| 3   | Instruction result enum | Done: `ERpyInstructionResult` on `Execute()` and on every manager operation; `FailedInstructionPolicy` setting                                                                   | None: no Blueprint overrides or calls a manager operation (export, 2026-11-22)        | Done: `Failed` logs and advances by default                          |
+| 4   | Tidy the interfaces     | Done: no `= 0` on interface events; `GetCurrent*State` removed; `const` fixed; categories; `Execute_*` at self-calls; PascalCase menu functions                                  | None: no Blueprint uses the removed or renamed functions (export, 2026-11-22)         | None: the menu renames change only case, so no redirects             |
+| 5   | Libraries               | Rename the interpreter library; add five manager libraries; move shared logic into `*_Default`                                                                                   | Check that the VN2D nodes still resolve                                               | `ClassRedirects`                                                     |
+| 6   | Showable assets         | Asset hierarchy, registry, `SetShowableAsset`, slimmer `FRpyImage` with a `PostLoad` conversion                                                                                  | Reparent `WGT_Sprite`, or implement `SetShowableAsset`                                | Create assets; fill the registry; resave scripts and layered sprites |
+| 7   | Unify show and scene    | Shared show Library; delete the `ShownWidgets` path; merge the option structs                                                                                                    | Re-wire struct nodes in `KishiWidget`; add a background canvas to `VN2D_SceneManager` | `StructRedirects`                                                    |
+| 8   | World-space managers    | Show and scene manager **components** (see step 10), not Actor Bases                                                                                                             | Optional: reparent world showables                                                    | Decide which managers need world space                               |
+| 9   | Docs                    | None                                                                                                                                                                             | None                                                                                  | Point `CLAUDE.md` at `@AGENTS.md`; add the architecture rules        |
+| 10  | Components over actors  | Component counterpart of every class in `Public/Deprecated/Actors`; `IRpyMainComponent`; actor-or-component lookup libraries                                                     | Done: the VN styles and interaction actors use the components                         | Deprecate `Public/Deprecated/Actors`, which no asset uses            |
+| 11  | Interaction             | Interaction interfaces and handler components; `URpyFirstPersonComponent`                                                                                                        | Finish the script chain in `Blueprints/InteractableActors`                            | Re-enter placed values in `DetectiveOffice_Layout` and `FPS_demo`    |
+| 12  | Speakers                | `ISpeaker` and `UKishiCharacterAsset` (done); `FRpySpeaker`, `SayAs`, voice playback                                                                                             | None until the statement manager applies the styles                                   | Fixtures, `XML_FORMAT.md`, `DA_John`                                 |
+| 13  | Layout and styles       | Configurable search folders and feature folders (done); `UKishiVNStyleAsset`; `URpyComponent` takes a style                                                                      | Move Content into `Core`, `Styles`, `Demo`, `Tests`, `ThirdParty`; `_Template` style  | Fix up redirectors; re-import fixtures; rerun the reference scan     |
 
 ## Checklist
 
@@ -77,7 +77,12 @@ Finish each step with the following:
 - [ ] Build `JailBrainEditor`.
 - [ ] Compile all Blueprints.
 - [ ] Play one VN2D script from start to finish.
-- [ ] Re-run the Node2Code export to check Blueprint usage.
+- [ ] Re-run the Node2Code export to check Blueprint usage. It runs headless (the VS Code task, or `UE4Editor-Cmd.exe` with the same arguments) while the editor is closed or open; it crashes in `OculusEditor` on exit (code 3) after writing every file, which is harmless.
+
+Found by the export (2026-11-22):
+
+- [ ] `VN2D_RPYMainActor`'s default script is `/KishiVisualNovel/Scripts/Tests/00_hello_world`, which was deleted when the scripts moved to `Scripts/Fixtures` and `Scripts/Samples`. Point it at a sample script, or the VN2D demo starts with no script.
+- `DetectiveStart/FirstPerson/Blueprints/FirstPersonCharacter` doesn't compile (`CallActionOnFocusedActor` no longer exists); already listed in step 11.
 
 ### Open decisions
 
@@ -158,8 +163,9 @@ C++ (built 2026-11-22):
 
 Blueprint (in the editor):
 
-- [ ] Open `VN2D_RPYSceneManager` and `VN2D_RPYShowManager`. The asset scan finds the names `Scene` / `Show` in them, which may be overrides of the interface events. If either overrides an operation, its return pin changed from Boolean to `ERpyInstructionResult`: refresh the node and return `Continue`, `Wait` or `Failed`. Better, delete the override, since the Bases implement these in C++.
-- [ ] Compile all Blueprints and fix any `Say` / `Show` / `PlayAudio` call node whose Boolean return pin was wired.
+- [x] `VN2D_RPYSceneManager` and `VN2D_RPYShowManager` don't override `Scene` / `Show`: each has only an EventGraph (Node2Code export, 2026-11-22). The names the binary scan found were widget names, not overrides.
+- [x] No Blueprint calls a manager operation, so no Boolean return pin was wired (same export).
+- [ ] Compile all Blueprints in the editor.
 
 Tests:
 
@@ -168,14 +174,27 @@ Tests:
 
 ### 4. Tidy the interfaces
 
-- [ ] Remove every `= 0` on an interface event, in `IRpyScriptInterpreter`, `IRpyScriptInterpreterBaseManager`, `IRpyMainActor`, `ILayeredSpriteHandler` and `IRpyCameraAnchor`. Hooks get empty bodies. Required operations (`ILayeredSpriteHandler` get/set, `IRpyMainActor::IsActive` / `GetCurrentSession`, the `IRpyCameraAnchor` getters) get a fallback that logs an error and returns a safe default.
-- [ ] Remove `GetCurrent*State`, keeping one `Get*ManagerState` / `Set*ManagerState` pair per manager.
-- [ ] Make `_Implementation` constness match each UFUNCTION.
-- [ ] `IAnimatable`: add `Required` / `Hooks` categories and defaults, and rename `HandleAnimationEnded` to `OnAnimationEnded` if it is a hook.
-- [ ] `ILayeredSpriteHandler`: add categories.
-- [ ] Use `IRpyShowManager::Execute_Show` in `SetShowManagerState`, and `Execute_CloseVN` in `StartRpyScript`.
-- [ ] Rename `getSaveMenuVisible`, `setSaveMenuVisible` and similar functions to PascalCase, and add `FunctionRedirects`. Do this early: the statement manager, save menu and VN player Bases already call them, and each new Base adds call sites.
-- [ ] Blueprint: delete any `GetCurrent*State` overrides and refresh the menu nodes in the VN2D widgets (`VN2D_RPYPlayer`, `VN2D_StatementManager`, `VN2D_SaveMenu`).
+Decision (2026-11-22): `HandleAnimationEnded` keeps its name. It is the implementer's required handler: the implementer calls it on itself when an animation finishes or is skipped, and the Bases broadcast their `OnAnimationEnded` delegate from it, which is the listener hook. Renaming the function to `OnAnimationEnded` would also clash with that delegate. Its docs and category now say so.
+
+C++ (built 2026-11-22):
+
+- [x] No interface event is declared `= 0`. Hooks have empty bodies under `<Interface>|Hooks`: `OnDialogueViseme` / `OnScriptComplete` on `IRpyScriptInterpreter`, the same plus `OnInstructionComplete` on `IRpyScriptInterpreterBaseManager`, `IRpyCloseVNEventListener::OnCloseVNEvent`, and `IPlayerAnchor::OnEnterAnchor` / `OnExitAnchor`.
+- [x] Required operations log an error and return a safe default, under `<Interface>|Required` with a tooltip: `IRpyMainActor`, `ILayeredSpriteHandler`, `IRpyCameraAnchor`, and also `IRpySaveGame`, `IRpyStateful`, `IAnimatable` and `IPlayerAnchor`, which the audit missed. The last two declared no `_Implementation`, so UHT's generated defaults failed silently. `IPlayerAnchor::GetViewLimits` falls back to no limits, so a missing implementation never locks the view.
+- [x] Removed `GetCurrent*State` from the five manager interfaces and their Bases; one `Get*ManagerState` / `Set*ManagerState` pair per manager remains. They were the only UFUNCTIONs whose `_Implementation` constness differed from the declaration.
+- [x] `IAnimatable` and `ILayeredSpriteHandler` have `Required` / `Hooks` categories. `HandleAnimationEnded` is now `BlueprintCallable`, so a Blueprint implementer can call it.
+- [x] Self-calls go through `Execute_*`: `IsAnimating` / `Skip` in `UKishiAnimationComponent` and `UKishiShowableWidget`, `GetLayerDisplay` in `UKishiLayeredSpriteWidgetBase`, `CloseVN` in `ARpyMainActorBase::StartRpyScript`. `SetShowManagerState` has used `Execute_Show` since step 2. An override calling its parent's `_Implementation` (the layered sprite Base calling `UKishiShowableWidget::Show_Implementation`) is a Super call and stays.
+- [x] `getSaveMenuVisible` / `setSaveMenuVisible` and the load, config and backlog pairs are now `GetSaveMenuVisible` / `SetSaveMenuVisible` and so on. The setters are no longer `const`, so the VN player Base drops `mutable` and `const_cast` (part of finding 12). No `FunctionRedirects`: the rename only changes case, and FName lookups ignore case.
+
+Blueprint:
+
+- [x] No Blueprint uses `GetCurrent*State` or the menu functions, and none overrides a function whose signature changed (Node2Code export, 2026-11-22). `FPS_RpyMainActor` implements `IRpyMainActor` and `IRpyCloseVNEventListener` in Blueprint; their signatures are unchanged.
+- [ ] Compile all Blueprints in the editor.
+
+Tests:
+
+- [x] In a VN2D script, open and close the save and load menus from the statement manager's keys and from the save menu's Cancel; save and load a slot.
+- [x] Change a layered sprite's expression with a whole-image swap; the swap completes and the script continues.
+- [x] Anchor to a `PlayerAnchorComponent`: the view limits still apply.
 
 ### 5. Libraries
 
@@ -252,6 +271,7 @@ C++ (built 2026-11-07):
   - The state was named `RpyMainActorState`.
 
   `InterpreterClass`, `StartScript` and `CloseScript` are removed; no Blueprint used them.
+
 - [x] Add `UPlayerAnchorComponent`. The anchor transform is relative to the component. It uses `OnAnchorEntered` / `OnAnchorExited` delegates instead of BlueprintImplementableEvents, and it tracks who is anchored (`bSingleOccupant`).
 - [x] Add `URpyCameraAnchorComponent`. Its camera is the first camera below it, then the owner's first camera; `SetCameraComponent` overrides that.
 - [x] Add `URpyCloseVNEventListenerComponent`, which broadcasts `OnVNClosed`.

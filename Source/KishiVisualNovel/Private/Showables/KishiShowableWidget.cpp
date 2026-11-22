@@ -13,10 +13,10 @@ UKishiShowableWidget::UKishiShowableWidget(const FObjectInitializer& ObjectIniti
 
 void UKishiShowableWidget::Animate_Implementation(FVector From, FVector To, bool bUseFrom, EKishiAnimationType Type, float Delay, EKishiAnimationSpace Space, float Duration)
 {
-	if (IsAnimating_Implementation())
+	if (IAnimatable::Execute_IsAnimating(this))
 	{
 		UE_LOG(LogTemp, Log, TEXT("KishiShowableWidget: skipping active animation before starting the next one."));
-		Skip_Implementation();
+		IAnimatable::Execute_Skip(this);
 	}
 	if (Space == EKishiAnimationSpace::World)
 	{
@@ -128,7 +128,7 @@ void UKishiShowableWidget::ApplyAnimationValue(float Progress)
 
 void UKishiShowableWidget::Skip_Implementation()
 {
-	if (!IsAnimating_Implementation()) return;
+	if (!IAnimatable::Execute_IsAnimating(this)) return;
 	ApplyAnimationValue(1.0f);
 	FinishAnimation();
 }
@@ -162,7 +162,7 @@ void UKishiShowableWidget::HandleAnimationEnded_Implementation()
 
 void UKishiShowableWidget::Show_Implementation(const FKishiShowableOptions& Options)
 {
-	if (IsAnimating_Implementation()) IAnimatable::Execute_Skip(this);
+	if (IAnimatable::Execute_IsAnimating(this)) IAnimatable::Execute_Skip(this);
 	bHideAfterAnimation = false;
 	bFadeOut = false;
 	// Not hit-testable itself, so a shown image never blocks clicks meant for the dialogue underneath.
@@ -177,7 +177,7 @@ void UKishiShowableWidget::Show_Implementation(const FKishiShowableOptions& Opti
 
 void UKishiShowableWidget::Hide_Implementation(const FKishiShowableOptions& Options)
 {
-	if (IsAnimating_Implementation()) IAnimatable::Execute_Skip(this);
+	if (IAnimatable::Execute_IsAnimating(this)) IAnimatable::Execute_Skip(this);
 	bHideAfterAnimation = true;
 	bFadeOut = Options.bAnimateOpacity || Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Dissolve || Options.Type == EKishiAnimationType::Blur;
 	VNSHOW_LOG("hide attributes='%s' type=%s fadeOut=%d, collapses when the animation ends", *Options.Attributes, *UEnum::GetValueAsString(Options.Type), bFadeOut ? 1 : 0);

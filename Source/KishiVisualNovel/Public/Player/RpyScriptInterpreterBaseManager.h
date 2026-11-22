@@ -25,17 +25,17 @@ public:
   TScriptInterface<IRpyScriptInterpreter> GetInterpreter() const;
   virtual TScriptInterface<IRpyScriptInterpreter> GetInterpreter_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreterBaseManager::GetInterpreter")); return {}; }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreterBaseManager|Hooks", meta = (ToolTip = "Optional listener: respond when an instruction completes."))
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreterBaseManager|Hooks", meta = (ToolTip = "Optional listener: respond when an instruction completes. The default does nothing."))
   void OnInstructionComplete();
-  virtual void OnInstructionComplete_Implementation() = 0;
+  virtual void OnInstructionComplete_Implementation() {}
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreterBaseManager|Hooks", meta = (ToolTip = "Optional listener: respond to dialogue viseme updates."))
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreterBaseManager|Hooks", meta = (ToolTip = "Optional listener: respond to dialogue viseme updates. The default does nothing."))
   void OnDialogueViseme(FName name, EMouthViseme viseme, float timeOffset);
-  virtual void OnDialogueViseme_Implementation(FName name, EMouthViseme viseme, float timeOffset) = 0;
+  virtual void OnDialogueViseme_Implementation(FName name, EMouthViseme viseme, float timeOffset) {}
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreterBaseManager|Hooks", meta = (ToolTip = "Optional listener: respond when the script completes."))
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreterBaseManager|Hooks", meta = (ToolTip = "Optional listener: respond when the script completes. The default does nothing."))
   void OnScriptComplete();
-  virtual void OnScriptComplete_Implementation() = 0;
+  virtual void OnScriptComplete_Implementation() {}
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreterBaseManager|Required", meta = (ToolTip = "Required: reset this manager to its initial state."))
   void Reset();

@@ -42,10 +42,6 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: play the sound on the channel, replacing what is playing there. Return Continue, or Failed, after logging why, if the channel or sound is missing."))
   ERpyInstructionResult PlayAudio(FName channel, FRpyAudio audio, FRpyAudioOptions options);
   virtual ERpyInstructionResult PlayAudio_Implementation(FName channel, FRpyAudio audio, FRpyAudioOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::PlayAudio")); return ERpyInstructionResult::Failed; }
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyAudioManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  TArray<FRpyAudioManagerState> GetCurrentAudioStates();
-  virtual TArray<FRpyAudioManagerState> GetCurrentAudioStates_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyAudioManager::GetCurrentAudioStates")); return {}; }
 };
 
 // UCLASS()

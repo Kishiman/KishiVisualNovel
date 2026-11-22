@@ -54,9 +54,9 @@ void UKishiSaveMenuWidgetBase::RequestClose()
 	if (IsValid(InterpreterObject) && InterpreterObject->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
 	{
 		if (Mode == ERpySaveMenuMode::Save)
-			IRpyScriptInterpreter::Execute_setSaveMenuVisible(InterpreterObject, false);
+			IRpyScriptInterpreter::Execute_SetSaveMenuVisible(InterpreterObject, false);
 		else
-			IRpyScriptInterpreter::Execute_setLoadMenuVisible(InterpreterObject, false);
+			IRpyScriptInterpreter::Execute_SetLoadMenuVisible(InterpreterObject, false);
 	}
 	// Also close directly, in case there is no interpreter or it does not close its menu.
 	IRpySaveMenu::Execute_HandleClose(this);

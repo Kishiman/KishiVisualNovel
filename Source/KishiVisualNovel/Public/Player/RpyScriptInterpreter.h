@@ -31,36 +31,36 @@ public:
   virtual void Shutdown_Implementation() { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::Shutdown")); }
   // menus
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Required", meta = (ToolTip = "Required: return whether the save menu is visible."))
-  bool getSaveMenuVisible() const;
-  virtual bool getSaveMenuVisible_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::getSaveMenuVisible")); return {}; }
+  bool GetSaveMenuVisible() const;
+  virtual bool GetSaveMenuVisible_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::GetSaveMenuVisible")); return {}; }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Required", meta = (ToolTip = "Required: set the save menu visibility."))
-  void setSaveMenuVisible(bool bVisible) const;
-  virtual void setSaveMenuVisible_Implementation(bool bVisible) const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::setSaveMenuVisible")); }
+  void SetSaveMenuVisible(bool bVisible);
+  virtual void SetSaveMenuVisible_Implementation(bool bVisible) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::SetSaveMenuVisible")); }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Required", meta = (ToolTip = "Required: return whether the load menu is visible."))
-  bool getLoadMenuVisible() const;
-  virtual bool getLoadMenuVisible_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::getLoadMenuVisible")); return {}; }
+  bool GetLoadMenuVisible() const;
+  virtual bool GetLoadMenuVisible_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::GetLoadMenuVisible")); return {}; }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Required", meta = (ToolTip = "Required: set the load menu visibility."))
-  void setLoadMenuVisible(bool bVisible) const;
-  virtual void setLoadMenuVisible_Implementation(bool bVisible) const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::setLoadMenuVisible")); }
+  void SetLoadMenuVisible(bool bVisible);
+  virtual void SetLoadMenuVisible_Implementation(bool bVisible) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::SetLoadMenuVisible")); }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Required", meta = (ToolTip = "Required: return whether the config menu is visible."))
-  bool getConfigMenuVisible() const;
-  virtual bool getConfigMenuVisible_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::getConfigMenuVisible")); return {}; }
+  bool GetConfigMenuVisible() const;
+  virtual bool GetConfigMenuVisible_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::GetConfigMenuVisible")); return {}; }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Required", meta = (ToolTip = "Required: set the config menu visibility."))
-  void setConfigMenuVisible(bool bVisible) const;
-  virtual void setConfigMenuVisible_Implementation(bool bVisible) const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::setConfigMenuVisible")); }
+  void SetConfigMenuVisible(bool bVisible);
+  virtual void SetConfigMenuVisible_Implementation(bool bVisible) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::SetConfigMenuVisible")); }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Required", meta = (ToolTip = "Required: return whether the backlog menu is visible."))
-  bool getBackLogMenuVisible() const;
-  virtual bool getBackLogMenuVisible_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::getBackLogMenuVisible")); return {}; }
+  bool GetBackLogMenuVisible() const;
+  virtual bool GetBackLogMenuVisible_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::GetBackLogMenuVisible")); return {}; }
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Required", meta = (ToolTip = "Required: set the backlog menu visibility."))
-  void setBackLogMenuVisible(bool bVisible) const;
-  virtual void setBackLogMenuVisible_Implementation(bool bVisible) const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::setBackLogMenuVisible")); }
+  void SetBackLogMenuVisible(bool bVisible);
+  virtual void SetBackLogMenuVisible_Implementation(bool bVisible) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::SetBackLogMenuVisible")); }
 
   // instructions
 
@@ -96,13 +96,13 @@ public:
   void HandleInstructionComplete();
   virtual void HandleInstructionComplete_Implementation() { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyScriptInterpreter::HandleInstructionComplete")); }
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Hooks", meta = (ToolTip = "Optional listener: respond to dialogue viseme updates."))
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Hooks", meta = (ToolTip = "Optional listener: respond to dialogue viseme updates. The default does nothing."))
   void OnDialogueViseme(FName name, EMouthViseme viseme, float timeOffset);
-  virtual void OnDialogueViseme_Implementation(FName name, EMouthViseme viseme, float timeOffset) = 0;
+  virtual void OnDialogueViseme_Implementation(FName name, EMouthViseme viseme, float timeOffset) {}
 
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Hooks", meta = (ToolTip = "Optional listener: respond when the script completes."))
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyScriptInterpreter|Hooks", meta = (ToolTip = "Optional listener: respond when the script completes. The default does nothing."))
   void OnScriptComplete();
-  virtual void OnScriptComplete_Implementation() = 0;
+  virtual void OnScriptComplete_Implementation() {}
 };
 
 UCLASS(MinimalAPI)

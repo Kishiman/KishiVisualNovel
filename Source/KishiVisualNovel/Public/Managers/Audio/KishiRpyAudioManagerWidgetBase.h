@@ -30,7 +30,6 @@ public:
 	virtual ERpyInstructionResult StopAudio_Implementation(FName Channel, FRpyAudioOptions Options) override;
 	virtual ERpyInstructionResult QueueAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options) override;
 	virtual ERpyInstructionResult PlayAudio_Implementation(FName Channel, FRpyAudio Audio, FRpyAudioOptions Options) override;
-	virtual TArray<FRpyAudioManagerState> GetCurrentAudioStates_Implementation() const override;
 
 protected:
 	virtual void NativeOnInitialized() override;

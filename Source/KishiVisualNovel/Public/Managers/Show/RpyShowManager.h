@@ -34,10 +34,6 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyShowManager|Required", meta = (ToolTip = "Required: hide the image with this tag. Return Continue when it is hidden or when no image has that tag, or Failed, after logging why, if it cannot be hidden."))
   ERpyInstructionResult Hide(FName tag, FRpySceneOptions options);
   virtual ERpyInstructionResult Hide_Implementation(FName tag, FRpySceneOptions options) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyShowManager::Hide")); return ERpyInstructionResult::Failed; }
-
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyShowManager|Required", meta = (ToolTip = "Required: implement this manager operation."))
-  TArray<FRpyShowManagerState> GetCurrentShowStates();
-  virtual TArray<FRpyShowManagerState> GetCurrentShowStates_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyShowManager::GetCurrentShowStates")); return {}; }
 };
 
 // UCLASS()

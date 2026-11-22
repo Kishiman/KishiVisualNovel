@@ -17,7 +17,7 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
   - `Managers/<Statement|Choice|Scene|Show|Audio>/`: one folder per script manager. New script-driven mechanics (a dialogue log, evidence, skill checks) get their own folder here, named for the mechanic, not for a game or style.
   - `Save/`, `Speakers/`, `Showables/`, `World/` (VN host and anchor components), `Interaction/`, `Animation/`, `Assets/` (shared asset base classes), `Settings/` (`UKishiVisualNovelSettings`, including the asset search folders).
   - `Deprecated/Actors/`: the old Actor Bases, kept unchanged for compatibility.
-  - Moving a header changes only `#include` paths; Blueprints reference classes by module and name, so no redirect is needed. Renaming a class, struct or UFUNCTION needs a `[CoreRedirects]` entry.
+  - Moving a header changes only `#include` paths; Blueprints reference classes by module and name, so no redirect is needed. Renaming a class, struct or UFUNCTION needs a `[CoreRedirects]` entry in `Config/DefaultKishiVisualNovel.ini`, so the redirect ships with the plugin; a rename that only changes case needs none, since FName lookups ignore case.
 - `Source/KishiVisualNovelImporter`: editor-only importers and asset editors. Keep editor dependencies and Slate editor widgets in this module.
 - `Source/Kishi`: shared runtime helpers, including string and tagged-text utilities.
 - `Scripts/xml`: current XML scripts and test fixtures.
@@ -41,6 +41,7 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
 - Keep reflected types compatible with UnrealHeaderTool. A `USTRUCT` cannot contain `UFUNCTION`; put Blueprint functions in a `UBlueprintFunctionLibrary`. Each reflected header must include its own `.generated.h` as the final include.
 - Use `UPROPERTY` for UObject references that need to be retained by the garbage collector. Do not manually `delete` UObjects.
 - For Blueprint event functions declared on a `UINTERFACE`, dispatch through `IInterface::Execute_Function(UObject*, ...)`. Never call the event on an object/interface pointer or call another object's `_Implementation` directly; that bypasses Blueprint dispatch and can assert. Implementers should define or override `_Implementation` as the event body, while call sites use `Execute_*`.
+- Never declare an interface event's `_Implementation` `= 0`, and declare one for every event so UHT does not generate a silent default. Hooks get an empty body; required operations get a fallback that logs an error and returns a safe default.
 - Treat `*Base` classes as optional proposed implementations of their interfaces. When behavior depends on an interface, check `UClass::ImplementsInterface` and dispatch through `IInterface::Execute_*`; do not cast to a plugin Base class. Put shared configuration operations, such as assigning an interpreter to a manager, on the relevant interface so direct implementers work too.
 - Keep editor-only classes and module dependencies in `KishiVisualNovelImporter`; runtime code must not depend on editor modules.
 - Keep behavior-preserving changes localized. When making an intentional breaking format or API change, update the XML documentation and relevant fixtures in the same change.

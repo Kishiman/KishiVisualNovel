@@ -77,18 +77,15 @@ class KISHIVISUALNOVEL_API IRpyStateful
   GENERATED_BODY()
 
 public:
-  // get State Class
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyStateful|Required", meta = (ToolTip = "Required: return the URpyState subclass that SaveToState creates. IRpyStatefulActor and IRpyStatefulComponent provide a default."))
   TSubclassOf<URpyState> GetStateClass();
-  virtual TSubclassOf<URpyState> GetStateClass_Implementation() = 0;
+  virtual TSubclassOf<URpyState> GetStateClass_Implementation() { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyStateful::GetStateClass")); return nullptr; }
 
-  // Save state to State
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyStateful|Required", meta = (ToolTip = "Required: create a state object in Outer that holds this object's current state."))
   URpyState *SaveToState(UObject *Outer);
-  virtual URpyState *SaveToState_Implementation(UObject *Outer) = 0;
+  virtual URpyState *SaveToState_Implementation(UObject *Outer) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyStateful::SaveToState")); return nullptr; }
 
-  // Load state from State
-  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Rpy")
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "IRpyStateful|Required", meta = (ToolTip = "Required: restore this object from State, which SaveToState created."))
   void LoadFromState(const URpyState *State);
-  virtual void LoadFromState_Implementation(const URpyState *State) = 0;
+  virtual void LoadFromState_Implementation(const URpyState *State) { UE_LOG(LogTemp, Error, TEXT("Required Blueprint implementation missing: IRpyStateful::LoadFromState")); }
 };

@@ -425,7 +425,7 @@ void UKishiLayeredSpriteWidgetBase::DisplayLayersByAttribute(const FString &Attr
 	LayeredSprite->FindNamesByAttribute(Attribute, MatchingNames, InvertedNames);
 	for (const FSpriteLayer &Layer : LayeredSprite->layers)
 	{
-		const bool bDisplayed = GetLayerDisplay_Implementation(Layer.name);
+		const bool bDisplayed = ILayeredSpriteHandler::Execute_GetLayerDisplay(this, Layer.name);
 		if (MatchingNames.Contains(Layer.name) && !bDisplayed)
 		{
 			NamesToShow.Add(Layer.name);
@@ -453,7 +453,7 @@ void UKishiLayeredSpriteWidgetBase::UpdateVisemeLayer(EMouthViseme Viseme, float
 
 	for (const FSpriteLayer &Layer : VisemeLayers)
 	{
-		if (GetLayerDisplay_Implementation(Layer.name))
+		if (ILayeredSpriteHandler::Execute_GetLayerDisplay(this, Layer.name))
 		{
 			NeutralVisemeLayer = Layer.name;
 			break;

@@ -102,11 +102,6 @@ ERpyInstructionResult UKishiRpyAudioManagerWidgetBase::PlayAudio_Implementation(
 	return ERpyInstructionResult::Continue;
 }
 
-TArray<FRpyAudioManagerState> UKishiRpyAudioManagerWidgetBase::GetCurrentAudioStates_Implementation() const
-{
-	return {AudioState};
-}
-
 void UKishiRpyAudioManagerWidgetBase::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();

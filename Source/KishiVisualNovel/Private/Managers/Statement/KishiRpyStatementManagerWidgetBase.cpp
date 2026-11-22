@@ -54,13 +54,13 @@ UObject *UKishiRpyStatementManagerWidgetBase::GetInterpreterObject() const
 void UKishiRpyStatementManagerWidgetBase::HandleSaveButtonClicked()
 {
 	if (UObject *InterpreterObject = GetInterpreterObject())
-		IRpyScriptInterpreter::Execute_setSaveMenuVisible(InterpreterObject, !IRpyScriptInterpreter::Execute_getSaveMenuVisible(InterpreterObject));
+		IRpyScriptInterpreter::Execute_SetSaveMenuVisible(InterpreterObject, !IRpyScriptInterpreter::Execute_GetSaveMenuVisible(InterpreterObject));
 }
 
 void UKishiRpyStatementManagerWidgetBase::HandleLoadButtonClicked()
 {
 	if (UObject *InterpreterObject = GetInterpreterObject())
-		IRpyScriptInterpreter::Execute_setLoadMenuVisible(InterpreterObject, !IRpyScriptInterpreter::Execute_getLoadMenuVisible(InterpreterObject));
+		IRpyScriptInterpreter::Execute_SetLoadMenuVisible(InterpreterObject, !IRpyScriptInterpreter::Execute_GetLoadMenuVisible(InterpreterObject));
 }
 
 void UKishiRpyStatementManagerWidgetBase::HandleQuickSaveButtonClicked()

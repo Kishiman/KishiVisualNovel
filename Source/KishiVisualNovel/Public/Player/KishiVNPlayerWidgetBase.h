@@ -24,14 +24,14 @@ class KISHIVISUALNOVEL_API UKishiVNPlayerWidgetBase : public UUserWidget, public
 public:
 	virtual void StartUp_Implementation() override;
 	virtual void Shutdown_Implementation() override;
-	virtual bool getSaveMenuVisible_Implementation() const override { return bSaveMenuVisible; }
-	virtual void setSaveMenuVisible_Implementation(bool bVisible) const override;
-	virtual bool getLoadMenuVisible_Implementation() const override { return bLoadMenuVisible; }
-	virtual void setLoadMenuVisible_Implementation(bool bVisible) const override;
-	virtual bool getConfigMenuVisible_Implementation() const override { return bConfigMenuVisible; }
-	virtual void setConfigMenuVisible_Implementation(bool bVisible) const override;
-	virtual bool getBackLogMenuVisible_Implementation() const override { return bBackLogMenuVisible; }
-	virtual void setBackLogMenuVisible_Implementation(bool bVisible) const override;
+	virtual bool GetSaveMenuVisible_Implementation() const override { return bSaveMenuVisible; }
+	virtual void SetSaveMenuVisible_Implementation(bool bVisible) override;
+	virtual bool GetLoadMenuVisible_Implementation() const override { return bLoadMenuVisible; }
+	virtual void SetLoadMenuVisible_Implementation(bool bVisible) override;
+	virtual bool GetConfigMenuVisible_Implementation() const override { return bConfigMenuVisible; }
+	virtual void SetConfigMenuVisible_Implementation(bool bVisible) override;
+	virtual bool GetBackLogMenuVisible_Implementation() const override { return bBackLogMenuVisible; }
+	virtual void SetBackLogMenuVisible_Implementation(bool bVisible) override;
 	virtual void SetSession_Implementation(URpySession *InSession) override;
 	virtual URpySession *GetSession_Implementation() const override { return Session; }
 	virtual TScriptInterface<IRpyAudioManager> GetAudioManager_Implementation() const override;
@@ -44,7 +44,7 @@ public:
 	virtual void OnScriptComplete_Implementation() override;
 
 protected:
-	/** Opened by setSaveMenuVisible and setLoadMenuVisible. Must implement IRpySaveMenu; bound by the name SaveMenu, or found by interface. */
+	/** Opened by SetSaveMenuVisible and SetLoadMenuVisible. Must implement IRpySaveMenu; bound by the name SaveMenu, or found by interface. */
 	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Menus")
 	UUserWidget *SaveMenu = nullptr;
 	// Cached from the widget tree by interface, so manager widget names do not matter.
@@ -63,13 +63,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Rpy")
 	bool bStarted = false;
 	UPROPERTY(BlueprintReadWrite, Category = "Rpy|Menus")
-	mutable bool bSaveMenuVisible = false;
+	bool bSaveMenuVisible = false;
 	UPROPERTY(BlueprintReadWrite, Category = "Rpy|Menus")
-	mutable bool bLoadMenuVisible = false;
+	bool bLoadMenuVisible = false;
 	UPROPERTY(BlueprintReadWrite, Category = "Rpy|Menus")
-	mutable bool bConfigMenuVisible = false;
+	bool bConfigMenuVisible = false;
 	UPROPERTY(BlueprintReadWrite, Category = "Rpy|Menus")
-	mutable bool bBackLogMenuVisible = false;
+	bool bBackLogMenuVisible = false;
 
 	/** Child Blueprint hook called after the native interpreter starts. */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi VN Player Widget Base|Hooks")
@@ -97,5 +97,5 @@ protected:
 	virtual void NativeOnInitialized() override;
 	void DiscoverManagers(bool bWarnOnMissing);
 	void WireManagers();
-	void UpdateSaveMenu(ERpySaveMenuMode MenuMode, bool bVisible) const;
+	void UpdateSaveMenu(ERpySaveMenuMode MenuMode, bool bVisible);
 };

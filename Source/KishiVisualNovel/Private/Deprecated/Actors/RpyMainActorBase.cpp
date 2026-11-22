@@ -32,7 +32,7 @@ void ARpyMainActorBase::StartRpyScript_Implementation(URpyScript *Script, FName 
 
 	if (IsValid(Session))
 	{
-		CloseVN_Implementation();
+		IRpyMainActor::Execute_CloseVN(this);
 	}
 
 	ActiveScript = Script;

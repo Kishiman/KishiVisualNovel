@@ -23,7 +23,7 @@ class KISHIVISUALNOVEL_API URpySaveMenu : public UInterface
 
 /**
  * A menu that lists the save slots and saves into or loads from the selected one.
- * The VN player finds it in its widget tree, gives it the interpreter, and opens it from setSaveMenuVisible and setLoadMenuVisible.
+ * The VN player finds it in its widget tree, gives it the interpreter, and opens it from SetSaveMenuVisible and SetLoadMenuVisible.
  */
 class KISHIVISUALNOVEL_API IRpySaveMenu
 {
