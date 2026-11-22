@@ -15,6 +15,7 @@
 #include "PaperSprite.h"
 #include "TimerManager.h"
 #include "Templates/KishiScriptInterface.h"
+#include "Rpy/BaseRpyGameInstance.h"
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 
@@ -26,6 +27,56 @@ namespace
 	{
 		return Name.IsNone() ? FString() : Name.ToString();
 	}
+}
+
+void UKishiRpyStatementManagerWidgetBase::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+	if (SaveButton)
+		SaveButton->OnClicked.AddUniqueDynamic(this, &UKishiRpyStatementManagerWidgetBase::HandleSaveButtonClicked);
+	if (LoadButton)
+		LoadButton->OnClicked.AddUniqueDynamic(this, &UKishiRpyStatementManagerWidgetBase::HandleLoadButtonClicked);
+	if (QSaveButton)
+		QSaveButton->OnClicked.AddUniqueDynamic(this, &UKishiRpyStatementManagerWidgetBase::HandleQuickSaveButtonClicked);
+	if (QLoadButton)
+		QLoadButton->OnClicked.AddUniqueDynamic(this, &UKishiRpyStatementManagerWidgetBase::HandleQuickLoadButtonClicked);
+}
+
+UObject *UKishiRpyStatementManagerWidgetBase::GetInterpreterObject() const
+{
+	UObject *InterpreterObject = Interpreter.GetObject();
+	if (IsValid(InterpreterObject) && InterpreterObject->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
+		return InterpreterObject;
+	UE_LOG(LogTemp, Error, TEXT("%s: no interpreter to open the save or load menu; the VN player sets it on its managers."), *GetName());
+	return nullptr;
+}
+
+void UKishiRpyStatementManagerWidgetBase::HandleSaveButtonClicked()
+{
+	if (UObject *InterpreterObject = GetInterpreterObject())
+		IRpyScriptInterpreter::Execute_setSaveMenuVisible(InterpreterObject, !IRpyScriptInterpreter::Execute_getSaveMenuVisible(InterpreterObject));
+}
+
+void UKishiRpyStatementManagerWidgetBase::HandleLoadButtonClicked()
+{
+	if (UObject *InterpreterObject = GetInterpreterObject())
+		IRpyScriptInterpreter::Execute_setLoadMenuVisible(InterpreterObject, !IRpyScriptInterpreter::Execute_getLoadMenuVisible(InterpreterObject));
+}
+
+void UKishiRpyStatementManagerWidgetBase::HandleQuickSaveButtonClicked()
+{
+	if (UBaseRpyGameInstance *GameInstance = UBaseRpyGameInstance::GetBaseRpyGameInstance(this))
+		GameInstance->QuickSave();
+	else
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot quick save, the Game Instance Class must derive from BaseRpyGameInstance."), *GetName());
+}
+
+void UKishiRpyStatementManagerWidgetBase::HandleQuickLoadButtonClicked()
+{
+	if (UBaseRpyGameInstance *GameInstance = UBaseRpyGameInstance::GetBaseRpyGameInstance(this))
+		GameInstance->QuickLoad();
+	else
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot quick load, the Game Instance Class must derive from BaseRpyGameInstance."), *GetName());
 }
 
 void UKishiRpyStatementManagerWidgetBase::SetStatementManagerState_Implementation(const FRpyStatementManagerState &State)

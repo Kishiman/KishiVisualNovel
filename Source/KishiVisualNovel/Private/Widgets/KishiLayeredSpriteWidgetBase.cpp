@@ -17,7 +17,18 @@
 
 TSharedRef<SWidget> UKishiLayeredSpriteWidgetBase::RebuildWidget()
 {
+	// A widget made with NewObject (Construct Object from Class) is not initialized yet, and without a
+	// player context Initialize skips NativeOnInitialized, so set up the layers here as well.
+	Initialize();
+	if (!LayerWidgetClass)
+	{
+		LayerWidgetClass = UKishiSpriteWidget::StaticClass();
+	}
 	EnsureCanvas();
+	if (Layers.Num() == 0 && IsValid(LayeredSprite))
+	{
+		LoadLayers();
+	}
 	return Super::RebuildWidget();
 }
 
@@ -250,6 +261,11 @@ void UKishiLayeredSpriteWidgetBase::SetLayeredSprite(ULayeredSprite *Sprite)
 void UKishiLayeredSpriteWidgetBase::LoadLayers()
 {
 	ClearLayers();
+	if (!WidgetTree)
+	{
+		// Not initialized yet; RebuildWidget loads the layers.
+		return;
+	}
 	EnsureCanvas();
 	if (!IsValid(LayeredSprite) || !IsValid(Canvas))
 	{

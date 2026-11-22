@@ -2,6 +2,7 @@
 
 #include "Interfaces/RpyScriptInterpreter.h"
 #include "Interfaces/RpyScriptInterpreterBaseManager.h"
+#include "Interfaces/RpySaveMenu.h"
 #include "Components/Widget.h"
 #include "Blueprint/WidgetTree.h"
 #include "UObject/UnrealType.h"
@@ -85,6 +86,13 @@ void UKishiVNPlayerWidgetBase::DiscoverManagers(bool bWarnOnMissing)
 	SceneManager = FindManagerWidget<IRpySceneManager>(Widgets, TEXT("Scene"), bWarnOnMissing);
 	ShowManager = FindManagerWidget<IRpyShowManager>(Widgets, TEXT("Show"), bWarnOnMissing);
 	StatementManager = FindManagerWidget<IRpyStatementManager>(Widgets, TEXT("Statement"), bWarnOnMissing);
+
+	// The save menu is optional. A widget named SaveMenu is bound; otherwise find one by interface.
+	if (!IsValid(SaveMenu) || !SaveMenu->GetClass()->ImplementsInterface(URpySaveMenu::StaticClass()))
+	{
+		if (UUserWidget *FoundSaveMenu = FindManagerWidget<IRpySaveMenu>(Widgets, TEXT("Save menu"), false))
+			SaveMenu = FoundSaveMenu;
+	}
 }
 
 void UKishiVNPlayerWidgetBase::WireManagers()
@@ -98,6 +106,10 @@ void UKishiVNPlayerWidgetBase::WireManagers()
 		{
 			IRpyScriptInterpreterBaseManager::Execute_SetInterpreter(Widget, Self);
 		}
+	}
+	if (IsValid(SaveMenu) && SaveMenu->GetClass()->ImplementsInterface(URpySaveMenu::StaticClass()))
+	{
+		IRpySaveMenu::Execute_SetInterpreter(SaveMenu, Self);
 	}
 }
 
@@ -119,43 +131,55 @@ void UKishiVNPlayerWidgetBase::Shutdown_Implementation()
 			IRpyScriptInterpreterBaseManager::Execute_Reset(Widget);
 		}
 	}
+	if (bSaveMenuVisible)
+		IRpyScriptInterpreter::Execute_setSaveMenuVisible(this, false);
+	if (bLoadMenuVisible)
+		IRpyScriptInterpreter::Execute_setLoadMenuVisible(this, false);
 	bStarted = false;
 	Session = nullptr;
 	OnInterpreterShutdown();
 }
 
+void UKishiVNPlayerWidgetBase::UpdateSaveMenu(ERpySaveMenuMode MenuMode, bool bVisible) const
+{
+	if (!IsValid(SaveMenu))
+		return;
+	if (!SaveMenu->GetClass()->ImplementsInterface(URpySaveMenu::StaticClass()))
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: save menu %s does not implement IRpySaveMenu. Use a widget derived from VN Save Menu Base."), *GetName(), *GetNameSafe(SaveMenu->GetClass()));
+		return;
+	}
+	if (bVisible)
+		IRpySaveMenu::Execute_HandleOpen(SaveMenu, MenuMode);
+	// Save and load share the menu: hiding one must not close the other.
+	else if (IRpySaveMenu::Execute_GetSaveMenuMode(SaveMenu) == MenuMode)
+		IRpySaveMenu::Execute_HandleClose(SaveMenu);
+}
+
 void UKishiVNPlayerWidgetBase::setSaveMenuVisible_Implementation(bool bVisible) const
 {
-	bSaveMenuVisible = bVisible;
-	if (SaveMenu)
+	UKishiVNPlayerWidgetBase *MutableThis = const_cast<UKishiVNPlayerWidgetBase *>(this);
+	if (bVisible && bLoadMenuVisible)
 	{
-		SaveMenu->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-		if (bVisible)
-		{
-			if (UFunction *ListFunction = SaveMenu->FindFunction(FName(TEXT("List"))))
-				SaveMenu->ProcessEvent(ListFunction, nullptr);
-			if (FBoolProperty *SaveMode = FindFProperty<FBoolProperty>(SaveMenu->GetClass(), TEXT("bSaveMode")))
-				SaveMode->SetPropertyValue_InContainer(SaveMenu, true);
-		}
+		bLoadMenuVisible = false;
+		MutableThis->OnLoadMenuVisibilityChanged(false);
 	}
-	const_cast<UKishiVNPlayerWidgetBase *>(this)->OnSaveMenuVisibilityChanged(bVisible);
+	bSaveMenuVisible = bVisible;
+	UpdateSaveMenu(ERpySaveMenuMode::Save, bVisible);
+	MutableThis->OnSaveMenuVisibilityChanged(bVisible);
 }
 
 void UKishiVNPlayerWidgetBase::setLoadMenuVisible_Implementation(bool bVisible) const
 {
-	bLoadMenuVisible = bVisible;
-	if (SaveMenu)
+	UKishiVNPlayerWidgetBase *MutableThis = const_cast<UKishiVNPlayerWidgetBase *>(this);
+	if (bVisible && bSaveMenuVisible)
 	{
-		SaveMenu->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-		if (bVisible)
-		{
-			if (UFunction *ListFunction = SaveMenu->FindFunction(FName(TEXT("List"))))
-				SaveMenu->ProcessEvent(ListFunction, nullptr);
-			if (FBoolProperty *SaveMode = FindFProperty<FBoolProperty>(SaveMenu->GetClass(), TEXT("bSaveMode")))
-				SaveMode->SetPropertyValue_InContainer(SaveMenu, false);
-		}
+		bSaveMenuVisible = false;
+		MutableThis->OnSaveMenuVisibilityChanged(false);
 	}
-	const_cast<UKishiVNPlayerWidgetBase *>(this)->OnLoadMenuVisibilityChanged(bVisible);
+	bLoadMenuVisible = bVisible;
+	UpdateSaveMenu(ERpySaveMenuMode::Load, bVisible);
+	MutableThis->OnLoadMenuVisibilityChanged(bVisible);
 }
 
 void UKishiVNPlayerWidgetBase::setConfigMenuVisible_Implementation(bool bVisible) const

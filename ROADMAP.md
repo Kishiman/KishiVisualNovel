@@ -44,6 +44,7 @@ Other parts of the target:
 
 - **Instruction results:** an `ERpyInstructionResult` enum (`Continue`, `Wait`, `Failed`) replaces the bool from `Execute()` and `bAutoExecuteNext`.
 - **Showable assets:** `UKishiShowableAsset` with sprite, layered sprite, video, model and sequence subclasses. A `UKishiVisualNovelSettings` registry maps each asset class to a showable class. Managers resolve the class, create the showable, then call `IShowable::Execute_SetShowableAsset` and `Execute_Show`.
+- **Speakers:** `ISpeaker`, implemented by an asset or an actor, replaces the inline `FRpyCharacter`. `UKishiCharacterAsset` owns the display name, the showable tag, one `DT_RichTextStyle` row for the name and another for the statement, and the voice lines. `<say>` resolves the speaker, plays its voice line on the `voice` channel, and hands the style to the statement manager (step 12).
 - **State:** `URpySession` becomes the only owner of state. Managers rebuild the view from it in `Set*ManagerState`.
 
 ## Roadmap
@@ -363,3 +364,41 @@ Tests:
 - [ ] Layered sprite: the sprite shows in a level loaded in PIE and faces the camera.
 - [ ] Save and load mid-script on the first-person character.
 - [ ] Possess a pawn after BeginPlay and check that `action` still works.
+
+### 12. Speakers
+
+**Goal:** a statement names an asset instead of an inline `<character>` definition. `DA_John` — a `UKishiCharacterAsset`, or any actor or component that implements `ISpeaker` — owns the display name, the showable tag, the rich-text styles and the voice lines, so the script carries only the reference. Unlike showables (step 6), a speaker has nothing to instantiate, so it needs no asset-to-class registry: the asset implements the interface itself.
+
+Rich text reuses the existing style-set format. A speaker points at rows of an `FRichTextStyleRow` table such as `Content/Fonts/DT_RichTextStyle`, the same table the statement manager already resolves `<red>` and `<blue>` against. The name and the statement have **separate** row handles, since the two cases that matter are a per-character name color and a styled monologue for the main character. The manager reads the row and applies it with `URichTextBlock::SetDefaultTextStyle`, so a `<red>` span inside a line still wins for its own range and the typewriter output stays escaped. Nothing wraps the statement in an extra tag.
+
+Interface and asset:
+
+- [x] Add `ISpeaker` in `Public/Interfaces/Speaker.h`, with `FKishiSpeakerStyle` (display name, tag, name style row, statement style row, default attributes), `FKishiSpeechOptions` (voice id, label, line index, attributes) and `FKishiVoiceLine` (sound, path, volume, advance-on-end).
+- [x] Required `GetSpeakerStyle` and `ResolveVoiceLine`; optional `OnSpeechStarted` / `OnSpeechFinished` hooks. `ResolveVoiceLine`'s fallback returns `false` without logging, because a text-only script has no voice lines and that is not an error.
+- [x] Add `USpeakerLibrary`: `LoadSpeakerByName` (convention search), `GetDisplayText`, `ResolveVoiceLineForSpeech`, `LoadVoiceSound`, `ApplyRichTextStyleRow` and `ApplySpeakerStyle`.
+- [x] Add `UKishiCharacterAsset : UKishiDataAssetBase`, `Blueprintable`, implementing `ISpeaker` with a voice line map, a voice folder and auto voice ids.
+- [ ] Tie the character asset to its showable with a `TSoftObjectPtr<UKishiShowableAsset>` once step 6 lands, and drop `FRpyCharacter::image`.
+
+Script and execution:
+
+- [ ] `FRpySpeaker { FName tag; TSoftObjectPtr<UObject> asset; FKishiSpeakerStyle inlineStyle; }` replaces `FRpyCharacter`, converted in `URpyScript::PostLoad`. Keep `characters` and `xmlGeneratedCharacterKeys` working through the transition, with `StructRedirects` if the name changes.
+- [ ] `URpyScript::FindOrAddDefaultSpeaker(FName)` next to `FindOrAddDefaultImage`, so `<say character="john">` resolves `DA_John` with no definition at all.
+- [ ] `<asset kind="speaker" name="john" path="Characters/John"/>`: one new `Kind` in the `defineAsset` branch.
+- [ ] `<character>` keeps parsing. `displayName` fills the inline style; `color` has no equivalent in the new model, so it either logs a warning or maps to a style row (see the open decisions).
+- [ ] `USayInstruction::Execute`: resolve the speaker, read its style into `session->statementState`, play its voice line through `IRpyAudioManager::Execute_PlayAudio` on the `voice` channel, call `Execute_OnSpeechStarted`, then `Execute_SayAs`.
+- [ ] `voice` and `voiceAdvance` as optional `<say>` props, resolved against the speaker; `voice="auto"` uses the label and line index.
+- [ ] `IRpyStatementManager::SayAs(FName, const FString&, const FKishiSpeakerStyle&)` as a new required op whose `_Implementation` forwards to `Execute_Say`, so every existing Blueprint implementer keeps working unchanged. Do not change `Say`'s signature.
+- [ ] `FRpyStatementManagerState` gains the speaker style and a weak speaker reference, for save and load.
+- [ ] `UKishiRpyStatementManagerWidgetBase::SayAs` applies both style rows and calls `Execute_OnSpeechFinished` when the line is fully revealed.
+- [ ] Route visemes by `FKishiSpeakerStyle::Tag` instead of the display name, in `OnDialogueViseme` and in the show manager's speaker match.
+
+Checks:
+
+- [ ] Fixtures: `statement_speaker_asset.xml`, `statement_speaker_voice.xml`, and an invalid one whose `kind="speaker"` path is an asset that does not implement `ISpeaker`.
+- [ ] Document the speaker reference, the two style rows and the `voice` props in `Scripts/XML_FORMAT.md`.
+- [ ] Create `DA_John` and give the main character a monologue style row; play a script with both a voiced and an unvoiced line.
+
+Open decisions:
+
+- [ ] Does `<character color="...">` keep working by generating a style row, or is it dropped with a warning once an asset exists? (The asset should win where both are set.)
+- [ ] Voice lookup: folder convention (`<VoiceFolder>/<VoiceId>`) or the explicit map on the asset? Both are in now; decide which one the fixtures and docs teach.

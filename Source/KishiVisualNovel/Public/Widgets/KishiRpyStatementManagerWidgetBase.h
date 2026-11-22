@@ -13,6 +13,8 @@
 
 #include "KishiRpyStatementManagerWidgetBase.generated.h"
 
+class UButton;
+
 UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Statement Manager Base"))
 class KISHIVISUALNOVEL_API UKishiRpyStatementManagerWidgetBase : public UKishiRpyManagerWidgetBase, public IRpyStatementManager
 {
@@ -30,7 +32,20 @@ public:
 	virtual FRpyStatementManagerState GetCurrentStatementState_Implementation() const override { return StatementState; }
 
 protected:
+	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry &MyGeometry, float InDeltaTime) override;
+	/** Optional: opens or closes the interpreter's save menu. */
+	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Statement")
+	UButton *SaveButton = nullptr;
+	/** Optional: opens or closes the interpreter's load menu. */
+	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Statement")
+	UButton *LoadButton = nullptr;
+	/** Optional: quick saves through the game instance, which must derive from BaseRpyGameInstance. */
+	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Statement")
+	UButton *QSaveButton = nullptr;
+	/** Optional: quick loads through the game instance, which must derive from BaseRpyGameInstance. */
+	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Statement")
+	UButton *QLoadButton = nullptr;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry &InGeometry, const FPointerEvent &InMouseEvent) override;
 	UPROPERTY(BlueprintReadOnly, Category = "Rpy|Statement")
 	FRpyStatementManagerState StatementState;
@@ -56,4 +71,15 @@ protected:
 	void UpdateVisibleStatement();
 	void CompleteOrRevealStatement();
 	void EmitDialogueViseme();
+
+private:
+	UObject *GetInterpreterObject() const;
+	UFUNCTION()
+	void HandleSaveButtonClicked();
+	UFUNCTION()
+	void HandleLoadButtonClicked();
+	UFUNCTION()
+	void HandleQuickSaveButtonClicked();
+	UFUNCTION()
+	void HandleQuickLoadButtonClicked();
 };

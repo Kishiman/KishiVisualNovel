@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Interfaces/RpyScriptInterpreter.h"
+#include "Interfaces/RpySaveMenu.h"
 #include "Interfaces/ScriptInterpreterManagers/RpyAudioManager.h"
 #include "Interfaces/ScriptInterpreterManagers/RpyChoiceManager.h"
 #include "Interfaces/ScriptInterpreterManagers/RpySceneManager.h"
@@ -43,6 +44,7 @@ public:
 	virtual void OnScriptComplete_Implementation() override;
 
 protected:
+	/** Opened by setSaveMenuVisible and setLoadMenuVisible. Must implement IRpySaveMenu; bound by the name SaveMenu, or found by interface. */
 	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Menus")
 	UUserWidget *SaveMenu = nullptr;
 	// Cached from the widget tree by interface, so manager widget names do not matter.
@@ -95,4 +97,5 @@ protected:
 	virtual void NativeOnInitialized() override;
 	void DiscoverManagers(bool bWarnOnMissing);
 	void WireManagers();
+	void UpdateSaveMenu(ERpySaveMenuMode MenuMode, bool bVisible) const;
 };
