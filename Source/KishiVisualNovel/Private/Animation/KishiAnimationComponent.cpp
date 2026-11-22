@@ -5,7 +5,7 @@
 #include "Components/Widget.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
-#include "Interfaces/Animatable.h"
+#include "Showables/Animatable.h"
 
 UKishiAnimationComponent::UKishiAnimationComponent()
 {

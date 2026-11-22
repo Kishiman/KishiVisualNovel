@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Interfaces/Animatable.h"
-#include "Interfaces/Showable.h"
+#include "Showables/Animatable.h"
+#include "Showables/Showable.h"
 #include "KishiAnimationComponent.generated.h"
 
 class USceneComponent;

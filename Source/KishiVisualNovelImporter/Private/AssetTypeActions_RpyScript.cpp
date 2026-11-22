@@ -1,7 +1,7 @@
 #include "AssetTypeActions_RpyScript.h"
 
 #include "Editors/RpyScriptEditor.h"
-#include "Rpy/RpyScript.h"
+#include "Script/RpyScript.h"
 
 FText FAssetTypeActions_RpyScript::GetName() const { return FText::FromString(TEXT("Visual Novel Script")); }
 FColor FAssetTypeActions_RpyScript::GetTypeColor() const { return FColor(50, 145, 205); }

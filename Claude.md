@@ -6,7 +6,14 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
 
 ## Source layout
 
-- `Source/KishiVisualNovel`: runtime visual-novel assets, XML parsing, instruction execution, sessions, save-state integration, and runtime interfaces.
+- `Source/KishiVisualNovel`: runtime visual-novel assets, XML parsing, instruction execution, sessions, save-state integration, and runtime interfaces. Files are grouped by feature, not by kind: a feature's interface, library, widget Base and component sit in the same folder under `Public/`, and `Private/` mirrors it.
+  - `Script/`: script asset, instructions, props and script types; `Private/Script/Parsing` and `Private/Script/Instructions` hold the XML parser and one header per instruction.
+  - `Session/`: `URpySession`, manager state types, `IRpyStateful*`.
+  - `Player/`: `IRpyScriptInterpreter`, the base manager interface, the VN player and manager widget Bases.
+  - `Managers/<Statement|Choice|Scene|Show|Audio>/`: one folder per script manager. New script-driven mechanics (a dialogue log, evidence, skill checks) get their own folder here, named for the mechanic, not for a game or style.
+  - `Save/`, `Speakers/`, `Showables/`, `World/` (VN host and anchor components), `Interaction/`, `Animation/`, `Assets/` (shared asset base classes), `Settings/` (`UKishiVisualNovelSettings`, including the asset search folders).
+  - `Deprecated/Actors/`: the old Actor Bases, kept unchanged for compatibility.
+  - Moving a header changes only `#include` paths; Blueprints reference classes by module and name, so no redirect is needed. Renaming a class, struct or UFUNCTION needs a `[CoreRedirects]` entry.
 - `Source/KishiVisualNovelImporter`: editor-only importers and asset editors. Keep editor dependencies and Slate editor widgets in this module.
 - `Source/Kishi`: shared runtime helpers, including string and tagged-text utilities.
 - `Scripts/xml`: current XML scripts; `tests/fixtures` holds per-feature regression fixtures, `tests/samples` full demos, `tests/fixtures/invalid` scripts that must fail to import.
@@ -15,7 +22,7 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
 
 ## Script format and runtime architecture
 
-- Write scripts as `<visualNovel version="1">` XML. Commands are elements nested under labels, menus, choices, and conditionals. Read `Scripts/xml/XML_FORMAT.md` before changing the format or parser.
+- Write scripts as `<visualNovel version="1">` XML. Commands are elements nested under labels, menus, choices, and conditionals. Read `Scripts/XML_FORMAT.md` before changing the format or parser.
 - Dialogue supports ordered mixed content: real style tags are child elements with matching closing tags, while literal angle brackets must be encoded as XML entities.
 - `<raw>` is unsupported. Do not add raw-command examples or claim that raw instructions can execute.
 - Required instruction values belong in explicit required fields. Optional instruction values belong in `FRpyInstructionProps` and use its typed accessors.
@@ -30,7 +37,7 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
 - Use `UPROPERTY` for UObject references that need to be retained by the garbage collector. Do not manually `delete` UObjects.
 - For Blueprint event functions declared on a `UINTERFACE`, dispatch through `IInterface::Execute_Function(UObject*, ...)`. Never call the event on an object/interface pointer or call another object's `_Implementation` directly; that bypasses Blueprint dispatch and can assert. Implementers should define or override `_Implementation` as the event body, while call sites use `Execute_*`.
 - Treat `*Base` classes as optional proposed implementations of their interfaces. When behavior depends on an interface, check `UClass::ImplementsInterface` and dispatch through `IInterface::Execute_*`; do not cast to a plugin Base class. Put shared configuration operations, such as assigning an interpreter to a manager, on the relevant interface so direct implementers work too.
-- Put world-side VN logic in components under `Source/KishiVisualNovel/Public/Components`, so it attaches to any actor (Actor, Pawn, Character). The classes in `Public/Actors` are kept unchanged for existing assets; do not add features to them. Find a VN host or anchor on an actor through the lookup libraries (`URpyMainComponentLibrary`, `UPlayerAnchorLibrary`, `URpyCameraAnchorLibrary`), which check the actor first and then its components. See step 10 of `ROADMAP.md`.
+- Put world-side VN logic in components, in the matching feature folder (`World`, `Interaction`, `Showables`), so it attaches to any actor (Actor, Pawn, Character). The classes in `Public/Deprecated/Actors` are kept unchanged and get no new features; since Legacy was deleted no asset uses them, and they are due to be deprecated (see the open decisions in `ROADMAP.md`). Find a VN host or anchor on an actor through the lookup libraries (`URpyMainComponentLibrary`, `UPlayerAnchorLibrary`, `URpyCameraAnchorLibrary`), which check the actor first and then its components. See step 10 of `ROADMAP.md`.
 - Do not give a component interface a UFUNCTION named like an existing `UActorComponent` / `USceneComponent` UFUNCTION (for example `IsActive`): `Execute_*` would find the engine function instead of the interface event.
 - Keep editor-only classes and module dependencies in `KishiVisualNovelImporter`; runtime code must not depend on editor modules.
 - Keep behavior-preserving changes localized. When making an intentional breaking format or API change, update the XML documentation and relevant fixtures in the same change.

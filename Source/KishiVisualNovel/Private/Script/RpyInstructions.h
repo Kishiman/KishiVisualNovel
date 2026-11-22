@@ -1,0 +1,23 @@
+#pragma once
+
+// Compatibility umbrella. Each instruction has its own header under Script/Instructions/.
+#include "Script/Instructions/LabelInstruction.h"
+#include "Script/Instructions/PauseInstruction.h"
+#include "Script/Instructions/AssignInstruction.h"
+#include "Script/Instructions/SceneInstruction.h"
+#include "Script/Instructions/ShowInstruction.h"
+#include "Script/Instructions/HideInstruction.h"
+#include "Script/Instructions/SayInstruction.h"
+#include "Script/Instructions/PlayInstruction.h"
+#include "Script/Instructions/PauseAudioInstruction.h"
+#include "Script/Instructions/IfInstruction.h"
+#include "Script/Instructions/ElseInstruction.h"
+#include "Script/Instructions/IfBoolInstruction.h"
+#include "Script/Instructions/ChoiceInstruction.h"
+#include "Script/Instructions/MenuInstruction.h"
+#include "Script/Instructions/JumpInstruction.h"
+#include "Script/Instructions/CallInstruction.h"
+#include "Script/Instructions/ReturnInstruction.h"
+#include "Script/Instructions/StopInstruction.h"
+#include "Script/Instructions/QueueInstruction.h"
+#include "Script/Instructions/UnsupportedInstruction.h"

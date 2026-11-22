@@ -41,6 +41,7 @@ public class KishiVisualNovel : ModuleRules
         "LevelSequence",
         "MovieScene",
         "MovieSceneTracks",
+        "DeveloperSettings",
 				// ... add other public dependencies that you statically link with here ...
 			}
       );

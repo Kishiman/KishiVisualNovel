@@ -5,7 +5,7 @@
        plays with the active camera bound to it. Each "layer" attribute names the anchor the
        camera attaches to, found by the camera anchor interface first and by actor tag
        second, so this fixture needs a level with student1, student2 and student3 anchors
-       (Maps/demo_danganronpa). A missing anchor must log and continue. -->
+       (Styles/VN3D/VN3D_Demo). A missing anchor must log and continue. -->
   <character name="aug" displayName="Augustina" color="#c8ffc8" />
   <asset kind="transition" name="intro" path="trial_intro" />
   <asset kind="image" name="Augustina" path="Augustina" />

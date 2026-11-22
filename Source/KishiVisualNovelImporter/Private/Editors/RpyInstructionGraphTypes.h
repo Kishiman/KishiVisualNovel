@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "EdGraph/EdGraphNode.h"
 #include "EdGraph/EdGraphSchema.h"
-#include "Rpy/RpyInstruction.h"
+#include "Script/RpyInstruction.h"
 #include "RpyInstructionGraphTypes.generated.h"
 
 UCLASS()

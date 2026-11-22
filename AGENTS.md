@@ -10,7 +10,14 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
 
 ## Source layout
 
-- `Source/KishiVisualNovel`: runtime visual-novel assets, XML parsing, instruction execution, sessions, save-state integration, and runtime interfaces.
+- `Source/KishiVisualNovel`: runtime visual-novel assets, XML parsing, instruction execution, sessions, save-state integration, and runtime interfaces. Files are grouped by feature, not by kind: a feature's interface, library, widget Base and component sit in the same folder under `Public/`, and `Private/` mirrors it.
+  - `Script/`: script asset, instructions, props and script types; `Private/Script/Parsing` and `Private/Script/Instructions` hold the XML parser and one header per instruction.
+  - `Session/`: `URpySession`, manager state types, `IRpyStateful*`.
+  - `Player/`: `IRpyScriptInterpreter`, the base manager interface, the VN player and manager widget Bases.
+  - `Managers/<Statement|Choice|Scene|Show|Audio>/`: one folder per script manager. New script-driven mechanics (a dialogue log, evidence, skill checks) get their own folder here, named for the mechanic, not for a game or style.
+  - `Save/`, `Speakers/`, `Showables/`, `World/` (VN host and anchor components), `Interaction/`, `Animation/`, `Assets/` (shared asset base classes), `Settings/` (`UKishiVisualNovelSettings`, including the asset search folders).
+  - `Deprecated/Actors/`: the old Actor Bases, kept unchanged for compatibility.
+  - Moving a header changes only `#include` paths; Blueprints reference classes by module and name, so no redirect is needed. Renaming a class, struct or UFUNCTION needs a `[CoreRedirects]` entry.
 - `Source/KishiVisualNovelImporter`: editor-only importers and asset editors. Keep editor dependencies and Slate editor widgets in this module.
 - `Source/Kishi`: shared runtime helpers, including string and tagged-text utilities.
 - `Scripts/xml`: current XML scripts and test fixtures.
@@ -19,7 +26,7 @@ KishiVisualNovel is an Unreal Engine 4.27 plugin for dialogue and visual-novel s
 
 ## Script format and runtime architecture
 
-- Write scripts as `<visualNovel version="1">` XML. Commands are elements nested under labels, menus, choices, and conditionals. Read `Scripts/xml/XML_FORMAT.md` before changing the format or parser.
+- Write scripts as `<visualNovel version="1">` XML. Commands are elements nested under labels, menus, choices, and conditionals. Read `Scripts/XML_FORMAT.md` before changing the format or parser.
 - Dialogue supports ordered mixed content: real style tags are child elements with matching closing tags, while literal angle brackets must be encoded as XML entities.
 - `<raw>` is unsupported. Do not add raw-command examples or claim that raw instructions can execute.
 - Required instruction values belong in explicit required fields. Optional instruction values belong in `FRpyInstructionProps` and use its typed accessors.

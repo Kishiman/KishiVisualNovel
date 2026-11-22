@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "KishiDataAssetReimportHandler.h"
-#include "Rpy/RpyScript.h"
+#include "Script/RpyScript.h"
 #include "RpyScriptImporterFactory.generated.h"
 
 /**

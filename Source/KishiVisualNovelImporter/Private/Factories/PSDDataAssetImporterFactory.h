@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "KishiDataAssetReimportHandler.h"
-#include "Assets/LayeredSprite.h"
+#include "Showables/LayeredSprite.h"
 #include "PSDDataAssetImporterFactory.generated.h"
 
 /**

@@ -1,7 +1,7 @@
 #include "Editors/RpyScriptEditor.h"
 
 #include "Editors/SRpyInstructionTree.h"
-#include "Rpy/RpyScript.h"
+#include "Script/RpyScript.h"
 #include "Widgets/Docking/SDockTab.h"
 
 const FName FRpyScriptEditor::InstructionTreeTabId(TEXT("KishiRpyInstructionTree"));
