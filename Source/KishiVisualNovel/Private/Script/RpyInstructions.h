@@ -21,3 +21,4 @@
 #include "Script/Instructions/StopInstruction.h"
 #include "Script/Instructions/QueueInstruction.h"
 #include "Script/Instructions/UnsupportedInstruction.h"
+#include "Script/Instructions/TogetherInstruction.h"

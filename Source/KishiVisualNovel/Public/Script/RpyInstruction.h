@@ -86,6 +86,20 @@ public:
             Result.Add(TEXT("next"));
         return Result;
     }
+    /**
+     * Called when an instruction that this one is waiting on reports completion: a child of a block such as <together>.
+     * Returns false if Child is not one this instruction waits on, so a late completion is ignored.
+     */
+    virtual bool CompleteChild(URpyInstruction *Child) { return false; }
+    /** Completes the oldest child this instruction waits on, for a completion reported without naming its instruction. */
+    virtual bool CompleteFirstChild() { return false; }
+    /** False while this instruction still waits on children; the session advances past a Wait instruction only once this is true. */
+    virtual bool IsWaitComplete() const { return true; }
+    /**
+     * The player asked to skip what this instruction is waiting for (a click). An instruction that waits on a timer, such as
+     * <pause>, completes itself; the default does nothing. Animations are skipped by the managers, not here.
+     */
+    virtual void Skip(URpySession *session) {}
     virtual bool IsCallInstruction() const { return false; }
     virtual bool IsControlFlowBoundary() const { return false; }
     URpyInstruction *GetNextInTree() const

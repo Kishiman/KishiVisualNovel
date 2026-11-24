@@ -65,6 +65,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Rpy|Statement")
 	FMouthViseme LastViseme;
 	float CharacterAccumulator = 0.0f;
+	/** The <say> instruction the line belongs to, reported when the player clicks through it. None for a line restored from a save. */
+	TWeakObjectPtr<URpyInstruction> SayInstruction;
 	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Statement Manager Widget Base|Hooks")
 	void OnStatementRequested(FName Name, const FString &Statement);
 	void UpdateVisibleStatement();

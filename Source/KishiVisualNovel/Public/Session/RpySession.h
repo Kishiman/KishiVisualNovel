@@ -77,6 +77,9 @@ public:
 
 	UPROPERTY(Transient)
 	URpyInstruction *current = nullptr;
+	/** The instruction whose Execute is running: current, or a child of a <together> block. None outside Execute. */
+	UPROPERTY(Transient)
+	URpyInstruction *executing = nullptr;
 	UPROPERTY(Transient)
 	TArray<URpyInstruction *> callStack;
 
@@ -108,6 +111,22 @@ public:
 	bool Run();
 	UFUNCTION(BlueprintPure)
 	EInstructionRunTimeType GetRunTimeType() const;
+
+	/** The instruction whose Execute is running, or None outside Execute. A manager that returns Wait keeps it, and reports completion for it. */
+	UFUNCTION(BlueprintPure)
+	URpyInstruction *GetExecutingInstruction() const { return executing; }
+
+	/**
+	 * Reports that Instruction, which returned Wait, has finished. If it is the current instruction, or the last child the current one
+	 * waits on, the session advances through the interpreter's HandleInstructionComplete. A completion for any other instruction is
+	 * ignored (it finished after the script moved on). None means the current instruction. Returns true if the completion was accepted.
+	 */
+	UFUNCTION(BlueprintCallable)
+	bool CompleteInstruction(URpyInstruction *Instruction);
+
+	/** The player asked to skip what the current instruction waits for: a pause ends; see URpyInstruction::Skip. */
+	UFUNCTION(BlueprintCallable)
+	void Skip();
 
 	UFUNCTION(BlueprintCallable)
 	bool OnChoice(int index);

@@ -19,6 +19,7 @@ the log names the problem.
 | `unknown_instruction.xml` | unknown XML instruction type `teleport` |
 | `missing_show_asset.xml` | instruction `show` is missing required field `asset` |
 | `set_value_and_expression.xml` | `set` takes exactly one of `value` or `expression` |
+| `together_control_flow.xml` | `<together>` cannot contain `<jump>` |
 
 ## Custom instruction schema
 

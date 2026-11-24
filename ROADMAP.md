@@ -51,7 +51,7 @@ Other parts of the target:
 
 ## Roadmap
 
-Steps 1 to 6, 10 and the C++ of 11 are done (steps 3 to 6 still need a Blueprint compile in the editor). Legacy was deleted on 2026-11-22, so the remaining steps only touch C++ and the VN2D, VN3D and FPS Blueprints built on the Bases, with no Legacy Blueprint rework. Step 7 comes next. Step 13's content moves can run alongside it, since they touch only assets and settings.
+Steps 1 to 6, 10 and the C++ of 11 are done (steps 3 to 6 still need a Blueprint compile in the editor). Legacy was deleted on 2026-11-22, so the remaining steps only touch C++ and the VN2D, VN3D and FPS Blueprints built on the Bases, with no Legacy Blueprint rework. Step 14 (command timing, added 2026-11-24) is done in C++. Step 7 comes next. Step 13's content moves can run alongside it, since they touch only assets and settings.
 
 Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry so existing Blueprint nodes keep resolving. Put plugin redirects in `Plugins/KishiVisualNovel/Config/DefaultKishiVisualNovel.ini` (created in step 5), so they ship with the plugin; engine plugins such as Paper2D do the same in their own ini. A rename that only changes case needs no redirect, since FName lookups ignore case.
 
@@ -70,6 +70,7 @@ Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry so existing
 | 11  | Interaction             | Interaction interfaces and handler components; `URpyFirstPersonComponent`                                                                                                        | Finish the script chain in `Blueprints/InteractableActors`                            | Re-enter placed values in `DetectiveOffice_Layout` and `FPS_demo` |
 | 12  | Speakers                | `ISpeaker` and `UKishiCharacterAsset` (done); `FRpySpeaker`, `SayAs`, voice playback                                                                                             | None until the statement manager applies the styles                                   | Fixtures, `XML_FORMAT.md`, `DA_John`                              |
 | 13  | Layout and styles       | Configurable search folders and feature folders (done); `UKishiVNStyleAsset`; `URpyComponent` takes a style                                                                      | Move Content into `Core`, `Styles`, `Demo`, `Tests`, `ThirdParty`; `_Template` style  | Fix up redirectors; re-import fixtures; rerun the reference scan  |
+| 14  | Command timing          | Done: `show` / `hide` with a transition return `Wait`; `<together>`; completion per instruction; click to skip; show during a hide                                               | None                                                                                  | Re-import the fixtures; `scene` transitions wait in step 7        |
 
 ## Checklist
 
@@ -509,3 +510,35 @@ Open decisions:
 - [ ] Should `Interaction` become its own module (`KishiInteraction`)? It has nothing VN-specific, and the FPS style uses it without scripts.
 - [ ] Where do the class-trial models (`Models/Danganronpa_Trial`) go? If they were extracted from the game, keep them out of the plugin's shipped content (a local-only folder or `Demo/` excluded from packaging).
 
+### 14. Command timing
+
+Found 2026-11-24 in `show_transitions`: a `hide` with a transition returned at once, so a `show` of the same tag right after it found the sprite still on screen (mid fade-out), reused it, and skipped its entrance. The fixture worked around it with a `<pause>`.
+
+Decision (2026-11-24): commands run one after another, and a command that takes time finishes before the next starts, as Ren'Py's `with` does. `<together>` runs its commands at the same time and continues when all have finished. `<A/>&&<B/>` is not valid XML (`&` starts an entity reference), and a `with="previous"` attribute spreads one group over several lines, so the block won.
+
+C++:
+
+- [x] `show` and `hide` with a transition return `Wait`; the show manager reports completion when the transition's duration has passed (a hide, once the showable is removed). `SetShowManagerState` restores without waiting.
+- [x] `UTogetherInstruction` (`<together>`): runs its children in `Execute`, waits for those that returned `Wait`, and continues after the block. It accepts `say`, `show`, `hide`, `scene`, `pause`, `play`, `queue`, `voice`, `stop`, `set` and custom commands; anything else fails the import.
+- [x] Completion per instruction: `URpySession::executing` / `GetExecutingInstruction`, `URpySession::CompleteInstruction(Instruction)`, and `URpyInstruction::CompleteChild` / `IsWaitComplete`. `ReportInstructionComplete` takes the instruction; a completion for an instruction the script has left is ignored. The interpreter's `HandleInstructionComplete` stays parameterless.
+- [x] Click to skip: outside dialogue, the statement manager's click calls `URpyScriptInterpreterLibrary::RequestSkip`, which calls every manager's new `OnSkipRequested` hook (the show manager ends its transitions and reports them), then `URpySession::Skip` (a `<pause>` ends). A click during a menu no longer completes it.
+- [x] A `show` of a tag whose hide is still playing ends the hide, reports it, and plays a full entrance.
+- [x] `<pause>` completes through `CompleteInstruction` instead of calling `RunNext`, so it works inside `<together>`.
+- [x] Loading a save: a restored line or menu waits for the player again (its `LastResult` is set to `Wait`; after a fresh start it was `Continue`, so a click could not advance it), and any other restored instruction runs again, since saving during a transition now stores the waiting `show`.
+- [ ] `scene` does not wait yet: the scene manager plays no transition on its sprite. Step 7 moves it onto the show Library, which brings the wait.
+- [ ] The click comes from the statement manager widget, so it only skips where that widget receives clicks.
+
+Docs and fixtures:
+
+- [x] `Scripts/XML_FORMAT.md`: timing, `<together>`, and directional transitions only animating an entering image (as in Ren'Py).
+- [x] `show_transitions.xml`: the `<pause>` is gone, and each directional show follows a hide.
+- [x] New `flow_together.xml`, and `invalid/together_control_flow.xml`.
+- [ ] Re-import the fixture assets in `Content/Scripts/Fixtures`.
+
+Tests:
+
+- [ ] Play `show_transitions` with no pause: every transition plays, and each line appears once its sprite has arrived.
+- [ ] Play `flow_together`, including a click during the three-second zoom.
+- [ ] Import `invalid/together_control_flow.xml`: it fails with the `<together> cannot contain <jump>` error.
+- [ ] A menu still waits for a choice when the statement box is clicked.
+- [ ] Quick save during a show transition, then quick load: the show replays and the script continues.

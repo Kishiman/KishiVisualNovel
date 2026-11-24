@@ -66,7 +66,9 @@ bool URpySession::Run()
 	{
 
 		UE_LOG(LogTemp, Display, TEXT("Executing instruction: %s"), *this->current->ToString());
+		this->executing = this->current;
 		const ERpyInstructionResult Result = this->current->Execute(this);
+		this->executing = nullptr;
 		this->current->LastResult = Result;
 		if (Result == ERpyInstructionResult::Wait)
 			break;
@@ -91,6 +93,40 @@ bool URpySession::Run()
 	}
 	return true;
 };
+bool URpySession::CompleteInstruction(URpyInstruction *Instruction)
+{
+	if (!this->current)
+		return false;
+	if (Instruction && Instruction != this->current)
+	{
+		// A child of the current block, such as one command of a <together>.
+		if (!this->current->CompleteChild(Instruction))
+			return false;
+	}
+	else if (!this->current->IsWaitComplete())
+	{
+		// The current block waits on several children and the completion did not say which one finished.
+		UE_LOG(LogTemp, Warning, TEXT("URpySession::CompleteInstruction: a completion for %s did not name its instruction; completing its oldest waiting command. Report completion for the instruction GetExecutingInstruction returned when the operation started."),
+			   *this->current->ToString());
+		if (!this->current->CompleteFirstChild())
+			return false;
+	}
+	if (this->current->LastResult != ERpyInstructionResult::Wait || !this->current->IsWaitComplete())
+		return true;
+	UObject *InterpreterObject = this->interpreter.GetObject();
+	if (IsValid(InterpreterObject) && InterpreterObject->GetClass()->ImplementsInterface(URpyScriptInterpreter::StaticClass()))
+		IRpyScriptInterpreter::Execute_HandleInstructionComplete(InterpreterObject);
+	else
+		RunNext();
+	return true;
+}
+
+void URpySession::Skip()
+{
+	if (this->current && this->current->LastResult == ERpyInstructionResult::Wait)
+		this->current->Skip(this);
+}
+
 bool URpySession::OnChoice(int index)
 {
 	if (!current)
@@ -235,5 +271,13 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 
 	IRpyStatementManager::Execute_Say(statementManager.GetObject(), sessionState->statementState.name, sessionState->statementState.statement);
 
-	return;
+	// The saved instruction was waiting when the game was saved. A line or a menu waits for the player again. Anything else (a show
+	// or hide transition, a pause, a <together>) runs again, since the waits it had started are not part of the save.
+	if (this->current)
+	{
+		if (this->current->IsA<USayInstruction>() || this->current->isOfType(RpyInstructionType::Menu))
+			this->current->LastResult = ERpyInstructionResult::Wait;
+		else
+			Run();
+	}
 }

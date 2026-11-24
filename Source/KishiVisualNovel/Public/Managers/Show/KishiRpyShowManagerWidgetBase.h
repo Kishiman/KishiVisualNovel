@@ -35,6 +35,8 @@ public:
 	virtual void SetShowManagerState_Implementation(const FRpyShowManagerState &State) override;
 	virtual ERpyInstructionResult Show_Implementation(FRpyImage Image, FRpySceneOptions Options) override;
 	virtual ERpyInstructionResult Hide_Implementation(FName Tag, FRpySceneOptions Options) override;
+	/** Ends every running show and hide transition at once and reports the completions the script waits for. */
+	virtual void OnSkipRequested_Implementation() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Kishi Rpy Show Manager Widget Base|Showables", meta = (ToolTip = "Create an IShowable widget, actor or actor component and track it under Tag, replacing any showable already tracked there. Widgets are sized to their content and their bottom center is placed at WidgetPosition, a fraction of ShowCanvas from its bottom center (0.4 moves it 40% right), like script positions; actors and components are spawned at WorldLocation. Logs an error and returns None on failure."))
 	UObject *CreateShowableFromClass(TSubclassOf<UObject> ShowableClass, FName Tag, FVector WorldLocation, FRotator WorldRotation, FVector2D WidgetPosition, int32 ZOrder);
@@ -102,4 +104,26 @@ private:
 	void PlayShowableTransition(UObject *Showable, const FRpySceneOptions &Options, bool bShow, FVector2D MoveFrom = FVector2D::ZeroVector, bool bEnters = false);
 	void ClearHideTimer(FName Tag);
 	void RemoveAllShowables();
+
+	/** A show or hide transition the script waits for: completion is reported for Instruction when it ends. */
+	struct FShowWait
+	{
+		FName Tag;
+		TWeakObjectPtr<URpyInstruction> Instruction;
+		FTimerHandle Timer;
+	};
+	TMap<int32, FShowWait> Waits;
+	int32 NextWaitId = 0;
+	/** Tags whose hide transition is still playing; the showable is removed when it ends. */
+	TSet<FName> HidingTags;
+	/** Set while SetShowManagerState replays saved images, which must not make the script wait. */
+	bool bRestoringState = false;
+	/** Returns Wait and reports completion for the executing instruction after Duration (or when FinishWaitsForTag runs, without a timer); Continue when there is nothing to wait for. */
+	ERpyInstructionResult BeginWait(FName Tag, float Duration, bool bUseTimer = true);
+	void FinishWait(int32 Id);
+	void FinishWaitsForTag(FName Tag);
+	/** Removes the showable a hide transition was playing on, then reports the hide's completion. */
+	void FinishHide(FName Tag);
+	/** Drops the waits without reporting them, when the session is reset or replaced. */
+	void ClearWaits();
 };

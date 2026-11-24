@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- Must fail to import: <together> holds commands that run at the same time, not jumps. -->
+  <label name="start">
+    <together>
+      <show asset="sylvie" transition="fade" duration="0.5" />
+      <jump label="start" />
+    </together>
+  </label>
+</visualNovel>

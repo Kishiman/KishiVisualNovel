@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<visualNovel version="1">
+  <!-- flow: one command after another, and <together>.
+       Expected: outside <together>, each transition finishes before the next command, so
+       each line appears after its sprite has arrived or left. Inside <together>, the
+       commands start at the same moment and the script moves on once all of them are done.
+       A click while a transition plays makes it jump to its end. A line that appears before
+       its transition ends, or a sprite that stays on screen after "gone", is a failure. -->
+  <asset kind="image" name="eileen" path="eileen" />
+  <label name="start">
+    <scene asset="bg_meadow" />
+
+    <show asset="sylvie" attributes="green normal" transition="fade" duration="1.0" />
+    <say>One after another: this line waited for the one-second fade.</say>
+    <hide tag="sylvie" transition="fade" duration="1.0" />
+    <show asset="sylvie" attributes="green smile" transition="easeinleft" duration="1.0" />
+    <say>The fade out ended before the ease in from the left started.</say>
+
+    <together>
+      <hide tag="sylvie" transition="fade" duration="1.0" />
+      <show asset="eileen" transition="easeinright" duration="1.0" position="right" />
+    </together>
+    <say>Together: Sylvie faded out while Eileen came in from the right.</say>
+
+    <together>
+      <show asset="sylvie" attributes="green giggle" transition="dissolve" duration="2.0" position="left" />
+      <say>Together with dialogue: this line appeared while Sylvie dissolved in.</say>
+    </together>
+    <say>Both the two-second dissolve and the line above had finished before this one.</say>
+
+    <together>
+      <hide tag="sylvie" transition="fade" duration="1.0" />
+      <show asset="sylvie" attributes="blue normal" transition="fade" duration="1.0" position="left" />
+    </together>
+    <say>Same tag in one block: the show won, and Sylvie is back in blue.</say>
+
+    <show asset="eileen" transition="zoom" duration="3.0" position="right" />
+    <say>Click during the three-second zoom above: it jumps to its end and this line appears.</say>
+
+    <together>
+      <hide tag="sylvie" transition="dissolve" duration="0.5" />
+      <hide tag="eileen" transition="dissolve" duration="0.5" />
+      <pause duration="1.0" />
+    </together>
+    <say>gone</say>
+    <return />
+  </label>
+</visualNovel>

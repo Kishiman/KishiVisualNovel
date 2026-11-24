@@ -673,7 +673,7 @@ namespace
       const FRpyInstructionSchema *Schema = FRpyInstructionRegistry::FindSchema(FName(*Type));
       return Schema && ValidateCustomInstruction(Node, *Schema);
     }
-    else if (Type != TEXT("menu") && Type != TEXT("else") && Type != TEXT("return") && Type != TEXT("init"))
+    else if (Type != TEXT("menu") && Type != TEXT("else") && Type != TEXT("return") && Type != TEXT("init") && Type != TEXT("together"))
     {
       UE_LOG(LogTemp, Error, TEXT("Unknown XML instruction type '%s'"), *Type);
       return false;
@@ -920,6 +920,8 @@ namespace
     }
     else if (Type == TEXT("menu"))
       Result = CreateRpyInstruction<UMenuInstruction>(Script);
+    else if (Type == TEXT("together"))
+      Result = CreateRpyInstruction<UTogetherInstruction>(Script);
     else if (Type == TEXT("choice"))
     {
       UChoiceInstruction *Choice = CreateRpyInstruction<UChoiceInstruction>(Script);

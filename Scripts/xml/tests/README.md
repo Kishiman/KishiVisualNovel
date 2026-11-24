@@ -19,7 +19,7 @@ behaviour is worth pinning down; name it `<area>_<feature>.xml`, with no number.
 | `scalar_values.xml` | scalar type inference and `scope="default"` |
 | `asset_resolution.xml` | declared paths, implicit names, the `_Sprite` fallback |
 | `image_types.xml` | sprite, layered sprite, level sequence and video showables |
-| `show_transitions.xml` | every built-in transition name and direction |
+| `show_transitions.xml` | every built-in transition name and direction; each transition finishes before the next command |
 | `show_positions.xml` | named and vector positions, `zOrder`, moving a shown sprite |
 | `show_layered_attributes.xml` | attribute groups, widget reuse on re-show |
 | `scene_transitions.xml` | backgrounds, transitions, `duration`, `layer` |
@@ -31,6 +31,7 @@ behaviour is worth pinning down; name it `<area>_<feature>.xml`, with no number.
 | `flow_if_else.xml` | flags, `if` / `else` |
 | `flow_call_return.xml` | the call stack |
 | `flow_pause_return.xml` | timed pauses and script end |
+| `flow_together.xml` | commands waiting for their transitions, `<together>`, same-tag hide and show, click to skip |
 | `session_save_restore.xml` | save and load mid-script |
 
 ## samples/
@@ -61,7 +62,7 @@ name itself first and then `<name>_Sprite`.
 | `bg_meadow`, `bg_lecturehall`, `bg_uni`, `bg_club`, `black` | Texture + `_Sprite` PaperSprite | scene and show fixtures, `the_question` |
 | `sylvie` | LayeredSprite: `green`\|`blue` x `normal`\|`smile`\|`giggle`\|`surprised` | show fixtures, `the_question` |
 | `Augustina` | LayeredSprite: `outfit` (`dress`/`jeans`/`swimsuit`), `mouth`, `eyes`, `eyebrows`, `emotion`, `glasses` | `show_layered_attributes`, `voice_lipsync`, `scene_level_sequence` |
-| `eileen` | LayeredSprite | `show_positions` |
+| `eileen` | LayeredSprite | `show_positions`, `flow_together` |
 | `DBCooper/airplane_attendent_LS` | LayeredSprite | `asset_resolution` |
 | `stairs` | LevelSequence shown as an image | `image_types` |
 | `DBCooperKeiku/plane_takeoff` | VideoMediaSprite | `image_types` |

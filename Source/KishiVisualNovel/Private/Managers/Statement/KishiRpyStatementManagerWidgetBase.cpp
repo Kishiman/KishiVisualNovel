@@ -66,6 +66,7 @@ void UKishiRpyStatementManagerWidgetBase::SetStatementManagerState_Implementatio
 
 ERpyInstructionResult UKishiRpyStatementManagerWidgetBase::Say_Implementation(FName Name, const FString &Statement)
 {
+	SayInstruction = URpyScriptInterpreterBaseManagerLibrary::GetExecutingInstruction(this);
 	StatementState.name = Name;
 	StatementState.statement = Statement;
 	SpeakerName = URpyStatementManagerLibrary::GetSpeakerDisplayName(Name);
@@ -130,6 +131,13 @@ void UKishiRpyStatementManagerWidgetBase::UpdateVisibleStatement()
 
 void UKishiRpyStatementManagerWidgetBase::CompleteOrRevealStatement()
 {
+	// Outside dialogue, a click skips what the script waits for: a transition or a pause.
+	const EInstructionRunTimeType RunType = URpyScriptInterpreterBaseManagerLibrary::GetRunTimeType(TScriptInterface<IRpyScriptInterpreterBaseManager>(this));
+	if (RunType != EInstructionRunTimeType::SAY)
+	{
+		URpyScriptInterpreterBaseManagerLibrary::RequestSkip(this);
+		return;
+	}
 	if (StatementCharactersNum < TaggedStatement.Length)
 	{
 		PreviousStatementCharactersNum = StatementCharactersNum;
@@ -141,7 +149,7 @@ void UKishiRpyStatementManagerWidgetBase::CompleteOrRevealStatement()
 		EmitDialogueViseme();
 		return;
 	}
-	URpyScriptInterpreterBaseManagerLibrary::ReportInstructionComplete(this);
+	URpyScriptInterpreterBaseManagerLibrary::ReportInstructionComplete(this, SayInstruction.Get());
 }
 
 void UKishiRpyStatementManagerWidgetBase::Reset_Implementation()

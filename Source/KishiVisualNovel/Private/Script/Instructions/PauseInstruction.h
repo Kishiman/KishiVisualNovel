@@ -25,12 +25,22 @@ public:
           TimerHandle, [this, session]()
           {
             this->running = false;
-            session->RunNext(); },
+            session->CompleteInstruction(this); },
           timeInSec, false);
     }
-    // Without a duration, the pause lasts until the interpreter reports completion (a click).
+    // Without a duration, the pause lasts until the player skips it (a click).
     return ERpyInstructionResult::Wait;
   };
+  /** A click ends the pause early. */
+  virtual void Skip(URpySession *session) override
+  {
+    if (!running)
+      return;
+    running = false;
+    if (session->GetWorld())
+      session->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+    session->CompleteInstruction(this);
+  }
   virtual URpyInstruction *GetNext(URpySession *session) override
   {
     if (running == true)

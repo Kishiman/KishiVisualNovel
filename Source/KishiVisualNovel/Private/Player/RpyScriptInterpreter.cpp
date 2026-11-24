@@ -61,6 +61,11 @@ void URpyScriptInterpreterLibrary::HandleInstructionComplete_Default(const TScri
   {
     return;
   }
+  // A <together> block still waiting on other commands.
+  if (!Instruction->IsWaitComplete())
+  {
+    return;
+  }
 
   Session->RunNext();
   if (!Session->current)
@@ -68,6 +73,27 @@ void URpyScriptInterpreterLibrary::HandleInstructionComplete_Default(const TScri
     IRpyScriptInterpreter::Execute_Shutdown(InterpreterObject);
   }
 }
+void URpyScriptInterpreterLibrary::RequestSkip(const TScriptInterface<IRpyScriptInterpreter> &Target)
+{
+  UObject *InterpreterObject = Target.GetObject();
+  if (!IsValid(InterpreterObject))
+  {
+    UE_LOG(LogTemp, Error, TEXT("RequestSkip requires a valid interpreter."));
+    return;
+  }
+  URpySession *Session = IRpyScriptInterpreter::Execute_GetSession(InterpreterObject);
+  URpyInstruction *Waiting = IsValid(Session) ? Session->current : nullptr;
+  for (UObject *Manager : GetManagers(InterpreterObject))
+  {
+    IRpyScriptInterpreterBaseManager::Execute_OnSkipRequested(Manager);
+  }
+  // Ending a transition may already have moved the script on; do not skip the instruction that follows.
+  if (IsValid(Session) && Session->current && Session->current == Waiting)
+  {
+    Session->Skip();
+  }
+}
+
 void URpyScriptInterpreterLibrary::OnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, EMouthViseme viseme, float timeOffset)
 {
   UObject *InterpreterObject = Target.GetObject();

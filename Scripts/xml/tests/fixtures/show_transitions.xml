@@ -2,10 +2,11 @@
 <visualNovel version="1">
   <!-- show / hide: every built-in transition name.
        Expected: each line names the transition that just played, so the dialogue and the
-       animation must agree. The named directions are the four suffixes of "easein" and
-       "movein"; "ease" and "move" without a direction use the position change instead.
-       A transition that does nothing, or a "Could Not Found Default Transition" error in
-       the log, is a failure. -->
+       animation must agree. Each transition finishes before the next command starts, so a
+       line appears only once its sprite has arrived. The named directions are the four
+       suffixes of "easein" and "movein"; they slide in an image that is entering, so each
+       directional show follows a hide. A transition that does nothing, or a
+       "Could Not Found Default Transition" error in the log, is a failure. -->
   <label name="start">
     <scene asset="bg_meadow" />
 
@@ -34,10 +35,13 @@
 
     <show asset="sylvie" attributes="green normal" transition="easeinleft" duration="0.5" />
     <say>easeinleft</say>
+    <hide tag="sylvie" />
     <show asset="sylvie" attributes="green normal" transition="easeinright" duration="0.5" />
     <say>easeinright</say>
+    <hide tag="sylvie" />
     <show asset="sylvie" attributes="green normal" transition="easeintop" duration="0.5" />
     <say>easeintop (also accepted as easeinup)</say>
+    <hide tag="sylvie" />
     <show asset="sylvie" attributes="green normal" transition="easeinbottom" duration="0.5" />
     <say>easeinbottom (also accepted as easeindown)</say>
     <hide tag="sylvie" transition="easeinleft" duration="0.5" />
@@ -45,10 +49,13 @@
 
     <show asset="sylvie" attributes="green smile" transition="moveinleft" duration="0.5" />
     <say>moveinleft</say>
+    <hide tag="sylvie" />
     <show asset="sylvie" attributes="green smile" transition="moveinright" duration="0.5" />
     <say>moveinright</say>
+    <hide tag="sylvie" />
     <show asset="sylvie" attributes="green smile" transition="moveintop" duration="0.5" />
     <say>moveintop</say>
+    <hide tag="sylvie" />
     <show asset="sylvie" attributes="green smile" transition="moveinbottom" duration="0.5" />
     <say>moveinbottom</say>
     <hide tag="sylvie" transition="moveinbottom" duration="0.5" />

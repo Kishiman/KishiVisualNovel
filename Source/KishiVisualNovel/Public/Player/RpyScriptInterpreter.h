@@ -111,8 +111,11 @@ class KISHIVISUALNOVEL_API URpyScriptInterpreterLibrary : public UBlueprintFunct
 {
   GENERATED_BODY()
 public:
-  UFUNCTION(BlueprintCallable, Category = "Rpy Script Interpreter Library", meta = (DefaultToSelf = "Target", ToolTip = "Default HandleInstructionComplete: notify every manager's OnInstructionComplete, then advance the session if the current instruction returned Wait, and shut the interpreter down when the script ends."))
+  UFUNCTION(BlueprintCallable, Category = "Rpy Script Interpreter Library", meta = (DefaultToSelf = "Target", ToolTip = "Default HandleInstructionComplete: notify every manager's OnInstructionComplete, then advance the session if the current instruction returned Wait and waits on nothing else, and shut the interpreter down when the script ends."))
   static void HandleInstructionComplete_Default(const TScriptInterface<IRpyScriptInterpreter> &Target);
+
+  UFUNCTION(BlueprintCallable, Category = "Rpy Script Interpreter Library", meta = (DefaultToSelf = "Target", ToolTip = "Skip what the script is waiting for, as a click does outside dialogue: every manager gets OnSkipRequested (the show manager ends its transitions), then, if the script has not moved on, a pause ends. Lines of dialogue and menus are not skipped."))
+  static void RequestSkip(const TScriptInterface<IRpyScriptInterpreter> &Target);
 
   UFUNCTION(BlueprintCallable, Category = "Rpy Script Interpreter Library", meta = (DefaultToSelf = "Target", ToolTip = "Default OnDialogueViseme: forward the viseme to the audio and show managers."))
   static void OnDialogueViseme_Default(const TScriptInterface<IRpyScriptInterpreter> &Target, FName name, EMouthViseme viseme, float timeOffset);

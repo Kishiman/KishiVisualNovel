@@ -1,4 +1,5 @@
 #include "Managers/Show/KishiRpyShowManagerWidgetBase.h"
+#include "Script/RpyInstruction.h"
 #include "Player/RpyScriptInterpreterBaseManager.h"
 #include "Player/RpyScriptInterpreter.h"
 #include "Showables/LayeredSpriteHandler.h"
@@ -114,7 +115,9 @@ void UKishiRpyShowManagerWidgetBase::SetShowManagerState_Implementation(const FR
 	VNSHOW_LOG("SetShowManagerState with %d images.", State.imageStates.Num());
 	const FRpyShowManagerState Saved = State;
 	RemoveAllShowables();
+	ClearWaits();
 	ShowState.imageStates.Reset();
+	TGuardValue<bool> Restoring(bRestoringState, true);
 	URpyShowManagerLibrary::SetShowManagerState_Default(this, Saved);
 }
 
@@ -131,6 +134,18 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyIm
 	Existing->name = Image.tag;
 	Existing->rpyImage = Image;
 	Existing->options = Options;
+	if (HidingTags.Contains(Image.tag))
+	{
+		// Its hide is still playing: end it now, so this show enters instead of finding the image on screen,
+		// and report the hide as finished.
+		VNSHOW_LOG("Show '%s' ends the hide that is still playing.", *Image.tag.ToString());
+		UObject *Hiding = FindShowable(Image.tag);
+		if (IsValid(Hiding) && Hiding->GetClass()->ImplementsInterface(UAnimatable::StaticClass()) && IAnimatable::Execute_IsAnimating(Hiding))
+			IAnimatable::Execute_Skip(Hiding);
+		HidingTags.Remove(Image.tag);
+		ClearHideTimer(Image.tag);
+		FinishWaitsForTag(Image.tag);
+	}
 	ClearHideTimer(Image.tag);
 
 	// Errors below are logged and the script continues, so a broken image never stalls it.
@@ -176,7 +191,7 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyIm
 					PlayShowableTransition(Moving, HalfOptions, true, FVector2D::ZeroVector, true); }),
 																							 HalfOptions.transitionTime, false);
 				OnShowRequested(Image, Options);
-				return ERpyInstructionResult::Continue;
+				return BeginWait(Image.tag, ShowableOptions.Duration);
 			}
 			MoveFrom = PlaceWidgetShowable(Showable, FVector2D(Options.position.X, Options.position.Y), Options.zorder);
 		}
@@ -247,7 +262,10 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyIm
 									 *Geometry.GetAbsolutePosition().ToString(), IsInViewport() ? 1 : 0, *UEnum::GetValueAsString(GetVisibility())); }));
 		}
 	}
-	return Result;
+	if (Result == ERpyInstructionResult::Failed)
+		return Result;
+	// The script waits for the transition; a click skips it (OnSkipRequested).
+	return BeginWait(Image.tag, URpyShowManagerLibrary::MakeShowableOptions(Options).Duration);
 }
 
 ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName Tag, FRpySceneOptions Options)
@@ -273,17 +291,93 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Hide_Implementation(FName 
 	}
 	PlayShowableTransition(Showable, Options, false);
 	ClearHideTimer(StateTag);
+	HidingTags.Add(StateTag);
 	FTimerHandle &Handle = HideTimers.Add(StateTag);
 	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateWeakLambda(this, [this, StateTag]()
-																																					{ HideTimers.Remove(StateTag); RemoveShowable(StateTag); }),
+																																					{ FinishHide(StateTag); }),
 																				 Duration, false);
-	return ERpyInstructionResult::Continue;
+	// The script waits for the hide; FinishHide reports it once the showable is removed.
+	return BeginWait(StateTag, Duration, false);
+}
+
+void UKishiRpyShowManagerWidgetBase::FinishHide(FName Tag)
+{
+	ClearHideTimer(Tag);
+	HidingTags.Remove(Tag);
+	RemoveShowable(Tag);
+	FinishWaitsForTag(Tag);
+}
+
+void UKishiRpyShowManagerWidgetBase::OnSkipRequested_Implementation()
+{
+	VNSHOW_LOG("Skip requested: %d waits, %d hides playing.", Waits.Num(), HidingTags.Num());
+	for (const TPair<FName, UObject *> &Pair : TrackedShowables)
+	{
+		UObject *Showable = Pair.Value;
+		if (IsValid(Showable) && Showable->GetClass()->ImplementsInterface(UAnimatable::StaticClass()) && IAnimatable::Execute_IsAnimating(Showable))
+			IAnimatable::Execute_Skip(Showable);
+	}
+	for (const FName Tag : HidingTags.Array())
+		FinishHide(Tag);
+	// Reporting a completion can run the next instructions, which start new waits; finish only the ones that were running.
+	TArray<int32> Ids;
+	Waits.GetKeys(Ids);
+	for (const int32 Id : Ids)
+		FinishWait(Id);
+}
+
+ERpyInstructionResult UKishiRpyShowManagerWidgetBase::BeginWait(FName Tag, float Duration, bool bUseTimer)
+{
+	UWorld *World = GetWorld();
+	URpyInstruction *Instruction = URpyScriptInterpreterBaseManagerLibrary::GetExecutingInstruction(this);
+	if (bRestoringState || Duration <= 0.0f || !World || !Instruction)
+		return ERpyInstructionResult::Continue;
+	const int32 Id = NextWaitId++;
+	FShowWait &Wait = Waits.Add(Id);
+	Wait.Tag = Tag;
+	Wait.Instruction = Instruction;
+	if (bUseTimer)
+		World->GetTimerManager().SetTimer(Wait.Timer, FTimerDelegate::CreateWeakLambda(this, [this, Id]()
+																												 { FinishWait(Id); }),
+										  Duration, false);
+	return ERpyInstructionResult::Wait;
+}
+
+void UKishiRpyShowManagerWidgetBase::FinishWait(int32 Id)
+{
+	FShowWait Wait;
+	if (!Waits.RemoveAndCopyValue(Id, Wait))
+		return;
+	if (GetWorld())
+		GetWorld()->GetTimerManager().ClearTimer(Wait.Timer);
+	// The session ignores the completion if the script has already moved past the instruction.
+	if (URpyInstruction *Instruction = Wait.Instruction.Get())
+		URpyScriptInterpreterBaseManagerLibrary::ReportInstructionComplete(this, Instruction);
+}
+
+void UKishiRpyShowManagerWidgetBase::FinishWaitsForTag(FName Tag)
+{
+	TArray<int32> Ids;
+	for (const TPair<int32, FShowWait> &Pair : Waits)
+		if (Pair.Value.Tag == Tag)
+			Ids.Add(Pair.Key);
+	for (const int32 Id : Ids)
+		FinishWait(Id);
+}
+
+void UKishiRpyShowManagerWidgetBase::ClearWaits()
+{
+	if (GetWorld())
+		for (TPair<int32, FShowWait> &Pair : Waits)
+			GetWorld()->GetTimerManager().ClearTimer(Pair.Value.Timer);
+	Waits.Reset();
 }
 
 void UKishiRpyShowManagerWidgetBase::Reset_Implementation()
 {
 	VNSHOW_LOG("Reset, removing %d showables.", TrackedShowables.Num());
 	RemoveAllShowables();
+	ClearWaits();
 	ShowState.imageStates.Reset();
 	UKishiRpyManagerWidgetBase::Reset_Implementation();
 }
@@ -546,6 +640,7 @@ void UKishiRpyShowManagerWidgetBase::RemoveAllShowables()
 			GetWorld()->GetTimerManager().ClearTimer(Pair.Value);
 	}
 	HideTimers.Reset();
+	HidingTags.Reset();
 	TArray<FName> Tags;
 	TrackedShowables.GetKeys(Tags);
 	for (FName Tag : Tags)
