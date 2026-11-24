@@ -17,8 +17,8 @@ class UCanvasPanel;
 
 /**
  * Native show manager. Every shown image is an IShowable tracked by its tag: Show resolves a showable class
- * for the image (ResolveShowableClass), creates it (CreateShowableFromClass), gives it the image's asset
- * (ApplyImageToShowable) and calls IShowable::Show. Widget showables are placed in the ShowCanvas panel.
+ * for the image's asset (ResolveShowableClass), creates it (CreateShowableFromClass), gives it the asset
+ * (IShowable::SetShowableAsset) and calls IShowable::Show. Widget showables are placed in the ShowCanvas panel.
  */
 UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Show Manager Base"))
 class KISHIVISUALNOVEL_API UKishiRpyShowManagerWidgetBase : public UKishiRpyManagerWidgetBase, public IRpyShowManager
@@ -63,28 +63,20 @@ protected:
 	/** Panel that widget showables are added to. Name a Canvas Panel "ShowCanvas" in the child Widget Blueprint. */
 	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Kishi Rpy Show Manager Widget Base|Setup")
 	UCanvasPanel *ShowCanvas = nullptr;
-	/** Showable created for sprite and video images by the default ResolveShowableClass, such as KishiSpriteWidget. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kishi Rpy Show Manager Widget Base|Setup", meta = (MustImplement = "Showable"))
-	TSubclassOf<UObject> SpriteWidgetClass;
-	/** Showable created for layered sprite images by the default ResolveShowableClass, such as KishiLayeredSpriteWidget. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kishi Rpy Show Manager Widget Base|Setup", meta = (MustImplement = "Showable"))
-	TSubclassOf<UObject> LayeredSpriteWidgetClass;
-	/** Size that sprite and video images are fitted to. */
+	/** Rows checked before the showable registry in Project Settings, so a style can present an asset class with its own widget. Only the widget showable class is used. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kishi Rpy Show Manager Widget Base|Setup")
+	TArray<FKishiShowableClassEntry> ShowableClassOverrides;
+	/** Size passed to IShowable::SetShowableAsset; sprite and video showables fit their image to it. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kishi Rpy Show Manager Widget Base|Setup")
 	FVector2D ShowTargetSize = FVector2D(1920.0f, 1080.0f);
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "Kishi Rpy Show Manager Widget Base|State")
 	TMap<FName, UObject *> TrackedShowables;
 	TMap<FName, FTimerHandle> HideTimers;
 
-	/** Optional hook: pick the showable class for an image. The default returns LayeredSpriteWidgetClass for layered sprites and SpriteWidgetClass for sprites and videos, and None for other types. Override to support other image types or world-space showables. */
+	/** Optional hook: pick the showable class for an image. The default resolves the image's asset class against ShowableClassOverrides, then the showable registry in Project Settings (URpyShowManagerLibrary::ResolveShowableClass). */
 	UFUNCTION(BlueprintNativeEvent, Category = "Kishi Rpy Show Manager Widget Base|Hooks")
 	TSubclassOf<UObject> ResolveShowableClass(const FRpyImage &Image) const;
 	virtual TSubclassOf<UObject> ResolveShowableClass_Implementation(const FRpyImage &Image) const;
-
-	/** Optional hook: give a new showable the image's asset. The default calls URpyShowManagerLibrary::ApplyImageToShowable with ShowTargetSize. Return false if the asset could not be applied. */
-	UFUNCTION(BlueprintNativeEvent, Category = "Kishi Rpy Show Manager Widget Base|Hooks")
-	bool ApplyImageToShowable(UObject *Showable, const FRpyImage &Image);
-	virtual bool ApplyImageToShowable_Implementation(UObject *Showable, const FRpyImage &Image);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Show Manager Widget Base|Hooks", meta = (ToolTip = "Optional hook called after an image is shown."))
 	void OnShowRequested(const FRpyImage &Image, const FRpySceneOptions &Options);

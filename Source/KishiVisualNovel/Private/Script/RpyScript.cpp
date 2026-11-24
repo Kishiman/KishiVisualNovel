@@ -6,13 +6,35 @@
 #include "Script/RpyInstructions.h"
 #include "Settings/KishiVisualNovelSettings.h"
 
-FRpyImage FRpyImage::MakeLayeredImage(FName name, FString path)
+void FRpyImage::PostSerialize(const FArchive &Ar)
 {
-  FRpyImage rpyLayeredImage;
-  rpyLayeredImage.type = ERpyImageType::ELAYERED_SPRITE;
-  rpyLayeredImage.name = name;
-  rpyLayeredImage.path = path;
-  return rpyLayeredImage;
+  if (!Ar.IsLoading())
+    return;
+  if (asset.IsNull())
+  {
+    UObject *Legacy = sprite ? static_cast<UObject *>(sprite)
+                             : layeredSprite ? static_cast<UObject *>(layeredSprite)
+                                             : levelSequence ? static_cast<UObject *>(levelSequence)
+                                                             : static_cast<UObject *>(videoMediaSprite);
+    if (Legacy)
+    {
+      asset = Legacy;
+    }
+    else if (type != ERpyImageType::ENONE && !path.IsEmpty())
+    {
+      // Old images stored the package path ("/Game/Images/bg"); an object path also names the asset ("/Game/Images/bg.bg").
+      FString ObjectPath = path;
+      if (!ObjectPath.Contains(TEXT(".")))
+        ObjectPath += TEXT(".") + FPackageName::GetShortName(ObjectPath);
+      asset = TSoftObjectPtr<UObject>(FSoftObjectPath(ObjectPath));
+    }
+  }
+  type = ERpyImageType::ENONE;
+  sprite = nullptr;
+  layeredSprite = nullptr;
+  levelSequence = nullptr;
+  videoMediaSprite = nullptr;
+  path.Reset();
 }
 
 bool URpyScript::AddDefaultTransition(FName name, FString path)
@@ -97,41 +119,33 @@ bool URpyScript::AddDefaultImage(FName name, FString path)
   FRpyImage rpyImage;
   if (sprite)
   {
-    rpyImage.type = ERpyImageType::ESPRITE;
     rpyImage.name = name;
-    rpyImage.sprite = sprite;
-    rpyImage.path = foundPath;
+    rpyImage.asset = sprite;
     rpyImage.tag = mainName;
     this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
   else if (layeredImage)
   {
-    rpyImage.type = ERpyImageType::ELAYERED_SPRITE;
     rpyImage.name = mainName;
     rpyImage.tag = mainName;
-    rpyImage.layeredSprite = layeredImage;
-    rpyImage.path = foundPath;
+    rpyImage.asset = layeredImage;
     this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
   else if (levelSequence)
   {
-    rpyImage.type = ERpyImageType::ELEVEL_SEQUENCE;
     rpyImage.name = mainName;
     rpyImage.tag = mainName;
-    rpyImage.levelSequence = levelSequence;
-    rpyImage.path = foundPath;
+    rpyImage.asset = levelSequence;
     this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
   else if (videoMediaSprite)
   {
-    rpyImage.type = ERpyImageType::EVIDEO_MEDIA_SPRITE;
     rpyImage.name = mainName;
     rpyImage.tag = mainName;
-    rpyImage.videoMediaSprite = videoMediaSprite;
-    rpyImage.path = foundPath;
+    rpyImage.asset = videoMediaSprite;
     this->images.Add(rpyImage.name, rpyImage);
     return true;
   }
@@ -202,52 +216,17 @@ void URpyScript::LoadRpyData()
   if (this->AssetImportData)
     this->AssetImportData->GetPathName().Split("/", &basePath, &right, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
   TArray<FName> keys;
-  // load images
-  images.GetKeys(keys);
-  for (auto &key : keys)
+  // load images, and keep them resident with the script as the old hard references did
+  LoadedImageAssets.Reset();
+  for (const TPair<FName, FRpyImage> &Pair : images)
   {
-    FRpyImage &rpyImage = images[key];
-    FString path = rpyImage.path;
-    try
-    {
-      if (!FFileHelper::IsFilenameValidForSaving(path, err))
-      {
-        UE_LOG(LogTemp, Error, TEXT("error :%s"), (*err.ToString()));
-        continue;
-      }
-      switch (rpyImage.type)
-      {
-      case ERpyImageType::ESPRITE:
-        rpyImage.sprite = Cast<UPaperSprite>(StaticLoadObject(UPaperSprite::StaticClass(), NULL, *path));
-        break;
-      case ERpyImageType::ELAYERED_SPRITE:
-        rpyImage.layeredSprite = Cast<ULayeredSprite>(StaticLoadObject(ULayeredSprite::StaticClass(), NULL, *path));
-        break;
-      case ERpyImageType::ELEVEL_SEQUENCE:
-        rpyImage.levelSequence = Cast<ULevelSequence>(StaticLoadObject(ULevelSequence::StaticClass(), NULL, *path));
-        break;
-      case ERpyImageType::EVIDEO_MEDIA_SPRITE:
-        rpyImage.videoMediaSprite = Cast<UVideoMediaSprite>(StaticLoadObject(UVideoMediaSprite::StaticClass(), NULL, *path));
-        if (!rpyImage.videoMediaSprite)
-        {
-          UE_LOG(LogTemp, Error, TEXT("FRpyImage not found at path : %s"), (*path));
-        }
-        break;
-      default:
-        break;
-      }
-      if (!rpyImage.sprite && !rpyImage.layeredSprite && !rpyImage.levelSequence && !rpyImage.videoMediaSprite)
-      {
-        UE_LOG(LogTemp, Error, TEXT("RpyImage not found at path : %s"), (*path));
-      }
-    }
-    catch (const std::exception &e)
-    {
-      UE_LOG(LogTemp, Error, TEXT("error at path : %s"), (*path));
-      UE_LOG(LogTemp, Error, TEXT("Caught exception: %s"), e.what());
+    if (Pair.Value.asset.IsNull())
       continue;
-    }
-  };
+    if (UObject *Asset = Pair.Value.LoadAsset())
+      LoadedImageAssets.Add(Asset);
+    else
+      UE_LOG(LogTemp, Error, TEXT("%s: image '%s' references %s, which could not be loaded."), *GetName(), *Pair.Key.ToString(), *Pair.Value.asset.ToString());
+  }
   keys.Empty();
   // audios
   audios.GetKeys(keys);

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Assets/KishiDataAssetBase.h"
+#include "Showables/KishiShowableAsset.h"
 #include "Layerable.h"
 #include "PaperSprite.h"
 #include "Utils/StringUtils.h"
@@ -29,7 +29,7 @@ struct KISHIVISUALNOVEL_API FSpriteLayer
 	UPaperSprite *sprite;
 };
 UCLASS(BlueprintType)
-class KISHIVISUALNOVEL_API ULayeredSprite : public UKishiDataAssetBase
+class KISHIVISUALNOVEL_API ULayeredSprite : public UKishiShowableAsset
 {
 	GENERATED_BODY()
 public:

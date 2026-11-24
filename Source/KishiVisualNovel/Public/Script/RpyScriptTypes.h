@@ -161,6 +161,7 @@ struct FRpyTransition
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString path;
 };
+/** Legacy: the kind of asset an FRpyImage held before step 6. Read only to convert old scripts and saves; FRpyImage::asset replaces it. */
 UENUM(BlueprintType)
 enum struct ERpyImageType : uint8
 {
@@ -171,26 +172,53 @@ enum struct ERpyImageType : uint8
 	EVIDEO_MEDIA_SPRITE UMETA(DisplayName = "Video Media Sprite"),
 };
 
+/**
+ * An image a script shows: an asset and the tag it is shown under. The asset can be of any class the
+ * showable registry in Project Settings maps to a showable (a Paper2D sprite, a layered sprite, a video
+ * media sprite), or a level sequence for a scene. No asset means "nothing", as in "scene _".
+ */
 USTRUCT(BlueprintType)
-struct FRpyImage
+struct KISHIVISUALNOVEL_API FRpyImage
 {
 	GENERATED_USTRUCT_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ERpyImageType type = ERpyImageType::ENONE;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UPaperSprite *sprite = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ULayeredSprite *layeredSprite = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ULevelSequence *levelSequence = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UVideoMediaSprite *videoMediaSprite = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	/** The asset to show. Its class picks the showable through the registry in Project Settings. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Image")
+	TSoftObjectPtr<UObject> asset;
+	/** The name the script declared the image under. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Image")
 	FName name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString path;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	/** The tag the image is shown under; showing another image with the same tag replaces it. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Image")
 	FName tag;
-	static FRpyImage MakeLayeredImage(FName name, FString path);
+
+	/** Returns the asset, loading it if needed, or null when there is none or it cannot be loaded. */
+	UObject *LoadAsset() const { return asset.LoadSynchronous(); }
+
+	/** Converts the legacy fields below into asset after loading old data. */
+	void PostSerialize(const FArchive &Ar);
+
+	// Legacy fields, kept under their old names so old scripts and saves load. PostSerialize moves them into
+	// asset and clears them; do not read or write them.
+	UPROPERTY()
+	ERpyImageType type = ERpyImageType::ENONE;
+	UPROPERTY()
+	UPaperSprite *sprite = nullptr;
+	UPROPERTY()
+	ULayeredSprite *layeredSprite = nullptr;
+	UPROPERTY()
+	ULevelSequence *levelSequence = nullptr;
+	UPROPERTY()
+	UVideoMediaSprite *videoMediaSprite = nullptr;
+	UPROPERTY()
+	FString path;
+};
+
+template <>
+struct TStructOpsTypeTraits<FRpyImage> : public TStructOpsTypeTraitsBase2<FRpyImage>
+{
+	enum
+	{
+		WithPostSerialize = true,
+	};
 };
 

@@ -25,6 +25,9 @@ public:
 	FString scriptXml;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyImage> images;
+	/** The images' assets, loaded by LoadRpyData so they stay resident while the script is. */
+	UPROPERTY(Transient)
+	TArray<UObject *> LoadedImageAssets;
 	UPROPERTY(EditAnywhere)
 	TMap<FName, FRpyAudio> audios;
 	UPROPERTY(EditAnywhere)

@@ -15,6 +15,7 @@
 #include "LevelSequencePlayer.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequence.h"
+#include "Showables/VideoMediaSprite.h"
 #include "MovieScene.h"
 #include "MovieSceneTrack.h"
 #include "Sections/MovieSceneCameraCutSection.h"
@@ -86,13 +87,12 @@ void UKishiRpySceneManagerWidgetBase::SetSceneManagerState_Implementation(const 
 
 ERpyInstructionResult UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpyImage Image, FRpySceneOptions Options)
 {
-	VNSCENE_LOG("scene tag='%s' type=%s sprite=%s video=%s sequence=%s", *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type), *GetNameSafe(Image.sprite),
-							*GetNameSafe(Image.videoMediaSprite), *GetNameSafe(Image.levelSequence));
+	VNSCENE_LOG("scene tag='%s' asset=%s", *Image.tag.ToString(), *Image.asset.ToString());
 	SceneState.rpyImage = Image;
 	SceneState.options = Options;
 	// Anchor and camera transition first: "scene _" with a transition still moves the camera.
 	ApplySceneCameraTransition(Options);
-	if (Image.type == ERpyImageType::ENONE)
+	if (Image.asset.IsNull())
 	{
 		// "scene _" clears the scene.
 		if (IsValid(SceneSprite))
@@ -100,41 +100,39 @@ ERpyInstructionResult UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpy
 		OnSceneRequested(Image, Options);
 		return ERpyInstructionResult::Continue;
 	}
+	UObject *Asset = Image.LoadAsset();
 	EnsureSceneSprite();
 	bool bHandled = false;
 	if (IsValid(SceneSprite))
 		SceneSprite->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	switch (Image.type)
+	if (ULevelSequence *Sequence = Cast<ULevelSequence>(Asset))
 	{
-	case ERpyImageType::ESPRITE:
-		if (IsValid(SceneSprite) && IsValid(Image.sprite))
+		// A level sequence image replaces any transition sequence started above.
+		bHandled = PlaySceneSequence(Sequence, FindSceneCamera());
+	}
+	else if (UPaperSprite *PaperSprite = Cast<UPaperSprite>(Asset))
+	{
+		if (IsValid(SceneSprite))
 		{
-			bHandled = SetImageOnWidget(SceneSprite, Image.sprite, SceneTargetSize);
+			bHandled = SetImageOnWidget(SceneSprite, PaperSprite, SceneTargetSize);
 			if (!bHandled)
 				UE_LOG(LogTemp, Error, TEXT("%s: SceneSprite %s has no SetSprite function."), *GetName(), *SceneSprite->GetClass()->GetName());
 		}
-		break;
-	case ERpyImageType::EVIDEO_MEDIA_SPRITE:
-		if (IsValid(SceneSprite) && IsValid(Image.videoMediaSprite) && IsValid(Image.videoMediaSprite->fileMediaSource))
+	}
+	else if (UVideoMediaSprite *Video = Cast<UVideoMediaSprite>(Asset))
+	{
+		if (IsValid(SceneSprite) && IsValid(Video->fileMediaSource))
 		{
-			bHandled = SetMediaOnWidget(SceneSprite, Image.videoMediaSprite->fileMediaSource, SceneTargetSize);
+			bHandled = SetMediaOnWidget(SceneSprite, Video->fileMediaSource, SceneTargetSize);
 			if (!bHandled)
 				UE_LOG(LogTemp, Error, TEXT("%s: SceneSprite %s has no SetFileMediaSource function."), *GetName(), *SceneSprite->GetClass()->GetName());
 		}
-		break;
-	case ERpyImageType::ELEVEL_SEQUENCE:
-		// A level sequence image replaces any transition sequence started above.
-		if (IsValid(Image.levelSequence))
-			bHandled = PlaySceneSequence(Image.levelSequence, FindSceneCamera());
-		break;
-	default:
-		break;
 	}
 	if (!bHandled)
 	{
 		// Reported as Failed below; the session applies the Failed Instruction Policy.
-		UE_LOG(LogTemp, Error, TEXT("%s: could not display scene image '%s' of type %s. Check the image's asset, and add a SceneSprite widget or set SceneSpriteClass."),
-					 *GetName(), *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type));
+		UE_LOG(LogTemp, Error, TEXT("%s: could not display scene image '%s' (%s). A scene shows a Paper2D sprite or a video media sprite in SceneSprite (add one or set SceneSpriteClass), or plays a level sequence."),
+					 *GetName(), *Image.tag.ToString(), *Image.asset.ToString());
 	}
 	FString SpriteBrush = TEXT("None");
 	if (IsValid(SceneSprite))

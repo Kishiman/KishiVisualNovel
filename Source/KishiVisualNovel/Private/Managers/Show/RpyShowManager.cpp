@@ -1,8 +1,7 @@
 #include "Managers/Show/RpyShowManager.h"
 
-#include "Player/KishiRpyWidgetReflection.h"
 #include "Showables/LayeredSpriteHandler.h"
-#include "Showables/VideoMediaSprite.h"
+#include "Showables/LayeredSprite.h"
 
 void URpyShowManagerLibrary::SetShowManagerState_Default(const TScriptInterface<IRpyShowManager> &Target, const FRpyShowManagerState &State)
 {
@@ -62,34 +61,23 @@ FKishiShowableOptions URpyShowManagerLibrary::MakeShowableOptions(const FRpyScen
 	return Result;
 }
 
-bool URpyShowManagerLibrary::ApplyImageToShowable(UObject *Showable, const FRpyImage &Image, FVector2D TargetSize)
+TSubclassOf<UObject> URpyShowManagerLibrary::ResolveShowableClass(const UObject *Asset, EKishiShowableSpace Space, const TArray<FKishiShowableClassEntry> &Overrides)
 {
-	if (!IsValid(Showable))
-		return false;
-	switch (Image.type)
-	{
-	case ERpyImageType::ELAYERED_SPRITE:
-		if (!IsValid(Image.layeredSprite) || !Showable->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()))
-			return false;
-		ILayeredSpriteHandler::Execute_SetSprite(Showable, Image.layeredSprite);
-		return true;
-	case ERpyImageType::ESPRITE:
-		return IsValid(Image.sprite) && SetImageOnWidget(Cast<UUserWidget>(Showable), Image.sprite, TargetSize);
-	case ERpyImageType::EVIDEO_MEDIA_SPRITE:
-		return IsValid(Image.videoMediaSprite) && IsValid(Image.videoMediaSprite->fileMediaSource) &&
-			   SetMediaOnWidget(Cast<UUserWidget>(Showable), Image.videoMediaSprite->fileMediaSource, TargetSize);
-	default:
-		return false;
-	}
+	if (!IsValid(Asset))
+		return nullptr;
+	if (TSubclassOf<UObject> Override = UKishiVisualNovelSettings::ResolveShowableClass(Overrides, Asset->GetClass(), Space))
+		return Override;
+	return UKishiVisualNovelSettings::ResolveShowableClass(Asset->GetClass(), Space);
 }
 
 bool URpyShowManagerLibrary::CanReuseShowable(UObject *Showable, TSubclassOf<UObject> ShowableClass, const FRpyImage &Image)
 {
-	// Sprites and videos are recreated so the new image runs its own show transition.
-	if (!IsValid(Showable) || !ShowableClass || Showable->GetClass() != ShowableClass.Get() || Image.type != ERpyImageType::ELAYERED_SPRITE)
+	// Only a layered sprite switches in place (to new attributes); sprites and videos are recreated so the new image runs its own show transition.
+	ULayeredSprite *LayeredSprite = Cast<ULayeredSprite>(Image.asset.Get());
+	if (!LayeredSprite || !IsValid(Showable) || !ShowableClass || Showable->GetClass() != ShowableClass.Get())
 		return false;
 	return Showable->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()) &&
-		   ILayeredSpriteHandler::Execute_GetSprite(Showable) == Image.layeredSprite;
+		   ILayeredSpriteHandler::Execute_GetSprite(Showable) == LayeredSprite;
 }
 
 void URpyShowManagerLibrary::ForwardSpeakerViseme(UObject *Speaker, EMouthViseme Viseme, float TimeOffset)

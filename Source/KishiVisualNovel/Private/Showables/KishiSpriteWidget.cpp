@@ -1,4 +1,5 @@
 #include "Showables/KishiSpriteWidget.h"
+#include "Showables/VideoMediaSprite.h"
 
 #include "Components/Image.h"
 #include "Components/Overlay.h"
@@ -59,6 +60,27 @@ void UKishiSpriteWidget::ApplySpriteBrush(UObject* Resource, FVector2D SourceSiz
 	}
 	SpriteImage->SetBrush(Brush);
 	SpriteImage->SetOpacity(1.0f);
+}
+
+bool UKishiSpriteWidget::SetShowableAsset_Implementation(UObject* Asset, FVector2D TargetSize)
+{
+	if (UPaperSprite* PaperSprite = Cast<UPaperSprite>(Asset))
+	{
+		SetSprite(PaperSprite, TargetSize, Method);
+		return true;
+	}
+	if (UVideoMediaSprite* Video = Cast<UVideoMediaSprite>(Asset))
+	{
+		if (!IsValid(Video->fileMediaSource))
+		{
+			UE_LOG(LogTemp, Error, TEXT("%s: video media sprite %s has no file media source."), *GetName(), *Video->GetName());
+			return false;
+		}
+		SetFileMediaSource(Video->fileMediaSource, TargetSize, Method);
+		return true;
+	}
+	UE_LOG(LogTemp, Error, TEXT("%s: cannot display %s; a sprite widget shows Paper2D sprites and video media sprites."), *GetName(), *GetNameSafe(Asset));
+	return false;
 }
 
 void UKishiSpriteWidget::SetSprite(UPaperSprite* InSprite, FVector2D TargetSize, EScalingMethod ScalingMethod)

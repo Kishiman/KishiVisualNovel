@@ -216,6 +216,18 @@ void UKishiLayeredSpriteWidgetBase::NativeTick(const FGeometry &MyGeometry, floa
 	SuperTick(InDeltaTime);
 }
 
+bool UKishiLayeredSpriteWidgetBase::SetShowableAsset_Implementation(UObject *Asset, FVector2D TargetSize)
+{
+	ULayeredSprite *NewSprite = Cast<ULayeredSprite>(Asset);
+	if (!NewSprite)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: cannot display %s; a layered sprite widget shows layered sprites."), *GetName(), *GetNameSafe(Asset));
+		return false;
+	}
+	ILayeredSpriteHandler::Execute_SetSprite(this, NewSprite);
+	return true;
+}
+
 ULayeredSprite *UKishiLayeredSpriteWidgetBase::GetSprite_Implementation() const
 {
 	return LayeredSprite;

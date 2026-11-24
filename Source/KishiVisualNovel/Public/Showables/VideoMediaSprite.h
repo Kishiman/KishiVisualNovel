@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Assets/KishiDataAssetBase.h"
+#include "Showables/KishiShowableAsset.h"
 #include "Utils/StringUtils.h"
 #include "FileMediaSource.h"
 #include "VideoMediaSprite.generated.h"
@@ -23,7 +23,7 @@ struct KISHIVISUALNOVEL_API FMediaSection
 	float loopStartTime;
 };
 UCLASS(BlueprintType)
-class KISHIVISUALNOVEL_API UVideoMediaSprite : public UKishiDataAssetBase
+class KISHIVISUALNOVEL_API UVideoMediaSprite : public UKishiShowableAsset
 {
 	GENERATED_BODY()
 public:

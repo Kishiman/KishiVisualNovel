@@ -5,6 +5,7 @@
 #include "Player/RpyScriptInterpreterBaseManager.h"
 #include "Script/RpyScriptTypes.h"
 #include "Showables/Showable.h"
+#include "Settings/KishiVisualNovelSettings.h"
 
 #include "RpyShowManager.generated.h"
 
@@ -49,10 +50,10 @@ public:
   UFUNCTION(BlueprintPure, Category = "Rpy Show Manager Library", meta = (ToolTip = "Convert script scene options into the options IShowable::Show and IShowable::Hide take."))
   static FKishiShowableOptions MakeShowableOptions(const FRpySceneOptions &Options);
 
-  UFUNCTION(BlueprintCallable, Category = "Rpy Show Manager Library", meta = (ToolTip = "Give a showable the image's asset: ILayeredSpriteHandler::SetSprite for layered sprites, and a SetSprite or SetFileMediaSource function, fitted to TargetSize, for sprites and videos. Returns false if the asset could not be applied."))
-  static bool ApplyImageToShowable(UObject *Showable, const FRpyImage &Image, FVector2D TargetSize);
+  UFUNCTION(BlueprintCallable, Category = "Rpy Show Manager Library", meta = (ToolTip = "Return the showable class that presents Asset in Space: the first match in Overrides, else in the registry in Project Settings, walking up Asset's class hierarchy. Returns None when Asset is None or nothing matches."))
+  static TSubclassOf<UObject> ResolveShowableClass(const UObject *Asset, EKishiShowableSpace Space, const TArray<FKishiShowableClassEntry> &Overrides);
 
-  UFUNCTION(BlueprintPure, Category = "Rpy Show Manager Library", meta = (ToolTip = "True when Showable can switch to the image in place: it is of ShowableClass and is a layered sprite showing the image's asset. Sprites and videos are recreated so the new image plays its own show transition."))
+  UFUNCTION(BlueprintPure, Category = "Rpy Show Manager Library", meta = (ToolTip = "True when Showable can switch to the image in place: it is of ShowableClass, and the image's asset is the layered sprite it already shows. Sprites and videos are recreated so the new image plays its own show transition."))
   static bool CanReuseShowable(UObject *Showable, TSubclassOf<UObject> ShowableClass, const FRpyImage &Image);
 
   UFUNCTION(BlueprintCallable, Category = "Rpy Show Manager Library", meta = (ToolTip = "Forward a dialogue viseme to the speaker's showable if it implements ILayeredSpriteHandler. Does nothing otherwise."))

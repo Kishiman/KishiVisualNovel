@@ -18,6 +18,9 @@ class KISHIVISUALNOVEL_API UKishiSpriteWidget : public UKishiShowableWidget
 	GENERATED_BODY()
 
 public:
+	/** Displays a Paper2D sprite or a video media sprite's media source, scaled to TargetSize with this widget's Method. */
+	virtual bool SetShowableAsset_Implementation(UObject* Asset, FVector2D TargetSize) override;
+
 	UFUNCTION(BlueprintCallable, Category="Kishi Sprite Widget")
 	void SetSprite(UPaperSprite* InSprite, FVector2D TargetSize = FVector2D(1920.0f, 1080.0f), EScalingMethod ScalingMethod = EScalingMethod::Fit);
 

@@ -62,4 +62,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="IShowable|Required", meta=(ToolTip="Required: report whether this object is currently visible."))
 	bool IsShown() const;
 	virtual bool IsShown_Implementation() const { UE_LOG(LogTemp, Error, TEXT("Required IShowable::IsShown implementation missing on %s"), *GetNameSafe(_getUObject())); return false; }
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="IShowable|Required", meta=(ToolTip="Required: display Asset, an asset the showable registry in Project Settings maps to this class, fitted to TargetSize if this showable scales its content. Return false, after logging why, if this showable cannot display it."))
+	bool SetShowableAsset(UObject* Asset, FVector2D TargetSize);
+	virtual bool SetShowableAsset_Implementation(UObject* Asset, FVector2D TargetSize) { UE_LOG(LogTemp, Error, TEXT("Required IShowable::SetShowableAsset implementation missing on %s"), *GetNameSafe(_getUObject())); return false; }
 };

@@ -21,9 +21,7 @@ namespace
 {
 	FString DescribeImage(const FRpyImage &Image)
 	{
-		return FString::Printf(TEXT("tag='%s' type=%s sprite=%s layered=%s video=%s"),
-													 *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type), *GetNameSafe(Image.sprite),
-													 *GetNameSafe(Image.layeredSprite), *GetNameSafe(Image.videoMediaSprite));
+		return FString::Printf(TEXT("tag='%s' asset=%s"), *Image.tag.ToString(), *Image.asset.ToString());
 	}
 
 	FString DescribeOptions(const FRpySceneOptions &Options)
@@ -60,9 +58,8 @@ void UKishiRpyShowManagerWidgetBase::NativeOnInitialized()
 	Super::NativeOnInitialized();
 	if (IsDesignTime())
 		return;
-	VNSHOW_LOG("initialized. class=%s ShowCanvas=%s SpriteWidgetClass=%s LayeredSpriteWidgetClass=%s ShowTargetSize=%s",
-						 *GetClass()->GetName(), *GetNameSafe(ShowCanvas), *GetNameSafe(SpriteWidgetClass.Get()),
-						 *GetNameSafe(LayeredSpriteWidgetClass.Get()), *ShowTargetSize.ToString());
+	VNSHOW_LOG("initialized. class=%s ShowCanvas=%s ShowableClassOverrides=%d ShowTargetSize=%s",
+						 *GetClass()->GetName(), *GetNameSafe(ShowCanvas), ShowableClassOverrides.Num(), *ShowTargetSize.ToString());
 	if (ShowCanvas)
 		VNSHOW_LOG("ShowCanvas %s", *DescribeWidget(ShowCanvas));
 	for (const FName FunctionName : {FName(TEXT("Show")), FName(TEXT("Hide")), FName(TEXT("SetShowManagerState")), FName(TEXT("Reset"))})
@@ -188,8 +185,8 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyIm
 	{
 		if (!ShowableClass)
 		{
-			UE_LOG(LogTemp, Error, TEXT("%s: no showable class for image '%s' of type %s. Set SpriteWidgetClass and LayeredSpriteWidgetClass, or override ResolveShowableClass."),
-						 *GetName(), *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type));
+			UE_LOG(LogTemp, Error, TEXT("%s: no widget showable for image '%s' (%s). Add a row for its asset class to Showables in Project Settings > Plugins > Kishi Visual Novel, or to ShowableClassOverrides."),
+						 *GetName(), *Image.tag.ToString(), *Image.asset.ToString());
 			OnShowRequested(Image, Options);
 			return ERpyInstructionResult::Failed;
 		}
@@ -201,10 +198,10 @@ ERpyInstructionResult UKishiRpyShowManagerWidgetBase::Show_Implementation(FRpyIm
 			return ERpyInstructionResult::Failed;
 		}
 		VNSHOW_LOG("Show created %s", *DescribeWidget(Showable));
-		if (!ApplyImageToShowable(Showable, Image))
+		UObject *Asset = Image.asset.Get();
+		if (!Showable->GetClass()->ImplementsInterface(UShowable::StaticClass()) || !IShowable::Execute_SetShowableAsset(Showable, Asset, ShowTargetSize))
 		{
-			UE_LOG(LogTemp, Error, TEXT("%s: could not give image '%s' of type %s to showable %s."),
-						 *GetName(), *Image.tag.ToString(), *UEnum::GetValueAsString(Image.type), *GetNameSafe(Showable));
+			UE_LOG(LogTemp, Error, TEXT("%s: could not give image '%s' (%s) to showable %s."), *GetName(), *Image.tag.ToString(), *Image.asset.ToString(), *GetNameSafe(Showable));
 			Result = ERpyInstructionResult::Failed;
 		}
 		else
@@ -427,25 +424,7 @@ bool UKishiRpyShowManagerWidgetBase::RemoveShowable(FName Tag)
 
 TSubclassOf<UObject> UKishiRpyShowManagerWidgetBase::ResolveShowableClass_Implementation(const FRpyImage &Image) const
 {
-	switch (Image.type)
-	{
-	case ERpyImageType::ELAYERED_SPRITE:
-		return LayeredSpriteWidgetClass;
-	case ERpyImageType::ESPRITE:
-	case ERpyImageType::EVIDEO_MEDIA_SPRITE:
-		return SpriteWidgetClass;
-	default:
-		return nullptr;
-	}
-}
-
-bool UKishiRpyShowManagerWidgetBase::ApplyImageToShowable_Implementation(UObject *Showable, const FRpyImage &Image)
-{
-	if (!IsValid(Showable))
-		return false;
-	VNSHOW_LOG("ApplyImageToShowable %s: hasSetSprite=%d implementsLayeredSpriteHandler=%d", *Showable->GetName(),
-						 Showable->FindFunction(FName(TEXT("SetSprite"))) ? 1 : 0, Showable->GetClass()->ImplementsInterface(ULayeredSpriteHandler::StaticClass()) ? 1 : 0);
-	return URpyShowManagerLibrary::ApplyImageToShowable(Showable, Image, ShowTargetSize);
+	return URpyShowManagerLibrary::ResolveShowableClass(Image.LoadAsset(), EKishiShowableSpace::Widget, ShowableClassOverrides);
 }
 
 FVector2D UKishiRpyShowManagerWidgetBase::PlaceWidgetShowable(UObject *Showable, FVector2D Position, int32 ZOrder) const

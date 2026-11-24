@@ -26,6 +26,8 @@ class KISHIVISUALNOVEL_API UKishiLayeredSpriteWidgetBase : public UKishiShowable
 public:
 	virtual void Show_Implementation(const FKishiShowableOptions& Options) override;
 	virtual void HandleAnimationEnded_Implementation() override;
+	/** Displays a layered sprite through ILayeredSpriteHandler::SetSprite. The layers keep their own size, so TargetSize is not used. */
+	virtual bool SetShowableAsset_Implementation(UObject *Asset, FVector2D TargetSize) override;
 	virtual ULayeredSprite *GetSprite_Implementation() const override;
 	virtual void SetSprite_Implementation(ULayeredSprite *Sprite) override;
 	virtual bool GetLayerDisplay_Implementation(FName LayerName) const override;

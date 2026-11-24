@@ -24,6 +24,33 @@ enum class ERpyFailedInstructionPolicy : uint8
 	LogAndStop UMETA(DisplayName = "Log and Stop", ToolTip = "Log an error and end the script there. The interpreter gets OnScriptComplete, as when a script reaches its end."),
 };
 
+/** Where a showable is presented: in UMG, or in the world as an actor or actor component. */
+UENUM(BlueprintType)
+enum class EKishiShowableSpace : uint8
+{
+	Widget UMETA(ToolTip = "A UMG widget, such as the ones a widget show manager places on its canvas."),
+	World UMETA(ToolTip = "An actor or actor component, such as the ones a world-space show manager spawns."),
+};
+
+/** One row of the showable registry: the showable classes that present an asset class. */
+USTRUCT(BlueprintType)
+struct KISHIVISUALNOVEL_API FKishiShowableClassEntry
+{
+	GENERATED_BODY()
+
+	/** The asset class this row handles. It also handles subclasses that have no row of their own. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Showable", meta = (AllowAbstract = "true"))
+	TSoftClassPtr<UObject> AssetClass;
+
+	/** The widget showable that presents this asset class. It must implement IShowable and accept the asset in SetShowableAsset. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Showable", meta = (MustImplement = "Showable"))
+	TSoftClassPtr<UObject> WidgetShowableClass;
+
+	/** The actor or actor component showable that presents this asset class in the world. It must implement IShowable and accept the asset in SetShowableAsset. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Showable", meta = (MustImplement = "Showable"))
+	TSoftClassPtr<UObject> WorldShowableClass;
+};
+
 /**
  * Project-wide settings for KishiVisualNovel, under Project Settings > Plugins > Kishi Visual Novel.
  *
@@ -56,6 +83,18 @@ public:
 
 	UPROPERTY(config, EditAnywhere, Category = "Asset Search", meta = (ToolTip = "Folders searched, in order, for voice lines. A speaker's voice folder is tried under each of these first, then the voice id on its own. Use long package paths such as /Game/Voice."))
 	TArray<FString> VoiceSearchFolders;
+
+	UPROPERTY(config, EditAnywhere, Category = "Showables", meta = (ToolTip = "Which showable presents each asset class that scripts show. A manager resolves an image's asset class against these rows, walking up the class hierarchy until a row has a showable for its space, so the most specific row wins. Managers can override rows for their own style."))
+	TArray<FKishiShowableClassEntry> ShowableClasses;
+
+	/**
+	 * The showable class for AssetClass in Space: the first row in Entries whose asset class is AssetClass, or failing that its nearest
+	 * parent class, and that has a showable for Space. Loads the showable class if needed. Returns null when no row matches.
+	 */
+	static TSubclassOf<UObject> ResolveShowableClass(const TArray<FKishiShowableClassEntry> &Entries, const UClass *AssetClass, EKishiShowableSpace Space);
+
+	/** ResolveShowableClass against the project's ShowableClasses. */
+	static TSubclassOf<UObject> ResolveShowableClass(const UClass *AssetClass, EKishiShowableSpace Space);
 
 	/** The configured search folders for one kind of asset. */
 	const TArray<FString> &GetSearchFolders(EKishiAssetSearchKind Kind) const;
