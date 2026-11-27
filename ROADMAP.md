@@ -292,8 +292,8 @@ Blueprint:
 
 Tests:
 
-- [ ] Play `scene_transitions`: each background plays its transition over the previous one, nothing shows through, and each line waits for its transition.
-- [ ] Play `scene_clear`: `scene _` removes the background and leaves the sprite.
+- [x] Play `scene_transitions`: each background plays its transition over the previous one, nothing shows through, and each line waits for its transition.
+- [x] Play `scene_clear`: `scene _` removes the background and leaves the sprite.
 - [ ] Play `scene_level_sequence`: sequences and camera anchors work as before.
 - [ ] Save and load with a background shown: it comes back without a transition.
 - [ ] Play `db_cooper_keiku` (re-import it first): every scene cuts to a video that fills the screen and stops on its last frame, the first one loops its last 0.2 s, and the dialogue box is empty until the first line.
