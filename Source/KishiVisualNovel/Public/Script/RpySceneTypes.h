@@ -29,6 +29,9 @@ struct FRpySceneOptions
 	float transitionTime = 1.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int zorder = 0;
+	/** Videos only. 0 plays the video once and holds its last frame; a positive value loops the last that many seconds; a negative value loops the whole video. Script: loop="0.2", loop="true". */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float loop = 0.0f;
 };
 USTRUCT(BlueprintType)
 struct FRpySceneManagerState

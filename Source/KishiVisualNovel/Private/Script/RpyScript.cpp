@@ -857,6 +857,12 @@ namespace
         }
       }
       Props.GetFloat(FName(TEXT("duration")), Options.transitionTime);
+      // loop="true" loops a whole video, loop="0.2" its last 0.2 seconds; without it a video plays once.
+      bool bLoop = false;
+      if (Props.GetBool(FName(TEXT("loop")), bLoop))
+        Options.loop = bLoop ? -1.0f : 0.0f;
+      else if (Props.GetFloat(FName(TEXT("loop")), Options.loop) && Options.loop < 0.0f)
+        Options.loop = 0.0f;
       Props.GetInteger(FName(TEXT("zOrder")), Options.zorder);
       FString Layer;
       if (Props.GetString(FName(TEXT("layer")), Layer))

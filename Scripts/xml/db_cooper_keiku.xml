@@ -24,23 +24,23 @@
   <label name="start">
     <play channel="music" asset="tense_music" loop="true" />
     <play channel="sound" asset="footsteps" loop="true" />
-    <scene asset="hand_note" transition="dissolve" />
+    <scene asset="hand_note" loop="1.0" />
     <say character="narrator">Before she walks away, you lean in slightly, keeping your voice low.</say>
     <say character="cooper">Miss, I need you to do something for me. It's very important.</say>
     <say character="flight_attendant">What is it, sir?</say>
-    <scene asset="attendant_read_note" transition="dissolve" />
+    <scene asset="attendant_read_note" loop="1.0" />
     <say character="narrator">You hand her a note, your expression serious.</say>
     <say character="narrator">Her smile falters as she opens the note. Her eyes widen in shock.</say>
     <stop channel="sound" />
     <play channel="music" asset="hard_heart" fadeIn="3" loop="true" />
-    <scene asset="note" transition="dissolve" />
+    <scene asset="note" loop="1.0" />
     <say character="narrator">The note reads:</say>
     <say character="narrator">"I have a bomb. I want $200,000 in cash, four parachutes, and a fuel
       truck standing by in Seattle. This is not a joke."</say>
-    <scene asset="bg_briefcase" transition="dissolve" />
+    <scene asset="bg_briefcase" />
     <say character="narrator">You point to the briefcase.</say>
     <say character="cooper">This is the briefcase. It contains the bomb</say>
-    <scene asset="romance_start" transition="dissolve" />
+    <scene asset="romance_start" loop="1.0" />
     <say character="narrator">The flight attendant's face pales as she processes the gravity of the
       situation.</say>
     <say character="flight_attendant">You... you can't be serious.</say>
@@ -69,14 +69,14 @@
       </choice>
     </menu>
     <say character="narrator">Regardless of your approach, she nods, her expression serious.</say>
-    <scene asset="attendant_go_cockpit" transition="dissolve" />
+    <scene asset="attendant_go_cockpit" loop="1.0" />
     <say character="flight_attendant">What do you want me to do?</say>
     <say character="cooper">I need you to deliver this message to the authorities. Tell them I want
       the money and supplies ready when we land.</say>
     <say character="flight_attendant">And if they don't comply?</say>
     <say character="cooper">Then this plane goes down.</say>
     <say character="narrator">She nods, her face pale but determined.</say>
-    <scene asset="cockpit_pilot" transition="dissolve" />
+    <scene asset="cockpit_pilot" loop="1.0" />
     <say character="narrator">The flight attendant walks to the cockpit, her heels clicking on the
       floor.</say>
     <play channel="sound" asset="footsteps" fadeOut="2" />
@@ -91,25 +91,25 @@
     <say character="pilot">We need to inform the authorities immediately. This is a serious
       situation.</say>
     <say character="narrator">The flight attendant nods, her expression resolute.</say>
-    <scene asset="plane_land" transition="dissolve" />
+    <scene asset="plane_land" loop="1.0" />
     <say character="narrator">The plane lands safely in Seattle, the tension palpable.</say>
-    <scene asset="attendant_offboard" transition="dissolve" />
+    <scene asset="attendant_offboard" />
     <say character="narrator">The flight attendant disembarks, her expression a mix of fear and
       determination.</say>
     <play channel="sound" asset="footsteps" fadeOut="2" />
     <say character="narrator">You watch her go, knowing that the next steps are crucial.</say>
-    <scene asset="attendant_get_ransom" transition="dissolve" />
+    <scene asset="attendant_get_ransom" loop="1.0" />
     <say character="narrator">The authorities prepare the ransom, and the flight attendant returns
       to the plane.</say>
-    <scene asset="plane_takeoff" transition="dissolve" />
+    <scene asset="plane_takeoff" />
     <say character="narrator">The plane takes off again, the atmosphere tense but hopeful.</say>
-    <scene asset="attendant_hand_parachute" transition="dissolve" />
+    <scene asset="attendant_hand_parachute" loop="1.0" />
     <say character="narrator">The flight attendant hands you the parachutes, her hands shaking
       slightly.</say>
     <say character="flight_attendant">The money is ready. We can proceed with the exchange.</say>
     <say character="cooper">Thank you. Now, I need you to stay calm and follow my instructions.</say>
     <if condition="romance">
-      <scene asset="romance_end" transition="dissolve" />
+      <scene asset="romance_end" />
       <say character="narrator">You exchange a brief, understanding glance with the flight
         attendant, a silent agreement forged in the chaos.</say>
       <say character="narrator">She passes you a note, and walks away.</say>

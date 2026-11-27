@@ -51,26 +51,26 @@ Other parts of the target:
 
 ## Roadmap
 
-Steps 1 to 6, 10 and the C++ of 11 are done (steps 3 to 6 still need a Blueprint compile in the editor). Legacy was deleted on 2026-11-22, so the remaining steps only touch C++ and the VN2D, VN3D and FPS Blueprints built on the Bases, with no Legacy Blueprint rework. Step 14 (command timing, added 2026-11-24) is done in C++. Step 7 comes next. Step 13's content moves can run alongside it, since they touch only assets and settings.
+Steps 1 to 7, 10 and the C++ of 11 are done (steps 3 to 7 still need a Blueprint compile in the editor). Legacy was deleted on 2026-11-22, so the remaining steps only touch C++ and the VN2D, VN3D and FPS Blueprints built on the Bases, with no Legacy Blueprint rework. Steps 7 and 14 (command timing, added 2026-11-24) are done in C++. Step 8 comes next. Step 13's content moves can run alongside it, since they touch only assets and settings.
 
 Rename any UFUNCTION, class or struct with a `[CoreRedirects]` entry so existing Blueprint nodes keep resolving. Put plugin redirects in `Plugins/KishiVisualNovel/Config/DefaultKishiVisualNovel.ini` (created in step 5), so they ship with the plugin; engine plugins such as Paper2D do the same in their own ini. A rename that only changes case needs no redirect, since FName lookups ignore case.
 
-| #   | Step                    | C++ change                                                                                                                                                                       | Blueprint rework                                                                      | Other actions                                                     |
-| --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| 1   | Stabilize the session   | `labels.Find`; fix `operator&` / `operator!`; `ClearScript` removes only its argument; drop `try` / `catch`; `InterpreterClass` becomes `TSubclassOf<UObject>` + `MustImplement` | None                                                                                  | Test that a missing label logs an error instead of asserting      |
-| 2   | Port the VN2D managers  | Only hooks a Base is missing                                                                                                                                                     | Done: VN2D Choice, Scene, Show, Audio, Save menu and Save slot from the C++ Bases     | Done: Legacy deleted (2026-11-22)                                 |
-| 3   | Instruction result enum | Done: `ERpyInstructionResult` on `Execute()` and on every manager operation; `FailedInstructionPolicy` setting                                                                   | None: no Blueprint overrides or calls a manager operation (export, 2026-11-22)        | Done: `Failed` logs and advances by default                       |
-| 4   | Tidy the interfaces     | Done: no `= 0` on interface events; `GetCurrent*State` removed; `const` fixed; categories; `Execute_*` at self-calls; PascalCase menu functions                                  | None: no Blueprint uses the removed or renamed functions (export, 2026-11-22)         | None: the menu renames change only case, so no redirects          |
-| 5   | Libraries               | Done: `URpyScriptInterpreterLibrary`; five manager libraries; Bases call the shared logic; `ReportInstructionComplete`                                                           | None: no Blueprint calls the renamed or moved functions (export, 2026-11-22)          | Done: redirects in `Config/DefaultKishiVisualNovel.ini`           |
-| 6   | Showable assets         | Done: any asset is an image; `UKishiShowableAsset`; registry in Project Settings; `SetShowableAsset`; `FRpyImage` = asset + tag, converted in `PostSerialize`                    | None: `WGT_Sprite` is not a show manager showable                                     | Optional: resave scripts and layered sprites                      |
-| 7   | Unify show and scene    | Shared show Library; delete the `ShownWidgets` path; merge the option structs                                                                                                    | Re-wire struct nodes in `KishiWidget`; add a background canvas to `VN2D_SceneManager` | `StructRedirects`                                                 |
-| 8   | World-space managers    | Show and scene manager **components** (see step 10), not Actor Bases                                                                                                             | Optional: reparent world showables                                                    | Decide which managers need world space                            |
-| 9   | Docs                    | None                                                                                                                                                                             | None                                                                                  | Point `CLAUDE.md` at `@AGENTS.md`; add the architecture rules     |
-| 10  | Components over actors  | Component counterpart of every class in `Public/Deprecated/Actors`; `IRpyMainComponent`; actor-or-component lookup libraries                                                     | Done: the VN styles and interaction actors use the components                         | Deprecate `Public/Deprecated/Actors`, which no asset uses         |
-| 11  | Interaction             | Interaction interfaces and handler components; `URpyFirstPersonComponent`                                                                                                        | Finish the script chain in `Blueprints/InteractableActors`                            | Re-enter placed values in `DetectiveOffice_Layout` and `FPS_demo` |
-| 12  | Speakers                | `ISpeaker` and `UKishiCharacterAsset` (done); `FRpySpeaker`, `SayAs`, voice playback                                                                                             | None until the statement manager applies the styles                                   | Fixtures, `XML_FORMAT.md`, `DA_John`                              |
-| 13  | Layout and styles       | Configurable search folders and feature folders (done); `UKishiVNStyleAsset`; `URpyComponent` takes a style                                                                      | Move Content into `Core`, `Styles`, `Demo`, `Tests`, `ThirdParty`; `_Template` style  | Fix up redirectors; re-import fixtures; rerun the reference scan  |
-| 14  | Command timing          | Done: `show` / `hide` with a transition return `Wait`; `<together>`; completion per instruction; click to skip; show during a hide                                               | None                                                                                  | Re-import the fixtures; `scene` transitions wait in step 7        |
+| #   | Step                    | C++ change                                                                                                                                                                       | Blueprint rework                                                                     | Other actions                                                     |
+| --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| 1   | Stabilize the session   | `labels.Find`; fix `operator&` / `operator!`; `ClearScript` removes only its argument; drop `try` / `catch`; `InterpreterClass` becomes `TSubclassOf<UObject>` + `MustImplement` | None                                                                                 | Test that a missing label logs an error instead of asserting      |
+| 2   | Port the VN2D managers  | Only hooks a Base is missing                                                                                                                                                     | Done: VN2D Choice, Scene, Show, Audio, Save menu and Save slot from the C++ Bases    | Done: Legacy deleted (2026-11-22)                                 |
+| 3   | Instruction result enum | Done: `ERpyInstructionResult` on `Execute()` and on every manager operation; `FailedInstructionPolicy` setting                                                                   | None: no Blueprint overrides or calls a manager operation (export, 2026-11-22)       | Done: `Failed` logs and advances by default                       |
+| 4   | Tidy the interfaces     | Done: no `= 0` on interface events; `GetCurrent*State` removed; `const` fixed; categories; `Execute_*` at self-calls; PascalCase menu functions                                  | None: no Blueprint uses the removed or renamed functions (export, 2026-11-22)        | None: the menu renames change only case, so no redirects          |
+| 5   | Libraries               | Done: `URpyScriptInterpreterLibrary`; five manager libraries; Bases call the shared logic; `ReportInstructionComplete`                                                           | None: no Blueprint calls the renamed or moved functions (export, 2026-11-22)         | Done: redirects in `Config/DefaultKishiVisualNovel.ini`           |
+| 6   | Showable assets         | Done: any asset is an image; `UKishiShowableAsset`; registry in Project Settings; `SetShowableAsset`; `FRpyImage` = asset + tag, converted in `PostSerialize`                    | None: `WGT_Sprite` is not a show manager showable                                    | Optional: resave scripts and layered sprites                      |
+| 7   | Unify show and scene    | Done: `UKishiShowableLayer` shared by the show and scene Bases; backgrounds on a `Fill` layer that wait; option structs kept separate                                            | Delete `SceneSprite` from `VN2D_RPYSceneManager`                                     | None                                                              |
+| 8   | World-space managers    | Show and scene manager **components** (see step 10), not Actor Bases                                                                                                             | Optional: reparent world showables                                                   | Decide which managers need world space                            |
+| 9   | Docs                    | None                                                                                                                                                                             | None                                                                                 | Point `CLAUDE.md` at `@AGENTS.md`; add the architecture rules     |
+| 10  | Components over actors  | Component counterpart of every class in `Public/Deprecated/Actors`; `IRpyMainComponent`; actor-or-component lookup libraries                                                     | Done: the VN styles and interaction actors use the components                        | Deprecate `Public/Deprecated/Actors`, which no asset uses         |
+| 11  | Interaction             | Interaction interfaces and handler components; `URpyFirstPersonComponent`                                                                                                        | Finish the script chain in `Blueprints/InteractableActors`                           | Re-enter placed values in `DetectiveOffice_Layout` and `FPS_demo` |
+| 12  | Speakers                | `ISpeaker` and `UKishiCharacterAsset` (done); `FRpySpeaker`, `SayAs`, voice playback                                                                                             | None until the statement manager applies the styles                                  | Fixtures, `XML_FORMAT.md`, `DA_John`                              |
+| 13  | Layout and styles       | Configurable search folders and feature folders (done); `UKishiVNStyleAsset`; `URpyComponent` takes a style                                                                      | Move Content into `Core`, `Styles`, `Demo`, `Tests`, `ThirdParty`; `_Template` style | Fix up redirectors; re-import fixtures; rerun the reference scan  |
+| 14  | Command timing          | Done: `show` / `hide` with a transition return `Wait`; `<together>`; completion per instruction; click to skip; show during a hide                                               | None                                                                                 | Re-import the fixtures; `scene` transitions wait in step 7        |
 
 ## Checklist
 
@@ -214,7 +214,7 @@ C++ (built 2026-11-22):
   - Statement: `GetSpeakerDisplayName`, `ToggleSaveMenu`, `ToggleLoadMenu`, `QuickSave`, `QuickLoad`, and a C++ `EmitDialogueViseme`.
 - [x] `URpyScriptInterpreterBaseManagerLibrary::ReportInstructionComplete` calls `HandleInstructionComplete` on a manager's interpreter, so any manager that returned `Wait` can report completion. The statement Base uses it.
 - [x] The Bases call the Libraries. They keep what is tied to their storage or widgets: state structs, panels and canvases, showable tracking and placement, the scene sprite, and which camera is anchored and where it came from. Without an interpreter, `Choose` and line completion now log an error where they did nothing before.
-- [ ] Left for later: showable tracking, placement and transitions move to the show Library in step 7 (with the scene manager), and remembering the anchored camera moves when step 8 adds the scene component. The session setup that `ARpyMainActorBase` duplicates waits on the deprecation decision in step 10.
+- [ ] Left for later: remembering the anchored camera moves when step 8 adds the scene component. (Showable tracking, placement and transitions moved into `UKishiShowableLayer` in step 7.) The session setup that `ARpyMainActorBase` duplicates waits on the deprecation decision in step 10.
 
 Blueprint:
 
@@ -260,12 +260,43 @@ Tests:
 
 ### 7. Unify show and scene
 
-- [ ] Have the scene manager call the show Library on a background layer.
-- [x] Delete the `ShownWidgets` path and keep `TrackedShowables` (done in step 2).
-- [ ] Merge `FRpySceneOptions` into `FKishiShowableOptions`, with `StructRedirects` if needed.
-- [ ] Stop the scene manager from calling `AddToViewport` on its own sprite.
-- [ ] Blueprint: re-wire the break/make struct nodes in `KishiWidget`.
-- [ ] Blueprint: add a background canvas to `VN2D_SceneManager`.
+Decisions (2026-11-25):
+
+- `FRpySceneOptions` and `FKishiShowableOptions` stay separate. The first is what the script says (layer, transition, position, `zorder`) and is saved in the session state; the second is the animation an `IShowable` plays. `URpyShowManagerLibrary::MakeShowableOptions` converts one into the other. Merging them would put script fields on `IShowable`, need a struct redirect for saves, and break `KishiWidget`'s break and make nodes, for no gain.
+- The shared code is a class, not Library functions, because it keeps state: `UKishiShowableLayer` holds the showables on one canvas by tag, and the transitions and waits on them. The show and scene manager Bases each own one.
+
+C++ (built 2026-11-25):
+
+- [x] Added `UKishiShowableLayer` (`Managers/Show/KishiShowableLayer.h`): creating showables from a class, placing (`BottomCenter`, or `Fill`, which centers and scales to cover the canvas), fitting, show and hide transitions, the show-during-a-hide rule, waits and skip, all moved out of the show manager Base. Off-screen offsets for directional transitions now follow the slot's alignment, so they work for both placements.
+- [x] The show manager Base keeps `ShowState`, `ResolveShowableClass`, its hooks and its Blueprint-callable showable functions, which forward to the layer. `TrackedShowables` is replaced by `ShowableLayer`.
+- [x] The scene manager shows backgrounds on its own layer with `Fill` placement, through the registry like a show. Each background gets a new tag, and the old one stays under it until the new one's transition ends (`RetireShowable`). `scene _` hides the background with its transition. A `scene` with a transition now waits, and a click skips it. Level sequences and camera anchors are unchanged.
+- [x] Removed `SceneSpriteClass`, `EnsureSceneSprite` and the `AddToViewport` fallback. Without a `SceneCanvas` in the tree, the Base wraps the tree in a new root canvas with `SceneCanvas` at the back. A leftover `SceneSprite` widget is collapsed with a warning.
+- [x] Delete the `ShownWidgets` path and keep `TrackedShowables` (done in step 2; the map now lives in the layer).
+- [x] Dropped: merging `FRpySceneOptions` into `FKishiShowableOptions` (see the decision above), and with it re-wiring `KishiWidget`.
+
+Fixes after playing `db_cooper_keiku` (2026-11-27, built):
+
+- [x] Video backgrounds showed nothing: `UKishiSpriteWidget` played media only with a `MediaPlayer` and `MediaTexture` assigned, and the registry creates the native class with neither. It now creates its own (so two videos can cross-fade), sizes the image to the video once it opens, and stops decoding in `NativeDestruct`. The showable layer refits a showable when its measured size changes.
+- [x] No black glimpse when the next background is a video: new optional hook `IShowable::IsLoading` (`UKishiSpriteWidget`: true until the video's first frame). The showable layer keeps a loading showable hidden and holds back its show transition, and `RetireShowable` takes the replacement's tag, so the old background stays until the new one is on screen (at most 2 s).
+- [x] `FKishiShowableOptions` defaults to a cut (no animation, duration 0) instead of a 0.5 s fade.
+- [x] Videos play once and hold their last frame. New `loop` attribute on `scene` and `show` (`FRpySceneOptions::loop`, passed on as `FKishiShowableOptions::MediaLoop`): `loop="true"` loops the whole video, `loop="0.2"` the last 0.2 s. The sprite widget pauses or seeks back a frame and a half before the end, so the player never reaches the end and clears the image. Once a video opens, its texture stops clearing (`AutoClear` off), so a loop's seek keeps the last frame instead of flashing what is behind it.
+- [x] `db_cooper_keiku.xml`: the scenes are cuts (the `dissolve` transitions from the `.rpy` are removed), and the first scene loops its last 0.2 s.
+- [ ] Check the 0.2 s loop on `hand_note`: the video has a keyframe every 0.75 s, so a player that seeks only to keyframes loops a longer stretch. Re-encoding with more keyframes would fix that.
+- [x] Loading a save cuts to the saved background and images: `SetShowManagerState_Default` and `SetSceneManagerState_Default` pass the options through the new `URpyShowManagerLibrary::WithoutTransition`, so transitions and camera sequences are not replayed.
+- [x] The statement manager Base clears the speaker and text when it initializes, so the designer's placeholders ("Speaker", "Lorem...") no longer show before the first line. `Reset` clears the speaker name too.
+
+Blueprint:
+
+- [ ] Compile all Blueprints in the editor.
+- [ ] `VN2D_RPYSceneManager`: delete the `SceneSprite` widget (the Base collapses it meanwhile). Optionally add a Canvas Panel named `SceneCanvas`; without one, the Base makes it.
+
+Tests:
+
+- [ ] Play `scene_transitions`: each background plays its transition over the previous one, nothing shows through, and each line waits for its transition.
+- [ ] Play `scene_clear`: `scene _` removes the background and leaves the sprite.
+- [ ] Play `scene_level_sequence`: sequences and camera anchors work as before.
+- [ ] Save and load with a background shown: it comes back without a transition.
+- [ ] Play `db_cooper_keiku` (re-import it first): every scene cuts to a video that fills the screen and stops on its last frame, the first one loops its last 0.2 s, and the dialogue box is empty until the first line.
 
 ### 8. World-space managers
 
@@ -525,7 +556,7 @@ C++:
 - [x] A `show` of a tag whose hide is still playing ends the hide, reports it, and plays a full entrance.
 - [x] `<pause>` completes through `CompleteInstruction` instead of calling `RunNext`, so it works inside `<together>`.
 - [x] Loading a save: a restored line or menu waits for the player again (its `LastResult` is set to `Wait`; after a fresh start it was `Continue`, so a click could not advance it), and any other restored instruction runs again, since saving during a transition now stores the waiting `show`.
-- [ ] `scene` does not wait yet: the scene manager plays no transition on its sprite. Step 7 moves it onto the show Library, which brings the wait.
+- [x] `scene` waits for its transition since step 7, which put backgrounds on a showable layer.
 - [ ] The click comes from the statement manager widget, so it only skips where that widget receives clicks.
 
 Docs and fixtures:

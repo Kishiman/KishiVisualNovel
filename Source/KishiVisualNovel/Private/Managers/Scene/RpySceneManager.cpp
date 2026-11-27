@@ -1,4 +1,5 @@
 #include "Managers/Scene/RpySceneManager.h"
+#include "Managers/Show/RpyShowManager.h"
 
 #include "Camera/PlayerCameraManager.h"
 #include "EngineUtils.h"
@@ -23,7 +24,8 @@ void URpySceneManagerLibrary::SetSceneManagerState_Default(const TScriptInterfac
 		UE_LOG(LogTemp, Error, TEXT("SetSceneManagerState_Default requires a valid manager."));
 		return;
 	}
-	IRpySceneManager::Execute_Scene(Manager, State.rpyImage, State.options);
+	// A loaded save cuts to its background, and does not replay its transition or camera sequence.
+	IRpySceneManager::Execute_Scene(Manager, State.rpyImage, URpyShowManagerLibrary::WithoutTransition(State.options));
 }
 
 AActor *URpySceneManagerLibrary::FindSceneCamera(const UObject *WorldContextObject, APlayerController *PlayerController)

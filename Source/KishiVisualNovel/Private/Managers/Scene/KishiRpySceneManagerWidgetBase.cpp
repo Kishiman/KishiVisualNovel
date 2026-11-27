@@ -30,7 +30,6 @@
 #include "Templates/KishiScriptInterface.h"
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
-#include "Player/KishiRpyWidgetReflection.h"
 #include "Blueprint/WidgetTree.h"
 
 // Temporary scene tracing. Filter the Output Log on "[VNScene]".
@@ -38,50 +37,80 @@
 
 TSharedRef<SWidget> UKishiRpySceneManagerWidgetBase::RebuildWidget()
 {
-	// Before the Slate widget is built, so a SceneSprite made the root of an empty tree is part of it.
+	// Before the Slate widget is built, so a SceneCanvas made here is part of it.
 	if (!IsDesignTime())
-		EnsureSceneSprite();
+		EnsureSceneCanvas();
 	return Super::RebuildWidget();
 }
 
-void UKishiRpySceneManagerWidgetBase::EnsureSceneSprite()
+void UKishiRpySceneManagerWidgetBase::NativeOnInitialized()
 {
-	if (IsValid(SceneSprite) || !SceneSpriteClass || !WidgetTree)
+	Super::NativeOnInitialized();
+	if (IsDesignTime())
 		return;
-	UUserWidget *Sprite = WidgetTree->ConstructWidget<UUserWidget>(SceneSpriteClass, TEXT("SceneSprite"));
-	if (!Sprite)
+	EnsureSceneCanvas();
+	GetLayer();
+	if (IsValid(SceneSprite))
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s: could not create SceneSpriteClass %s."), *GetName(), *GetNameSafe(SceneSpriteClass));
+		UE_LOG(LogTemp, Warning, TEXT("%s: SceneSprite is no longer used; backgrounds are shown on SceneCanvas. It is collapsed; delete it from the Widget Blueprint."), *GetName());
+		SceneSprite->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void UKishiRpySceneManagerWidgetBase::NativeTick(const FGeometry &MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+	if (ShowableLayer)
+		ShowableLayer->Tick();
+}
+
+UKishiShowableLayer *UKishiRpySceneManagerWidgetBase::GetLayer()
+{
+	if (!ShowableLayer)
+	{
+		ShowableLayer = NewObject<UKishiShowableLayer>(this, TEXT("SceneLayer"));
+		ShowableLayer->Initialize(this, SceneCanvas);
+	}
+	ShowableLayer->SetCanvas(SceneCanvas);
+	ShowableLayer->Placement = EKishiShowablePlacement::Fill;
+	ShowableLayer->TargetSize = SceneTargetSize;
+	return ShowableLayer;
+}
+
+void UKishiRpySceneManagerWidgetBase::EnsureSceneCanvas()
+{
+	if (IsValid(SceneCanvas) || !WidgetTree)
+		return;
+	UWidget *OldRoot = WidgetTree->RootWidget;
+	UCanvasPanel *Root = WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(), TEXT("SceneRoot"));
+	SceneCanvas = WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(), TEXT("SceneCanvas"));
+	if (!Root || !SceneCanvas)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: could not create SceneCanvas."), *GetName());
+		SceneCanvas = nullptr;
 		return;
 	}
-	SceneSprite = Sprite;
-	if (!WidgetTree->RootWidget)
+	auto FillCanvas = [](UCanvasPanelSlot *CanvasSlot, int32 ZOrder)
 	{
-		WidgetTree->RootWidget = SceneSprite;
-		VNSCENE_LOG("created %s (%s) as the root of the empty widget tree.", *SceneSprite->GetName(), *SceneSpriteClass->GetName());
-	}
-	else if (UPanelWidget *RootPanel = Cast<UPanelWidget>(WidgetTree->RootWidget))
-	{
-		// First child, so it draws behind anything else the manager's tree holds.
-		if (UCanvasPanelSlot *CanvasSlot = Cast<UCanvasPanelSlot>(RootPanel->InsertChildAt(0, SceneSprite)))
-		{
-			CanvasSlot->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
-			CanvasSlot->SetOffsets(FMargin(0.0f));
-		}
-		VNSCENE_LOG("created %s (%s) behind the children of root panel %s.", *SceneSprite->GetName(), *SceneSpriteClass->GetName(), *RootPanel->GetName());
-	}
-	else
-	{
-		bOwnsSceneSprite = true;
-		// Below the player widget, so the background never covers its sprites and dialogue.
-		SceneSprite->AddToViewport(-100);
-		VNSCENE_LOG("root %s is not a panel, added %s (%s) to the viewport behind the player.", *WidgetTree->RootWidget->GetName(), *SceneSprite->GetName(),
-								*SceneSpriteClass->GetName());
-	}
+		if (!CanvasSlot)
+			return;
+		CanvasSlot->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
+		CanvasSlot->SetOffsets(FMargin(0.0f));
+		CanvasSlot->SetZOrder(ZOrder);
+	};
+	FillCanvas(Root->AddChildToCanvas(SceneCanvas), -1000);
+	if (OldRoot)
+		FillCanvas(Root->AddChildToCanvas(OldRoot), 0);
+	WidgetTree->RootWidget = Root;
+	VNSCENE_LOG("created SceneCanvas behind %s.", *GetNameSafe(OldRoot));
 }
 
 void UKishiRpySceneManagerWidgetBase::SetSceneManagerState_Implementation(const FRpySceneManagerState &State)
 {
+	UKishiShowableLayer *SceneLayer = GetLayer();
+	SceneLayer->Reset();
+	BackgroundTag = NAME_None;
+	TGuardValue<bool> Restoring(SceneLayer->bRestoringState, true);
 	URpySceneManagerLibrary::SetSceneManagerState_Default(this, State);
 }
 
@@ -92,61 +121,50 @@ ERpyInstructionResult UKishiRpySceneManagerWidgetBase::Scene_Implementation(FRpy
 	SceneState.options = Options;
 	// Anchor and camera transition first: "scene _" with a transition still moves the camera.
 	ApplySceneCameraTransition(Options);
+	UKishiShowableLayer *SceneLayer = GetLayer();
+	ERpyInstructionResult Result = ERpyInstructionResult::Continue;
 	if (Image.asset.IsNull())
 	{
-		// "scene _" clears the scene.
-		if (IsValid(SceneSprite))
-			SceneSprite->SetVisibility(ESlateVisibility::Collapsed);
+		// "scene _" clears the background, with its transition.
+		if (!BackgroundTag.IsNone())
+			Result = SceneLayer->Hide(BackgroundTag, Options);
+		BackgroundTag = NAME_None;
 		OnSceneRequested(Image, Options);
-		return ERpyInstructionResult::Continue;
+		return Result;
 	}
 	UObject *Asset = Image.LoadAsset();
-	EnsureSceneSprite();
-	bool bHandled = false;
-	if (IsValid(SceneSprite))
-		SceneSprite->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	if (ULevelSequence *Sequence = Cast<ULevelSequence>(Asset))
 	{
-		// A level sequence image replaces any transition sequence started above.
-		bHandled = PlaySceneSequence(Sequence, FindSceneCamera());
+		// A level sequence image replaces any transition sequence started above, and keeps the background.
+		Result = PlaySceneSequence(Sequence, FindSceneCamera()) ? ERpyInstructionResult::Continue : ERpyInstructionResult::Failed;
+		OnSceneRequested(Image, Options);
+		return Result;
 	}
-	else if (UPaperSprite *PaperSprite = Cast<UPaperSprite>(Asset))
+	const TSubclassOf<UObject> ShowableClass = URpyShowManagerLibrary::ResolveShowableClass(Asset, EKishiShowableSpace::Widget, ShowableClassOverrides);
+	// A new tag for every background, so the previous one stays under it while its transition plays.
+	FRpyImage Background = Image;
+	Background.tag = FName(TEXT("Background"), ++BackgroundCount);
+	Result = SceneLayer->Show(Background, Options, ShowableClass);
+	if (Result == ERpyInstructionResult::Failed)
 	{
-		if (IsValid(SceneSprite))
-		{
-			bHandled = SetImageOnWidget(SceneSprite, PaperSprite, SceneTargetSize);
-			if (!bHandled)
-				UE_LOG(LogTemp, Error, TEXT("%s: SceneSprite %s has no SetSprite function."), *GetName(), *SceneSprite->GetClass()->GetName());
-		}
+		// Reported as Failed; the session applies the Failed Instruction Policy, and the previous background stays.
+		UE_LOG(LogTemp, Error, TEXT("%s: could not display scene image '%s' (%s)."), *GetName(), *Image.tag.ToString(), *Image.asset.ToString());
+		SceneLayer->RemoveShowable(Background.tag);
 	}
-	else if (UVideoMediaSprite *Video = Cast<UVideoMediaSprite>(Asset))
+	else
 	{
-		if (IsValid(SceneSprite) && IsValid(Video->fileMediaSource))
-		{
-			bHandled = SetMediaOnWidget(SceneSprite, Video->fileMediaSource, SceneTargetSize);
-			if (!bHandled)
-				UE_LOG(LogTemp, Error, TEXT("%s: SceneSprite %s has no SetFileMediaSource function."), *GetName(), *SceneSprite->GetClass()->GetName());
-		}
+		if (!BackgroundTag.IsNone())
+			SceneLayer->RetireShowable(BackgroundTag, URpyShowManagerLibrary::MakeShowableOptions(Options).Duration, Background.tag);
+		BackgroundTag = Background.tag;
 	}
-	if (!bHandled)
-	{
-		// Reported as Failed below; the session applies the Failed Instruction Policy.
-		UE_LOG(LogTemp, Error, TEXT("%s: could not display scene image '%s' (%s). A scene shows a Paper2D sprite or a video media sprite in SceneSprite (add one or set SceneSpriteClass), or plays a level sequence."),
-					 *GetName(), *Image.tag.ToString(), *Image.asset.ToString());
-	}
-	FString SpriteBrush = TEXT("None");
-	if (IsValid(SceneSprite))
-		if (FObjectProperty *ImageProperty = FindFProperty<FObjectProperty>(SceneSprite->GetClass(), TEXT("SpriteImage")))
-			if (UImage *SpriteImage = Cast<UImage>(ImageProperty->GetObjectPropertyValue_InContainer(SceneSprite)))
-				SpriteBrush = FString::Printf(TEXT("%s size=%s opacity=%.2f"), *GetNameSafe(SpriteImage->Brush.GetResourceObject()), *SpriteImage->Brush.ImageSize.ToString(),
-																			SpriteImage->ColorAndOpacity.A);
-	VNSCENE_LOG("sceneSprite class=%s brush=%s", IsValid(SceneSprite) ? *SceneSprite->GetClass()->GetName() : TEXT("None"), *SpriteBrush);
-	VNSCENE_LOG("handled=%d sceneSprite=%s parent=%s inViewport=%d visibility=%s managerVisibility=%s managerSize=%s", bHandled ? 1 : 0, *GetNameSafe(SceneSprite),
-							IsValid(SceneSprite) ? *GetNameSafe(SceneSprite->GetParent()) : TEXT("None"), IsValid(SceneSprite) && SceneSprite->IsInViewport() ? 1 : 0,
-							IsValid(SceneSprite) ? *UEnum::GetValueAsString(SceneSprite->GetVisibility()) : TEXT("None"), *UEnum::GetValueAsString(GetVisibility()),
-							*GetCachedGeometry().GetLocalSize().ToString());
 	OnSceneRequested(Image, Options);
-	return bHandled ? ERpyInstructionResult::Continue : ERpyInstructionResult::Failed;
+	return Result;
+}
+
+void UKishiRpySceneManagerWidgetBase::OnSkipRequested_Implementation()
+{
+	if (ShowableLayer)
+		ShowableLayer->Skip();
 }
 
 AActor *UKishiRpySceneManagerWidgetBase::FindSceneCamera_Implementation() const
@@ -233,19 +251,9 @@ void UKishiRpySceneManagerWidgetBase::Reset_Implementation()
 		AnchoredCamera = nullptr;
 		CameraOriginalParent = nullptr;
 	}
-	if (IsValid(SceneSprite))
-	{
-		if (bOwnsSceneSprite)
-		{
-			SceneSprite->RemoveFromParent();
-			SceneSprite = nullptr;
-		}
-		else
-		{
-			SceneSprite->SetVisibility(ESlateVisibility::Collapsed);
-		}
-	}
-	bOwnsSceneSprite = false;
+	if (ShowableLayer)
+		ShowableLayer->Reset();
+	BackgroundTag = NAME_None;
 	SceneState = FRpySceneManagerState();
 	UKishiRpyManagerWidgetBase::Reset_Implementation();
 }

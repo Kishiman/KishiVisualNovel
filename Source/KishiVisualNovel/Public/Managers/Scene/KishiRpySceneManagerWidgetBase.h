@@ -10,13 +10,20 @@
 #include "Managers/Statement/RpyStatementManager.h"
 #include "Utils/StringUtils.h"
 #include "Player/KishiRpyManagerWidgetBase.h"
+#include "Managers/Show/KishiShowableLayer.h"
 class ALevelSequenceActor;
+class UCanvasPanel;
 class ULevelSequence;
 class ULevelSequencePlayer;
 class USceneComponent;
 
 #include "KishiRpySceneManagerWidgetBase.generated.h"
 
+/**
+ * Native scene manager. A background image goes to the scene's showable layer (UKishiShowableLayer) on SceneCanvas, which fills the
+ * canvas with it and plays its transition; the old background stays under the new one until that transition ends. A level sequence
+ * image plays on the scene camera, and a scene's layer attaches the camera to a scene anchor.
+ */
 UCLASS(Abstract, Blueprintable, meta = (DisplayName = "VN Scene Manager Base"))
 class KISHIVISUALNOVEL_API UKishiRpySceneManagerWidgetBase : public UKishiRpyManagerWidgetBase, public IRpySceneManager
 {
@@ -31,21 +38,39 @@ public:
 	virtual FRpySceneManagerState GetSceneManagerState_Implementation() const override { return SceneState; }
 	virtual void SetSceneManagerState_Implementation(const FRpySceneManagerState &State) override;
 	virtual ERpyInstructionResult Scene_Implementation(FRpyImage Image, FRpySceneOptions Options) override;
+	/** Ends a running background transition at once and reports the completion the script waits for. */
+	virtual void OnSkipRequested_Implementation() override;
 
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
-	/** Creates SceneSprite from SceneSpriteClass when the tree has none: as the root of an empty tree, behind the other children of a root panel, or else in the viewport behind the player. */
-	void EnsureSceneSprite();
+	virtual void NativeOnInitialized() override;
+	virtual void NativeTick(const FGeometry &MyGeometry, float InDeltaTime) override;
+	/**
+	 * Without a SceneCanvas in the tree, wraps the tree in a new root canvas: SceneCanvas fills it at the back, and the old root fills it in
+	 * front. Called before the Slate widget is built.
+	 */
+	void EnsureSceneCanvas();
 
 	UPROPERTY(BlueprintReadOnly, Category = "Rpy|Scene")
 	FRpySceneManagerState SceneState;
+	/** Panel that backgrounds are added to. Name a Canvas Panel "SceneCanvas" in the child Widget Blueprint, or leave it out and one is made behind the rest of the tree. */
 	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Scene")
-	UUserWidget *SceneSprite = nullptr;
-	bool bOwnsSceneSprite = false;
+	UCanvasPanel *SceneCanvas = nullptr;
+	/** Legacy: the widget that showed the background before step 7. It is collapsed at start-up; delete it from the Widget Blueprint. */
+	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly, Category = "Rpy|Scene")
+	UWidget *SceneSprite = nullptr;
+	/** Rows checked before the showable registry in Project Settings, so a style can present a background asset class with its own widget. Only the widget showable class is used. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy|Scene")
-	TSubclassOf<UUserWidget> SceneSpriteClass;
+	TArray<FKishiShowableClassEntry> ShowableClassOverrides;
+	/** Size passed to IShowable::SetShowableAsset; the background is then scaled to cover SceneCanvas. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rpy|Scene")
 	FVector2D SceneTargetSize = FVector2D(1920.0f, 1080.0f);
+	/** The backgrounds on SceneCanvas: the current one, and the previous one while the current one's transition plays. */
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Scene")
+	UKishiShowableLayer *ShowableLayer = nullptr;
+	/** Layer tag of the current background, or None. Each background gets a new tag, so the old one can stay under it during the transition. */
+	FName BackgroundTag;
+	int32 BackgroundCount = 0;
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Scene")
 	ULevelSequencePlayer *ActiveLevelSequencePlayer = nullptr;
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "Rpy|Scene")
@@ -96,4 +121,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Kishi Rpy Scene Manager Widget Base|Hooks")
 	void OnSceneRequested(const FRpyImage &Image, const FRpySceneOptions &Options);
+
+private:
+	/** The layer, created on first use and kept in step with the Setup properties. */
+	UKishiShowableLayer *GetLayer();
 };

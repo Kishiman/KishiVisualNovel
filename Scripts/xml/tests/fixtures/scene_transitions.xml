@@ -2,9 +2,11 @@
 <visualNovel version="1">
   <!-- scene: backgrounds, transitions and the layer attribute.
        Expected: the background changes to the one each line names. A scene without a
-       transition cuts; "duration" sets the transition length; "layer" selects the scene
-       layer the background belongs to, and "master" is the default. A scene replaces the
-       previous background rather than stacking on top of it. -->
+       transition cuts; "duration" sets the transition length, and each line appears once
+       its transition has finished. The new background plays its transition over the old
+       one, which stays until the transition ends, so the screen never shows through.
+       "layer" selects the scene layer the background belongs to, and "master" is the
+       default. A scene replaces the previous background rather than stacking on top of it. -->
   <label name="start">
     <scene asset="bg_lecturehall" />
     <say>No transition: an immediate cut to the lecture hall.</say>

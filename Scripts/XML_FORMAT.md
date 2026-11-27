@@ -24,7 +24,13 @@ Required command data is explicit in attributes or element text. Supported comma
 
 ## Timing: one command after another, or `<together>`
 
-Commands run in order, and a command that takes time finishes before the next one starts: a `show` or `hide` with a `transition` and a `duration`, a line of dialogue (until the player clicks through it), and a `pause`. So a `hide` that fades out over half a second is over before the `show` after it begins, and the dialogue after a `show` appears once the sprite has arrived. Commands without a transition, `play`, `queue`, `stop` and `set` take no time. A `scene` does not wait for its transition yet.
+Commands run in order, and a command that takes time finishes before the next one starts: a `show` or `hide` with a `transition` and a `duration`, a line of dialogue (until the player clicks through it), and a `pause`. So a `hide` that fades out over half a second is over before the `show` after it begins, and the dialogue after a `show` appears once the sprite has arrived. A `scene` with a transition waits too: the new background plays its transition over the old one, which is removed when it ends. Commands without a transition, `play`, `queue`, `stop` and `set` take no time. A `scene`, `show` or `hide` without a `transition` is a cut, and a loaded save shows its background and images at once, without their transitions.
+
+An image can be a video (a video media sprite asset). It plays once from the start when shown and then holds its last frame. `loop` on a `scene` or `show` repeats it: `loop="true"` loops the whole video, and a number of seconds loops only the end, so `loop="0.2"` replays the last 0.2 seconds.
+
+```xml
+<scene asset="hand_note" loop="0.2" />
+```
 
 A click outside dialogue skips what the script is waiting for: running transitions jump to their end, and a `pause` ends.
 

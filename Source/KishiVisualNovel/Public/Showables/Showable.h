@@ -4,7 +4,7 @@
 #include "Showables/Animatable.h"
 #include "Showable.generated.h"
 
-/** Common presentation settings accepted by showable objects. */
+/** Common presentation settings accepted by showable objects. The defaults are a cut: no animation and no duration. */
 USTRUCT(BlueprintType)
 struct KISHIVISUALNOVEL_API FKishiShowableOptions
 {
@@ -20,7 +20,7 @@ struct KISHIVISUALNOVEL_API FKishiShowableOptions
 	bool bUseFrom = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Showable")
-	EKishiAnimationType Type = EKishiAnimationType::Fade;
+	EKishiAnimationType Type = EKishiAnimationType::Linear;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Showable", meta=(ClampMin="0.0"))
 	float Delay = 0.0f;
@@ -29,10 +29,14 @@ struct KISHIVISUALNOVEL_API FKishiShowableOptions
 	EKishiAnimationSpace Space = EKishiAnimationSpace::ParentWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Showable", meta=(ClampMin="0.0"))
-	float Duration = 0.5f;
+	float Duration = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Showable")
-	bool bAnimateOpacity = true;
+	bool bAnimateOpacity = false;
+
+	/** Video showables: 0 plays the video once and holds its last frame, a positive value loops its last that many seconds, a negative value loops all of it. Ignored by other showables. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Showable")
+	float MediaLoop = 0.0f;
 
 	/** Layered-sprite attribute expression; ignored by other showables. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Showable")
@@ -66,4 +70,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="IShowable|Required", meta=(ToolTip="Required: display Asset, an asset the showable registry in Project Settings maps to this class, fitted to TargetSize if this showable scales its content. Return false, after logging why, if this showable cannot display it."))
 	bool SetShowableAsset(UObject* Asset, FVector2D TargetSize);
 	virtual bool SetShowableAsset_Implementation(UObject* Asset, FVector2D TargetSize) { UE_LOG(LogTemp, Error, TEXT("Required IShowable::SetShowableAsset implementation missing on %s"), *GetNameSafe(_getUObject())); return false; }
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="IShowable|Hooks", meta=(ToolTip="Optional: return true while the asset given to SetShowableAsset cannot be drawn yet, such as a video before its first frame. A showable layer then keeps this showable hidden and what is under it on screen, and starts its show transition once this returns false (or after 2 seconds). Returns false when not implemented."))
+	bool IsLoading() const;
+	virtual bool IsLoading_Implementation() const { return false; }
 };

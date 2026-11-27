@@ -76,6 +76,7 @@ static FRpyInstructionProps PropsFromSceneOptions(const FRpySceneOptions &Option
   Props.SetVector(FName(TEXT("position")), Options.position);
   Props.SetFloat(FName(TEXT("duration")), Options.transitionTime);
   Props.SetInteger(FName(TEXT("zOrder")), Options.zorder);
+  Props.SetFloat(FName(TEXT("loop")), Options.loop);
   return Props;
 }
 
@@ -106,6 +107,7 @@ static FRpySceneOptions SceneOptionsFromProps(const FRpyInstructionProps &Props,
     Options.layer = FName(*Value);
   if (Props.GetString(FName(TEXT("positionName")), Value))
     Options.positionName = FName(*Value);
+  Props.GetFloat(FName(TEXT("loop")), Options.loop);
   Props.GetString(FName(TEXT("attributes")), Options.attribute);
   if (!Props.GetVector(FName(TEXT("position")), Options.position) && Props.GetString(FName(TEXT("position")), Value))
   {

@@ -50,6 +50,9 @@ public:
   UFUNCTION(BlueprintPure, Category = "Rpy Show Manager Library", meta = (ToolTip = "Convert script scene options into the options IShowable::Show and IShowable::Hide take."))
   static FKishiShowableOptions MakeShowableOptions(const FRpySceneOptions &Options);
 
+  UFUNCTION(BlueprintPure, Category = "Rpy Show Manager Library", meta = (ToolTip = "Return Options without its transition (no type, sequence, direction or duration), so the image appears at once. The state restore functions use it, so a loaded save cuts to its images instead of replaying their transitions."))
+  static FRpySceneOptions WithoutTransition(const FRpySceneOptions &Options);
+
   UFUNCTION(BlueprintCallable, Category = "Rpy Show Manager Library", meta = (ToolTip = "Return the showable class that presents Asset in Space: the first match in Overrides, else in the registry in Project Settings, walking up Asset's class hierarchy. Returns None when Asset is None or nothing matches."))
   static TSubclassOf<UObject> ResolveShowableClass(const UObject *Asset, EKishiShowableSpace Space, const TArray<FKishiShowableClassEntry> &Overrides);
 

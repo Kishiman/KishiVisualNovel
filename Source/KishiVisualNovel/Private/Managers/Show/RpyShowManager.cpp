@@ -13,14 +13,26 @@ void URpyShowManagerLibrary::SetShowManagerState_Default(const TScriptInterface<
 	}
 	for (const FRpyShowImageState &ImageState : State.imageStates)
 	{
-		IRpyShowManager::Execute_Show(Manager, ImageState.rpyImage, ImageState.options);
+		// A loaded save cuts to its images instead of replaying their transitions.
+		IRpyShowManager::Execute_Show(Manager, ImageState.rpyImage, WithoutTransition(ImageState.options));
 	}
+}
+
+FRpySceneOptions URpyShowManagerLibrary::WithoutTransition(const FRpySceneOptions &Options)
+{
+	FRpySceneOptions Result = Options;
+	Result.with = ERPYTransitionType::NONE;
+	Result.transition = FRpyTransition();
+	Result.direction = ERPYTransitionDirection::NONE;
+	Result.transitionTime = 0.0f;
+	return Result;
 }
 
 FKishiShowableOptions URpyShowManagerLibrary::MakeShowableOptions(const FRpySceneOptions &Options)
 {
 	FKishiShowableOptions Result;
 	Result.Attributes = Options.attribute;
+	Result.MediaLoop = Options.loop;
 	Result.Space = EKishiAnimationSpace::ParentWidget;
 	Result.Duration = Options.transitionTime;
 	Result.bAnimateOpacity = false;

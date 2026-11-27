@@ -30,6 +30,9 @@ void UKishiRpyStatementManagerWidgetBase::NativeOnInitialized()
 		QSaveButton->OnClicked.AddUniqueDynamic(this, &UKishiRpyStatementManagerWidgetBase::HandleQuickSaveButtonClicked);
 	if (QLoadButton)
 		QLoadButton->OnClicked.AddUniqueDynamic(this, &UKishiRpyStatementManagerWidgetBase::HandleQuickLoadButtonClicked);
+	// Clear the designer's placeholder speaker and text, so nothing shows before the first line.
+	if (!IsDesignTime())
+		UpdateVisibleStatement();
 }
 
 void UKishiRpyStatementManagerWidgetBase::HandleSaveButtonClicked()
@@ -155,6 +158,7 @@ void UKishiRpyStatementManagerWidgetBase::CompleteOrRevealStatement()
 void UKishiRpyStatementManagerWidgetBase::Reset_Implementation()
 {
 	StatementState = FRpyStatementManagerState();
+	SpeakerName.Reset();
 	TaggedStatement = FTaggedString();
 	StatementCharactersNum = 0;
 	PreviousStatementCharactersNum = 0;
