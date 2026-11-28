@@ -13,20 +13,20 @@
     <show asset="sylvie" attributes="green normal" transition="fade" duration="1.0" />
     <say>One after another: this line waited for the one-second fade.</say>
     <hide tag="sylvie" transition="fade" duration="1.0" />
-    <show asset="sylvie" attributes="green smile" transition="easeinleft" duration="1.0" />
+    <show asset="sylvie" attributes="green smile" transition="easeleft" duration="1.0" />
     <say>The fade out ended before the ease in from the left started.</say>
 
     <together>
       <hide tag="sylvie" transition="fade" duration="1.0" />
-      <show asset="eileen" transition="easeinright" duration="1.0" position="right" />
+      <show asset="eileen" transition="easeright" duration="1.0" position="right" />
     </together>
     <say>Together: Sylvie faded out while Eileen came in from the right.</say>
 
     <together>
-      <show asset="sylvie" attributes="green giggle" transition="dissolve" duration="2.0" position="left" />
-      <say>Together with dialogue: this line appeared while Sylvie dissolved in.</say>
+      <show asset="sylvie" attributes="green giggle" transition="fade" duration="2.0" position="left" />
+      <say>Together with dialogue: this line appeared while Sylvie faded in.</say>
     </together>
-    <say>Both the two-second dissolve and the line above had finished before this one.</say>
+    <say>Both the two-second fade and the line above had finished before this one.</say>
 
     <together>
       <hide tag="sylvie" transition="fade" duration="1.0" />
@@ -38,8 +38,8 @@
     <say>Click during the three-second zoom above: it jumps to its end and this line appears.</say>
 
     <together>
-      <hide tag="sylvie" transition="dissolve" duration="0.5" />
-      <hide tag="eileen" transition="dissolve" duration="0.5" />
+      <hide tag="sylvie" transition="fade" duration="0.5" />
+      <hide tag="eileen" transition="fade" duration="0.5" />
       <pause duration="1.0" />
     </together>
     <say>gone</say>

@@ -56,7 +56,7 @@
     </menu>
   </label>
   <label name="check_briefcase">
-    <scene asset="bg_briefcase" transition="dissolve" />
+    <scene asset="bg_briefcase" transition="fade" />
     <say character="narrator">You quietly open the briefcase under your seat. Inside, wires, red
       sticks, and a battery are neatly arranged.</say>
     <say character="narrator">It looks convincing enough to fool anyone.</say>
@@ -78,7 +78,7 @@
     </menu>
   </label>
   <label name="call_flight_attendant">
-    <show asset="flight_attendant" transition="dissolve" />
+    <show asset="flight_attendant" transition="fade" />
     <say character="flight_attendant">Sir, may I get you something?</say>
     <say character="narrator">You hand her the folded note you prepared earlier.</say>
     <hide tag="flight_attendant" />

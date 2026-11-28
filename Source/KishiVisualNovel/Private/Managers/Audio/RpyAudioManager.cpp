@@ -105,10 +105,21 @@ void URpyAudioManagerLibrary::SetAudioManagerState_Default(const TScriptInterfac
 		UE_LOG(LogTemp, Error, TEXT("SetAudioManagerState_Default requires a valid manager."));
 		return;
 	}
-	for (const FRpyAudioPlayState &Saved : State.audioStates)
+	for (const FRpyAudioPlayState &Saved : OnlyLoopingAudio(State).audioStates)
 	{
 		IRpyAudioManager::Execute_PlayAudio(Manager, Saved.channel, Saved.rpyAudio, Saved.options);
 	}
+}
+
+FRpyAudioManagerState URpyAudioManagerLibrary::OnlyLoopingAudio(const FRpyAudioManagerState &State)
+{
+	FRpyAudioManagerState Result;
+	for (const FRpyAudioPlayState &Saved : State.audioStates)
+	{
+		if (Saved.options.loop)
+			Result.audioStates.Add(Saved);
+	}
+	return Result;
 }
 
 void URpyAudioManagerLibrary::PlayDialogueBlip(UAudioPlayer *Player, USoundWave *Blip, EMouthViseme Viseme)

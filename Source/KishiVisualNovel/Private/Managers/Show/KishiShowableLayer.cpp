@@ -588,7 +588,7 @@ void UKishiShowableLayer::PlayShowableTransition(UObject *Showable, const FRpySc
 	const bool bTravels = ShowableOptions.Type == EKishiAnimationType::Move || ShowableOptions.Type == EKishiAnimationType::Ease;
 	if (bShow && bTravels && bEnters && Options.direction != ERPYTransitionDirection::NONE)
 	{
-		// An entering image slides in from past the canvas edge named by the transition, such as easeinright.
+		// An entering image slides in from past the canvas edge named by the transition, such as easeright.
 		ShowableOptions.From = FVector(GetOffscreenOffset(Showable, Options.direction), 0.0f);
 		ShowableOptions.bUseFrom = true;
 	}

@@ -20,7 +20,7 @@
     <say>position="(-0.2,0.1)": two components</say>
     <show asset="sylvie" attributes="green smile" position="(0.2,-0.1,0.0)" />
     <say>position="(0.2,-0.1,0.0)": three components</say>
-    <show asset="sylvie" attributes="green normal" position="left" transition="moveinleft" duration="0.5" />
+    <show asset="sylvie" attributes="green normal" position="left" transition="moveleft" duration="0.5" />
     <say>moving an already shown sprite animates it to the new position</say>
     <show asset="eileen" position="right" zOrder="10" />
     <say>zOrder="10": the second sprite draws in front</say>

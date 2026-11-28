@@ -4,7 +4,7 @@
        Expected: each line names the transition that just played, so the dialogue and the
        animation must agree. Each transition finishes before the next command starts, so a
        line appears only once its sprite has arrived. The named directions are the four
-       suffixes of "easein" and "movein"; they slide in an image that is entering, so each
+       suffixes of "ease" and "move"; they slide in an image that is entering, so each
        directional show follows a hide. A transition that does nothing, or a
        "Could Not Found Default Transition" error in the log, is a failure. -->
   <label name="start">
@@ -15,15 +15,10 @@
     <hide tag="sylvie" transition="fade" duration="0.5" />
     <say>fade out</say>
 
-    <show asset="sylvie" attributes="green smile" transition="dissolve" duration="0.5" />
-    <say>dissolve in</say>
-    <hide tag="sylvie" transition="dissolve" duration="0.5" />
-    <say>dissolve out</say>
-
     <show asset="sylvie" attributes="green giggle" transition="zoom" duration="0.5" />
-    <say>zoom (also accepted as zoomin)</say>
+    <say>zoom on show</say>
     <hide tag="sylvie" transition="zoom" duration="0.5" />
-    <say>zoom out</say>
+    <say>zoom on hide: one name plays the transition in both directions.</say>
 
     <show asset="sylvie" attributes="green normal" transition="blur" duration="0.5" />
     <say>blur</say>
@@ -33,33 +28,33 @@
     <say>wipe</say>
     <hide tag="sylvie" transition="fade" duration="0.5" />
 
-    <show asset="sylvie" attributes="green normal" transition="easeinleft" duration="0.5" />
-    <say>easeinleft</say>
+    <show asset="sylvie" attributes="green normal" transition="easeleft" duration="0.5" />
+    <say>easeleft</say>
     <hide tag="sylvie" />
-    <show asset="sylvie" attributes="green normal" transition="easeinright" duration="0.5" />
-    <say>easeinright</say>
+    <show asset="sylvie" attributes="green normal" transition="easeright" duration="0.5" />
+    <say>easeright</say>
     <hide tag="sylvie" />
-    <show asset="sylvie" attributes="green normal" transition="easeintop" duration="0.5" />
-    <say>easeintop (also accepted as easeinup)</say>
+    <show asset="sylvie" attributes="green normal" transition="easetop" duration="0.5" />
+    <say>easetop (also accepted as easeup)</say>
     <hide tag="sylvie" />
-    <show asset="sylvie" attributes="green normal" transition="easeinbottom" duration="0.5" />
-    <say>easeinbottom (also accepted as easeindown)</say>
-    <hide tag="sylvie" transition="easeinleft" duration="0.5" />
-    <say>easeinleft on hide</say>
+    <show asset="sylvie" attributes="green normal" transition="easebottom" duration="0.5" />
+    <say>easebottom (also accepted as easedown)</say>
+    <hide tag="sylvie" transition="easeleft" duration="0.5" />
+    <say>easeleft on hide</say>
 
-    <show asset="sylvie" attributes="green smile" transition="moveinleft" duration="0.5" />
-    <say>moveinleft</say>
+    <show asset="sylvie" attributes="green smile" transition="moveleft" duration="0.5" />
+    <say>moveleft</say>
     <hide tag="sylvie" />
-    <show asset="sylvie" attributes="green smile" transition="moveinright" duration="0.5" />
-    <say>moveinright</say>
+    <show asset="sylvie" attributes="green smile" transition="moveright" duration="0.5" />
+    <say>moveright</say>
     <hide tag="sylvie" />
-    <show asset="sylvie" attributes="green smile" transition="moveintop" duration="0.5" />
-    <say>moveintop</say>
+    <show asset="sylvie" attributes="green smile" transition="movetop" duration="0.5" />
+    <say>movetop</say>
     <hide tag="sylvie" />
-    <show asset="sylvie" attributes="green smile" transition="moveinbottom" duration="0.5" />
-    <say>moveinbottom</say>
-    <hide tag="sylvie" transition="moveinbottom" duration="0.5" />
-    <say>moveinbottom on hide</say>
+    <show asset="sylvie" attributes="green smile" transition="movebottom" duration="0.5" />
+    <say>movebottom</say>
+    <hide tag="sylvie" transition="movebottom" duration="0.5" />
+    <say>movebottom on hide</say>
     <return />
   </label>
 </visualNovel>

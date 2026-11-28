@@ -99,10 +99,10 @@ void UKishiLayeredSpriteWidgetBase::Show_Implementation(const FKishiShowableOpti
 			}
 		}
 
-		// A fade or dissolve reads as one image replacement when both sides change.
+		// A fade reads as one image replacement when both sides change.
 		// Other effects can be applied to the individual layers in parallel.
 		const bool bWholeImageTransition = NamesToShow.Num() > 0 && NamesToHide.Num() > 0 &&
-																			 (Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Dissolve);
+																			 Options.Type == EKishiAnimationType::Fade;
 		if (bWholeImageTransition)
 		{
 			// Finish any active outer animation before arming the swap callback.
@@ -590,7 +590,6 @@ FRpySceneOptions UKishiLayeredSpriteWidgetBase::PlayMove(const FRpySceneOptions 
 		Result.with = ERPYTransitionType::NONE;
 		break;
 	case ERPYTransitionType::BLUR:
-	case ERPYTransitionType::DISSOLVE:
 	case ERPYTransitionType::FADE:
 	case ERPYTransitionType::MOVE:
 	case ERPYTransitionType::SHAKE:

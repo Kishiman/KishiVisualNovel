@@ -451,8 +451,6 @@ namespace
     OutDirection = ERPYTransitionDirection::NONE;
     if (Name.Equals(TEXT("blur"), ESearchCase::IgnoreCase))
       return ERPYTransitionType::BLUR;
-    if (Name.Equals(TEXT("dissolve"), ESearchCase::IgnoreCase))
-      return ERPYTransitionType::DISSOLVE;
     if (Name.Equals(TEXT("ease"), ESearchCase::IgnoreCase))
       return ERPYTransitionType::EASE;
     if (Name.Equals(TEXT("fade"), ESearchCase::IgnoreCase))
@@ -463,14 +461,16 @@ namespace
       return ERPYTransitionType::SHAKE;
     if (Name.Equals(TEXT("wipe"), ESearchCase::IgnoreCase))
       return ERPYTransitionType::WIPE;
-    if (Name.Equals(TEXT("zoomin"), ESearchCase::IgnoreCase) || Name.Equals(TEXT("zoom"), ESearchCase::IgnoreCase))
+    if (Name.Equals(TEXT("zoom"), ESearchCase::IgnoreCase))
       return ERPYTransitionType::ZOOM;
 
-    const bool bEase = Name.StartsWith(TEXT("easein"), ESearchCase::IgnoreCase);
-    const bool bMove = Name.StartsWith(TEXT("movein"), ESearchCase::IgnoreCase);
+    // A direction suffix names the screen edge, not a direction in time: "easeleft" and
+    // "moveleft" play the same way on a show and on a hide. The plain names are matched above.
+    const bool bEase = Name.StartsWith(TEXT("ease"), ESearchCase::IgnoreCase);
+    const bool bMove = Name.StartsWith(TEXT("move"), ESearchCase::IgnoreCase);
     if (bEase || bMove)
     {
-      const FString DirectionName = Name.RightChop(6);
+      const FString DirectionName = Name.RightChop(4);
       if (DirectionName.Equals(TEXT("left"), ESearchCase::IgnoreCase))
         OutDirection = ERPYTransitionDirection::LEFT;
       else if (DirectionName.Equals(TEXT("right"), ESearchCase::IgnoreCase))

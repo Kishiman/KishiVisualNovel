@@ -15,7 +15,7 @@
     <show asset="Augustina" attributes="happy" />
     <voice asset="cicifyre/BrightFemale/01-okay" />
     <say character="aug">A second clip on the same channel replaces the first.</say>
-    <show asset="Augustina" attributes="swimsuit laugh" transition="dissolve" duration="1.0" />
+    <show asset="Augustina" attributes="swimsuit laugh" transition="fade" duration="1.0" />
     <voice asset="cicifyre/BrightFemale/01-laughter" />
     <say character="aug">Visemes keep working across an attribute change.</say>
     <say character="aug">An unvoiced line leaves the mouth at the neutral viseme.</say>

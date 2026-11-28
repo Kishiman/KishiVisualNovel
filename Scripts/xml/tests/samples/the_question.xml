@@ -19,7 +19,7 @@
     <scene asset="bg_uni" transition="fade" />
     <say>When we come out of the university, I spot her right away.</say>
     <stop channel="music" fadeOut="1.0" />
-    <show asset="sylvie" attributes="green normal" transition="dissolve" />
+    <show asset="sylvie" attributes="green normal" transition="fade" />
     <say>I've known Sylvie since we were kids. She's got a big heart and she's always been a good
       friend to me.</say>
     <say>But recently... I've felt that I want something more.</say>
@@ -51,7 +51,7 @@
     <say>It's a scenic view I've grown used to. Autumn is especially beautiful here.</say>
     <say>When we were children, we played in these meadows a lot, so they're full of memories.</say>
     <say character="m">Hey... Umm...</say>
-    <show asset="sylvie" attributes="green smile" transition="dissolve" />
+    <show asset="sylvie" attributes="green smile" transition="fade" />
     <say>She turns to me and smiles. She looks so welcoming that I feel my nervousness melt away.</say>
     <say>I'll ask her...!</say>
     <hide tag="sylvie" />
@@ -113,9 +113,9 @@
   </label>
   <label name="marry">
     <hide tag="sylvie" />
-    <scene asset="black" transition="dissolve" />
+    <scene asset="black" transition="fade" />
     <say>And so, we become a visual novel creating duo.</say>
-    <scene asset="bg_club" transition="dissolve" />
+    <scene asset="bg_club" transition="fade" />
     <say>Over the years, we make lots of games and have a lot of fun making them.</say>
     <if condition="book">
       <voice asset="cicifyre/BrightFemale/01-laughter" />
@@ -125,7 +125,7 @@
     <say>We take turns coming up with stories and characters and support each other to make some
       great games!</say>
     <say>And one day...</say>
-    <show asset="sylvie" attributes="blue normal" transition="dissolve" />
+    <show asset="sylvie" attributes="blue normal" transition="fade" />
     <say character="s">Hey...</say>
     <say character="m">Yes?</say>
     <show asset="sylvie" attributes="blue giggle" />
@@ -152,7 +152,7 @@
     <show asset="sylvie" attributes="blue giggle" />
     <say character="s">You worry too much. If only this were a visual novel and I could pick an
       option to give you more courage!</say>
-    <scene asset="black" transition="dissolve" />
+    <scene asset="black" transition="fade" />
     <say>We get married shortly after that.</say>
     <say>Our visual novel duo lives on even after we're married...and I try my best to be more
       decisive.</say>
@@ -162,7 +162,7 @@
   </label>
   <label name="later">
     <say>I can't get up the nerve to ask right now. With a gulp, I decide to ask her later.</say>
-    <scene asset="black" transition="dissolve" />
+    <scene asset="black" transition="fade" />
     <say>But I'm an indecisive person.</say>
     <say>I couldn't ask her that day and I end up never being able to ask her.</say>
     <say>I guess I'll never know the answer to my question now...</say>

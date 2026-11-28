@@ -12,12 +12,12 @@
     <say>No transition: an immediate cut to the lecture hall.</say>
     <scene asset="bg_uni" transition="fade" />
     <say>fade to the university.</say>
-    <scene asset="bg_meadow" transition="dissolve" duration="1.5" />
-    <say>dissolve to the meadow over 1.5 seconds.</say>
+    <scene asset="bg_meadow" transition="fade" duration="1.5" />
+    <say>fade to the meadow over 1.5 seconds.</say>
     <scene asset="bg_club" transition="fade" duration="0.5" layer="master" />
     <say>fade to the club on the master layer.</say>
-    <scene asset="black" transition="dissolve" />
-    <say>dissolve to black.</say>
+    <scene asset="black" transition="fade" />
+    <say>fade to black.</say>
     <return />
   </label>
 </visualNovel>

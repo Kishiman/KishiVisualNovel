@@ -114,7 +114,7 @@ void UKishiShowableWidget::ApplyAnimationValue(float Progress)
 	}
 	SetRenderScale(Scale);
 
-	if (ActiveType == EKishiAnimationType::Fade || ActiveType == EKishiAnimationType::Dissolve || ActiveType == EKishiAnimationType::Blur)
+	if (ActiveType == EKishiAnimationType::Fade || ActiveType == EKishiAnimationType::Blur)
 	{
 		SetRenderOpacity(OriginalOpacity * (bFadeOut ? 1.0f - Progress : Progress));
 	}
@@ -179,7 +179,7 @@ void UKishiShowableWidget::Hide_Implementation(const FKishiShowableOptions& Opti
 {
 	if (IAnimatable::Execute_IsAnimating(this)) IAnimatable::Execute_Skip(this);
 	bHideAfterAnimation = true;
-	bFadeOut = Options.bAnimateOpacity || Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Dissolve || Options.Type == EKishiAnimationType::Blur;
+	bFadeOut = Options.bAnimateOpacity || Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Blur;
 	VNSHOW_LOG("hide attributes='%s' type=%s fadeOut=%d, collapses when the animation ends", *Options.Attributes, *UEnum::GetValueAsString(Options.Type), bFadeOut ? 1 : 0);
 	IAnimatable::Execute_Animate(this, Options.From, Options.To, Options.bUseFrom, Options.bAnimateOpacity ? EKishiAnimationType::Fade : Options.Type, Options.Delay, Options.Space, Options.Duration);
 }

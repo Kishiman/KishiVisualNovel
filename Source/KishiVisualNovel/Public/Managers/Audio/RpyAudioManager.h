@@ -68,11 +68,15 @@ public:
   UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default PauseAudio: pause every channel of the player, fading out over the timeout. Returns Continue, or Failed after logging why."))
   static ERpyInstructionResult PauseAudio_Default(const TScriptInterface<IRpyAudioManager> &Target, UAudioPlayer *Player, float Timeout);
 
-  UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default SetAudioManagerState: stop every channel in PreviousState, then call PlayAudio on the manager for every channel in State. Clear the manager's own state before calling this."))
+  UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (DefaultToSelf = "Target", ToolTip = "Default SetAudioManagerState: stop every channel in PreviousState, then call PlayAudio on the manager for every looping channel in State. Audio that plays once, such as a voice line, is not replayed. Clear the manager's own state before calling this."))
   static void SetAudioManagerState_Default(const TScriptInterface<IRpyAudioManager> &Target, UAudioPlayer *Player, const FRpyAudioManagerState &PreviousState, const FRpyAudioManagerState &State);
 
   UFUNCTION(BlueprintCallable, Category = "Rpy Audio Manager Library", meta = (ToolTip = "Play the dialogue blip as a one-shot on the 'sound' channel for a spoken (non-Neutral) viseme. A one-shot is not recorded in the saved state and does not cut off a sound the script started on that channel."))
   static void PlayDialogueBlip(UAudioPlayer *Player, USoundWave *Blip, EMouthViseme Viseme);
+
+  /** The looping channels of State. A save restores only these: audio that plays once (a voice line, a sound) has finished or would restart mid-scene. */
+  UFUNCTION(BlueprintPure, Category = "Rpy Audio Manager Library")
+  static FRpyAudioManagerState OnlyLoopingAudio(const FRpyAudioManagerState &State);
 
   /** Record a channel that PlayAudio started, replacing the channel's previous entry. */
   static void RecordPlayedAudio(FRpyAudioManagerState &State, FName Channel, const FRpyAudio &Audio, const FRpyAudioOptions &Options);

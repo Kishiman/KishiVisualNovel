@@ -206,7 +206,7 @@ void UKishiAnimationComponent::ApplyPosition(const FVector& Position, float Prog
 	}
 	WidgetTarget->SetRenderScale(AnimatedScale);
 
-	if (ActiveType == EKishiAnimationType::Fade || ActiveType == EKishiAnimationType::Dissolve || ActiveType == EKishiAnimationType::Blur)
+	if (ActiveType == EKishiAnimationType::Fade || ActiveType == EKishiAnimationType::Blur)
 	{
 		WidgetTarget->SetRenderOpacity(OriginalOpacity * (bFadeOut ? 1.0f - Progress : Progress));
 	}
@@ -284,7 +284,7 @@ void UKishiAnimationComponent::Hide_Implementation(const FKishiShowableOptions& 
 {
 	if (IAnimatable::Execute_IsAnimating(this)) IAnimatable::Execute_Skip(this);
 	bHideAfterAnimation = true;
-	bFadeOut = IsValid(WidgetTarget) && (Options.bAnimateOpacity || Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Dissolve || Options.Type == EKishiAnimationType::Blur);
+	bFadeOut = IsValid(WidgetTarget) && (Options.bAnimateOpacity || Options.Type == EKishiAnimationType::Fade || Options.Type == EKishiAnimationType::Blur);
 	IAnimatable::Execute_Animate(this, Options.From, Options.To, Options.bUseFrom, bFadeOut ? EKishiAnimationType::Fade : Options.Type, Options.Delay, Options.Space, Options.Duration);
 }
 

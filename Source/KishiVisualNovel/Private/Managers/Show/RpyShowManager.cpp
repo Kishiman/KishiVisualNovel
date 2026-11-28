@@ -42,10 +42,6 @@ FKishiShowableOptions URpyShowManagerLibrary::MakeShowableOptions(const FRpyScen
 		Result.Type = EKishiAnimationType::Fade;
 		Result.bAnimateOpacity = true;
 		break;
-	case ERPYTransitionType::DISSOLVE:
-		Result.Type = EKishiAnimationType::Dissolve;
-		Result.bAnimateOpacity = true;
-		break;
 	case ERPYTransitionType::BLUR:
 		Result.Type = EKishiAnimationType::Blur;
 		break;

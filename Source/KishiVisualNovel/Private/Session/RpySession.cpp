@@ -231,7 +231,8 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 	this->sceneState = sessionState->sceneState;
 	this->showState = sessionState->showState;
 	this->statementState = sessionState->statementState;
-	this->audioState = sessionState->audioState;
+	// Only looping audio comes back: a voice line or a sound that played once is not replayed.
+	this->audioState = URpyAudioManagerLibrary::OnlyLoopingAudio(sessionState->audioState);
 	this->choiceState = sessionState->choiceState;
 
 	auto audioManager = IRpyScriptInterpreter::Execute_GetAudioManager(interpreter.GetObject());
@@ -252,22 +253,16 @@ void URpySession::LoadFromState_Implementation(const URpyState *State)
 	IRpyShowManager::Execute_Reset(showManager.GetObject());
 	IRpyStatementManager::Execute_Reset(statementManager.GetObject());
 
-	for (size_t i = 0; i < sessionState->audioState.audioStates.Num(); i++)
-	{
-		IRpyAudioManager::Execute_PlayAudio(audioManager.GetObject(), sessionState->audioState.audioStates[i].channel, sessionState->audioState.audioStates[i].rpyAudio, sessionState->audioState.audioStates[i].options);
-	}
+	// The managers restore their own state: images come back without their transitions, and only looping audio plays again.
+	IRpyAudioManager::Execute_SetAudioManagerState(audioManager.GetObject(), this->audioState);
 
 	if (sessionState->choiceState.choices.Num() > 0)
 	{
 		IRpyChoiceManager::Execute_Menu(choiceManager.GetObject(), sessionState->choiceState.choices);
 	}
 
-	IRpySceneManager::Execute_Scene(sceneManager.GetObject(), sessionState->sceneState.rpyImage, sessionState->sceneState.options);
-
-	for (size_t i = 0; i < sessionState->showState.imageStates.Num(); i++)
-	{
-		IRpyShowManager::Execute_Show(showManager.GetObject(), sessionState->showState.imageStates[i].rpyImage, sessionState->showState.imageStates[i].options);
-	}
+	IRpySceneManager::Execute_SetSceneManagerState(sceneManager.GetObject(), sessionState->sceneState);
+	IRpyShowManager::Execute_SetShowManagerState(showManager.GetObject(), sessionState->showState);
 
 	IRpyStatementManager::Execute_Say(statementManager.GetObject(), sessionState->statementState.name, sessionState->statementState.statement);
 

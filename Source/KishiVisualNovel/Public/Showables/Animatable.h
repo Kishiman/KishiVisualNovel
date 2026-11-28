@@ -13,7 +13,6 @@ enum class EKishiAnimationType : uint8
 	Move,
 	Zoom,
 	Blur,
-	Dissolve,
 	Shake,
 	Wipe,
 	Bounce,

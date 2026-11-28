@@ -11,6 +11,24 @@ from pathlib import Path
 QUOTED = re.compile(r'''(["'`])((?:\\.|(?!\1).)*?)\1''')
 
 
+# Legacy transition names that the XML format no longer has. A transition plays in both
+# directions, so a name states the effect only: "dissolve" was the same effect as "fade",
+# "zoom" replaces "zoomin" / "zoomout", and a direction suffix follows the bare effect
+# name ("easeleft", not "easeinleft").
+TRANSITION_ALIASES = {"dissolve": "fade", "zoomin": "zoom", "zoomout": "zoom"}
+TRANSITION_IN_PREFIXES = ("easein", "movein")
+
+
+def normalize_transition(name: str) -> str:
+    lowered = name.lower()
+    if lowered in TRANSITION_ALIASES:
+        return TRANSITION_ALIASES[lowered]
+    for prefix in TRANSITION_IN_PREFIXES:
+        if lowered.startswith(prefix) and len(lowered) > len(prefix):
+            return prefix[:-2] + lowered[len(prefix):]
+    return name
+
+
 def decode_string(value: str) -> str:
     if value.startswith(('"""', "'''")) and value.endswith(value[:3]):
         value = value[3:-3]
@@ -129,7 +147,11 @@ def infer(line: str) -> tuple[str, dict[str, tuple[str, str]], dict[str, tuple[s
                 ("zOrder", r"\bzorder\s+([+-]?\d+)", "integer"),
             ):
                 found = re.search(pattern, optional)
-                if found: props[key] = (kind, found.group(1))
+                if found:
+                    value = found.group(1)
+                    if key == "transition":
+                        value = normalize_transition(value)
+                    props[key] = (kind, value)
             duration = re.search(r"\bwith\s+[\w.-]+\s+([+-]?(?:\d+\.\d*|\d*\.\d+|\d+))", optional)
             if duration: props["duration"] = ("float", duration.group(1))
         return command, required, props
@@ -214,7 +236,7 @@ def infer(line: str) -> tuple[str, dict[str, tuple[str, str]], dict[str, tuple[s
         before, statement = text[:quoted[0].start()].strip(), decode_string(last.group(0))
         trailing = text[last.end():].strip()
         effect = re.search(r"\bwith\s+([\w.-]+)", trailing)
-        if effect: props["with"] = ("name", effect.group(1))
+        if effect: props["with"] = ("name", normalize_transition(effect.group(1)))
         is_choice = text.endswith(":") and len(quoted) == 1
         if is_choice:
             req("text", decode_string(quoted[0].group(0)))

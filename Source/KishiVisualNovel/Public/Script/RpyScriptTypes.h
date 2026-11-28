@@ -69,7 +69,6 @@ enum class ERPYTransitionType : uint8
 {
 	NONE,
 	BLUR,
-	DISSOLVE,
 	EASE,
 	FADE,
 	MOVE,

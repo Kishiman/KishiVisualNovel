@@ -24,7 +24,7 @@ Required command data is explicit in attributes or element text. Supported comma
 
 ## Timing: one command after another, or `<together>`
 
-Commands run in order, and a command that takes time finishes before the next one starts: a `show` or `hide` with a `transition` and a `duration`, a line of dialogue (until the player clicks through it), and a `pause`. So a `hide` that fades out over half a second is over before the `show` after it begins, and the dialogue after a `show` appears once the sprite has arrived. A `scene` with a transition waits too: the new background plays its transition over the old one, which is removed when it ends. Commands without a transition, `play`, `queue`, `stop` and `set` take no time. A `scene`, `show` or `hide` without a `transition` is a cut, and a loaded save shows its background and images at once, without their transitions.
+Commands run in order, and a command that takes time finishes before the next one starts: a `show` or `hide` with a `transition` and a `duration`, a line of dialogue (until the player clicks through it), and a `pause`. So a `hide` that fades out over half a second is over before the `show` after it begins, and the dialogue after a `show` appears once the sprite has arrived. A `scene` with a transition waits too: the new background plays its transition over the old one, which is removed when it ends. Commands without a transition, `play`, `queue`, `stop` and `set` take no time. A `scene`, `show` or `hide` without a `transition` is a cut, and a loaded save shows its background and images at once, without their transitions. A loaded save plays its looping audio (`loop="true"`, such as music) again, and not audio that plays once, such as a `voice` line.
 
 An image can be a video (a video media sprite asset). It plays once from the start when shown and then holds its last frame. `loop` on a `scene` or `show` repeats it: `loop="true"` loops the whole video, and a number of seconds loops only the end, so `loop="0.2"` replays the last 0.2 seconds.
 
@@ -39,14 +39,16 @@ To run commands at the same time, put them in `<together>`. Every command in it 
 ```xml
 <together>
   <hide tag="sylvie" transition="fade" duration="0.5" />
-  <show asset="eileen" transition="easeinright" duration="0.5" />
+  <show asset="eileen" transition="easeright" duration="0.5" />
   <say character="e">This line appears while they swap.</say>
 </together>
 ```
 
 A `<together>` holds only commands that run and finish on their own: `say`, `show`, `hide`, `scene`, `pause`, `play`, `queue`, `voice`, `stop`, `set` and registered custom commands. Labels, menus, conditions, jumps, calls, returns and nested `<together>` blocks are rejected when the script is imported. If two commands in a block use the same tag, the later one wins: a `show` of a sprite that is still fading out from a `hide` ends the hide and brings the sprite back in.
 
-Ease-in and move-in transitions (`easeinleft`, `moveintop` and so on) slide in an image that is entering. Showing an image that is already on screen, at the same position, does not move it; hide it first to replay its entrance.
+A transition name states the effect only, never a direction in time: the same name plays the transition both ways, so `fade` fades a `show` in and a `hide` out, and `zoom` covers both directions (there is no `zoomin` or `zoomout`). The built-in names are `fade`, `blur`, `zoom`, `shake`, `wipe`, `ease`, `move` and the directional `ease`/`move` forms below. `dissolve` is not one of them: it was the same effect as `fade`, so write `fade`.
+
+A direction suffix on `ease` or `move` (`easeleft`, `movetop` and so on) names the screen edge the image travels from, not a direction in time; the accepted suffixes are `left`, `right`, `top` (or `up`) and `bottom` (or `down`). They slide in an image that is entering. Showing an image that is already on screen, at the same position, does not move it; hide it first to replay its entrance.
 
 Any additional command attributes are optional props and are stored in each instruction's `FRpyInstructionProps`. The props API provides typed getters and setters plus cloning. The XML importer infers booleans and numeric values; other attributes are strings. Registered C++ commands can extend the instruction vocabulary.
 

@@ -283,6 +283,7 @@ Fixes after playing `db_cooper_keiku` (2026-11-27, built):
 - [x] `db_cooper_keiku.xml`: the scenes are cuts (the `dissolve` transitions from the `.rpy` are removed), and the first scene loops its last 0.2 s.
 - [ ] Check the 0.2 s loop on `hand_note`: the video has a keyframe every 0.75 s, so a player that seeks only to keyframes loops a longer stretch. Re-encoding with more keyframes would fix that.
 - [x] Loading a save cuts to the saved background and images: `SetShowManagerState_Default` and `SetSceneManagerState_Default` pass the options through the new `URpyShowManagerLibrary::WithoutTransition`, so transitions and camera sequences are not replayed.
+- [x] Loading a save still replayed transitions and the last voice line: `URpySession::LoadFromState` called `Scene`, `Show` and `PlayAudio` with the saved options. It now calls `SetSceneManagerState`, `SetShowManagerState` and `SetAudioManagerState`, and only looping audio comes back (new `URpyAudioManagerLibrary::OnlyLoopingAudio`): music that loops plays again, a voice line or a sound that played once does not.
 - [x] The statement manager Base clears the speaker and text when it initializes, so the designer's placeholders ("Speaker", "Lorem...") no longer show before the first line. `Reset` clears the speaker name too.
 
 Blueprint:
@@ -294,9 +295,9 @@ Tests:
 
 - [x] Play `scene_transitions`: each background plays its transition over the previous one, nothing shows through, and each line waits for its transition.
 - [x] Play `scene_clear`: `scene _` removes the background and leaves the sprite.
-- [ ] Play `scene_level_sequence`: sequences and camera anchors work as before.
-- [ ] Save and load with a background shown: it comes back without a transition.
-- [ ] Play `db_cooper_keiku` (re-import it first): every scene cuts to a video that fills the screen and stops on its last frame, the first one loops its last 0.2 s, and the dialogue box is empty until the first line.
+- [x] Play `scene_level_sequence`: sequences and camera anchors work as before.
+- [x] Save and load with a background and a sprite shown (`the_question`, after a voiced line): both come back without a transition, the looping music plays, and the voice line does not.
+- [x] Play `db_cooper_keiku` (re-import it first): every scene cuts to a video that fills the screen and stops on its last frame, the first one loops its last 1.0 s, and the dialogue box is empty until the first line.
 
 ### 8. World-space managers
 
